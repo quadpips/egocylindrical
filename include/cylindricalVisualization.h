@@ -11,8 +11,9 @@
 #include <message_filters/sync_policies/approximate_time.h>
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
-#include <pcl.h>
+#include <pcl/point_cloud.h>
 #include <pcl_ros/point_cloud.h>
+
 #include "egocylindrical.h"
 
 class CylindricalVisualization {

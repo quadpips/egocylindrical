@@ -44,7 +44,12 @@ EgoCylindrical::EgoCylindrical(sensor_msgs::Image image, sensor_msgs::CameraInfo
             coordinate.push_back(Pcyl_t);
             pt.x = atan(Pcyl_t.x / Pcyl_t.z) * fhp + hc;
             pt.y = Pcyl_t.y * fvp + vc;
-
+            pcl::PointXYZI pointXYZI;
+            pointXYZI.x =(float) Pcyl_t.x;
+            pointXYZI.y =(float) Pcyl_t.y;
+            pointXYZI.z =(float) Pcyl_t.z;
+            pointXYZI.intensity = originImage.at<float>(i, j);
+            pcloud.push_back(pointXYZI);
             index.push_back(pt);
         }
     }

@@ -132,6 +132,7 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
+        ${PCL_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library

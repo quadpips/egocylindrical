@@ -12,7 +12,8 @@
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <image_geometry/pinhole_camera_model.h>
-
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 
 class EgoCylindrical{
 private:
@@ -24,12 +25,13 @@ private:
     int width;
     std::vector<cv::Point3d> coordinate;
     std::vector<cv::Point2d> index;
+
     cv::Mat originImage;
 public:
     EgoCylindrical();
     EgoCylindrical(sensor_msgs::Image image, sensor_msgs::CameraInfo cam_info);
     cv::Mat toImage();
-
+    pcl::PointCloud<pcl::PointXYZI> pcloud;
 };
 
 
