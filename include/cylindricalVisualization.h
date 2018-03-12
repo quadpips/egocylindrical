@@ -13,7 +13,8 @@
 #include <message_filters/time_synchronizer.h>
 #include <pcl/point_cloud.h>
 #include <pcl_ros/point_cloud.h>
-
+#include <stixel_estimator/stixelMsg.h>
+#include <stixel_estimator/stixelListMsg.h>
 #include "egocylindrical.h"
 
 class CylindricalVisualization {
@@ -25,7 +26,7 @@ private:
     sensor_msgs::ImagePtr msg;
 public:
     CylindricalVisualization();
-    void cameraCb(const sensor_msgs::ImageConstPtr& image, const sensor_msgs::CameraInfoConstPtr& cam_info);
+    void stixelCb(const stixel_estimator::stixelListMsgConstPtr& stixels, const sensor_msgs::CameraInfoConstPtr& cam_info);
 };
 
 

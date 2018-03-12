@@ -14,6 +14,8 @@
 #include <image_geometry/pinhole_camera_model.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
+#include <stixel_estimator/stixelListMsg.h>
+#include <stixel_estimator/stixelMsg.h>
 
 class EgoCylindrical{
 private:
@@ -26,10 +28,11 @@ private:
     std::vector<cv::Point3d> coordinate;
     std::vector<cv::Point2d> index;
 
-    cv::Mat originImage;
+    stixel_estimator::stixelListMsg originalStixel;
+
 public:
     EgoCylindrical();
-    EgoCylindrical(sensor_msgs::Image image, sensor_msgs::CameraInfo cam_info);
+    EgoCylindrical(stixel_estimator::stixelListMsg, sensor_msgs::CameraInfo cam_info);
     cv::Mat toImage();
     pcl::PointCloud<pcl::PointXYZI> pcloud;
 };

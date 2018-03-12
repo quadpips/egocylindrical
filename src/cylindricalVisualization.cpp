@@ -6,31 +6,36 @@
 CylindricalVisualization::CylindricalVisualization() :it_(nh_)
 {
     std::cout<<"Visualization Node Initialized"<<std::endl;
-    message_filters::Subscriber<sensor_msgs::Image> depthSub(nh_, "/camera/depth/image_raw", 10);
-    message_filters::Subscriber<sensor_msgs::CameraInfo> depthInfoSub(nh_, "/camera/depth/camera_info", 10);
-    message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::CameraInfo> timeSynchronizer(depthSub, depthInfoSub, 30);
-    timeSynchronizer.registerCallback(boost::bind(&CylindricalVisualization::cameraCb, this, _1, _2));
+    message_filters::Subscriber<stixel_estimator::stixelListMsg> stixelSub(nh_, "/stixels", 20);
+    message_filters::Subscriber<sensor_msgs::CameraInfo> depthInfoSub(nh_, "/multisense_sl/camera/left/camera_info", 20);
+    message_filters::TimeSynchronizer<stixel_estimator::stixelListMsg, sensor_msgs::CameraInfo> timeSynchronizer(stixelSub, depthInfoSub, 40);
+    timeSynchronizer.registerCallback(boost::bind(&CylindricalVisualization::stixelCb, this, _1, _2));
     pub = it_.advertise("projected_image", 20);
     pointCloud_Pub = nh_.advertise<sensor_msgs::PointCloud2>("projected_pointCloud", 20);
     ros::spin();
 }
 
-void CylindricalVisualization::cameraCb(const sensor_msgs::ImageConstPtr &image,
+
+void CylindricalVisualization::stixelCb(const stixel_estimator::stixelListMsgConstPtr &stixels,
                                         const sensor_msgs::CameraInfoConstPtr &cam_info)
 {
-    ROS_INFO("Received images and camera info");
-    EgoCylindrical translated = EgoCylindrical(*image, *cam_info);
+    ROS_INFO("Building Egocylindrical");
+    EgoCylindrical translated = EgoCylindrical(*stixels, *cam_info);
 
     sensor_msgs::PointCloud2 pointCloud2;
     pcl::toROSMsg(translated.pcloud, pointCloud2);
-    pointCloud2.header.frame_id = image->header.frame_id;
+    pointCloud2.header.frame_id = cam_info->header.frame_id;
     pointCloud_Pub.publish(pointCloud2);
 
+
+
+
+    cv::imshow("test", translated.toImage());
+    cv::waitKey(1);
     std_msgs::Header header = std_msgs::Header();
     header.stamp = ros::Time(0);
-    msg = cv_bridge::CvImage(header, sensor_msgs::image_encodings::TYPE_32FC1, translated.toImage()).toImageMsg();
+    msg = cv_bridge::CvImage(header, "bgr8", translated.toImage()).toImageMsg();
     pub.publish(msg);
-
 }
 
 
