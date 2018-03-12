@@ -24,6 +24,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 
 find_package(OpenCV REQUIRED)
+find_package(PCL    REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -115,10 +116,10 @@ find_package(OpenCV REQUIRED)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES egocylindrical
-#  CATKIN_DEPENDS cv_bridge geometry_msgs image_geometry image_transport roscpp rospy sensor_msgs std_msgs tf tf2 tf_msgs tf_ros
-#  DEPENDS system_lib
+  INCLUDE_DIRS include
+  LIBRARIES egocylindrical
+  CATKIN_DEPENDS cv_bridge geometry_msgs image_geometry image_transport roscpp rospy sensor_msgs std_msgs tf tf2 tf2_msgs tf2_ros
+ DEPENDS PCL
 )
 
 ###########
@@ -162,6 +163,7 @@ include_directories(
  target_link_libraries(${PROJECT_NAME}_node
    ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
+   ${PCL_LIBRARIES}
    )
 
 #############

@@ -24,13 +24,11 @@ private:
     int width;
     std::vector<cv::Point3d> coordinate;
     std::vector<cv::Point2d> index;
-    std::vector<cv::Point2d> testindex;
     cv::Mat originImage;
 public:
     EgoCylindrical();
     EgoCylindrical(sensor_msgs::Image image, sensor_msgs::CameraInfo cam_info);
     cv::Mat toImage();
-    cv::Mat testToImage();
 
 };
 

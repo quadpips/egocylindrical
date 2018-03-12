@@ -11,6 +11,8 @@
 #include <message_filters/sync_policies/approximate_time.h>
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
+#include <pcl.h>
+#include <pcl_ros/point_cloud.h>
 #include "egocylindrical.h"
 
 class CylindricalVisualization {
@@ -18,6 +20,7 @@ private:
     ros::NodeHandle nh_;
     image_transport::ImageTransport it_;
     image_transport::Publisher pub;
+    ros::Publisher pointCloud_Pub;
     sensor_msgs::ImagePtr msg;
 public:
     CylindricalVisualization();
