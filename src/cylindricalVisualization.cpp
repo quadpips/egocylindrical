@@ -21,10 +21,10 @@ void CylindricalVisualization::cameraCb(const sensor_msgs::ImageConstPtr &image,
     ROS_INFO("Received images and camera info");
     EgoCylindrical translated = EgoCylindrical(*image, *cam_info);
 
-//    sensor_msgs::PointCloud2 pointCloud2;
-//    pcl::toROSMsg(translated.pcloud, pointCloud2);
-//    pointCloud2.header.frame_id = image->header.frame_id;
-//    pointCloud_Pub.publish(pointCloud2);
+    sensor_msgs::PointCloud2 pointCloud2;
+    pcl::toROSMsg(translated.pcloud, pointCloud2);
+    pointCloud2.header.frame_id = image->header.frame_id;
+    pointCloud_Pub.publish(pointCloud2);
 
     std_msgs::Header header = std_msgs::Header();
     header.stamp = ros::Time(0);
