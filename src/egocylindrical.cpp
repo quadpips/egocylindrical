@@ -31,7 +31,7 @@ EgoCylindrical::EgoCylindrical(stixel_estimator::stixelListMsg stixels, sensor_m
     fvp = fhp = 1 / (tan(2 * M_PI / cols));
     double hc = cols / 2;
     double vc = rows / 2;
-    cv::Mat newImage = cv::Mat::zeros(rows, cols, CV_32FC1);
+
     for(auto stixel : stixels.stixels)
     {
         cv::Point2d pt_bottom, pt_top;
@@ -77,28 +77,6 @@ EgoCylindrical::EgoCylindrical(stixel_estimator::stixelListMsg stixels, sensor_m
 
 
     }
-//    for(int i = 0; i < rows; i++)
-//    {
-//        for(int j = 0; j < cols; j++)
-//        {
-//            cv::Point2d pt;
-//            pt.x = j;
-//            pt.y = i;
-//            cv::Point3d Pcyl = model_t.projectPixelTo3dRay(pt);
-//            Pcyl *= originImage.at<float>(i, j);
-//            cv::Point3d Pcyl_t = Pcyl / cv::sqrt(cv::pow(Pcyl.x, 2) + cv::pow(Pcyl.z, 2));
-//            coordinate.push_back(Pcyl_t);
-//            pt.x = atan(Pcyl_t.x / Pcyl_t.z) * fhp + hc;
-//            pt.y = Pcyl_t.y * fvp + vc;
-//            pcl::PointXYZI pointXYZI;
-//            pointXYZI.x =(float) Pcyl_t.x;
-//            pointXYZI.y =(float) Pcyl_t.y;
-//            pointXYZI.z =(float) Pcyl_t.z;
-//            pointXYZI.intensity = originImage.at<float>(i, j);
-//            pcloud.push_back(pointXYZI);
-//            index.push_back(pt);
-//        }
-//    }
 }
 
 
@@ -116,19 +94,6 @@ cv::Mat EgoCylindrical::toImage(){
         }
 
     }
-//    for(int i = 0; i < rows; i++)
-//    {
-//        for(int j = 0; j < cols; j++)
-//        {
-//            x = (int)index[cursor].y;
-//            y = (int)index[cursor].x;
-//            if(x >=0 && x < cols && y >=0 && y < rows)
-//            {
-//                newImage.at<float>(x, y) = originImage.at<float>(i, j);
-//            }
-//            cursor++;
-//        }
-//    }
     return newImage;
 }
 

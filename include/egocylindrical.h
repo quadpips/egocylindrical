@@ -27,8 +27,8 @@ private:
     int width;
     std::vector<cv::Point3d> coordinate;
     std::vector<cv::Point2d> index;
-
     stixel_estimator::stixelListMsg originalStixel;
+
 
 public:
     EgoCylindrical();

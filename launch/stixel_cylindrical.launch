@@ -1,0 +1,6 @@
+<launch>
+    <node name="stixel_cylinrical_propagated" pkg="egocylindrical" type="egocylindrical_node" output="screen">
+        <remap from="/stixels" to="/propagated_stixels/stixels"/>
+        <remap from="/multisense_sl/camera/left/camera_info" to="/propagated_stixels/cam_info"/>
+    </node>
+</launch>
