@@ -24,35 +24,13 @@ namespace utils
 {
     
     
-
+    /*
     inline
     float worldToRange(cv::Point3f point)
     {
         return std::sqrt(point.x*point.x + point.z*point.z);
     }
-   /*
-    
-    cv::Point3f worldToCylindrical(cv::Point3f point, int cyl_width, int cyl_height, double hfov, double vfov)
-    {
-        cv::Point3f Pcyl_t = point / cv::sqrt(cv::pow(point.x, 2) + cv::pow(point.z, 2));   
-        
-        double theta = std::atan2(point.x,point.z);
-        double phi = std::atan2(point.y,point.z);
-        
-        cyl_width* theta /hfov
-        
-        
-    }
-    */
-    
-    /*
-    inline
-    cv::Point cylindricalToImage(cv::Point3f point)
-    {
-        
-    }
-    */
-    
+
     inline
     cv::Point3f projectWorldToCylinder(const cv::Point3f& point)
     {
@@ -74,6 +52,8 @@ namespace utils
         cv::Point im_pt(x,y);
         return im_pt;
     }
+    
+    */
 
     
     struct CylindricalCoordsConverter
@@ -156,36 +136,24 @@ namespace utils
         for(int i = 0; i < new_points.getCols(); ++i)
         {
             
-            cv::Point3f world_pnt(n_x[i],n_y[i],n_z[i]);
+            //cv::Point3f world_pnt(n_x[i],n_y[i],n_z[i]);
             
-            float depth = worldToRange(world_pnt);
+            int ind = new_points.inds_[i];
             
-            if(depth==depth)
+            
+            if(ind >= 0)
             {
-                // The following 3 steps could probably be moved to the point propagation step and performed in parallel
-                // It will depend on whether the extra memory access for the steps cost more or less than the calculations
-                cv::Point image_pnt = ccc.worldToCylindricalImage(world_pnt);
+                float depth = new_points.ranges_[i];
+                float prev_depth = new_points.ranges_[ind];
                 
-                int idx =  image_pnt.y * ccc.width +image_pnt.x;
-                
+                if(!(prev_depth >= depth))
+                {
+                    x[ind] = n_x[i];
+                    y[ind] = n_y[i];
+                    z[ind] = n_z[i];
 
-                if(image_roi.contains(image_pnt))
-                {
-                    cv::Point3f prev_point(x[idx], y[idx], z[idx]);
-                    
-                    float prev_depth = worldToRange(prev_point);
-                    
-                    if(!(prev_depth >= depth)) //overwrite || 
-                    {
-                        x[idx] = world_pnt.x;
-                        y[idx] = world_pnt.y;
-                        z[idx] = world_pnt.z;
-                    }
                 }
-                else
-                {
-                    //ROS_DEBUG_STREAM("Outside of image!: (" << world_pnt << " => " << image_pnt);
-                }
+
             }
         }
     
@@ -250,7 +218,7 @@ namespace utils
     
     
     // Functions defined in separate compilation units:
-    sensor_msgs::ImagePtr getRawRangeImageMsg(const utils::ECWrapper& cylindrical_history);
+    //sensor_msgs::ImagePtr getRawRangeImageMsg(const utils::ECWrapper& cylindrical_history);
     
     void transformPoints(utils::ECWrapper& points, const geometry_msgs::TransformStamped& trans);
     

@@ -29,6 +29,34 @@ namespace egocylindrical
         constexpr float dNaN=(std::numeric_limits<float>::has_quiet_NaN) ? std::numeric_limits<float>::quiet_NaN() : 0;
         
         
+        inline
+        cv::Point3f projectWorldToCylinder(const cv::Point3f& point)
+        {
+            cv::Point3f Pcyl_t = point / std::sqrt(point.x * point.x + point.z * point.z);
+            return Pcyl_t;
+        }
+        
+        
+        inline
+        cv::Point worldToCylindricalImage(const cv::Point3f& point, int cyl_width, int cyl_height, float h_scale, float v_scale, float h_offset, float v_offset)
+        {
+            
+            cv::Point3f p_cyl = projectWorldToCylinder(point);
+            
+            
+            float x = std::atan2(p_cyl.x, p_cyl.z) * h_scale + cyl_width / 2;
+            float y = p_cyl.y * v_scale + cyl_height / 2;
+            
+            cv::Point im_pt(x,y);
+            return im_pt;
+        }
+        
+        inline
+        float worldToRange(cv::Point3f point)
+        {
+            return std::sqrt(point.x*point.x + point.z*point.z);
+        }
+        
         /*
          * This class is intended to act as an abstraction of the egocylindrical representation
          * to enable other functions to operate on it without requiring knowledge of the implementation.
@@ -46,6 +74,7 @@ namespace egocylindrical
             
             int height_, width_;
             float vfov_;
+            float hscale_, vscale_;
             
             std_msgs::Header header_;
             EgoCylinderPoints::Ptr msg_; // The idea would be to store everything in the message's allocated storage to prevent copies
@@ -61,15 +90,21 @@ namespace egocylindrical
            
         public:
             
+            int* inds_=nullptr;
+            float* ranges_=nullptr;
+            
             ECWrapper(int height, int width, float vfov):
             height_(height),
             width_(width),
             vfov_(vfov)
             {
                 msg_ = boost::make_shared<EgoCylinderPoints>();
-                msg_->points.data.resize(3*height_*width_);  //Note: can pass 'utils::dNaN as 2nd argument to set all values
+                msg_->points.data.resize(3*height_*width_, utils::dNaN);  //Note: can pass 'utils::dNaN as 2nd argument to set all values
                 
                 msg_->fov_v = vfov_;
+                
+                hscale_ = width/2*M_PI;
+                vscale_ = height/vfov;
                 
                 std::vector<std_msgs::MultiArrayDimension>& dims = msg_->points.layout.dim;
                 dims.resize(3);
@@ -104,7 +139,7 @@ namespace egocylindrical
                 //std::cout << "Address: " << std::hex  << msg_->points.data.data() << std::dec << ", height=" << height_ << ", width=" << width_ << ", step=" << step << std::endl; //std::setfill('0') << std::setw(2) << ar[i] << " ";
                 
 
-                points_.setTo(utils::dNaN);
+                //points_.setTo(utils::dNaN);
             }
             
             ECWrapper(const egocylindrical::EgoCylinderPointsConstPtr& ec_points) 
@@ -126,6 +161,14 @@ namespace egocylindrical
                 
             }
             
+            ~ECWrapper()
+            {
+                if(inds_ != nullptr)
+                {
+                    delete inds_;
+                    delete ranges_;
+                }
+            }
             
             
             
@@ -180,6 +223,11 @@ namespace egocylindrical
                 return cv::Rect(0, 0, width_, height_);
             }
             
+            inline
+            cv::Point worldToCylindricalImage(cv::Point3f point) const
+            {
+                return utils::worldToCylindricalImage(point, width_, height_, hscale_, vscale_, 0, 0);
+            }
             
             inline
             EgoCylinderPoints::ConstPtr getEgoCylinderPointsMsg()

@@ -242,4 +242,13 @@ cost model: epilogue peel iters set to vf/2 because peeling for alignment is unk
 
 
 
+#Propagation and visualization steps have been separated. Added additional timing printouts:
+[ INFO] [1522101846.433510352, 23396.431000000]: Creating new datastructure took 5.91094ms
+[ INFO] [1522101846.433711134, 23396.432000000]: Finding transform took 0.062554ms
+[ INFO] [1522101846.435554804, 23396.433000000]: Transform points took 1.73398ms
+[ INFO] [1522101846.453938867, 23396.452000000]: Inserting transformed points took 18.2649ms
+[ INFO] [1522101846.453998539, 23396.452000000]: Propagation took 20.3627ms
+[ INFO] [1522101846.460008243, 23396.458000000]: Adding depth image took 5.96583ms
+[ INFO] [1522101846.467437163, 23396.466000000]: Copying EgoCylinderPoints took 7.36358ms
+
 

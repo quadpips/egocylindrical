@@ -28,8 +28,10 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(OpenCV REQUIRED)
 find_package(PCL    REQUIRED)
 
-if(1)
-    set(SHOW_VECTORIZE_INFO "-fopt-info-vec-optimized")
+find_package(OpenMP)
+
+if(0)
+    set(SHOW_VECTORIZE_INFO "-fopt-info-vec-all")
 else()
      set(SHOW_VECTORIZE_INFO "")
 endif()

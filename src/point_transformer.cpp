@@ -19,13 +19,17 @@ namespace egocylindrical
     
     namespace utils
     {
+        
+
 
         /* Inplace transform
         * 
         */
         inline
-        void transform_impl(utils::ECWrapper points, const float*  const _R, const float*  const _T)
+        void transform_impl(utils::ECWrapper& points, const float*  const _R, const float*  const _T)
         {
+            cv::Rect image_roi = points.getImageRoi();
+            
 
             float* point_ptr = (float*)__builtin_assume_aligned(points.getPoints(), 16);            
             
@@ -33,7 +37,15 @@ namespace egocylindrical
             const float* const T = (float*)__builtin_assume_aligned(_T, __BIGGEST_ALIGNMENT__);
             
 
-            const int num_cols = points.getCols();
+            const unsigned int num_cols = points.getCols();
+            
+            points.inds_ = new int[num_cols];
+            points.ranges_ = new float[num_cols];
+            
+            const float* x = points.getX();
+            const float* y = points.getY();
+            const float* z = points.getZ();
+            
             
             #pragma GCC ivdep  //https://gcc.gnu.org/onlinedocs/gcc/Loop-Specific-Pragmas.html
             for(size_t p = 0; p < num_cols; ++p)
@@ -44,14 +56,36 @@ namespace egocylindrical
                     temp[row] = 0;
                     for(int col=0; col < 3; ++col)
                     {
-                        temp[row] += R[row*3+col] * point_ptr[num_cols * col + p]; // points.at<float>(col,p);
+                        temp[row]+= R[row*3+col] * point_ptr[num_cols * col + p]; // points.at<float>(col,p);
                     }
                 }
+                
                 
                 for(int row=0; row < 3; ++row)
                 {
                     point_ptr[num_cols * row + p] = temp[row] + T[row];
                 }
+                
+                
+                 
+                float depth=dNaN;
+                
+                int idx = -1;
+                //if(x[p]==x[p])    // Note: this comparison always evaluates as true since we have the 'no nan' option enabled. Furthermore, we can't compare to 'dNaN', because that is always false
+                {
+                    cv::Point3f world_pnt(x[p],y[p],z[p]);
+                    
+                    depth = worldToRange(world_pnt);
+                    cv::Point image_pnt = points.worldToCylindricalImage(world_pnt);
+                    
+                    if(image_roi.contains(image_pnt))
+                    {
+                        idx =  image_pnt.y * points.getWidth() +image_pnt.x;
+                    }
+                     
+                }
+                points.inds_[p] = idx;
+                points.ranges_[p] = depth;
                 
             }
                     
