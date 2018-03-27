@@ -69,9 +69,9 @@ namespace egocylindrical
                 EgoCylindricalPropagator::propagateHistory(*old_pts_, *new_pts_, stixels->header);
                 ROS_INFO_STREAM("Propagation took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
             }
-   
+
         }
-        catch (tf2::TransformException &ex) 
+        catch (tf2::TransformException &ex)
         {
             ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
         }

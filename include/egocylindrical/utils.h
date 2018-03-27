@@ -155,7 +155,7 @@ namespace utils
 
         ROS_DEBUG("Relocated the propagated image");
         //#pragma omp parallel for
-        for(int i = 0; i < new_points.getCols() * 2; ++i)
+        for(int i = 0; i < new_points.getCols(); ++i)
         {
             
             cv::Point3f world_pnt(n_x[i],n_y[i],n_z[i]);
