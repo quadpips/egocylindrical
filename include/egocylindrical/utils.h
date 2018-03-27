@@ -215,17 +215,17 @@ namespace utils
         for(auto stixel :stixels->stixels)
         {
             float depth = stixel.depth;
-            int x = stixel.x;
+            int x_ = stixel.x;
             int top_y = stixel.top_y;
             int bottom_y = stixel.bottom_y;
 
             cv::Point2d pt_top;
             cv::Point2d pt_bottom;
 
-            pt_top.x = x;
+            pt_top.x = x_;
             pt_top.y = top_y;
 
-            pt_bottom.x = x;
+            pt_bottom.x = x_;
             pt_bottom.y = bottom_y;
 
 
@@ -284,12 +284,12 @@ namespace utils
     }
     
     
-    inline
-    void addDepthImage(utils::ECWrapper& cylindrical_history, const sensor_msgs::Image::ConstPtr& image_msg, const CylindricalCoordsConverter& ccc, const image_geometry::PinholeCameraModel& cam_model)
-    {
-        const cv::Mat image = cv_bridge::toCvShare(image_msg)->image;
-        addDepthImage(cylindrical_history, image, ccc, cam_model);
-    }
+//    inline
+//    void addDepthImage(utils::ECWrapper& cylindrical_history, const stixel_estimator::stixelListMsgConstPtr& stixels, const CylindricalCoordsConverter& ccc, const image_geometry::PinholeCameraModel& cam_model)
+//    {
+////        const cv::Mat image = cv_bridge::toCvShare(image_msg)->image;
+//        addDepthImage(cylindrical_history, stixels, ccc, cam_model);
+//    }
     
     
     

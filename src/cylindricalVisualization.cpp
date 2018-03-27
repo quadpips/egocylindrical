@@ -18,7 +18,7 @@ CylindricalVisualization::CylindricalVisualization() :it_(nh_), propagator_(nh_)
     tf2_ros::TransformListener tf_listener_(buffer_);
     
     tf2_ros::MessageFilter<sensor_msgs::CameraInfo> info_tf_filter(stixelInfoSub, buffer_, "odom", 2,nh_);
-    message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::CameraInfo> timeSynchronizer(stixelInfoSub, info_tf_filter, 2);
+    message_filters::TimeSynchronizer<stixel_estimator::stixelListMsg, sensor_msgs::CameraInfo> timeSynchronizer(stixelSub, info_tf_filter, 2);
 
     timeSynchronizer.registerCallback(boost::bind(&CylindricalVisualization::stixelCb, this, _1, _2));
 //    pub = it_.advertise("projected_image", 20);
