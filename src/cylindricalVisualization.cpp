@@ -11,14 +11,14 @@ CylindricalVisualization::CylindricalVisualization() :it_(nh_), propagator_(nh_)
     std::cout<<"Visualization Node Initialized"<<std::endl;
 //    message_filters::Subscriber<sensor_msgs::Image> depthSub(nh_, "/camera/depth/image_raw", 2);
 //    message_filters::Subscriber<sensor_msgs::CameraInfo> depthInfoSub(nh_, "/camera/depth/camera_info", 2);
-    message_filters::Subscriber<stixel_estimator::stixelListMsg> stixelSub(nh_, "/stixels", 2);
-    message_filters::Subscriber<sensor_msgs::CameraInfo> stixelInfoSub(nh_, "/multisense_sl/camera/left/camera_info", 2);
+    message_filters::Subscriber<stixel_estimator::stixelListMsg> stixelSub(nh_, "/stixels", 30);
+    message_filters::Subscriber<sensor_msgs::CameraInfo> stixelInfoSub(nh_, "/multisense_sl/camera/left/camera_info", 30);
 
     tf2_ros::Buffer buffer_;
     tf2_ros::TransformListener tf_listener_(buffer_);
     
-    tf2_ros::MessageFilter<sensor_msgs::CameraInfo> info_tf_filter(stixelInfoSub, buffer_, "odom", 2,nh_);
-    message_filters::TimeSynchronizer<stixel_estimator::stixelListMsg, sensor_msgs::CameraInfo> timeSynchronizer(stixelSub, info_tf_filter, 2);
+    tf2_ros::MessageFilter<sensor_msgs::CameraInfo> info_tf_filter(stixelInfoSub, buffer_, "odom", 30,nh_);
+    message_filters::TimeSynchronizer<stixel_estimator::stixelListMsg, sensor_msgs::CameraInfo> timeSynchronizer(stixelSub, info_tf_filter, 30);
 
     timeSynchronizer.registerCallback(boost::bind(&CylindricalVisualization::stixelCb, this, _1, _2));
 //    pub = it_.advertise("projected_image", 20);

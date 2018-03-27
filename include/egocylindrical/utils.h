@@ -155,7 +155,7 @@ namespace utils
 
         ROS_DEBUG("Relocated the propagated image");
         //#pragma omp parallel for
-        for(int i = 0; i < new_points.getCols(); ++i)
+        for(int i = 0; i < new_points.getCols() * 2; ++i)
         {
             
             cv::Point3f world_pnt(n_x[i],n_y[i],n_z[i]);
@@ -168,8 +168,8 @@ namespace utils
                 // It will depend on whether the extra memory access for the steps cost more or less than the calculations
                 cv::Point image_pnt = ccc.worldToCylindricalImage(world_pnt);
                 
-                int idx =  image_pnt.y * ccc.width +image_pnt.x;
-                
+//                int idx =  image_pnt.y * ccc.width +image_pnt.x;
+                int idx = i;
 
                 if(image_roi.contains(image_pnt))
                 {

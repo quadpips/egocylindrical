@@ -64,11 +64,21 @@ namespace egocylindrical
             inline float* getX()                        { return getPoints(); }
             inline const float* getX()          const   { return (const float*) getPoints(); }
             
-            inline float* getY()                        { return getPoints() + (height_ * width_); }
-            inline const float* getY()          const   { return (const float*) getPoints() + (height_ * width_); }
+//            inline float* getY()                        { return getPoints() + (height_ * width_); }
+//            inline const float* getY()          const   { return (const float*) getPoints() + (height_ * width_); }
+
+
+            inline float* getY()                        {return getPoints() + (width_ * 2);}
+            inline const float* getY()          const   {return (const float*) getPoints() + (width_ * 2);}
+
+
+
+            inline float* getZ()                        {return getPoints() + 2 * (width_ * 2);}
+            inline const float* getZ()          const   {return (const float*) getPoints() + 2 * (width_ * 2);}
+
             
-            inline float* getZ()                        { return getPoints() + 2*(height_ * width_); }
-            inline const float* getZ()          const   { return (const float*) getPoints() + 2*(height_ * width_); }
+//            inline float* getZ()                        { return getPoints() + 2*(height_ * width_); }
+//            inline const float* getZ()          const   { return (const float*) getPoints() + 2*(height_ * width_); }
             
 
             inline
