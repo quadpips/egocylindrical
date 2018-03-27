@@ -21,7 +21,7 @@ CylindricalVisualization::CylindricalVisualization() :it_(nh_), propagator_(nh_)
     message_filters::TimeSynchronizer<stixel_estimator::stixelListMsg, sensor_msgs::CameraInfo> timeSynchronizer(stixelSub, info_tf_filter, 30);
 
     timeSynchronizer.registerCallback(boost::bind(&CylindricalVisualization::stixelCb, this, _1, _2));
-//    pub = it_.advertise("projected_image", 20);
+    pub = it_.advertise("projected_image", 20);
     ptPub = nh_.advertise<sensor_msgs::PointCloud2>("cylindrical", 100);
     ptPub2 = nh_.advertise<sensor_msgs::PointCloud2>("cylindrical_original", 100);
     ros::spin();
@@ -38,7 +38,7 @@ void CylindricalVisualization::stixelCb(const stixel_estimator::stixelListMsgCon
     
     ptPub.publish(propagator_.getPropagatedPointCloud());
     
-//    pub.publish(propagator_.getRawRangeImage());
+    pub.publish(propagator_.getRawRangeImage());
     
 }
 

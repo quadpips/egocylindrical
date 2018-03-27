@@ -50,7 +50,7 @@ namespace egocylindrical
         
         cv::Mat getRawRangeImage(const utils::ECWrapper& cylindrical_history)
         {
-            cv::Mat range_image(cylindrical_history.getHeight(), cylindrical_history.getWidth(), CV_32FC1);   
+            cv::Mat range_image(cylindrical_history.getHeight(), cylindrical_history.getWidth(), CV_32FC1);
             generateRawRangeImage(cylindrical_history, range_image);
             return range_image;
         }
@@ -90,10 +90,18 @@ namespace egocylindrical
             //cv_bridge::CvImage(image->header, sensor_msgs::image_encodings::TYPE_32FC1, new_im_).toImageMsg();
             
             cv::Mat range_image = getImageMat(new_msg);
-            
+//            int num_cols = cylindrical_history.getCols();
+//            const float* const cyl_ptr = (float *)__builtin_assume_aligned(cylindrical_history.getPoints(), 16);
+//            for(int i = 0; i < num_cols; i++)
+//            {
+//
+//            }
+
+
             generateRawRangeImage(cylindrical_history, range_image);
             range_image = range_image.reshape(1, ccc.height);
-            
+            cv::imshow("test", range_image);
+            cv::waitKey(1);
             return new_msg_ptr;
         }
         
