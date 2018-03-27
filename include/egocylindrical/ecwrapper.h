@@ -113,7 +113,7 @@ namespace egocylindrical
                 
                 msg_->fov_v = vfov_;
                 
-                hscale_ = width/2*M_PI;
+                hscale_ = width/(2*M_PI);
                 vscale_ = height/vfov;
                 
                 std::vector<std_msgs::MultiArrayDimension>& dims = msg_->points.layout.dim;
