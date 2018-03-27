@@ -39,8 +39,8 @@ namespace egocylindrical
 
             const unsigned int num_cols = points.getCols();
             
-            points.inds_ = new int[num_cols];
-            points.ranges_ = new float[num_cols];
+            //points.inds_ = new int[num_cols];
+            //points.ranges_ = new float[num_cols];
             
             const float* x = points.getX();
             const float* y = points.getY();
@@ -75,7 +75,7 @@ namespace egocylindrical
                 {
                     cv::Point3f world_pnt(x[p],y[p],z[p]);
                     
-                    depth = worldToRange(world_pnt);
+                    depth = worldToRangeSquared(world_pnt);
                     cv::Point image_pnt = points.worldToCylindricalImage(world_pnt);
                     
                     if(image_roi.contains(image_pnt))

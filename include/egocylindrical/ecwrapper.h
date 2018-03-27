@@ -52,9 +52,15 @@ namespace egocylindrical
         }
         
         inline
-        float worldToRange(cv::Point3f point)
+        float worldToRangeSquared(const cv::Point3f& point)
         {
-            return std::sqrt(point.x*point.x + point.z*point.z);
+            return point.x*point.x + point.z*point.z;
+        }
+        
+        inline
+        float worldToRange(const cv::Point3f& point)
+        {
+            return std::sqrt(worldToRangeSquared(point));
         }
         
         /*
@@ -90,8 +96,8 @@ namespace egocylindrical
            
         public:
             
-            int* inds_=nullptr;
-            float* ranges_=nullptr;
+            std::vector<int> inds_;
+            std::vector<float> ranges_;
             
             ECWrapper(int height, int width, float vfov):
             height_(height),
@@ -100,6 +106,10 @@ namespace egocylindrical
             {
                 msg_ = boost::make_shared<EgoCylinderPoints>();
                 msg_->points.data.resize(3*height_*width_, utils::dNaN);  //Note: can pass 'utils::dNaN as 2nd argument to set all values
+                
+                inds_.resize(height_*width_, -1);
+                ranges_.resize(height_*width_, utils::dNaN);
+                
                 
                 msg_->fov_v = vfov_;
                 
@@ -163,11 +173,13 @@ namespace egocylindrical
             
             ~ECWrapper()
             {
+                /*
                 if(inds_ != nullptr)
                 {
                     delete inds_;
                     delete ranges_;
                 }
+                */
             }
             
             

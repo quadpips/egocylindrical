@@ -176,7 +176,7 @@ target_link_libraries(point_transformer
    ${OpenMP_CXX_FLAGS}
    )
 
-target_compile_options(point_transformer PRIVATE -g -std=c++11 -Wall -ftree-vectorize ${SHOW_VECTORIZE_INFO} -funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
+target_compile_options(point_transformer PRIVATE -g -std=c++11 -Wall -ftree-vectorize ${SHOW_VECTORIZE_INFO} -funsafe-math-optimizations -fno-math-errno #-finite-math-only and -fno-trapping-math.
   #${OpenMP_CXX_FLAGS}
   )
 
