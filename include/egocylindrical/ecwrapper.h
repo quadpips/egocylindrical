@@ -55,7 +55,7 @@ namespace egocylindrical
             width_(width),
             vfov_(vfov)
             {
-                points_ = cv::Mat(3, height * width, CV_32FC1, utils::dNaN);    //TODO: Allocate space in the msg_ to avoid later copy
+                points_ = cv::Mat(3, width * 2, CV_32FC1, utils::dNaN);    //TODO: Allocate space in the msg_ to avoid later copy
             }
             
             inline float* getPoints()                   { return (float*)__builtin_assume_aligned(points_.data, 16); }

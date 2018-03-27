@@ -9,33 +9,36 @@
 CylindricalVisualization::CylindricalVisualization() :it_(nh_), propagator_(nh_)
 {
     std::cout<<"Visualization Node Initialized"<<std::endl;
-    message_filters::Subscriber<sensor_msgs::Image> depthSub(nh_, "/camera/depth/image_raw", 2);
-    message_filters::Subscriber<sensor_msgs::CameraInfo> depthInfoSub(nh_, "/camera/depth/camera_info", 2);
-    
+//    message_filters::Subscriber<sensor_msgs::Image> depthSub(nh_, "/camera/depth/image_raw", 2);
+//    message_filters::Subscriber<sensor_msgs::CameraInfo> depthInfoSub(nh_, "/camera/depth/camera_info", 2);
+    message_filters::Subscriber<stixel_estimator::stixelListMsg> stixelSub(nh_, "/stixels", 2);
+    message_filters::Subscriber<sensor_msgs::CameraInfo> stixelInfoSub(nh_, "/multisense_sl/camera/left/camera_info", 2);
+
     tf2_ros::Buffer buffer_;
     tf2_ros::TransformListener tf_listener_(buffer_);
     
-    tf2_ros::MessageFilter<sensor_msgs::CameraInfo> info_tf_filter(depthInfoSub, buffer_, "odom", 2,nh_);
-    message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::CameraInfo> timeSynchronizer(depthSub, info_tf_filter, 2);
-    timeSynchronizer.registerCallback(boost::bind(&CylindricalVisualization::cameraCb, this, _1, _2));
-    pub = it_.advertise("projected_image", 20);
+    tf2_ros::MessageFilter<sensor_msgs::CameraInfo> info_tf_filter(stixelInfoSub, buffer_, "odom", 2,nh_);
+    message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::CameraInfo> timeSynchronizer(stixelInfoSub, info_tf_filter, 2);
+
+    timeSynchronizer.registerCallback(boost::bind(&CylindricalVisualization::stixelCb, this, _1, _2));
+//    pub = it_.advertise("projected_image", 20);
     ptPub = nh_.advertise<sensor_msgs::PointCloud2>("cylindrical", 100);
     ptPub2 = nh_.advertise<sensor_msgs::PointCloud2>("cylindrical_original", 100);
     ros::spin();
 }
 
-void CylindricalVisualization::cameraCb(const sensor_msgs::ImageConstPtr &image,
+void CylindricalVisualization::stixelCb(const stixel_estimator::stixelListMsgConstPtr &stixels,
                                         const sensor_msgs::CameraInfoConstPtr &cam_info)
 {
     ROS_DEBUG("Received images and camera info");
 
-    propagator_.update(image, cam_info);
+    propagator_.update(stixels, cam_info);
 
     ROS_DEBUG("publish egocylindrical image");
     
     ptPub.publish(propagator_.getPropagatedPointCloud());
     
-    pub.publish(propagator_.getRawRangeImage());
+//    pub.publish(propagator_.getRawRangeImage());
     
 }
 

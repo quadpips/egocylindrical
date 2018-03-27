@@ -47,16 +47,16 @@ namespace egocylindrical
     }
 
 
-    void EgoCylindricalPropagator::addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info)
+    void EgoCylindricalPropagator::addDepthImage(utils::ECWrapper& cylindrical_points, const stixel_estimator::stixelListMsgConstPtr& stixels, const sensor_msgs::CameraInfo::ConstPtr& cam_info)
     {
         model_t.fromCameraInfo(cam_info);
         
-        utils::addDepthImage(cylindrical_points, image, ccc_, model_t);
+        utils::addDepthImage(cylindrical_points, stixels, ccc_, model_t);
         
     }
 
 
-    void EgoCylindricalPropagator::update(const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info)
+    void EgoCylindricalPropagator::update(const stixel_estimator::stixelListMsgConstPtr& stixels, const sensor_msgs::CameraInfo::ConstPtr& cam_info)
     {
         ros::WallTime start = ros::WallTime::now();
 
@@ -66,7 +66,7 @@ namespace egocylindrical
         {
             if(old_pts_)
             {
-                EgoCylindricalPropagator::propagateHistory(*old_pts_, *new_pts_, image->header);
+                EgoCylindricalPropagator::propagateHistory(*old_pts_, *new_pts_, stixels->header);
                 ROS_INFO_STREAM("Propagation took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
             }
    
@@ -80,7 +80,7 @@ namespace egocylindrical
         
         start = ros::WallTime::now();
         
-        EgoCylindricalPropagator::addDepthImage(*new_pts_, image, cam_info);
+        EgoCylindricalPropagator::addDepthImage(*new_pts_, stixels, cam_info);
         ROS_INFO_STREAM("Adding depth image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
         
         std::swap(new_pts_, old_pts_);        

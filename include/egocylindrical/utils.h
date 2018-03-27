@@ -16,6 +16,8 @@
 #include <sensor_msgs/PointCloud2.h>
 
 #include <egocylindrical/EgoCylinderPoints.h>
+#include <stixel_estimator/stixelListMsg.h>
+#include <stixel_estimator/stixelMsg.h>
 
 namespace egocylindrical
 {
@@ -197,7 +199,7 @@ namespace utils
 
     
     inline
-    void addDepthImage(utils::ECWrapper& cylindrical_history, const cv::Mat& depth_image, const CylindricalCoordsConverter& ccc, const image_geometry::PinholeCameraModel& cam_model)
+    void addDepthImage(utils::ECWrapper& cylindrical_history, const stixel_estimator::stixelListMsgConstPtr& stixels, const CylindricalCoordsConverter& ccc, const image_geometry::PinholeCameraModel& cam_model)
     {
         ROS_DEBUG("Generating depth to cylindrical image mapping");
         
@@ -208,34 +210,76 @@ namespace utils
         float* x = cylindrical_history.getX();
         float* y = cylindrical_history.getY();
         float* z = cylindrical_history.getZ();
-                
-        depth_image.forEach<float>
-        (
-            [&](const float &depth, const int* position) -> void
+
+
+        for(auto stixel :stixels->stixels)
+        {
+            float depth = stixel.depth;
+            int x = stixel.x;
+            int top_y = stixel.top_y;
+            int bottom_y = stixel.bottom_y;
+
+            cv::Point2d pt_top;
+            cv::Point2d pt_bottom;
+
+            pt_top.x = x;
+            pt_top.y = top_y;
+
+            pt_bottom.x = x;
+            pt_bottom.y = bottom_y;
+
+
+            if (stixel.disparity > 1)
             {
-                int i = position[0];
-                int j = position[1];
-                
-                cv::Point2d pt;
-                pt.x = j;
-                pt.y = i;
-                
-                if(depth==depth)
+                cv::Point3f world_pnt_top = cam_model.projectPixelTo3dRay(pt_top) * depth;
+                cv::Point3f world_pnt_bottom = cam_model.projectPixelTo3dRay(pt_bottom) * depth;
+
+                cv::Point image_pnt_top = ccc.worldToCylindricalImage(world_pnt_top);
+                cv::Point image_pnt_bottom = ccc.worldToCylindricalImage(world_pnt_top);
+
+
+                if (image_roi.contains(image_pnt_top) && image_roi.contains(image_pnt_bottom))
                 {
-                    cv::Point3f world_pnt = cam_model.projectPixelTo3dRay(pt)*depth;
-                    cv::Point image_pnt = ccc.worldToCylindricalImage(world_pnt);
-                    
-                    if(image_roi.contains(image_pnt))
-                    {
-                        x[image_pnt.y*width + image_pnt.x] = world_pnt.x;
-                        y[image_pnt.y*width + image_pnt.x] = world_pnt.y;
-                        z[image_pnt.y*width + image_pnt.x] = world_pnt.z;
-                        
-                    }
+                    x[image_pnt_top.x * 2] = world_pnt_top.x;
+                    y[image_pnt_top.x * 2] = world_pnt_top.y;
+                    z[image_pnt_top.x * 2] = world_pnt_top.z;
+                    x[image_pnt_top.x * 2 + 1] = world_pnt_bottom.x;
+                    y[image_pnt_top.x * 2 + 1] = world_pnt_bottom.y;
+                    z[image_pnt_top.x * 2 + 1] = world_pnt_bottom.z;
                 }
-                
+
             }
-        );
+        }
+
+
+                
+//        depth_image.forEach<float>
+//        (
+//            [&](const float &depth, const int* position) -> void
+//            {
+//                int i = position[0];
+//                int j = position[1];
+//
+//                cv::Point2d pt;
+//                pt.x = j;
+//                pt.y = i;
+//
+//                if(depth==depth)
+//                {
+//                    cv::Point3f world_pnt = cam_model.projectPixelTo3dRay(pt)*depth;
+//                    cv::Point image_pnt = ccc.worldToCylindricalImage(world_pnt);
+//
+//                    if(image_roi.contains(image_pnt))
+//                    {
+//                        x[image_pnt.y*width + image_pnt.x] = world_pnt.x;
+//                        y[image_pnt.y*width + image_pnt.x] = world_pnt.y;
+//                        z[image_pnt.y*width + image_pnt.x] = world_pnt.z;
+//
+//                    }
+//                }
+//
+//            }
+//        );
         
     }
     

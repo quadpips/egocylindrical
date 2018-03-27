@@ -16,6 +16,8 @@
 #include <image_geometry/pinhole_camera_model.h>
 #include <pcl_ros/point_cloud.h>
 #include <tf2_ros/transform_listener.h>
+#include <stixel_estimator/stixelListMsg.h>
+#include <stixel_estimator/stixelMsg.h>
 //#include <pcl.h>
 
 namespace egocylindrical
@@ -40,7 +42,7 @@ private:
     utils::CylindricalCoordsConverter ccc_;
 
     void propagateHistory(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::Header new_header);
-    void addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info);
+    void addDepthImage(utils::ECWrapper& cylindrical_points, const stixel_estimator::stixelListMsgConstPtr& stixels, const sensor_msgs::CameraInfo::ConstPtr& cam_info);
     
     
     
@@ -48,7 +50,7 @@ public:
     EgoCylindricalPropagator(ros::NodeHandle& nh);
     ~EgoCylindricalPropagator();
     
-    void update(const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info);
+    void update(const stixel_estimator::stixelListMsgConstPtr& stixels, const sensor_msgs::CameraInfo::ConstPtr& cam_info);
     sensor_msgs::PointCloud2  getPropagatedPointCloud();
     sensor_msgs::Image::ConstPtr getRawRangeImage();
 
