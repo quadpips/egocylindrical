@@ -37,32 +37,44 @@ namespace utils
         const float* n_y = new_points.getY();
         const float* n_z = new_points.getZ();
         
+        const int width = cylindrical_history.getWidth();
+        
 
         ROS_DEBUG("Relocated the propagated image");
         //#pragma omp parallel for
         for(int i = 0; i < new_points.getCols(); ++i)
         {
             
-            int idx = new_points.inds_[i];
+            cv::Point3f world_pnt(n_x[i],n_y[i],n_z[i]);
             
-            if(idx >=0)
+            float depth = worldToRangeSquared(world_pnt);
+            
+            if(depth==depth)
             {
-                float depth = new_points.ranges_[i];
+                // The following 3 steps could probably be moved to the point propagation step and performed in parallel
+                // It will depend on whether the extra memory access for the steps cost more or less than the calculations
+                cv::Point image_pnt = cylindrical_history.worldToCylindricalImage(world_pnt);
                 
-                cv::Point3f prev_point(x[idx], y[idx], z[idx]);
+                int idx =  image_pnt.y * width +image_pnt.x;
                 
-                float prev_depth = worldToRangeSquared(prev_point);
                 
-                if(!(prev_depth >= depth)) //overwrite || 
-                {   
-                    cv::Point3f world_pnt(n_x[i],n_y[i],n_z[i]);
+                if(image_roi.contains(image_pnt))
+                {
+                    cv::Point3f prev_point(x[idx], y[idx], z[idx]);
                     
-                    x[idx] = world_pnt.x;
-                    y[idx] = world_pnt.y;
-                    z[idx] = world_pnt.z;
+                    float prev_depth = worldToRangeSquared(prev_point);
                     
+                    if(!(prev_depth >= depth)) //overwrite || 
+                    {
+                        x[idx] = world_pnt.x;
+                        y[idx] = world_pnt.y;
+                        z[idx] = world_pnt.z;
+                    }
                 }
-                
+                else
+                {
+                    //ROS_DEBUG_STREAM("Outside of image!: (" << world_pnt << " => " << image_pnt);
+                }
             }
             
             

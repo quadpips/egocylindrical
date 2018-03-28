@@ -129,7 +129,7 @@ namespace egocylindrical
         cylinder_width_ = 2048;
         cylinder_height_ = 320;
         
-        transformed_pts_ = utils::getECWrapper(cylinder_height_,cylinder_width_,vfov_,true);
+        transformed_pts_ = utils::getECWrapper(cylinder_height_,cylinder_width_,vfov_,false);
         
                 
         

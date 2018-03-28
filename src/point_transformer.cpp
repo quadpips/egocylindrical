@@ -180,7 +180,7 @@ namespace egocylindrical
                 z_n[p] = r6 * x[p] + r7 * y[p] + r8 * z[p] + t2;
                 
                 
-                
+                /*
                 
                 float depth=dNaN;
                 
@@ -199,7 +199,7 @@ namespace egocylindrical
                 
                 transformed_points.inds_[p] = idx;
                 transformed_points.ranges_[p] = depth;
-                
+                */
             }
             
         }
