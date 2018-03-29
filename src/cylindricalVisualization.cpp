@@ -30,15 +30,15 @@ CylindricalVisualization::CylindricalVisualization() :it_(nh_), propagator_(nh_)
 void CylindricalVisualization::stixelCb(const stixel_estimator::stixelListMsgConstPtr &stixels,
                                         const sensor_msgs::CameraInfoConstPtr &cam_info)
 {
-    ROS_DEBUG("Received images and camera info");
+    ROS_INFO("Received images and camera info");
 
     propagator_.update(stixels, cam_info);
 
-    ROS_DEBUG("publish egocylindrical image");
+    ROS_INFO("publish egocylindrical image");
     
     ptPub.publish(propagator_.getPropagatedPointCloud());
     
-    pub.publish(propagator_.getRawRangeImage());
+//    pub.publish(propagator_.getRawRangeImage());
     
 }
 

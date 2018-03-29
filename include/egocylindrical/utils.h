@@ -155,11 +155,12 @@ namespace utils
 
         ROS_DEBUG("Relocated the propagated image");
         //#pragma omp parallel for
-        for(int i = 0; i < new_points.getCols(); ++i)
+        for(int i = 0; i < new_points.getCols() / 2; i++)
         {
             
             cv::Point3f world_pnt(n_x[i],n_y[i],n_z[i]);
-            
+            cv::Point3f world_pnt_bottom(n_x[i + new_points.getCols() / 2], n_y[i + new_points.getCols() / 2], n_z[i + new_points.getCols() / 2]);
+
             float depth = worldToRange(world_pnt);
             
             if(depth==depth)
@@ -169,7 +170,7 @@ namespace utils
                 cv::Point image_pnt = ccc.worldToCylindricalImage(world_pnt);
                 
 //                int idx =  image_pnt.y * ccc.width +image_pnt.x;
-                int idx = i;
+                int idx = image_pnt.x;
 
                 if(image_roi.contains(image_pnt))
                 {
@@ -177,11 +178,14 @@ namespace utils
                     
                     float prev_depth = worldToRange(prev_point);
                     
-                    if(!(prev_depth >= depth)) //overwrite || 
+                    if(!(prev_depth >= depth)) //overwrite ||
                     {
                         x[idx] = world_pnt.x;
                         y[idx] = world_pnt.y;
                         z[idx] = world_pnt.z;
+                        x[idx + cylindrical_history.getCols() / 2] = world_pnt_bottom.x;
+                        x[idx + cylindrical_history.getCols() / 2] = world_pnt_bottom.y;
+                        x[idx + cylindrical_history.getCols() / 2] = world_pnt_bottom.z;
                     }
                 }
                 else
@@ -240,12 +244,12 @@ namespace utils
 
                 if (image_roi.contains(image_pnt_top) && image_roi.contains(image_pnt_bottom))
                 {
-                    x[image_pnt_top.x * 2] = world_pnt_top.x;
-                    y[image_pnt_top.x * 2] = world_pnt_top.y;
-                    z[image_pnt_top.x * 2] = world_pnt_top.z;
-                    x[image_pnt_top.x * 2 + 1] = world_pnt_bottom.x;
-                    y[image_pnt_top.x * 2 + 1] = world_pnt_bottom.y;
-                    z[image_pnt_top.x * 2 + 1] = world_pnt_bottom.z;
+                    x[image_pnt_top.x] = world_pnt_top.x;
+                    y[image_pnt_top.x] = world_pnt_top.y;
+                    z[image_pnt_top.x] = world_pnt_top.z;
+                    x[image_pnt_top.x + cylindrical_history.getCols() / 2] = world_pnt_bottom.x;
+                    y[image_pnt_top.x + cylindrical_history.getCols() / 2] = world_pnt_bottom.y;
+                    z[image_pnt_top.x + cylindrical_history.getCols() / 2] = world_pnt_bottom.z;
                 }
 
             }
