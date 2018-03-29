@@ -59,25 +59,7 @@ namespace egocylindrical
             #pragma GCC ivdep  //https://gcc.gnu.org/onlinedocs/gcc/Loop-Specific-Pragmas.html
             //#pragma omp simd
             for(long int p = 0; p < num_cols; ++p)
-            {
-                /*
-                float temp[3];
-                for(int row=0; row < 3; ++row)
-                {
-                    temp[row] = 0;
-                    for(int col=0; col < 3; ++col)
-                    {
-                        temp[row] += R[row*3+col] * point_ptr[num_cols * col + p]; // points.at<float>(col,p);
-                    }
-                }
-                
-                for(int row=0; row < 3; ++row)
-                {
-                    point_ptr[num_cols * row + p] = temp[row] + T[row];
-                }
-                */
-                
-                
+            {     
                 float x_p = x[p];
                 float y_p = y[p];
                 float z_p = z[p];
@@ -153,24 +135,6 @@ namespace egocylindrical
             //#pragma omp simd
             for(long int p = 0; p < num_cols; ++p)
             {
-                /*
-                 *       float temp[3];
-                 *       for(int row=0; row < 3; ++row)
-                 *       {
-                 *           temp[row] = 0;
-                 *           for(int col=0; col < 3; ++col)
-                 *           {
-                 *               temp[row] += R[row*3+col] * point_ptr[num_cols * col + p]; // points.at<float>(col,p);
-            }
-            }
-            
-            for(int row=0; row < 3; ++row)
-            {
-            point_ptr[num_cols * row + p] = temp[row] + T[row];
-            }
-            */
-                
-                
                 float x_p = x[p];
                 float y_p = y[p];
                 float z_p = z[p];
@@ -178,28 +142,6 @@ namespace egocylindrical
                 x_n[p] = r0 * x[p] + r1 * y[p] + r2 * z[p] + t0;
                 y_n[p] = r3 * x[p] + r4 * y[p] + r5 * z[p] + t1;
                 z_n[p] = r6 * x[p] + r7 * y[p] + r8 * z[p] + t2;
-                
-                
-                /*
-                
-                float depth=dNaN;
-                
-                int idx = -1;
-                
-                cv::Point3f world_pnt(x[p],y[p],z[p]);
-                
-                depth= worldToRangeSquared(world_pnt);
-                
-                cv::Point image_pnt = points.worldToCylindricalImage(world_pnt);
-                
-                int tidx = image_pnt.y * width +image_pnt.x;
-                
-                if(tidx < num_cols)
-                    idx = tidx;
-                
-                transformed_points.inds_[p] = idx;
-                transformed_points.ranges_[p] = depth;
-                */
             }
             
         }

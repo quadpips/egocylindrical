@@ -29,7 +29,7 @@ find_package(OpenCV REQUIRED)
 find_package(PCL    REQUIRED)
 
 if(1)
-    set(SHOW_VECTORIZE_INFO "-fopt-info-vec-optimized")
+    set(SHOW_VECTORIZE_INFO "-fopt-info-vec-all")
 else()
      set(SHOW_VECTORIZE_INFO "")
 endif()

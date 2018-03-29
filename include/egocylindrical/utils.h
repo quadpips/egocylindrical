@@ -86,7 +86,8 @@ namespace utils
     
 
 
-    
+    // TODO: technically, more than one pixel projects to the same egycylindrical point, and therefore I should be comparing to the current depth value
+    // TODO: it may also be beneficial to parallelize what I can of this
     inline
     void addDepthImage(utils::ECWrapper& cylindrical_history, const cv::Mat& depth_image, const image_geometry::PinholeCameraModel& cam_model)
     {
@@ -113,7 +114,7 @@ namespace utils
                 
                 if(depth==depth)
                 {
-                    cv::Point3f world_pnt = cam_model.projectPixelTo3dRay(pt)*depth;
+                    cv::Point3f world_pnt = cam_model.projectPixelTo3dRay(pt)*depth;    //Note: projectPixelTo3dRay isn't inlined so can't vectorize
                     cv::Point image_pnt = cylindrical_history.worldToCylindricalImage(world_pnt);
                     
                     if(image_roi.contains(image_pnt))
