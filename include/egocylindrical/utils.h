@@ -155,11 +155,12 @@ namespace utils
 
         ROS_DEBUG("Relocated the propagated image");
         //#pragma omp parallel for
+//        ROS_INFO_STREAM(new_points.getCols());
         for(int i = 0; i < new_points.getCols() / 2; i++)
         {
             
             cv::Point3f world_pnt(n_x[i],n_y[i],n_z[i]);
-            cv::Point3f world_pnt_bottom(n_x[i + new_points.getCols() / 2], n_y[i + new_points.getCols() / 2], n_z[i + new_points.getCols() / 2]);
+            cv::Point3f world_pnt_bottom(n_x[i + cylindrical_history.getCols() / 2], n_y[i + cylindrical_history.getCols() / 2], n_z[i + cylindrical_history.getCols() / 2]);
 
             float depth = worldToRange(world_pnt);
             
@@ -180,6 +181,18 @@ namespace utils
                     
                     if(!(prev_depth >= depth)) //overwrite ||
                     {
+
+//                        std::cout<<world_pnt.x << "     " <<world_pnt.y <<  "     "<< world_pnt.z<<std::endl;
+//                        std::cout<<world_pnt_bottom.x << "     " <<world_pnt_bottom.y <<  "     "<< world_pnt_bottom.z<<std::endl;
+//                        std::cout<<std::endl;
+
+                        std::cout << idx + cylindrical_history.getCols() / 2 << std::endl;
+                        std::cout << idx <<std::endl;
+                        std::cout<<std::endl;
+
+
+
+
                         x[idx] = world_pnt.x;
                         y[idx] = world_pnt.y;
                         z[idx] = world_pnt.z;
@@ -215,7 +228,7 @@ namespace utils
         float* y = cylindrical_history.getY();
         float* z = cylindrical_history.getZ();
 
-
+//        ROS_INFO_STREAM(cylindrical_history.getCols());
         for(auto stixel :stixels->stixels)
         {
             float depth = stixel.depth;
