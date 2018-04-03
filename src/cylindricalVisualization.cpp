@@ -2,45 +2,57 @@
 // Created by root on 2/5/18.
 //
 
-#include <egocylindrical/cylindricalVisualization.h>
-#include <tf2_ros/transform_listener.h>
-#include "tf2_ros/message_filter.h"
-
-CylindricalVisualization::CylindricalVisualization() :it_(nh_), propagator_(nh_)
+#include "cylindricalVisualization.h"
+CylindricalVisualization::CylindricalVisualization() :it_(nh_)
 {
     std::cout<<"Visualization Node Initialized"<<std::endl;
-//    message_filters::Subscriber<sensor_msgs::Image> depthSub(nh_, "/camera/depth/image_raw", 2);
-//    message_filters::Subscriber<sensor_msgs::CameraInfo> depthInfoSub(nh_, "/camera/depth/camera_info", 2);
-    message_filters::Subscriber<stixel_estimator::stixelListMsg> stixelSub(nh_, "/stixels", 30);
-    message_filters::Subscriber<sensor_msgs::CameraInfo> stixelInfoSub(nh_, "/multisense_sl/camera/left/camera_info", 30);
-
-    tf2_ros::Buffer buffer_;
-    tf2_ros::TransformListener tf_listener_(buffer_);
-    
-    tf2_ros::MessageFilter<sensor_msgs::CameraInfo> info_tf_filter(stixelInfoSub, buffer_, "odom", 30,nh_);
-    message_filters::TimeSynchronizer<stixel_estimator::stixelListMsg, sensor_msgs::CameraInfo> timeSynchronizer(stixelSub, info_tf_filter, 30);
-
+    message_filters::Subscriber<stixel_estimator::stixelListMsg> stixelSub(nh_, "/stixels", 20);
+    message_filters::Subscriber<sensor_msgs::CameraInfo> depthInfoSub(nh_, "/multisense_sl/camera/left/camera_info", 20);
+    message_filters::TimeSynchronizer<stixel_estimator::stixelListMsg, sensor_msgs::CameraInfo> timeSynchronizer(stixelSub, depthInfoSub, 40);
     timeSynchronizer.registerCallback(boost::bind(&CylindricalVisualization::stixelCb, this, _1, _2));
     pub = it_.advertise("projected_image", 20);
-    ptPub = nh_.advertise<sensor_msgs::PointCloud2>("cylindrical", 100);
-    ptPub2 = nh_.advertise<sensor_msgs::PointCloud2>("cylindrical_original", 100);
+    pointCloud_Pub = nh_.advertise<sensor_msgs::PointCloud2>("projected_pointCloud", 20);
+    p_pub2 = nh_.advertise<sensor_msgs::PointCloud2>("origianl_pointCloud", 20);
     ros::spin();
 }
+
 
 void CylindricalVisualization::stixelCb(const stixel_estimator::stixelListMsgConstPtr &stixels,
                                         const sensor_msgs::CameraInfoConstPtr &cam_info)
 {
-    ROS_INFO("Received images and camera info");
+    ROS_INFO("Building Egocylindrical");
+    EgoCylindrical translated = EgoCylindrical(*stixels, *cam_info);
+    if(!propagator.getRegisterd())
+    {
+        propagator.registerOriginal(translated, cam_info->header.frame_id, 0, 0, cam_info->header.stamp);
+    } else
+    {
+        propagator.propagate(translated, cam_info->header.stamp);
+    }
 
-    propagator_.update(stixels, cam_info);
+    sensor_msgs::PointCloud2 pointCloud2;
+    pcl::toROSMsg(propagator.getCylindricalPointCloud(), pointCloud2);
+    pointCloud2.header.frame_id = cam_info->header.frame_id;
+    pointCloud_Pub.publish(pointCloud2);
 
-    ROS_INFO("publish egocylindrical image");
-    
-    ptPub.publish(propagator_.getPropagatedPointCloud());
-    
-//    pub.publish(propagator_.getRawRangeImage());
-    
+    pcl::toROSMsg(translated.pcloud, pointCloud2);
+    pointCloud2.header.frame_id = cam_info->header.frame_id;
+    p_pub2.publish(pointCloud2);
+
+
+    cv::imshow("test", translated.toImage());
+    cv::waitKey(1);
+    std_msgs::Header header = std_msgs::Header();
+    header.stamp = ros::Time(0);
+    msg = cv_bridge::CvImage(header, "bgr8", translated.toImage()).toImageMsg();
+    pub.publish(msg);
 }
+
+
+
+
+
+
 
 int main(int argc, char** argv)
 {

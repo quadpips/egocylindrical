@@ -8,7 +8,7 @@ void CylindricalPropagator::registerOriginal(EgoCylindrical t, std::string frame
 {
     cylindricalPointCloud = t.getCylindricalPointCloud();
     worldPointCloud = t.getWorldPointCloud();
-    frame_id = t.getFrame();
+    frame_id = frame;
     x = t.getX();
     y = t.getY();
     registered = true;

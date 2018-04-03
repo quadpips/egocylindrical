@@ -5,18 +5,19 @@
 
 #include <ros/ros.h>
 #include <opencv2/core.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc.hpp>
-#include <image_transport/image_transport.h>
-#include <cv_bridge/cv_bridge.h>
-#include <image_geometry/pinhole_camera_model.h>
-#include <tf2_ros/transform_listener.h>
-#include <tf/LinearMath/Matrix3x3.h>
-#include <omp.h>
-#include <sensor_msgs/PointCloud2.h>
+//#include <opencv2/highgui.hpp>
+//#include <opencv2/imgproc.hpp>
+//#include <image_transport/image_transport.h>
+//#include <cv_bridge/cv_bridge.h>
+//#include <image_geometry/pinhole_camera_model.h>
+//#include <tf2_ros/transform_listener.h>
+//#include <tf/LinearMath/Matrix3x3.h>
+//#include <omp.h>
+//#include <sensor_msgs/PointCloud2.h>
 
 #include <egocylindrical/EgoCylinderPoints.h>
 
+//#include <iomanip> // for debug printing
 
 
 namespace egocylindrical
@@ -37,16 +38,26 @@ namespace egocylindrical
         
         class ECWrapper
         {
+        private:
+            
             cv::Mat points_;
+            
+            float* pointsx_;
+            
             int height_, width_;
             float vfov_;
             
             std_msgs::Header header_;
             EgoCylinderPoints::Ptr msg_; // The idea would be to store everything in the message's allocated storage to prevent copies
             
+            EgoCylinderPoints::ConstPtr const_msg_;
+            
             // For now, just get things working using this.
             // Note: It may be preferable to allocate x,y,z separately to ensure they are aligned (unless the width is chosen such that they will be anyway...)
             // Another idea: possibly template this class by height/width, potentially enabling compile time optimizations
+            // Also: maybe should store x, then z, then y, since only x and z are needed for range image
+           
+
            
         public:
             
@@ -55,8 +66,69 @@ namespace egocylindrical
             width_(width),
             vfov_(vfov)
             {
-                points_ = cv::Mat(3, width * 2, CV_32FC1, utils::dNaN);    //TODO: Allocate space in the msg_ to avoid later copy
+                msg_ = boost::make_shared<EgoCylinderPoints>();
+                msg_->points.data.resize(3*height_*width_);  //Note: can pass 'utils::dNaN as 2nd argument to set all values
+                
+                msg_->fov_v = vfov_;
+                
+                std::vector<std_msgs::MultiArrayDimension>& dims = msg_->points.layout.dim;
+                dims.resize(3);
+                
+                
+                std_msgs::MultiArrayDimension dim0;
+                dim0.label = "components";
+                dim0.size = 3;
+                dim0.stride = 3*height_*width_;
+                dims[0] = dim0;
+                
+                
+                std_msgs::MultiArrayDimension dim1;
+                dim1.label = "rows";
+                dim1.size = height_;
+                dim1.stride = height_*width_;
+                dims[1] = dim1;
+
+                
+                std_msgs::MultiArrayDimension dim2;
+                dim2.label = "point";
+                dim2.size = width_;
+                dim2.stride = width_;             
+                dims[2] = dim2;
+                
+                
+                int step = dim1.stride * sizeof(float);
+                
+                points_ = cv::Mat(3, height_ * width_, CV_32FC1, const_cast<float*>(msg_->points.data.data()), step);
+                
+                
+                //std::cout << "Address: " << std::hex  << msg_->points.data.data() << std::dec << ", height=" << height_ << ", width=" << width_ << ", step=" << step << std::endl; //std::setfill('0') << std::setw(2) << ar[i] << " ";
+                
+
+                points_.setTo(utils::dNaN);
             }
+            
+            ECWrapper(const egocylindrical::EgoCylinderPointsConstPtr& ec_points) 
+            {
+                const_msg_ = ec_points;
+                header_ = const_msg_->header;
+                vfov_ = const_msg_->fov_v;
+                
+                const std::vector<std_msgs::MultiArrayDimension>& dims = const_msg_->points.layout.dim;
+                int components = dims[0].size;
+                height_ = dims[1].size;
+                width_ = dims[2].size;
+                
+                int step = dims[1].stride * sizeof(float);
+                
+                points_ = cv::Mat(components, height_ * width_, CV_32FC1, const_cast<float*>(const_msg_->points.data.data()), step);
+                
+                //std::cout << "Address: " << std::hex  << const_msg_->points.data.data() << std::dec << ", height=" << height_ << ", width=" << width_ << ", step=" << step << std::endl;
+                
+            }
+            
+            
+            
+            
             
             inline float* getPoints()                   { return (float*)__builtin_assume_aligned(points_.data, 16); }
             inline const float* getPoints()     const   { return (const float*)__builtin_assume_aligned(points_.data, 16); }
@@ -64,33 +136,24 @@ namespace egocylindrical
             inline float* getX()                        { return getPoints(); }
             inline const float* getX()          const   { return (const float*) getPoints(); }
             
-//            inline float* getY()                        { return getPoints() + (height_ * width_); }
-//            inline const float* getY()          const   { return (const float*) getPoints() + (height_ * width_); }
-
-
-            inline float* getY()                        {return getPoints() + (width_ * 2);}
-            inline const float* getY()          const   {return (const float*) getPoints() + (width_ * 2);}
-
-
-
-            inline float* getZ()                        {return getPoints() + 2 * (width_ * 2);}
-            inline const float* getZ()          const   {return (const float*) getPoints() + 2 * (width_ * 2);}
-
+            inline float* getY()                        { return getPoints() + (height_ * width_); }
+            inline const float* getY()          const   { return (const float*) getPoints() + (height_ * width_); }
             
-//            inline float* getZ()                        { return getPoints() + 2*(height_ * width_); }
-//            inline const float* getZ()          const   { return (const float*) getPoints() + 2*(height_ * width_); }
+            inline float* getZ()                        { return getPoints() + 2*(height_ * width_); }
+            inline const float* getZ()          const   { return (const float*) getPoints() + 2*(height_ * width_); }
             
 
             inline
             void setHeader(std_msgs::Header header)
             {
                 header_ = header;
+                msg_->header = header;
             }
             
             inline
             int getCols() const
             {
-                return points_.cols;
+                return height_*width_;
             }
             
             inline

@@ -1,4 +1,0 @@
-<launch>
-    <node name="propagator" pkg="egocylindrical" type="egocylindrical_node" output="screen">
-    </node>
-</launch>

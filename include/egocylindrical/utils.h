@@ -2,6 +2,7 @@
 #define EGOCYLINDRICAL_UTILS_H
 
 #include <egocylindrical/ecwrapper.h>
+#include <egocylindrical/ecstixel.h>
 
 #include <ros/ros.h>
 #include <opencv2/core.hpp>
@@ -16,9 +17,12 @@
 #include <sensor_msgs/PointCloud2.h>
 
 #include <egocylindrical/EgoCylinderPoints.h>
+
 #include <stixel_estimator/stixelListMsg.h>
 #include <stixel_estimator/stixelMsg.h>
 
+#include <drawing/gil/colors.hpp>
+#include <visualization_msgs/Marker.h>
 namespace egocylindrical
 {
 
@@ -112,6 +116,12 @@ namespace utils
             
         }
         
+        inline
+        int getStixelRange() const
+        {
+            return width;
+        }
+        
         /*
         inline
         cv::Point3f getWorldPoint(const cv::Mat& image, const cv::Point& image_pnt) const
@@ -140,65 +150,56 @@ namespace utils
     
     
     inline
-    void addPoints(utils::ECWrapper& cylindrical_history, utils::ECWrapper& new_points, const CylindricalCoordsConverter& ccc, bool overwrite)
+    void addPoints(utils::ECStixel& cylindrical_history, utils::ECStixel& new_points, const CylindricalCoordsConverter& ccc, bool overwrite)
     {
-        cv::Rect image_roi = ccc.getImageROI();
+        const cv::Rect image_roi = ccc.getImageROI();
         
-        float* x = cylindrical_history.getX();
-        float* y = cylindrical_history.getY();
-        float* z = cylindrical_history.getZ();
+        std::vector<float>* x = cylindrical_history.getX();
+        std::vector<float>* by = cylindrical_history.getBY();
+        std::vector<float>* ty = cylindrical_history.getTY();
+        std::vector<float>* z = cylindrical_history.getZ();
+        std::vector<stixel_estimator::stixelMsg>* stixel = cylindrical_history.getStixels();
         
-        const float* n_x = new_points.getX();
-        const float* n_y = new_points.getY();
-        const float* n_z = new_points.getZ();
+        const std::vector<float>* n_x = new_points.getX();
+        const std::vector<float>* n_by = new_points.getBY();
+        const std::vector<float>* n_ty = new_points.getTY();
+        const std::vector<float>* n_z = new_points.getZ();
+        const std::vector<stixel_estimator::stixelMsg>* new_stixel = new_points.getStixels();
         
 
         ROS_DEBUG("Relocated the propagated image");
         //#pragma omp parallel for
-//        ROS_INFO_STREAM(new_points.getCols());
-        for(int i = 0; i < new_points.getCols() / 2; i++)
+        for(int i = 0; i < new_points.getSize(); ++i)
         {
             
-            cv::Point3f world_pnt(n_x[i],n_y[i],n_z[i]);
-            cv::Point3f world_pnt_bottom(n_x[i + cylindrical_history.getCols() / 2], n_y[i + cylindrical_history.getCols() / 2], n_z[i + cylindrical_history.getCols() / 2]);
-
-            float depth = worldToRange(world_pnt);
+//             cv::Point3f world_pnt_b(n_x->at(i),n_by->at(i),n_z->at(i));
+            cv::Point3f world_pnt_b(n_x->at(i),0,n_z->at(i));
+            
+            float depth = worldToRange(world_pnt_b);
             
             if(depth==depth)
             {
                 // The following 3 steps could probably be moved to the point propagation step and performed in parallel
                 // It will depend on whether the extra memory access for the steps cost more or less than the calculations
-                cv::Point image_pnt = ccc.worldToCylindricalImage(world_pnt);
+                cv::Point image_pnt = ccc.worldToCylindricalImage(world_pnt_b);
                 
-//                int idx =  image_pnt.y * ccc.width +image_pnt.x;
-                int idx = image_pnt.x;
+                int idx =  image_pnt.x;
+                
 
                 if(image_roi.contains(image_pnt))
                 {
-                    cv::Point3f prev_point(x[idx], y[idx], z[idx]);
+//                     cv::Point3f prev_point(x->at(idx), by->at(idx), z->at(idx));
+                    cv::Point3f prev_point(x->at(idx), 0, z->at(idx));
                     
                     float prev_depth = worldToRange(prev_point);
-                    
-                    if(!(prev_depth >= depth)) //overwrite ||
+
+                    if(!(prev_depth >= depth)) //overwrite || 
                     {
-
-//                        std::cout<<world_pnt.x << "     " <<world_pnt.y <<  "     "<< world_pnt.z<<std::endl;
-//                        std::cout<<world_pnt_bottom.x << "     " <<world_pnt_bottom.y <<  "     "<< world_pnt_bottom.z<<std::endl;
-//                        std::cout<<std::endl;
-
-                        std::cout << idx + cylindrical_history.getCols() / 2 << std::endl;
-                        std::cout << idx <<std::endl;
-                        std::cout<<std::endl;
-
-
-
-
-                        x[idx] = world_pnt.x;
-                        y[idx] = world_pnt.y;
-                        z[idx] = world_pnt.z;
-                        x[idx + cylindrical_history.getCols() / 2] = world_pnt_bottom.x;
-                        x[idx + cylindrical_history.getCols() / 2] = world_pnt_bottom.y;
-                        x[idx + cylindrical_history.getCols() / 2] = world_pnt_bottom.z;
+                        
+                        x->at(idx) = world_pnt_b.x;
+                        by->at(idx) = world_pnt_b.y;
+                        z->at(idx) = world_pnt_b.z;
+                        stixel->at(idx) = new_stixel->at(i);
                     }
                 }
                 else
@@ -216,7 +217,7 @@ namespace utils
 
     
     inline
-    void addDepthImage(utils::ECWrapper& cylindrical_history, const stixel_estimator::stixelListMsgConstPtr& stixels, const CylindricalCoordsConverter& ccc, const image_geometry::PinholeCameraModel& cam_model)
+    void addStixel(utils::ECStixel& cylindrical_history, const std::vector<stixel_estimator::stixelMsg>& stixels, const CylindricalCoordsConverter& ccc, const image_geometry::PinholeCameraModel& cam_model)
     {
         ROS_DEBUG("Generating depth to cylindrical image mapping");
         
@@ -224,98 +225,190 @@ namespace utils
         const int width = ccc.width;
         //const int height = ccc.height;
         
-        float* x = cylindrical_history.getX();
-        float* y = cylindrical_history.getY();
-        float* z = cylindrical_history.getZ();
-
-//        ROS_INFO_STREAM(cylindrical_history.getCols());
-        for(auto stixel :stixels->stixels)
+        std::vector<float>* x = cylindrical_history.getX();
+        std::vector<float>* by = cylindrical_history.getBY();
+        std::vector<float>* ty = cylindrical_history.getTY();
+        std::vector<float>* z = cylindrical_history.getZ();
+        std::vector<stixel_estimator::stixelMsg>* stixel_history = cylindrical_history.getStixels();
+        
+        for(int i = 39; i < stixels.size(); ++i)
         {
-            float depth = stixel.depth;
-            int x_ = stixel.x;
-            int top_y = stixel.top_y;
-            int bottom_y = stixel.bottom_y;
-
-            cv::Point2d pt_top;
-            cv::Point2d pt_bottom;
-
-            pt_top.x = x_;
-            pt_top.y = top_y;
-
-            pt_bottom.x = x_;
-            pt_bottom.y = bottom_y;
-
-
-            if (stixel.disparity > 1)
+            if(stixels[i].disparity > 5)
             {
-                cv::Point3f world_pnt_top = cam_model.projectPixelTo3dRay(pt_top) * depth;
-                cv::Point3f world_pnt_bottom = cam_model.projectPixelTo3dRay(pt_bottom) * depth;
-
-                cv::Point image_pnt_top = ccc.worldToCylindricalImage(world_pnt_top);
-                cv::Point image_pnt_bottom = ccc.worldToCylindricalImage(world_pnt_top);
-
-
-                if (image_roi.contains(image_pnt_top) && image_roi.contains(image_pnt_bottom))
+                cv::Point2d pt_b;
+                pt_b.x = stixels[i].x;
+                pt_b.y = stixels[i].bottom_y;
+                
+                float depth = stixels[i].depth;
+                
+                if(depth==depth)
                 {
-                    x[image_pnt_top.x] = world_pnt_top.x;
-                    y[image_pnt_top.x] = world_pnt_top.y;
-                    z[image_pnt_top.x] = world_pnt_top.z;
-                    x[image_pnt_top.x + cylindrical_history.getCols() / 2] = world_pnt_bottom.x;
-                    y[image_pnt_top.x + cylindrical_history.getCols() / 2] = world_pnt_bottom.y;
-                    z[image_pnt_top.x + cylindrical_history.getCols() / 2] = world_pnt_bottom.z;
+                    cv::Point3f world_pnt_b = cam_model.projectPixelTo3dRay(pt_b)*depth;
+                    cv::Point image_pnt_b = ccc.worldToCylindricalImage(world_pnt_b);
+                    int idx = image_pnt_b.x;
+                    
+                    if(image_roi.contains(image_pnt_b))
+                    {
+                        x->at(idx) = world_pnt_b.x;
+                        by->at(idx) = world_pnt_b.y;
+                        z->at(idx) = world_pnt_b.z;
+                        stixel_history->at(idx) = stixels[i];
+                    }
                 }
-
             }
         }
-
-
-                
-//        depth_image.forEach<float>
-//        (
-//            [&](const float &depth, const int* position) -> void
-//            {
-//                int i = position[0];
-//                int j = position[1];
-//
-//                cv::Point2d pt;
-//                pt.x = j;
-//                pt.y = i;
-//
-//                if(depth==depth)
-//                {
-//                    cv::Point3f world_pnt = cam_model.projectPixelTo3dRay(pt)*depth;
-//                    cv::Point image_pnt = ccc.worldToCylindricalImage(world_pnt);
-//
-//                    if(image_roi.contains(image_pnt))
-//                    {
-//                        x[image_pnt.y*width + image_pnt.x] = world_pnt.x;
-//                        y[image_pnt.y*width + image_pnt.x] = world_pnt.y;
-//                        z[image_pnt.y*width + image_pnt.x] = world_pnt.z;
-//
-//                    }
-//                }
-//
-//            }
-//        );
         
     }
     
     
-//    inline
-//    void addDepthImage(utils::ECWrapper& cylindrical_history, const stixel_estimator::stixelListMsgConstPtr& stixels, const CylindricalCoordsConverter& ccc, const image_geometry::PinholeCameraModel& cam_model)
-//    {
-////        const cv::Mat image = cv_bridge::toCvShare(image_msg)->image;
-//        addDepthImage(cylindrical_history, stixels, ccc, cam_model);
-//    }
+    inline
+    void addStixel(utils::ECStixel& cylindrical_history, const stixel_estimator::stixelListMsg::ConstPtr& stixels, const CylindricalCoordsConverter& ccc, const image_geometry::PinholeCameraModel& cam_model)
+    {
+        const std::vector<stixel_estimator::stixelMsg> stixel = stixels->stixels;
+        addStixel(cylindrical_history, stixel, ccc, cam_model);
+    }
     
     
     
     // Functions defined in separate compilation units:
-    sensor_msgs::ImagePtr getRawRangeImageMsg(const utils::ECWrapper& cylindrical_history, const CylindricalCoordsConverter& ccc);
+    sensor_msgs::ImagePtr getRawRangeImageMsg(const utils::ECWrapper& cylindrical_history);
     
-    void transformPoints(utils::ECWrapper& points, const geometry_msgs::TransformStamped& trans);
+    void transformPoints(utils::ECStixel& points, const geometry_msgs::TransformStamped& trans);
     
-    sensor_msgs::PointCloud2 generate_point_cloud(const utils::ECWrapper& points);
+    //sensor_msgs::PointCloud2 generate_point_cloud(const utils::ECWrapper& points);
+    
+    inline
+    void HSV2RGB(float h_, float s_, float v_, std_msgs::ColorRGBA& color)
+    {
+        float h = h_ *   2.0f; // 0-360
+        float s = s_; // 0.0-1.0
+        float v = v_; // 0.0-1.0
+
+        float r, g, b; // 0.0-1.0
+
+        int   hi = (int)(h / 60.0f) % 6;
+        float f  = (h / 60.0f) - hi;
+        float p  = v * (1.0f - s);
+        float q  = v * (1.0f - s * f);
+        float t  = v * (1.0f - s * (1.0f - f));
+
+        switch(hi) {
+            case 0: r = v, g = t, b = p; break;
+            case 1: r = q, g = v, b = p; break;
+            case 2: r = p, g = v, b = t; break;
+            case 3: r = p, g = q, b = v; break;
+            case 4: r = t, g = p, b = v; break;
+            case 5: r = v, g = p, b = q; break;
+        }
+
+        color.r = b; // dst_r : 0-255
+        color.g = g; // dst_r : 0-255
+        color.b = r; // dst_r : 0-255
+        color.a = 1.0;
+    }
+    
+    inline
+    void stixels_to_rviz(const std::vector<stixel_estimator::stixelMsg>& stixels, image_geometry::PinholeCameraModel p_c_model, float baseline, visualization_msgs::Marker& marker)
+    {
+        marker.header.frame_id = "stereo_camera_optical_frame";
+        marker.header.stamp = ros::Time::now();
+        marker.ns = "stixel_representation";
+        marker.action = visualization_msgs::Marker::ADD;
+        marker.pose.orientation.w = 1.0;
+        marker.id = 2;
+        marker.type = visualization_msgs::Marker::LINE_LIST;
+        marker.scale.x = 0.05;
+        marker.scale.z = 0.05;
+
+        float saturation = 1.0;
+        float value = 1.0;
+        for (auto it = stixels.begin(); it != stixels.end(); it++) 
+        {
+            stixel_estimator::stixelMsg t_stixel = *it;
+            if (t_stixel.types == "\1") continue;
+            int u = t_stixel.x;
+            
+            int v = t_stixel.bottom_y;
+    //         int disparity = t_stixel.disparity;
+    //         float z = baseline * p_c_model.fx() / disparity;
+            float z = t_stixel.depth;
+            //cout << z << endl;
+            if (!std::isfinite(z)) continue;
+            cv::Point3d cartesian_coord = p_c_model.projectPixelTo3dRay(cv::Point2d(u, v));
+            cartesian_coord = cartesian_coord * z;
+            //cout << cartesian_coord << endl;
+            geometry_msgs::Point p;
+            p.x = cartesian_coord.x;
+            p.y = cartesian_coord.y;
+            p.z = cartesian_coord.z;
+            if (p.z > 7.0) continue;
+
+            std_msgs::ColorRGBA color;
+            float hue = 0.05 * p.z;
+            if (hue > 0.5) hue = 0.5;
+            if (hue < 0) hue = 0;
+            hue = hue * 180;
+            HSV2RGB(hue, saturation, value, color);
+            
+
+            marker.points.push_back(p);
+            marker.colors.push_back(color);
+            p.y -= 2;
+            marker.points.push_back(p);
+            marker.colors.push_back(color);
+        
+        }
+    }
+    
+    inline
+    void stixels_to_rviz(utils::ECStixel& stixels, visualization_msgs::Marker& marker)
+    {
+        marker.header.frame_id = "stereo_camera_optical_frame";
+        marker.header.stamp = ros::Time::now();
+        marker.ns = "stixel_representation";
+        marker.action = visualization_msgs::Marker::ADD;
+        marker.pose.orientation.w = 1.0;
+        marker.id = 2;
+        marker.type = visualization_msgs::Marker::LINE_LIST;
+        marker.scale.x = 0.05;
+        marker.scale.z = 0.05;
+
+        float saturation = 1.0;
+        float value = 1.0;
+        for (int it = 0; it < stixels.getSize(); it++) 
+        {
+            const std::vector<float>* x = stixels.getX();
+            const std::vector<float>* by = stixels.getBY();
+            const std::vector<float>* z = stixels.getZ();
+            const std::vector<stixel_estimator::stixelMsg>* new_stixel = stixels.getStixels();
+            
+            //cout << z << endl;
+             if (new_stixel->at(it).types == "\1") continue;
+            if (std::isnan(z->at(it))) continue;
+            cv::Point3d cartesian_coord(x->at(it), by->at(it), z->at(it));
+            //cout << cartesian_coord << endl;
+            geometry_msgs::Point p;
+            p.x = cartesian_coord.x;
+            p.y = cartesian_coord.y;
+            p.z = cartesian_coord.z;
+            if (p.z > 7.0) continue;
+
+            std_msgs::ColorRGBA color;
+            float hue = 0.05 * p.z;
+            if (hue > 0.5) hue = 0.5;
+            if (hue < 0) hue = 0;
+            hue = hue * 180;
+            HSV2RGB(hue, saturation, value, color);
+            
+
+            marker.points.push_back(p);
+            marker.colors.push_back(color);
+            p.y -= 2;
+            marker.points.push_back(p);
+            marker.colors.push_back(color);
+        
+        }
+    }
     
 }
 
