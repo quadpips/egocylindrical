@@ -23,6 +23,7 @@
 
 #include <drawing/gil/colors.hpp>
 #include <visualization_msgs/Marker.h>
+#include <sensor_msgs/LaserScan.h>
 namespace egocylindrical
 {
 
@@ -409,7 +410,7 @@ namespace utils
         
         }
     }
-    
+
 }
 
 }

@@ -2,7 +2,7 @@
 // Created by root on 2/5/18.
 //
 
-#include "cylindricalVisualization.h"
+#include "egocylindrical/cylindricalVisualization.h"
 CylindricalVisualization::CylindricalVisualization() :it_(nh_)
 {
     std::cout<<"Visualization Node Initialized"<<std::endl;

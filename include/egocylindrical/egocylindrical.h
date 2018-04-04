@@ -6,7 +6,7 @@
 #define EGOCYLINDRICAL_EGOCYLINDRICAL_H
 
 #include <egocylindrical/utils.h>
-
+#include "egocylindrical/laser_scan_converter.h"
 #include <stixel_estimator/stixelListMsg.h>
 #include <stixel_estimator/stixelMsg.h>
 
@@ -57,9 +57,8 @@ private:
     
     typedef message_filters::TimeSynchronizer<stixel_estimator::stixelListMsg, sensor_msgs::CameraInfo> synchronizer;
     boost::shared_ptr<synchronizer> timeSynchronizer;
-    
-    ros::Publisher ec_pub_;
-    ros::Publisher marker_pub;
+
+    ros::Publisher marker_pub, ec_pub_, laser_pub;
     
     float baseline_ = 0.12;
     bool enableMarkerPublish_ = true;

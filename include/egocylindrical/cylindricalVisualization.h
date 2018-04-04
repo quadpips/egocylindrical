@@ -23,9 +23,10 @@ private:
     ros::NodeHandle nh_;
     image_transport::ImageTransport it_;
     image_transport::Publisher pub;
-    ros::Publisher pointCloud_Pub, p_pub2;
+    ros::Publisher pointCloud_Pub, p_pub2, laser_Pub;
     sensor_msgs::ImagePtr msg;
     CylindricalPropagator propagator;
+
 public:
     CylindricalVisualization();
     void stixelCb(const stixel_estimator::stixelListMsgConstPtr& stixels, const sensor_msgs::CameraInfoConstPtr& cam_info);

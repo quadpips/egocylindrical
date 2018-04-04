@@ -106,7 +106,15 @@ namespace egocylindrical
             
             ec_pub_.publish(msg);
         }
-        
+
+        sensor_msgs::LaserScan scan;
+
+        scan.header = stixels->header;
+        scan.header.frame_id = "base_link";
+        utils::stixel_to_LaserScan(new_pts_, scan, cylinder_width_);
+        laser_pub.publish(scan);
+
+
         
         std::swap(new_pts_, old_pts_);  
         
@@ -129,7 +137,7 @@ namespace egocylindrical
         hfov_ = 2*pi;
         vfov_ = pi/2;        
         
-        cylinder_width_ = 2048*4;
+        cylinder_width_ = 2048*2;
         cylinder_height_ = 320;
         
         ccc_ = utils::CylindricalCoordsConverter(cylinder_width_, cylinder_height_, hfov_, vfov_);
@@ -145,17 +153,18 @@ namespace egocylindrical
         // Setup publishers
         ros::SubscriberStatusCallback stixel_cb = boost::bind(&EgoCylindricalPropagator::connectCB, this);        
         ec_pub_ = nh_.advertise<stixel_estimator::stixelListMsg>(pub_topic, 1, stixel_cb, stixel_cb);
-        marker_pub = nh_.advertise<visualization_msgs::Marker> ( "/egocylindrical/visualization_marker", 10 );
+        marker_pub = nh_.advertise<visualization_msgs::Marker> ( "/egocylindrical/visualization_marker", 50 );
+        laser_pub = nh_.advertise<sensor_msgs::LaserScan>("/egocylindrical/laserScan", 100);
         
         // Setup subscribers
-        stixelSub.subscribe(nh_, stixel_topic, 3);
-        stixelInfoSub.subscribe(nh_, info_topic, 3);
+        stixelSub.subscribe(nh_, stixel_topic, 30);
+        stixelInfoSub.subscribe(nh_, info_topic, 30);
         
         // Ensure that CameraInfo is transformable
-        info_tf_filter = boost::make_shared<tf_filter>(stixelInfoSub, buffer_, "odom", 2,nh_);
+        info_tf_filter = boost::make_shared<tf_filter>(stixelInfoSub, buffer_, "odom", 30,nh_);
         
         // Synchronize Image and CameraInfo callbacks
-        timeSynchronizer = boost::make_shared<synchronizer>(stixelSub, *info_tf_filter, 2);
+        timeSynchronizer = boost::make_shared<synchronizer>(stixelSub, *info_tf_filter, 30);
         timeSynchronizer->registerCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1, _2));
  
     }
