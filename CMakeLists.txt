@@ -144,9 +144,6 @@ include_directories(
 )
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/egocylindrical.cpp
-# )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -154,18 +151,6 @@ include_directories(
 # add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 # This is a separate library partly to reduce compile times, but mostly because it needs to be compiled with certain 'fast-math' optimization options
-add_library(range_image_generator src/range_image_generator.cpp)
-#add_dependencies(range_image_generator ${PROJECT_NAME}_generate_messages_cpp)
-target_link_libraries(range_image_generator
-   ${catkin_LIBRARIES}
-   ${OpenCV_LIBRARIES}
-   #${PCL_LIBRARIES}
-   ${OpenMP_CXX_FLAGS}
-   )
-
-target_compile_options(range_image_generator PRIVATE -g -std=c++11 -Wall -ftree-vectorize ${SHOW_VECTORIZE_INFO} -funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
-  #${OpenMP_CXX_FLAGS}
-  )
 
   
 add_library(point_transformer src/point_transformer.cpp)
@@ -181,19 +166,6 @@ target_compile_options(point_transformer PRIVATE -g -std=c++11 -Wall -ftree-vect
   #${OpenMP_CXX_FLAGS}
   )
 
-
-add_library(point_cloud_generator src/point_cloud_generator.cpp)
-#add_dependencies(point_cloud_generator ${PROJECT_NAME}_generate_messages_cpp)
-target_link_libraries(point_cloud_generator
-   ${catkin_LIBRARIES}
-   #${OpenCV_LIBRARIES}
-   #${PCL_LIBRARIES}
-   #${OpenMP_CXX_FLAGS}
-   )
-
-target_compile_options(point_cloud_generator PRIVATE -g -std=c++11 -Wall -ftree-vectorize ${SHOW_VECTORIZE_INFO} ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
-  ${OpenMP_CXX_FLAGS}
-  )
 
 
 
@@ -239,42 +211,7 @@ target_link_libraries(egocylindrical_propagator_node
    )
 
   
-add_executable(pointcloud_generator_node src/point_cloud_node.cpp)
 
-#TODO: Add only necessary dependencies
-add_dependencies(pointcloud_generator_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-target_link_libraries(pointcloud_generator_node
-   point_cloud_generator
-   ${catkin_LIBRARIES}
-   ${OpenCV_LIBRARIES}
-   ${PCL_LIBRARIES}
-   ${OpenMP_CXX_FLAGS}
-   )
-
-target_compile_options(pointcloud_generator_node PRIVATE -g -std=c++11 -Wall #${OpenMP_CXX_FLAGS} -ftree-vectorize -funsafe-math-optimizations 
-  #${OpenMP_CXX_FLAGS}
-  )
-  
-
-  
-
-add_executable(range_image_publisher src/range_image_node.cpp)
-
-#TODO: Add dependencies as needed
-add_dependencies(range_image_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-target_link_libraries(range_image_publisher
-   range_image_generator
-   ${catkin_LIBRARIES}
-   #${OpenCV_LIBRARIES}
-   #${PCL_LIBRARIES}
-   ${OpenMP_CXX_FLAGS}
-   )
-
-target_compile_options(range_image_publisher PRIVATE -g -std=c++11 -Wall #${OpenMP_CXX_FLAGS} -ftree-vectorize -funsafe-math-optimizations 
-  #${OpenMP_CXX_FLAGS}
-  )
 
 
   

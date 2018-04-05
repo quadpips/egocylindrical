@@ -37,28 +37,6 @@ namespace utils
     {
         return std::sqrt(point.x*point.x + point.z*point.z);
     }
-   /*
-    
-    cv::Point3f worldToCylindrical(cv::Point3f point, int cyl_width, int cyl_height, double hfov, double vfov)
-    {
-        cv::Point3f Pcyl_t = point / cv::sqrt(cv::pow(point.x, 2) + cv::pow(point.z, 2));   
-        
-        double theta = std::atan2(point.x,point.z);
-        double phi = std::atan2(point.y,point.z);
-        
-        cyl_width* theta /hfov
-        
-        
-    }
-    */
-    
-    /*
-    inline
-    cv::Point cylindricalToImage(cv::Point3f point)
-    {
-        
-    }
-    */
     
     inline
     cv::Point3f projectWorldToCylinder(const cv::Point3f& point)
