@@ -107,11 +107,15 @@ namespace egocylindrical
             ec_pub_.publish(msg);
         }
 
+
+
+        start = ros::WallTime::now();
         sensor_msgs::LaserScan scan;
 
         scan.header = stixels->header;
         scan.header.frame_id = "base_link";
         utils::stixel_to_LaserScan(new_pts_, scan, cylinder_width_);
+        ROS_INFO_STREAM("Converting to laserscan took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
         laser_pub.publish(scan);
 
 
@@ -137,7 +141,7 @@ namespace egocylindrical
         hfov_ = 2*pi;
         vfov_ = pi/2;        
         
-        cylinder_width_ = 2048*2;
+        cylinder_width_ = 2048*4;
         cylinder_height_ = 320;
         
         ccc_ = utils::CylindricalCoordsConverter(cylinder_width_, cylinder_height_, hfov_, vfov_);

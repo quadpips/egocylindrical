@@ -22,7 +22,7 @@ namespace egocylindrical
             scan.angle_increment = M_PI * 2 / cylindrical_width;
             scan.ranges.resize(cylindrical_width, utils::dNaN);
             scan.range_min = 0;
-            scan.range_max = 500;
+            scan.range_max = 6.5;
             scan.time_increment = 0;
             std::vector<float> x(*stixel->getX());
             std::vector<float> z(*stixel->getZ());
@@ -35,17 +35,9 @@ namespace egocylindrical
                 {
                     depth = hypot(x[i], z[i]);
                     theta = atan2(z[i], x[i]);
-                    float temp  = (theta - scan.angle_min) / scan.angle_increment - cylindrical_width / 4;
+                    float temp  = (theta - scan.angle_min) / scan.angle_increment + 3 *  cylindrical_width / 4;
                     index = roundf(temp);
-                    try
-                    {
-                        scan.ranges.at(index % cylindrical_width) = depth;
-                    }
-                    catch(std::out_of_range& o)
-                    {
-
-                    }
-
+                    scan.ranges.at(index % cylindrical_width) = depth;
                 }
 
             }
