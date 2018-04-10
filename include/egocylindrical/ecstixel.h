@@ -67,17 +67,7 @@ namespace egocylindrical
                 top_y.resize(width_, utils::dNaNs);
                 z.resize(width_, utils::dNaNs);
             }
-            
-//             ECStixel(const stixel_estimator::stixelListMsgConstPtr& ec_stixels) 
-//             {
-//                 const_msg_ = ec_stixels;
-//                 header_ = const_msg_->header;
-//                 x = 
-//                 
-//                 //std::cout << "Address: " << std::hex  << const_msg_->points.data.data() << std::dec << ", height=" << height_ << ", width=" << width_ << ", step=" << step << std::endl;
-//                 
-//             }
-            
+
             inline
             bool generateStixel(const image_geometry::PinholeCameraModel& cam_model, const float baseline)
             {

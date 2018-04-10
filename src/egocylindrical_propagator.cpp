@@ -106,7 +106,7 @@ namespace egocylindrical
         sensor_msgs::LaserScan scan;
 
         scan.header = stixels->header;
-        scan.header.frame_id = "base_link";
+        scan.header.frame_id = "/camera_depth_frame";
         utils::stixel_to_LaserScan(new_pts_, scan, cylinder_width_);
         ROS_INFO_STREAM("Converting to laserscan took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
         laser_pub.publish(scan);

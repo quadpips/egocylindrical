@@ -212,7 +212,7 @@ namespace utils
         
         for(int i = 39; i < stixels.size(); ++i)
         {
-            if(stixels[i].disparity > 5)
+            if(stixels[i].disparity > 5 && stixels[i].isValid)
             {
                 cv::Point2d pt_b;
                 pt_b.x = stixels[i].x;

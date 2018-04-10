@@ -1,4 +1,3 @@
-#include <egocylindrical/ecwrapper.h>
 #include <egocylindrical/utils.h>
 
 
