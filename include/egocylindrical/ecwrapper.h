@@ -97,21 +97,23 @@ namespace egocylindrical
             return im_pt;
         }
         
+        template <typename T>
         inline
-        float worldToRangeSquared(const float x, const float z)
+        T worldToRangeSquared(const T x, const T z)
         {
             return x*x + z*z;
         }
         
-
+        template <typename T>
         inline
-        float worldToRangeSquared(const cv::Point3f& point)
+        T worldToRangeSquared(const cv::Point3_<T>& point)
         {
             return point.x*point.x + point.z*point.z;
         }
         
+        template <typename T>
         inline
-        float worldToRange(const cv::Point3f& point)
+        T worldToRange(const cv::Point3_<T>& point)
         {
             return std::sqrt(worldToRangeSquared(point));
         }
@@ -134,8 +136,7 @@ namespace egocylindrical
         
         
         
-        // TODO: pull the relevant egocylindrical 'camera' info into separate message and use this class as the interpreter of it
-        // ECWrapper would also use this class
+        // This class serves as the converter between egocylindrical and world coordinates
         class ECConverter
         {
         protected:
@@ -148,6 +149,7 @@ namespace egocylindrical
           {
           }
           
+          inline
           void updateParams(int height, int width, float vfov)
           {
             height_ = height;
@@ -163,6 +165,7 @@ namespace egocylindrical
           }
           
           // NOTE: Not sure whether this belongs here or in derived class
+          inline
           void fromCameraInfo(const ECMsgConstPtr& msg)
           {
             
@@ -226,21 +229,31 @@ namespace egocylindrical
           
         };
         
-        
-        class ECPointStorage
-        {
-          
-        };
-        
         /*
-         * This class is intended to act as an abstraction of the egocylindrical representation
+         * This class is intended to act as an abstraction of the egocylindrical data representation
          * to enable other functions to operate on it without requiring knowledge of the implementation.
          * Functionality will be moved incrementally.
          * It is hoped that it will be extended to simplify other egocylindrical versions, ex. stixel
          */
+        class ECDataAccess
+        {
+        public:
+          inline virtual float* getX()                        =0;
+          inline virtual const float* getX()          const   =0;
+          
+          inline virtual float* getY()                        =0;
+          inline virtual const float* getY()          const   =0;
+          
+          inline virtual float* getZ()                        =0;
+          inline virtual const float* getZ()          const   =0;
+          
+        };
         
-        // TODO: create an abstract class to serve as interface so that different storage mechanisms can be used on the backend
-        class ECWrapper : public ECConverter
+        /*
+         * ECWrapper is the interface for accessing egocylindrical data stored in a EgoCylinderPoints message
+         */
+        
+        class ECWrapper : public ECConverter, public ECDataAccess
         {
         private:
 
