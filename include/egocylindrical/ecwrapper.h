@@ -138,7 +138,7 @@ namespace egocylindrical
         // ECWrapper would also use this class
         class ECConverter
         {
-        private:
+        protected:
           int height_, width_;
           float vfov_;
           float hscale_, vscale_;
@@ -148,18 +148,37 @@ namespace egocylindrical
           {
           }
           
+          void updateParams(int height, int width, float vfov)
+          {
+            height_ = height;
+            width_ = width;
+            vfov_ = vfov;
+            hscale_ = width_/(2*M_PI);
+            vscale_ = height_/vfov_;
+          }
+          
+          ECConverter(int height, int width, float vfov)
+          {
+            updateParams(height,width,vfov);
+          }
+          
+          // NOTE: Not sure whether this belongs here or in derived class
           void fromCameraInfo(const ECMsgConstPtr& msg)
           {
             
-            //header_ = msg->header;
-            vfov_ = msg->fov_v;
+            float vfov = msg->fov_v;
             
             const std::vector<std_msgs::MultiArrayDimension>& dims = msg->points.layout.dim;
             int components = dims[0].size;
-            height_ = dims[1].size;
-            width_ = dims[2].size;
-            hscale_ = width_/(2*M_PI);
-            vscale_ = height_/vfov_;
+            int height = dims[1].size;
+            int width = dims[2].size;
+            
+            updateParams(height, width, vfov);
+          }
+          
+          ECConverter(const ECMsgConstPtr& msg)
+          {
+            fromCameraInfo(msg);
           }
           
           inline
@@ -168,16 +187,17 @@ namespace egocylindrical
             return utils::worldToCylindricalImage(point, width_, height_, hscale_, vscale_, 0, 0);
           }
           
+          
           inline
-          int getHeight()
+          int getWidth() const
           {
-            return height_;
+            return width_;
           }
           
           inline
-          int getWidth()
+          int getHeight() const
           {
-            return width_;
+            return height_;
           }
           
           template <typename T>
@@ -198,10 +218,19 @@ namespace egocylindrical
             ray.z = cos(theta);
             
             ray.y = (point.y - (height_/2))/vscale_;
+            
+            ray /= (ray.x*ray.x + ray.y * ray.y + ray.z*ray.z);
+            
+            return ray;
           }
           
         };
         
+        
+        class ECPointStorage
+        {
+          
+        };
         
         /*
          * This class is intended to act as an abstraction of the egocylindrical representation
@@ -211,28 +240,15 @@ namespace egocylindrical
          */
         
         // TODO: create an abstract class to serve as interface so that different storage mechanisms can be used on the backend
-        class ECWrapper
+        class ECWrapper : public ECConverter
         {
         private:
-            
-            //cv::Mat points_;
-            
+
             float* points_;
             
-            //void* ranges_=nullptr;
-            AlignedVector<float> ranges_;
-            
-            //long int* inds_=nullptr; // Note: on 32/64 bit systems, int almost always has the same size as long, but just to be safe...
-            
-            AlignedVector<long int> inds_;
-
-            
-            float* aligned_ranges_ = nullptr;
-            long int* aligned_inds_ = nullptr;
-            
-            int height_, width_;
-            float vfov_;
-            float hscale_, vscale_;
+            // Cleaner to use auto-allocated and freed objects
+            AlignedVector<float> ranges_;       
+            AlignedVector<long int> inds_; // Note: on 32/64 bit systems, the 'long' is generally redundant as 'int' almost always has the same size as 'long', but just to be safe...
             
             std_msgs::Header header_;
             ECMsgPtr msg_; // The idea would be to store everything in the message's allocated storage to prevent copies
@@ -249,9 +265,7 @@ namespace egocylindrical
         public:
             
             ECWrapper(int height, int width, float vfov, bool allocate_arrays = false):
-            height_(height),
-            width_(width),
-            vfov_(vfov)
+              ECConverter(height, width, vfov)
             {
                 msg_ = boost::make_shared<ECMsg>();
                 
@@ -300,49 +314,10 @@ namespace egocylindrical
                 if(allocate_arrays)
                 {
                   ranges_.resize(height_*width_);
-                  //ranges_ = boost::alignment::aligned_alloc(__BIGGEST_ALIGNMENT__, height_*width_*sizeof(float));
-                    {
-                        //ranges_ = new float[height_*width_ + buffer_objects];
-                        //aligned_ranges_ = ranges_;
-                        
-                        /*
-                        void* temp_range = (void*) ranges_;
-                        //aligned_ranges_ = ranges_;
-                        
-                        size_t space_before = height_*width_*sizeof(float);
-                        size_t space_after = space_before;
-                        
-                        std::align(biggest_alignment, sizeof(float), temp_range, space_after);
-                        aligned_ranges_ = (float*) temp_range;
-                        
-                        ROS_INFO_STREAM("Aligned ranges_, adjusted pointer by " << (space_before - space_after) << " bytes");
-                        */
-                    }
-                    
                   inds_.resize(height_*width_);
-                    
-                    {
-                        //inds_ = new long int[height_*width_ + (biggest_alignment / sizeof(long int)) - 1];
-                        //aligned_inds_ = inds_;
-                        
-                        /*
-                        void* temp_inds = (void*) inds_;
-                        
-                        size_t space_before = height_*width_*sizeof(long int);
-                        size_t space_after = space_before;
-                        
-                        std::align(biggest_alignment, sizeof(long int), temp_inds, space_after);
-                        aligned_inds_ = (long int*) temp_inds;
-                        
-                        ROS_INFO_STREAM("Aligned inds_, adjusted pointer by " << (space_before - space_after) << " bytes");
-                        */
-                    }
                 }
                 
                 msg_->fov_v = vfov_;
-                
-                hscale_ = width_/(2*M_PI);
-                vscale_ = height_/vfov;
                 
                 
                 std::vector<std_msgs::MultiArrayDimension>& dims = msg_->points.layout.dim;
@@ -353,49 +328,27 @@ namespace egocylindrical
                 dim0.label = "components";
                 dim0.size = 3;
                 dim0.stride = 3*height_*width_;
-                //dims[0] = dim0;
                 
                 
                 std_msgs::MultiArrayDimension& dim1 = dims[1];
                 dim1.label = "rows";
                 dim1.size = height_;
                 dim1.stride = height_*width_;
-                //dims[1] = dim1;
 
                 
                 std_msgs::MultiArrayDimension& dim2 = dims[2];
                 dim2.label = "point";
                 dim2.size = width_;
                 dim2.stride = width_;             
-                //dims[2] = dim2;
-                
-                
-                int step = dim1.stride * sizeof(float);
-                
-                //points_ = cv::Mat(3, height_ * width_, CV_32FC1, const_cast<float*>(msg_->points.data.data()), step);
-                
-                
-                //std::cout << "Address: " << std::hex  << msg_->points.data.data() << std::dec << ", height=" << height_ << ", width=" << width_ << ", step=" << step << std::endl; //std::setfill('0') << std::setw(2) << ar[i] << " ";
-                
 
-                //points_.setTo(utils::dNaN);
             }
             
-            ECWrapper(const ECMsgConstPtr& ec_points) 
+            ECWrapper(const ECMsgConstPtr& ec_points) :
+              ECConverter(ec_points)
             {
                 const_msg_ = ec_points;
                 header_ = const_msg_->header;
-                vfov_ = const_msg_->fov_v;
-                
-                const std::vector<std_msgs::MultiArrayDimension>& dims = const_msg_->points.layout.dim;
-                int components = dims[0].size;
-                height_ = dims[1].size;
-                width_ = dims[2].size;
-                
-                int step = dims[1].stride * sizeof(float);
-                
-                //points_ = cv::Mat(components, height_ * width_, CV_32FC1, const_cast<float*>(const_msg_->points.data.data()), step);
-                
+                                
                 points_ = (float*) const_msg_->points.data.data() + (const_msg_->points.layout.data_offset) / sizeof(float);
                 
                 //std::cout << "Address: " << std::hex  << const_msg_->points.data.data() << std::dec << ", height=" << height_ << ", width=" << width_ << ", step=" << step << std::endl;
@@ -404,15 +357,7 @@ namespace egocylindrical
             
             ~ECWrapper()
             {
-                /*
-                if(ranges_ != nullptr)
-                   {
-                       //delete inds_;
-                       //delete ranges_;
-                       boost::alignment::aligned_free(ranges_);
-                       
-                   }
-                   */
+
             }
             
                         
@@ -454,17 +399,6 @@ namespace egocylindrical
                 return height_*width_;
             }
             
-            inline
-            int getWidth() const
-            {
-                return width_;
-            }
-            
-            inline
-            int getHeight() const
-            {
-                return height_;
-            }
             
             inline
             std_msgs::Header getHeader() const
@@ -477,13 +411,6 @@ namespace egocylindrical
             {
                 return cv::Rect(0, 0, width_, height_);
             }
-            
-            inline
-            cv::Point worldToCylindricalImage(const cv::Point3f& point) const
-            {
-                return utils::worldToCylindricalImage(point, width_, height_, hscale_, vscale_, 0, 0);
-            }
-            
             
             
             inline
