@@ -143,7 +143,7 @@ namespace egocylindrical
         
         
         inline
-        void transform_impl(const utils::ECWrapper& points, utils::ECWrapper& transformed_points, const float*  const _R, const float*  const _T)
+        void transform_impl(const utils::ECWrapper& points,  utils::ECPropagationResult& transformed_points, const float*  const _R, const float*  const _T)
         {
             cv::Rect image_roi = points.getImageRoi();
             
@@ -164,7 +164,7 @@ namespace egocylindrical
             const float* const R = (float*)__builtin_assume_aligned(_R, __BIGGEST_ALIGNMENT__);
             const float* const T = (float*)__builtin_assume_aligned(_T, __BIGGEST_ALIGNMENT__);
             
-            const int num_cols = points.getCols();
+            const int num_cols = points.getNumPts();
             const int width = points.getWidth();
             const int height = points.getHeight();
             
@@ -276,7 +276,7 @@ namespace egocylindrical
         }
         
         // TODO: This functionality could be moved into a tf2_ros implementation
-        void transformPoints(const utils::ECWrapper& points, utils::ECWrapper& transformed_points, const geometry_msgs::TransformStamped& trans)
+        void transformPoints(const utils::ECWrapper& points, utils::ECPropagationResult& transformed_points, const geometry_msgs::TransformStamped& trans)
         {
             
             

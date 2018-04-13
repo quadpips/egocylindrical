@@ -37,6 +37,8 @@ private:
         
 
     utils::ECWrapperPtr new_pts_, old_pts_, transformed_pts_, next_pts_;
+    
+    utils::ECPropagationResult propagation_results_;
 
     image_geometry::PinholeCameraModel model_t;
     

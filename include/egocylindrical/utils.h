@@ -25,7 +25,7 @@ namespace utils
 
     
     inline
-    void addPoints(utils::ECWrapper& cylindrical_history, const utils::ECWrapper& new_points, bool overwrite)
+    void addPoints(utils::ECWrapper& cylindrical_history, const utils::ECPropagationResult& new_points, bool overwrite)
     {
         cv::Rect image_roi = cylindrical_history.getImageRoi();
         
@@ -137,7 +137,7 @@ namespace utils
     sensor_msgs::ImagePtr getRawRangeImageMsg(const utils::ECWrapper& cylindrical_history);
     
     void transformPoints(utils::ECWrapper& points, const geometry_msgs::TransformStamped& trans);
-    void transformPoints(const utils::ECWrapper& points, utils::ECWrapper& transformed_points, const geometry_msgs::TransformStamped& trans);
+    void transformPoints(const utils::ECWrapper& points,  utils::ECPropagationResult& transformed_points, const geometry_msgs::TransformStamped& trans);
     
     
 }

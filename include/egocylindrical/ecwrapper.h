@@ -235,7 +235,7 @@ namespace egocylindrical
          * Functionality will be moved incrementally.
          * It is hoped that it will be extended to simplify other egocylindrical versions, ex. stixel
          */
-        class ECDataAccess
+        class ECPointInterface
         {
         public:
           inline virtual float* getX()                        =0;
@@ -246,23 +246,105 @@ namespace egocylindrical
           
           inline virtual float* getZ()                        =0;
           inline virtual const float* getZ()          const   =0;
+
+          inline virtual int getNumPts()              const   =0;
+          inline virtual int getCols()                const {return getNumPts(); }
+
+        };
+        
+        class ECPropagationTemporaries
+        {
+        private:
+          
+          AlignedVector<float> ranges_;       
+          AlignedVector<long int> inds_; // Note: on 32/64 bit systems, the 'long' is generally redundant as 'int' almost always has the same size as 'long', but just to be safe...
+          
+        public:
+          inline
+          void resize(int size)
+          {
+            ranges_.resize(size);
+            inds_.resize(size);
+          }
+          
+          ECPropagationTemporaries() {}
+          
+          ECPropagationTemporaries(int size)
+          {
+            resize(size);
+          }
+          
+          inline float* getRanges()                 __attribute__((assume_aligned(__BIGGEST_ALIGNMENT__)))      { return (float*)           ranges_.data(); }
+          inline const float* getRanges()  const    __attribute__((assume_aligned(__BIGGEST_ALIGNMENT__)))      { return (const float*)     ranges_.data(); }
+          
+          inline long int* getInds()                __attribute__((assume_aligned(__BIGGEST_ALIGNMENT__)))      { return                    inds_.data(); }
+          inline const long int* getInds() const    __attribute__((assume_aligned(__BIGGEST_ALIGNMENT__)))      { return (const long int*)  inds_.data(); }
           
         };
+        
+        
+        class ECAlignedPointsStorage : public ECPointInterface
+        {
+        private:
+          
+          AlignedVector<float> x_;       
+          AlignedVector<float> y_;
+          AlignedVector<float> z_;
+          
+        public:
+          inline
+          void resize(int size)
+          {
+            x_.resize(size, dNaN);
+            y_.resize(size, dNaN);
+            z_.resize(size, dNaN);
+          }
+          
+          ECAlignedPointsStorage() {}
+          
+          ECAlignedPointsStorage(int size)
+          {
+            resize(size);
+          }
+          
+          inline float* getX()                 __attribute__((assume_aligned(__BIGGEST_ALIGNMENT__)))      { return (float*)           x_.data(); }
+          inline const float* getX()  const    __attribute__((assume_aligned(__BIGGEST_ALIGNMENT__)))      { return (const float*)     x_.data(); }
+          
+          inline float* getY()                 __attribute__((assume_aligned(__BIGGEST_ALIGNMENT__)))      { return (float*)           y_.data(); }
+          inline const float* getY()  const    __attribute__((assume_aligned(__BIGGEST_ALIGNMENT__)))      { return (const float*)     y_.data(); }
+          
+          inline float* getZ()                 __attribute__((assume_aligned(__BIGGEST_ALIGNMENT__)))      { return (float*)           z_.data(); }
+          inline const float* getZ()  const    __attribute__((assume_aligned(__BIGGEST_ALIGNMENT__)))      { return (const float*)     z_.data(); }
+          
+          inline int getNumPts()      const     { return x_.size(); };
+          
+        };
+        
+        
+        class ECPropagationResult : public ECPropagationTemporaries, public ECAlignedPointsStorage
+        {
+        public:
+          ECPropagationResult() {}
+          
+          inline
+          void resize(int size)
+          {
+            ECPropagationTemporaries::resize(size);
+            ECAlignedPointsStorage::resize(size);
+          }
+        };
+        
         
         /*
          * ECWrapper is the interface for accessing egocylindrical data stored in a EgoCylinderPoints message
          */
         
-        class ECWrapper : public ECConverter, public ECDataAccess
+        class ECWrapper : public ECConverter, public ECPointInterface, public ECPropagationTemporaries
         {
         private:
 
             float* points_;
-            
-            // Cleaner to use auto-allocated and freed objects
-            AlignedVector<float> ranges_;       
-            AlignedVector<long int> inds_; // Note: on 32/64 bit systems, the 'long' is generally redundant as 'int' almost always has the same size as 'long', but just to be safe...
-            
+
             std_msgs::Header header_;
             ECMsgPtr msg_; // The idea would be to store everything in the message's allocated storage to prevent copies
             
@@ -326,8 +408,7 @@ namespace egocylindrical
                 
                 if(allocate_arrays)
                 {
-                  ranges_.resize(height_*width_);
-                  inds_.resize(height_*width_);
+                  ECPropagationTemporaries::resize(height_*width_);
                 }
                 
                 msg_->fov_v = vfov_;
@@ -385,12 +466,8 @@ namespace egocylindrical
             
             inline float* getZ()                        { return getPoints() + 2*(height_ * width_); }
             inline const float* getZ()          const   { return (const float*) getPoints() + 2*(height_ * width_); }
-            
-            inline float* getRanges()                   { return (float*) ranges_.data(); }
-            inline const float* getRanges()     const   { return (const float*) ranges_.data(); }
-            
-            inline long int* getInds()                  { return inds_.data(); }
-            inline const long int* getInds()    const   { return (const long int*) inds_.data(); }
+
+            inline int getNumPts()      const   { return height_ * width_; }
             
 
             inline
@@ -400,19 +477,7 @@ namespace egocylindrical
                 msg_->header = header;
             }
             
-            inline
-            int getCols() const
-            {
-                return height_*width_;
-            }
-            
-            inline
-            int getNumPts() const
-            {
-                return height_*width_;
-            }
-            
-            
+
             inline
             std_msgs::Header getHeader() const
             {

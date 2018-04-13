@@ -19,33 +19,31 @@ namespace egocylindrical
 {
 
 
-
     void EgoCylindricalPropagator::propagateHistory(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::Header new_header)
     {
-        ros::WallTime start = ros::WallTime::now();
-        
-        std_msgs::Header old_header = old_pnts.getHeader();
-        
-        new_pnts.setHeader(new_header);
-        
-        ROS_DEBUG("Getting Transformation details");
-                geometry_msgs::TransformStamped trans = buffer_.lookupTransform(new_header.frame_id, new_header.stamp,
-                                old_header.frame_id, old_header.stamp,
-                                "odom");
-        
-        ROS_INFO_STREAM_NAMED("timing", "Finding transform took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
-                
-        
-        start = ros::WallTime::now();        
-        utils::transformPoints(old_pnts, *transformed_pts_, trans);
-        ROS_INFO_STREAM_NAMED("timing", "Transform points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
-        
-        start = ros::WallTime::now();
-        utils::addPoints(new_pnts, *transformed_pts_, false);
-        ROS_INFO_STREAM_NAMED("timing", "Inserting transformed points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
-
+      ros::WallTime start = ros::WallTime::now();
+      
+      std_msgs::Header old_header = old_pnts.getHeader();
+      
+      new_pnts.setHeader(new_header);
+      
+      ROS_DEBUG("Getting Transformation details");
+      geometry_msgs::TransformStamped trans = buffer_.lookupTransform(new_header.frame_id, new_header.stamp,
+                                                                      old_header.frame_id, old_header.stamp,
+                                                                      "odom");
+      
+      ROS_INFO_STREAM_NAMED("timing", "Finding transform took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+      
+      
+      start = ros::WallTime::now();        
+      utils::transformPoints(old_pnts, propagation_results_, trans);
+      ROS_INFO_STREAM_NAMED("timing", "Transform points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+      
+      start = ros::WallTime::now();
+      utils::addPoints(new_pnts, propagation_results_, false);
+      ROS_INFO_STREAM_NAMED("timing", "Inserting transformed points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+      
     }
-
 
     void EgoCylindricalPropagator::addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info)
     {
@@ -148,6 +146,8 @@ namespace egocylindrical
         cylinder_height_ = 320;
         
         transformed_pts_ = utils::getECWrapper(cylinder_height_,cylinder_width_,vfov_,true);
+        
+        propagation_results_.resize(cylinder_height_*cylinder_width_);
         
         next_pts_ = utils::getECWrapper(cylinder_height_,cylinder_width_,vfov_);
                 
