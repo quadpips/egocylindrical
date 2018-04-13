@@ -168,18 +168,18 @@ target_compile_options(range_image_generator PRIVATE -g -std=c++11 -Wall -ftree-
   )
 
   
-add_library(point_transformer src/point_transformer.cpp)
-target_link_libraries(point_transformer
-   ${catkin_LIBRARIES}
-   ${OpenCV_LIBRARIES}
-   #${PCL_LIBRARIES}
-   ${OpenMP_CXX_FLAGS}
-   )
-
-   #-fopt-info-vec-all
-target_compile_options(point_transformer PRIVATE -g -std=c++11 -Wall -ftree-vectorize   ${SHOW_VECTORIZE_INFO}-missed-all -funsafe-math-optimizations -fno-math-errno #-finite-math-only and -fno-trapping-math. -ffinite-math-only 
-  ${OpenMP_CXX_FLAGS}
-  )
+# add_library(point_transformer src/point_transformer.cpp)
+# target_link_libraries(point_transformer
+#    ${catkin_LIBRARIES}
+#    ${OpenCV_LIBRARIES}
+#    #${PCL_LIBRARIES}
+#    ${OpenMP_CXX_FLAGS}
+#    )
+# 
+#    #-fopt-info-vec-all
+# target_compile_options(point_transformer PRIVATE -g -std=c++11 -Wall -ftree-vectorize   ${SHOW_VECTORIZE_INFO}-missed-all -funsafe-math-optimizations -fno-math-errno #-finite-math-only and -fno-trapping-math. -ffinite-math-only 
+#   ${OpenMP_CXX_FLAGS}
+#   )
 
 ##Verified that ${OpenMP_CXX_FLAGS} contains what it should
 #message(STATUS=WARNING ${OpenMP_CXX_FLAGS})
@@ -218,7 +218,7 @@ add_library(egocylindrical_propagator src/egocylindrical_propagator.cpp)
 
 # Specify libraries to link a library or executable target against
 target_link_libraries(egocylindrical_propagator
-   point_transformer
+   #point_transformer
    ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
    #${PCL_LIBRARIES}

@@ -3,6 +3,8 @@
 //
 
 #include <egocylindrical/egocylindrical.h>
+#include <egocylindrical/transform_points.h>
+
 //#include <tf/LinearMath/Matrix3x3.h>
 //#include <cv_bridge/cv_bridge.h>
 #include <ros/ros.h>

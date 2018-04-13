@@ -23,9 +23,9 @@ namespace egocylindrical
 namespace utils
 {
 
-    
+    template<typename S, typename T>
     inline
-    void addPoints(utils::ECWrapper& cylindrical_history, const utils::ECPropagationResult& new_points, bool overwrite)
+    void addPoints(S& cylindrical_history, T& new_points, bool overwrite)
     {
         cv::Rect image_roi = cylindrical_history.getImageRoi();
         
@@ -136,9 +136,7 @@ namespace utils
     // Functions defined in separate compilation units:
     sensor_msgs::ImagePtr getRawRangeImageMsg(const utils::ECWrapper& cylindrical_history);
     
-    void transformPoints(utils::ECWrapper& points, const geometry_msgs::TransformStamped& trans);
-    void transformPoints(const utils::ECWrapper& points,  utils::ECPropagationResult& transformed_points, const geometry_msgs::TransformStamped& trans);
-    
+
     
 }
 
