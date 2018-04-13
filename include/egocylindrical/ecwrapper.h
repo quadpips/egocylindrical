@@ -307,14 +307,14 @@ namespace egocylindrical
             resize(size);
           }
           
-          inline float* getX()                 __attribute__((assume_aligned(__BIGGEST_ALIGNMENT__)))      { return (float*)           x_.data(); }
-          inline const float* getX()  const    __attribute__((assume_aligned(__BIGGEST_ALIGNMENT__)))      { return (const float*)     x_.data(); }
+          inline float* getX()                      { return (float*)           x_.data(); }
+          inline const float* getX()  const         { return (const float*)     x_.data(); }
           
-          inline float* getY()                 __attribute__((assume_aligned(__BIGGEST_ALIGNMENT__)))      { return (float*)           y_.data(); }
-          inline const float* getY()  const    __attribute__((assume_aligned(__BIGGEST_ALIGNMENT__)))      { return (const float*)     y_.data(); }
+          inline float* getY()                     { return (float*)           y_.data(); }
+          inline const float* getY()  const         { return (const float*)     y_.data(); }
           
-          inline float* getZ()                 __attribute__((assume_aligned(__BIGGEST_ALIGNMENT__)))      { return (float*)           z_.data(); }
-          inline const float* getZ()  const    __attribute__((assume_aligned(__BIGGEST_ALIGNMENT__)))      { return (const float*)     z_.data(); }
+          inline float* getZ()                    { return (float*)           z_.data(); }
+          inline const float* getZ()  const        { return (const float*)     z_.data(); }
           
           inline int getNumPts()      const     { return x_.size(); };
           
