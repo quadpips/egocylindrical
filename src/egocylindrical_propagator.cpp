@@ -36,11 +36,11 @@ namespace egocylindrical
       
       
       start = ros::WallTime::now();        
-      utils::transformPoints(old_pnts, propagation_results_, trans);
+      utils::transformPoints(old_pnts, *transformed_pts_, trans);
       ROS_INFO_STREAM_NAMED("timing", "Transform points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
       
       start = ros::WallTime::now();
-      utils::addPoints(new_pnts, propagation_results_, false);
+      utils::addPoints(new_pnts, *transformed_pts_, false);
       ROS_INFO_STREAM_NAMED("timing", "Inserting transformed points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
       
     }
@@ -147,7 +147,7 @@ namespace egocylindrical
         
         transformed_pts_ = utils::getECWrapper(cylinder_height_,cylinder_width_,vfov_,true);
         
-        propagation_results_.resize(cylinder_height_*cylinder_width_);
+        //propagation_results_.resize(cylinder_height_*cylinder_width_);
         
         next_pts_ = utils::getECWrapper(cylinder_height_,cylinder_width_,vfov_);
                 
