@@ -159,7 +159,7 @@ namespace egocylindrical
             omp_set_nested(1);
             int omp_p = omp_get_max_threads();
             
-            omp_p = std::min(omp_p-1, 2);
+            omp_p = std::min(omp_p-1, 1);
             
             
             #pragma omp parallel num_threads(omp_p)
