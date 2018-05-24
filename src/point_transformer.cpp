@@ -14,6 +14,8 @@
 
 #include <geometry_msgs/TransformStamped.h>
 
+#include <Eigen/Dense>
+#include <tf2_eigen/tf2_eigen.h>
 
 namespace egocylindrical
 {
@@ -131,8 +133,8 @@ namespace egocylindrical
             const float t1 = _T[1];
             const float t2 = _T[2];
                         
-            const float* const R = (float*)__builtin_assume_aligned(_R, __BIGGEST_ALIGNMENT__);
-            const float* const T = (float*)__builtin_assume_aligned(_T, __BIGGEST_ALIGNMENT__);
+            //const float* const R = (float*)__builtin_assume_aligned(_R, __BIGGEST_ALIGNMENT__);
+            //const float* const T = (float*)__builtin_assume_aligned(_T, __BIGGEST_ALIGNMENT__);
             
             const int num_cols = points.getCols();
             const int max_ind = new_points.getCols();
@@ -150,8 +152,34 @@ namespace egocylindrical
             
             float* ranges = (float*)__builtin_assume_aligned(transformed_points.getRanges(), __BIGGEST_ALIGNMENT__);
             long int* inds = (long int*)__builtin_assume_aligned(transformed_points.getInds(), __BIGGEST_ALIGNMENT__);
+           
+            /*
+            const Eigen::Map<Eigen::Matrix<float, 3, Eigen::Dynamic, Eigen::RowMajor>, Eigen::Aligned32> src_mat((float *)points.getX(),points.getHeight(),points.getWidth());
+            
+            Eigen::Map<Eigen::Matrix<float, 3, Eigen::Dynamic, Eigen::RowMajor>, Eigen::Aligned32> dest_mat(transformed_points.getX(),transformed_points.getHeight(),transformed_points.getWidth());
+            
+            const Eigen::Map<Eigen::Matrix<float, 3, 3, Eigen::RowMajor>, Eigen::Aligned32> R((float *)_R, 3, 3);
+            const Eigen::Map<Eigen::Matrix<float, 3, 1>, Eigen::Aligned32> T((float *)_T, 3, 1);
             
             
+            dest_mat = R * src_mat.transpose() + T;
+            */
+            
+            //const Eigen::Map<Eigen::MatrixXf> src_mat(points.getX(),points.getHeight(),points.getWidth());
+            
+            //Eigen::Map<Eigen::Matrix<float, 3, Eigen::Dynamic, Eigen::RowMajor>, Eigen::Aligned32> dest_mat(transformed_points.getX(),transformed_points.getHeight(),transformed_points.getWidth());
+            
+            //const Eigen::Map<Eigen::Matrix<const float, 3, 3, Eigen::RowMajor>, Eigen::Aligned32> R(_R, 3, 3);
+            
+            //dest_mat = R * dest_mat;
+            
+           // const auto src_mat = points.asEigen();
+           // auto dest_mat = transformed_points.asEigen();
+            
+            //Eigen::Map<Eigen::Matrix<float, 3, 3, Eigen::RowMajor>, Eigen::Aligned32> R((float*)_R, 3, 3);
+            //const Eigen::Map<Eigen::Matrix<const float, 3, 1>, Eigen::Aligned32> T(_T, 3, 1);
+            
+            //dest_mat = R * src_mat.transpose() + R;
             
                         
             if (omp_get_dynamic())
@@ -247,6 +275,27 @@ namespace egocylindrical
         void transformPoints(const utils::ECWrapper& points, utils::ECWrapper& transformed_points, const utils::ECWrapper& new_points, const geometry_msgs::TransformStamped& trans)
         {
   
+            ros::WallTime start = ros::WallTime::now();
+            Eigen::Affine3f transform = tf2::transformToEigen(trans).cast<float>();
+            
+            //auto t4 = transform.cast<float>();
+            
+            const Eigen::Map<Eigen::Matrix<float, 3, Eigen::Dynamic, Eigen::RowMajor>, Eigen::Aligned32 > src_mat((float *)points.getX(),3,points.getHeight()*points.getWidth()); //, Eigen::Aligned32
+            
+            Eigen::Map<Eigen::Matrix<float, 3, Eigen::Dynamic, Eigen::RowMajor>, Eigen::Aligned32 > dest_mat((float *)transformed_points.getX(),3,transformed_points.getHeight()*transformed_points.getWidth());
+            
+            /*
+            auto t1 = transform.linear();
+            auto t2 = transform.translation();
+            auto t3 = t1*src_mat;
+            auto t4 = t3.colwise() + transform.translation();
+            */
+            
+            dest_mat = (transform.linear() * src_mat).colwise() + transform.translation();
+            
+            ROS_INFO_STREAM("Eigen transformation took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+            
+            
             tf::Quaternion rotationQuaternion = tf::Quaternion(trans.transform.rotation.x,
                                                                trans.transform.rotation.y,
                                                                trans.transform.rotation.z,

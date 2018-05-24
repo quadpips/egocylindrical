@@ -17,6 +17,9 @@
 
 #include <egocylindrical/EgoCylinderPoints.h>
 
+#include <Eigen/Dense>
+
+
 //#include <eigen_stl_containers/eigen_stl_containers.h>
 
 #include <boost/align/aligned_alloc.hpp>
@@ -298,6 +301,7 @@ namespace egocylindrical
         {
         private:
             
+            //typedef Eigen::Aligned__BIGGEST_ALIGNMENT__ eigen_alignment;
             //cv::Mat points_;
             
             float* points_;
@@ -410,6 +414,22 @@ namespace egocylindrical
                 header_ = header;
                 msg_->header = header;
             }
+            
+            /*
+            inline
+            Eigen::Map<Eigen::Matrix<float, 3, Eigen::Dynamic, Eigen::RowMajor>, Eigen::Aligned32> asEigen()
+            {
+                Eigen::Map<Eigen::Matrix<float, 3, Eigen::Dynamic, Eigen::RowMajor>, Eigen::Aligned32> mat(points_,height_,width_);
+                return mat;
+            }
+            
+            inline
+            Eigen::Map<Eigen::Matrix<float, 3, Eigen::Dynamic, Eigen::RowMajor>, Eigen::Aligned32> asEigen() const
+            {
+                const Eigen::Map<Eigen::Matrix<float, 3, Eigen::Dynamic, Eigen::RowMajor>, Eigen::Aligned32> mat(points_,height_,width_);
+                return mat;
+            }
+                */
             
             inline
             int getCols() const

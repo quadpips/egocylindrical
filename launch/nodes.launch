@@ -1,7 +1,7 @@
 <launch>
   <arg name="depth_image" default="/camera/depth/image_raw"/>
   
-  <arg name="profile_args" default="valgrind --tool=callgrind"/>
+  <arg name="profile_args" default="valgrind --tool=callgrind         xterm -e gdb --args"/>
   
   <arg name="prefix" default="" />
   
