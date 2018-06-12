@@ -108,7 +108,7 @@ namespace egocylindrical
         
         
         inline
-        void transform_impl(const utils::ECWrapper& points, utils::ECWrapper& transformed_points, const utils::ECWrapper& new_points, const float*  const _R, const float*  const _T)
+        void transform_impl(const utils::ECWrapper& points, utils::ECWrapper& transformed_points, const utils::ECParams& new_points, const float*  const _R, const float*  const _T)
         {            
             const float r0 = _R[0];
             const float r1 = _R[1];
@@ -230,7 +230,7 @@ namespace egocylindrical
         }
         
         // TODO: This functionality could be moved into a tf2_ros implementation
-        void transformPoints(const utils::ECWrapper& points, utils::ECWrapper& transformed_points, const utils::ECWrapper& new_points, const geometry_msgs::TransformStamped& trans)
+        void transformPoints(const utils::ECWrapper& points, utils::ECWrapper& transformed_points, const utils::ECParams& new_points, const geometry_msgs::TransformStamped& trans)
         {
   
             tf::Quaternion rotationQuaternion = tf::Quaternion(trans.transform.rotation.x,

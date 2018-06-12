@@ -24,7 +24,7 @@ namespace egocylindrical
 
         template <uint scale, typename S, typename T, typename U>
         inline
-        void range_to_points(const utils::ECConverter& info, U* m_ranges, T* x, T* y, T* z)
+        void range_to_points(const utils::ECParams& info, U* m_ranges, T* x, T* y, T* z)
         {
             S* ranges = (S*) m_ranges;
             
@@ -61,16 +61,14 @@ namespace egocylindrical
         ECWrapperPtr range_image_to_wrapper(const ECWrapper& info, const sensor_msgs::Image::ConstPtr image)
         {
           ECWrapperPtr wrapper = getECWrapper(info);
-          ECConverter converter;
-          converter.fromParams(info.getParams());
           
           if(image->encoding == sensor_msgs::image_encodings::TYPE_16UC1)
           {
-            range_to_points<1000, uint16_t>(converter, image->data.data(), wrapper->getX(), wrapper->getY(), wrapper->getZ());
+            range_to_points<1000, uint16_t>(info, image->data.data(), wrapper->getX(), wrapper->getY(), wrapper->getZ());
           }
           else if(image->encoding == sensor_msgs::image_encodings::TYPE_32FC1)
           {
-            range_to_points<1, float>(converter, image->data.data(), wrapper->getX(), wrapper->getY(), wrapper->getZ());
+            range_to_points<1, float>(info, image->data.data(), wrapper->getX(), wrapper->getY(), wrapper->getZ());
           }
           
           wrapper->setHeader(info.getHeader());
