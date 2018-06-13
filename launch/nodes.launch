@@ -1,9 +1,11 @@
 <launch>
   <arg name="depth_image" default="/camera/depth/image_raw"/>
   
-  <arg name="profile_args" default="valgrind --tool=callgrind"/>
-  
-  <arg name="prefix" default="xterm -e gdb --args" />
+  <arg name="prefix1" default="valgrind --tool=callgrind"/>
+  <arg name="valgrind" default="valgrind"/>
+  <arg name="prefix" default=""/>
+
+  <arg name="prefix2" default="xterm -e gdb --args" />
   
   <group ns="egocylinder">
 

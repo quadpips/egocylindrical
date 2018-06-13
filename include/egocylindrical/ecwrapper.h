@@ -200,8 +200,8 @@ namespace egocylindrical
         class ECParams
         {
         private:
-          int height_, width_, num_pts_;
-          float vfov_;
+          int height_=-1, width_=-1, num_pts_=0;
+          float vfov_=-1;
           float hscale_, vscale_;
           
           
