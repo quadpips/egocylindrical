@@ -174,7 +174,7 @@ target_link_libraries(point_cloud_core
    #${OpenMP_CXX_FLAGS}
    )
 
-target_compile_options(point_cloud_core PRIVATE -g -std=c++11 -Wall -ftree-vectorize ${SHOW_VECTORIZE_INFO} ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
+target_compile_options(point_cloud_core PRIVATE -g -std=c++11 -Wall -ftree-vectorize ${SHOW_VECTORIZE_INFO}-all ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
   ${OpenMP_CXX_FLAGS}
   )
   
