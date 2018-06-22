@@ -67,7 +67,7 @@ namespace egocylindrical
                 data[4*j] = x[j];
                 data[4*j+1] = y[j];
                 data[4*j+2] = z[j];
-                data[4*j+3] = 1;
+                //data[4*j+3] = 1;
             }
             
             
