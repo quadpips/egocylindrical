@@ -28,7 +28,7 @@ namespace egocylindrical
             
             
             sensor_msgs::PointCloud2::Ptr pcloud_msg = boost::make_shared<sensor_msgs::PointCloud2>();
-            /*
+            
             pcl::toROSMsg(pcloud, *pcloud_msg);
             
             pcloud_msg->data.resize(sizeof(pcl::PointXYZ) * num_cols);
@@ -36,47 +36,48 @@ namespace egocylindrical
             pcloud_msg->width = points.getWidth();
             pcloud_msg->height = points.getHeight();
             pcloud_msg->row_step = static_cast<uint32_t> (sizeof (pcl::PointXYZ) * pcloud_msg->width);
-            pcloud_msg->is_dense = false;
+            pcloud_msg->is_dense = true;  //should be false, but seems to work with true
             
-            */
+            /*
             
             
             pcloud.points.resize(num_cols);
             pcloud.width = points.getWidth();
             pcloud.height = points.getHeight();
             
-
+            */
             const float* x = points.getX();
             const float* y = points.getY();
             const float* z = points.getZ();
             
-            //float* data = (float*) pcloud_msg->data.data();
+            float* data = (float*) pcloud_msg->data.data();
 
-            
+            /*
             //#pragma omp parallel for num_threads(4)
             for(int j = 0; j < num_cols; ++j)
             {   pcl::PointXYZ point(x[j],y[j],z[j]);
                 pcloud.at(j) = point;
             }
+            */
             
             
-            /*
-            #pragma omp parallel for num_threads(4)
+            //#pragma omp parallel for num_threads(4)
             for(int j = 0; j < num_cols; ++j)
             {   
                 data[4*j] = x[j];
                 data[4*j+1] = y[j];
                 data[4*j+2] = z[j];
+                data[4*j+3] = 1;
             }
             
             
             
-            */
+            
             
 
             //ros::WallTime start = ros::WallTime::now();
             //sensor_msgs::PointCloud2 msg;
-            pcl::toROSMsg(pcloud, *pcloud_msg);
+            //pcl::toROSMsg(pcloud, *pcloud_msg);
             
             //ROS_INFO_STREAM("pointcloud conversion took " << (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
             
