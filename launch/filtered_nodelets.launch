@@ -5,18 +5,37 @@
   <arg name="nodelet_manager" default="$(arg provided_manager)" if="$(arg use_provided_manager)" />
 
   <arg name="depth_image" default="/camera/depth/image"/>
-
-
+  <arg name="depth_info" default="/camera/depth/camera_info"/>
+  
+  <arg name="decimated_depth_image" default="/camera/depth_decimated/image"/>
+  <arg name="decimated_depth_info" default="/camera/depth_decimated/camera_info"/>
+  
+  <arg name="filtered_depth_image" default="/camera/depth_decimated/filtered_image"/>
+  <arg name="decimation" default="1"/>
   
   <group ns="egocylinder">
     <node name="$(arg nodelet_manager)" pkg="nodelet" type="nodelet" args="manager" unless="$(arg use_provided_manager)" output="log">
 
     </node>
+    
+    <node name="image_decimation" pkg="nodelet" type="nodelet" args="standalone image_proc/crop_decimate">
+      <remap from="camera/image_raw" to="$(arg depth_image)"/>
+      <remap from="camera/camera_info" to="$(arg depth_info)"/>
+      <remap from="camera_out/image_raw" to="$(arg decimated_depth_image)"/>
+      <remap from="camera_out/camera_info" to="$(arg decimated_depth_info)"/>
+      <!--<param name="decimation_x"  value="$(arg decimation)"/>
+      <param name="decimation_y"  value="$(arg decimation)"/> -->
+     <!-- <param name="interpolation" value="0"/> -->
+    </node>
+    
+    <node name="image_filter" pkg="egocylindrical" type="filter_node">
+      <remap from="image_in" to="$(arg decimated_depth_image)"/>
+      <remap from="image_out" to="$(arg filtered_depth_image)"/>
+    </node>
 
     <node name="depth_to_egocylindrical_nodelet" pkg="nodelet" type="nodelet" args="load egocylindrical/egocylindrical_propagator_nodelet $(arg nodelet_manager)" >
-     <!-- <remap from="/camera/depth/image_raw" to="$(arg depth_image)"/> -->
-      <param name="image_in" value="$(arg depth_image)"/>
-      <param name="info_in" value="/camera/depth/camera_info"/>
+      <param name="image_in" value="$(arg filtered_depth_image)"/>
+      <param name="info_in" value="$(arg decimated_depth_info)"/>
       <param name="points_out" value="data"/>
       <param name="filtered_points" value="filtered_points"/>
     </node>

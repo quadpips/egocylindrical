@@ -93,7 +93,7 @@ namespace egocylindrical
     //NOTE: Once the parameters have been moved to their own message, this should subscribe to the parameters instead
     void imageCB(const sensor_msgs::Image::ConstPtr& image_msg)
     {
-        ROS_INFO("Received image msg");
+        ROS_DEBUG("Received image msg");
         
         // This may be redundant now
         if(im_pub_.getNumSubscribers() > 0)
