@@ -14,7 +14,7 @@ namespace egocylindrical
         
         //template <typename T>
         //using Allocator = std::allocator<void>;
-        using Allocator = boost::alignment::aligned_allocator<void, 64>;
+        using Allocator = boost::alignment::aligned_allocator<void, __BIGGEST_ALIGNMENT__>;
         
         //typedef ::egocylindrical::EgoCylinderPoints_<Eigen::aligned_allocator<void, 32> > AlignedEgoCylinderPoints;
         typedef ::egocylindrical::EgoCylinderPoints_<utils::Allocator> ECMsg;
