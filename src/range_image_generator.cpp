@@ -84,7 +84,7 @@ namespace egocylindrical
     }
 
     
-    void EgoCylinderRangeImageGenerator::ecPointsCB(const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg)
+    void EgoCylinderRangeImageGenerator::ecPointsCB(const egocylindrical::utils::ECMsg::ConstPtr& ec_msg)
     {
         ROS_DEBUG("Received EgoCylinderPoints msg");
         

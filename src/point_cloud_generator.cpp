@@ -58,7 +58,7 @@ namespace egocylindrical
     }
     
     
-    void EgoCylinderPointCloudGenerator::ecPointsCB(const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg)
+    void EgoCylinderPointCloudGenerator::ecPointsCB(const egocylindrical::utils::ECMsg::ConstPtr& ec_msg)
     {
         ROS_DEBUG("Received EgoCylinderPoints msg");
 

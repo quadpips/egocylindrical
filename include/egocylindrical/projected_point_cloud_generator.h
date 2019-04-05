@@ -36,7 +36,7 @@ private:
     
     void ssCB();
 
-    void ecPointsCB(const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg);
+    void ecPointsCB(const egocylindrical::utils::ECMsg::ConstPtr& ec_msg);
 
 };
 

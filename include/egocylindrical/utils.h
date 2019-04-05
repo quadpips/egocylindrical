@@ -39,6 +39,8 @@ namespace utils
         const float* ranges = new_points.getRanges();
         const int32_t* inds = new_points.getInds();
         
+        int num_changed=0;
+        float max_change=0;
 
         ROS_DEBUG("Relocated the propagated image");
         //#pragma omp parallel for
@@ -68,6 +70,11 @@ namespace utils
                 
                 if(!(prev_depth <= depth)) //overwrite || 
                 {   
+                    if((prev_depth - depth)/depth > .05)
+                    {
+                      num_changed++;
+                      max_change=std::max(max_change,(prev_depth - depth));
+                    }
                     /*TODO: Check if this gets compiled out or not. If not, remove this object, 
                      * or perhaps use basic templated custom point class to combine benefits of
                      * readability and efficiency
@@ -84,6 +91,8 @@ namespace utils
             
             
         }
+        
+        ROS_INFO_STREAM("Num changed: " << num_changed << "; max change: " << max_change);
     
         
         

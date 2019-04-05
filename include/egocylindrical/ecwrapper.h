@@ -16,7 +16,7 @@
 //#include <sensor_msgs/PointCloud2.h>
 
 #include <egocylindrical/EgoCylinderPoints.h>
-
+#include <egocylindrical/egocylinder_msg_details.h>
 //#include <eigen_stl_containers/eigen_stl_containers.h>
 
 #include <boost/align/aligned_alloc.hpp>
@@ -25,7 +25,7 @@
 #include <cstddef>
 #include <cstdalign>
 #include <cstdint>
-
+#include <ros/message_forward.h>
 //#include <iomanip> // for debug printing
 
 
@@ -178,17 +178,23 @@ namespace egocylindrical
         }
         
         
-
+/*
+        typedef boost::alignment::aligned_allocator<void, 32> AlignedAllocator;
+        //ROS_DECLARE_MESSAGE_WITH_ALLOCATOR(EgoCylinderPoints, ECMsg, std::allocator<void> );
         
+        //template <typename T>
+        //using Allocator = std::allocator<void>;
+        using Allocator = boost::alignment::aligned_allocator<void, 32>;
         
         //typedef ::egocylindrical::EgoCylinderPoints_<Eigen::aligned_allocator<void, 32> > AlignedEgoCylinderPoints;
-        typedef ::egocylindrical::EgoCylinderPoints_<boost::alignment::aligned_allocator<void, 32> > AlignedEgoCylinderPoints;
+        typedef ::egocylindrical::EgoCylinderPoints_<Allocator> ECMsg;
         
         // NOTE: I'm not sure that using this typedef renamed version was such a good idea after all...
         //typedef AlignedEgoCylinderPoints ECMsg;
-        typedef EgoCylinderPoints ECMsg;
+        //typedef EgoCylinderPoints ECMsg;
         typedef boost::shared_ptr<ECMsg> ECMsgPtr;
-        typedef boost::shared_ptr<ECMsg const> ECMsgConstPtr;
+        typedef boost::shared_ptr<ECMsg const> ECMsgConstPtr;*/
+        
         
         template <typename T>
         using AlignedVector = std::vector<T, boost::alignment::aligned_allocator<T, __BIGGEST_ALIGNMENT__> >;
@@ -242,7 +248,7 @@ namespace egocylindrical
             //header_ = msg->header;
             vfov_ = msg->fov_v;
             
-            const std::vector<std_msgs::MultiArrayDimension>& dims = msg->points.layout.dim;
+            const auto& dims = msg->points.layout.dim; //std::vector<std_msgs::MultiArrayDimension_<Allocator>>
             height_ = dims[1].size;
             width_ = dims[2].size;
             
@@ -334,7 +340,7 @@ namespace egocylindrical
             
             bool allocate_arrays_;
             
-            std_msgs::Header header_;
+            std_msgs::Header_<Allocator> header_;
             ECMsgPtr msg_; // The idea is to store everything in the message's allocated storage to prevent copies
             
             ECMsgConstPtr const_msg_;
@@ -369,7 +375,7 @@ namespace egocylindrical
                 header_ = const_msg_->header;
                 vfov_ = const_msg_->fov_v;
                 
-                const std::vector<std_msgs::MultiArrayDimension>& dims = const_msg_->points.layout.dim;
+                const auto& dims = const_msg_->points.layout.dim; //std::vector<std_msgs::MultiArrayDimension_<Allocator>>
                 height_ = dims[1].size;
                 width_ = dims[2].size;
                 
@@ -416,8 +422,11 @@ namespace egocylindrical
             inline
             void setHeader(std_msgs::Header header)
             {
-                header_ = header;
-                msg_->header = header;
+                //ROS_INFO_STREAM("Set header: " << header.frame_id << ", stamp: " << header.stamp);
+                header_.frame_id = header.frame_id.c_str();
+                header_.stamp = header.stamp;
+                header_.seq = header.seq;
+                msg_->header = header_;
             }
             
             inline
@@ -447,7 +456,11 @@ namespace egocylindrical
             inline
             std_msgs::Header getHeader() const
             {
-                return header_; 
+                std_msgs::Header header;
+                header.frame_id = std::string(header_.frame_id.c_str());
+                header.stamp = header_.stamp;
+                header.seq = header_.seq;
+                return header;
             }
             
             inline
@@ -556,20 +569,20 @@ namespace egocylindrical
                 vscale_ = height_/vfov_;
                 
                 
-                std::vector<std_msgs::MultiArrayDimension>& dims = msg_->points.layout.dim;
+                auto& dims = msg_->points.layout.dim; //std::vector<std_msgs::MultiArrayDimension>
                 dims.resize(3);
                 
-                std_msgs::MultiArrayDimension& dim0 = dims[0];
+                auto& dim0 = dims[0]; //std::vector<std_msgs::MultiArrayDimension>
                 dim0.label = "components";
                 dim0.size = 3;
                 dim0.stride = 3*height_*width_;                
                 
-                std_msgs::MultiArrayDimension& dim1 = dims[1];
+                auto& dim1 = dims[1];
                 dim1.label = "rows";
                 dim1.size = height_;
                 dim1.stride = height_*width_;                
                 
-                std_msgs::MultiArrayDimension& dim2 = dims[2];
+                auto& dim2 = dims[2];
                 dim2.label = "point";
                 dim2.size = width_;
                 dim2.stride = width_;   
@@ -644,6 +657,7 @@ namespace egocylindrical
 
         
     }
+    //typedef ::egocylindrical::EgoCylinderPoints_<egocylindrical::utils::Allocator> ECMsg;
     
 }
     

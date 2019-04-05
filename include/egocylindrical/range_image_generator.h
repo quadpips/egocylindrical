@@ -4,6 +4,7 @@
 
 //#include <egocylindrical/ecwrapper.h>
 #include <egocylindrical/EgoCylinderPoints.h>
+#include <egocylindrical/egocylinder_msg_details.h>
 #include <egocylindrical/RangeImageGeneratorConfig.h>
 #include <image_transport/image_transport.h>
 #include <ros/ros.h>
@@ -55,7 +56,7 @@ namespace egocylindrical
 
     private:
         
-        void ecPointsCB(const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg);
+        void ecPointsCB(const egocylindrical::utils::ECMsg::ConstPtr& ec_msg);
 
     };
 
