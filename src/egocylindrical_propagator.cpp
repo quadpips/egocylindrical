@@ -205,6 +205,7 @@ namespace egocylindrical
         //ros::SubscriberStatusCallback pc_cb = boost::bind(&EgoCylindricalPropagator::connectCB, this);        
         pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>(filtered_pc_topic, 3);
         
+        //tf_listener_=std::make_shared<tf2_ros::TransformListener>(buffer_);
         
         // Setup subscribers
         depthSub.subscribe(it_, depth_topic, 3);
@@ -223,6 +224,7 @@ namespace egocylindrical
     EgoCylindricalPropagator::EgoCylindricalPropagator(ros::NodeHandle& nh, ros::NodeHandle& pnh):
         nh_(nh),
         pnh_(pnh),
+        buffer_(),
         tf_listener_(buffer_),
         it_(nh)
     {
