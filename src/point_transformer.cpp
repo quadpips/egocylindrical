@@ -25,7 +25,7 @@ namespace egocylindrical
         * 
         */
         inline
-        void transform_impl(utils::ECWrapper& points,  const utils::ECWrapper& new_points, const float*  const R, const float*  const T)
+        void transform_impl(utils::ECWrapper& points,  const utils::ECWrapper& new_points, const float*  const R, const float*  const T) 
         {            
             const float r0 = R[0];
             const float r1 = R[1];
@@ -73,8 +73,8 @@ namespace egocylindrical
                 }
                 
                 
-                //#pragma GCC ivdep  //https://gcc.gnu.org/onlinedocs/gcc/Loop-Specific-Pragmas.html
-                #pragma omp for simd schedule(static) //aligned(x, y, z, ranges, inds: __BIGGEST_ALIGNMENT__)
+                #pragma GCC ivdep  //https://gcc.gnu.org/onlinedocs/gcc/Loop-Specific-Pragmas.html
+                //#pragma omp for simd schedule(static) //aligned(x, y, z, ranges, inds: __BIGGEST_ALIGNMENT__)
                 for(long int p = 0; p < num_cols; ++p)
                 {
 
@@ -88,16 +88,16 @@ namespace egocylindrical
 
                     float depth=dNaN; //there doesn't seem to be any point to initializing like this
                     
-                    int idx = -1;
+                    //int idx = -1;
                             
                     depth= worldToRangeSquared(x[p],z[p]);
                     
                     int tidx = points.worldToCylindricalIdx(x[p],y[p],z[p]);
 
-                    if(tidx < max_ind)
-                        idx = tidx;
+                    //if(tidx < max_ind)
+                    //    idx = tidx;
     
-                    inds[p] = idx;
+                    inds[p] = (tidx < max_ind) ? tidx : -1;
                     ranges[p] = depth;
                     
                 }
@@ -128,14 +128,14 @@ namespace egocylindrical
             const int max_ind = new_points.getCols();
             
             const float* x = (const float*)__builtin_assume_aligned(points.getX(), __BIGGEST_ALIGNMENT__);
-            const float* y = (const float*)__builtin_assume_aligned(points.getY(), __BIGGEST_ALIGNMENT__);
-            const float* z = (const float*)__builtin_assume_aligned(points.getZ(), __BIGGEST_ALIGNMENT__);
+            const float* y = (const float*)points.getY();
+            const float* z = (const float*)points.getZ();
             
             float* x_n = (float*)__builtin_assume_aligned(transformed_points.getX(), __BIGGEST_ALIGNMENT__);
-            float* y_n = (float*)__builtin_assume_aligned(transformed_points.getY(), __BIGGEST_ALIGNMENT__);
-            float* z_n = (float*)__builtin_assume_aligned(transformed_points.getZ(), __BIGGEST_ALIGNMENT__);
+            float* y_n = (float*)transformed_points.getY();
+            float* z_n = (float*)transformed_points.getZ();
             
-            float* ranges = (float*)__builtin_assume_aligned(transformed_points.getRanges(), __BIGGEST_ALIGNMENT__);
+            float* ranges = transformed_points.getRanges();
             
             
             //#ifndef PIPS_ON_ARM
@@ -165,7 +165,7 @@ namespace egocylindrical
                 
                 
                 //#pragma GCC ivdep  //https://gcc.gnu.org/onlinedocs/gcc/Loop-Specific-Pragmas.html
-                #pragma omp for simd schedule(static)
+                #pragma omp for simd schedule(static) aligned(x:__BIGGEST_ALIGNMENT__) aligned(x_n:__BIGGEST_ALIGNMENT__) aligned(ranges:__BIGGEST_ALIGNMENT__) aligned(inds:__BIGGEST_ALIGNMENT__)
                 for(long int p = 0; p < num_cols; ++p)
                 {
                     float x_p = x[p];
@@ -195,11 +195,12 @@ namespace egocylindrical
                     }
                     #else
                     {
-                      int idx = -1;
+                      //int idx = -1;
                       int tidx = new_points.worldToCylindricalYIdx(y_n[p], range_squared);
                       
-                      if(tidx < new_points.getHeight())
-                        idx = tidx;
+                      //if(tidx < new_points.getHeight())
+                      //  idx = tidx;
+                      int idx = (tidx < new_points.getHeight()) ? tidx : -1;
                       
                       inds[p] = idx;
                     }

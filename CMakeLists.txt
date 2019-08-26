@@ -136,7 +136,7 @@ generate_dynamic_reconfigure_options(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-#  LIBRARIES egocylindrical
+  LIBRARIES egocylindrical_propagator
   CATKIN_DEPENDS cv_bridge geometry_msgs image_geometry image_transport roscpp rospy sensor_msgs std_msgs tf tf2 tf2_ros
 #  DEPENDS system_lib
 )
@@ -164,7 +164,7 @@ target_link_libraries(range_image_core
    ${OpenMP_CXX_FLAGS}
    )
 
-target_compile_options(range_image_core PRIVATE -g -std=c++11 -Wall -ftree-vectorize ${SHOW_VECTORIZE_INFO} -funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
+target_compile_options(range_image_core PRIVATE -g -std=c++11 -Wall -ftree-vectorize -fopt-info-vec-optimized ${SHOW_VECTORIZE_INFO} -funsafe-math-optimizations -fno-math-errno -ffinite-math-only #-ffinite-math-only and -fno-trapping-math.
   #${OpenMP_CXX_FLAGS}
   )
   
@@ -428,24 +428,41 @@ target_link_libraries(range_image_nodelet
    
    
    
+# 
+# add_library(dedicated_egocylindrical_propagator_nodelet src/dedicated_egocylindrical_propagator.cpp src/dedicated_egocylindrical_propagator_nodelet.cpp) #src/range_image_core.cpp
+# 
+# target_link_libraries(dedicated_egocylindrical_propagator_nodelet
+#    range_image_core
+#    #point_transformer
+#    ${catkin_LIBRARIES}
+#    ${OpenCV_LIBRARIES}
+#    #${PCL_LIBRARIES}
+#    ${OpenMP_CXX_FLAGS}
+#    )
+# add_dependencies(dedicated_egocylindrical_propagator_nodelet ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# 
+# target_compile_options(dedicated_egocylindrical_propagator_nodelet PRIVATE -g -std=c++11 -Wall ${SHOW_VECTORIZE_INFO} -fopt-info-vec-optimized-missed -ftree-vectorize -funsafe-math-optimizations ${OpenMP_CXX_FLAGS} -fno-math-errno 
+#   )
+# target_compile_definitions(dedicated_egocylindrical_propagator_nodelet PRIVATE ${PLATFORM_FLAGS})
+# 
+#    
+#    
+# add_executable(dedicated_egocylindrical_propagator_node src/dedicated_egocylindrical_propagator_node.cpp) #src/range_image_core.cpp
+# 
+# target_link_libraries(dedicated_egocylindrical_propagator_node
+#    range_image_core
+#    #point_transformer
+#    ${catkin_LIBRARIES}
+#    ${OpenCV_LIBRARIES}
+#    #${PCL_LIBRARIES}
+#    ${OpenMP_CXX_FLAGS}
+#    )
+# add_dependencies(dedicated_egocylindrical_propagator_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# 
+# target_compile_options(dedicated_egocylindrical_propagator_node PRIVATE -g -std=c++11 -Wall ${SHOW_VECTORIZE_INFO} -fopt-info-vec-optimized-missed -ftree-vectorize -funsafe-math-optimizations ${OpenMP_CXX_FLAGS} -fno-math-errno 
+#   )
+# target_compile_definitions(dedicated_egocylindrical_propagator_node PRIVATE ${PLATFORM_FLAGS})
 
-add_library(dedicated_egocylindrical_propagator_nodelet src/dedicated_egocylindrical_propagator.cpp src/dedicated_egocylindrical_propagator_nodelet.cpp) #src/range_image_core.cpp
-
-target_link_libraries(dedicated_egocylindrical_propagator_nodelet
-   range_image_core
-   point_transformer
-   ${catkin_LIBRARIES}
-   ${OpenCV_LIBRARIES}
-   #${PCL_LIBRARIES}
-   ${OpenMP_CXX_FLAGS}
-   )
-add_dependencies(dedicated_egocylindrical_propagator_nodelet ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-target_compile_options(dedicated_egocylindrical_propagator_nodelet PRIVATE -g -std=c++11 -Wall ${SHOW_VECTORIZE_INFO} -ftree-vectorize -funsafe-math-optimizations ${OpenMP_CXX_FLAGS} 
-  )
-target_compile_definitions(dedicated_egocylindrical_propagator_nodelet PRIVATE ${PLATFORM_FLAGS})
-
-   
    
    
    
