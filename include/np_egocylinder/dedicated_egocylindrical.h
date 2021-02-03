@@ -2,11 +2,11 @@
 // Created by root on 2/5/18.
 //
 
-#ifndef EGOCYLINDRICAL_EGOCYLINDRICAL_H
-#define EGOCYLINDRICAL_EGOCYLINDRICAL_H
+#ifndef NP_EGOCYLINDER_EGOCYLINDRICAL_H
+#define NP_EGOCYLINDER_EGOCYLINDRICAL_H
 
-#include <egocylindrical/utils.h>
-#include <egocylindrical/depth_image_core.h>
+#include <np_egocylinder/utils.h>
+#include <np_egocylinder/depth_image_core.h>
 
 #include <ros/ros.h>
 #include <opencv2/core.hpp>
@@ -28,7 +28,7 @@
 #include <message_filters/time_synchronizer.h>
 
 #include <dynamic_reconfigure/server.h>
-#include <egocylindrical/PropagatorConfig.h>
+#include <np_egocylinder/PropagatorConfig.h>
 
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/thread/locks.hpp>
@@ -37,7 +37,7 @@ typedef boost::shared_mutex Mutex;
 typedef boost::unique_lock< Mutex > WriteLock;
 typedef boost::shared_lock< Mutex > ReadLock;
 
-namespace egocylindrical
+namespace np_egocylinder
 {
 
 class DedicatedEgoCylindricalPropagator{
@@ -48,7 +48,7 @@ private:
     
     int cylinder_height_;
     int cylinder_width_;
-    double hfov_, vfov_;
+    double hfov_, world_height_;
     
     bool use_raw_ = true;
 
@@ -75,8 +75,8 @@ private:
     
     ros::Publisher im_pub_, pc_pub_;
     
-    egocylindrical::PropagatorConfig config_;
-    typedef dynamic_reconfigure::Server<egocylindrical::PropagatorConfig> ReconfigureServer;
+    np_egocylinderPropagatorConfig config_;
+    typedef dynamic_reconfigure::Server<np_egocylinderPropagatorConfig> ReconfigureServer;
     std::shared_ptr<ReconfigureServer> reconfigure_server_;
 
     void propagateHistoryInplace(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::Header new_header);
@@ -86,7 +86,7 @@ private:
     
     void connectCB();
     
-    void configCB(const egocylindrical::PropagatorConfig &config, uint32_t level);
+    void configCB(const np_egocylinderPropagatorConfig &config, uint32_t level);
     
     
     

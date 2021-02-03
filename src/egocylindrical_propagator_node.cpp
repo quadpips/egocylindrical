@@ -2,9 +2,9 @@
 // Created by root on 2/5/18.
 //
 
-#include <egocylindrical/egocylindrical.h>
+#include <np_egocylinder/egocylindrical.h>
 
-namespace egocylindrical
+namespace np_egocylinder
 {
 
 
@@ -19,7 +19,7 @@ int main(int argc, char** argv)
     ros::NodeHandle nh;
     ros::NodeHandle pnh("~");
     
-    egocylindrical::EgoCylindricalPropagator s(nh, pnh);
+    np_egocylinder::EgoCylindricalPropagator s(nh, pnh);
     s.init();
     
     ros::spin();

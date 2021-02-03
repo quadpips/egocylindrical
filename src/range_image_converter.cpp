@@ -2,17 +2,17 @@
 // Created by root on 2/5/18.
 //
 
-#include <egocylindrical/range_image_converter.h>
-#include <egocylindrical/range_to_points.h>
+#include <np_egocylinder/range_image_converter.h>
+#include <np_egocylinder/range_to_points.h>
 
 // The below are redundant
-#include <egocylindrical/EgoCylinderPoints.h>
+#include <np_egocylinder/EgoCylinderPoints.h>
 #include <image_transport/image_transport.h>
 #include <ros/ros.h>
-#include <egocylindrical/ecwrapper.h>
+#include <np_egocylinder/ecwrapper.h>
 
 
-namespace egocylindrical
+namespace np_egocylinder
 {
 
 
@@ -31,7 +31,7 @@ namespace egocylindrical
     {
 
         ros::SubscriberStatusCallback info_cb = boost::bind(&RangeImageConverter::ssCB, this);
-        ec_pub_ = nh_.advertise<egocylindrical::EgoCylinderPoints>("data_out", 2, info_cb, info_cb);
+        ec_pub_ = nh_.advertise<np_egocylinder::EgoCylinderPoints>("data_out", 2, info_cb, info_cb);
         
         // Synchronize Image and CameraInfo callbacks
         timeSynchronizer = boost::make_shared<synchronizer>(im_sub_, ec_sub_, 2);
@@ -73,7 +73,7 @@ namespace egocylindrical
     }
 
     //NOTE: Once the parameters have been moved to their own message, this should subscribe to the parameters instead
-    void RangeImageConverter::imageCB(const sensor_msgs::Image::ConstPtr& image, const egocylindrical::EgoCylinderPoints::ConstPtr& info)
+    void RangeImageConverter::imageCB(const sensor_msgs::Image::ConstPtr& image, const np_egocylinder::EgoCylinderPoints::ConstPtr& info)
     {
         ROS_DEBUG("Received range msg");
         

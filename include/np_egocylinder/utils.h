@@ -1,7 +1,7 @@
-#ifndef EGOCYLINDRICAL_UTILS_H
-#define EGOCYLINDRICAL_UTILS_H
+#ifndef NP_EGOCYLINDER_UTILS_H
+#define NP_EGOCYLINDER_UTILS_H
 
-#include <egocylindrical/ecwrapper.h>
+#include <np_egocylinder/ecwrapper.h>
 
 #include <ros/ros.h>
 #include <opencv2/core.hpp>
@@ -15,9 +15,9 @@
 #include <omp.h>
 #include <sensor_msgs/PointCloud2.h>
 
-#include <egocylindrical/EgoCylinderPoints.h>
+#include <np_egocylinder/EgoCylinderPoints.h>
 
-namespace egocylindrical
+namespace np_egocylinder
 {
 
 namespace utils

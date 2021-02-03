@@ -1,39 +1,39 @@
-<library path="lib/libegocylindrical_propagator_nodelet">
-  <class name="egocylindrical/egocylindrical_propagator_nodelet" type="egocylindrical::EgocylindricalPropagatorNodelet" base_class_type="nodelet::Nodelet">
+<library path="lib/libnp_cylinder_propagator_nodelet">
+  <class name="np_egocylinder/egocylindrical_propagator_nodelet" type="np_egocylinder::EgocylindricalPropagatorNodelet" base_class_type="nodelet::Nodelet">
     <description>
-      Nodelet for egocylindrical propagation
+      Nodelet for np_egocylinder propagation
     </description>
   </class>
 </library>
 
-<library path="lib/librange_image_nodelet">
-  <class name="egocylindrical/range_image_nodelet" type="egocylindrical::EgocylindricalRangeImageNodelet" base_class_type="nodelet::Nodelet">
+<library path="lib/libnp_cylinder_range_image_nodelet">
+  <class name="np_egocylinder/range_image_nodelet" type="np_egocylinder::EgocylindricalRangeImageNodelet" base_class_type="nodelet::Nodelet">
     <description>
-      Nodelet for egocylindrical range image generation
+      Nodelet for np_egocylinder range image generation
     </description>
   </class>
 </library>
 
-<library path="lib/libpoint_cloud_nodelet">
-  <class name="egocylindrical/point_cloud_nodelet" type="egocylindrical::EgocylindricalPointCloudNodelet" base_class_type="nodelet::Nodelet">
+<library path="lib/libnp_cylinder_point_cloud_nodelet">
+  <class name="np_egocylinder/point_cloud_nodelet" type="np_egocylinder::EgocylindricalPointCloudNodelet" base_class_type="nodelet::Nodelet">
     <description>
-      Nodelet for egocylindrical point cloud generation
+      Nodelet for np_egocylinder point cloud generation
     </description>
   </class>
 </library>
 
-<library path="lib/libprojected_point_cloud_nodelet">
-  <class name="egocylindrical/projected_point_cloud_nodelet" type="egocylindrical::ProjectedPointCloudNodelet" base_class_type="nodelet::Nodelet">
+<library path="lib/libnp_cylinder_projected_point_cloud_nodelet">
+  <class name="np_egocylinder/projected_point_cloud_nodelet" type="np_egocylinder::ProjectedPointCloudNodelet" base_class_type="nodelet::Nodelet">
     <description>
-      Nodelet for projected egocylindrical point cloud generation
+      Nodelet for projected np_egocylinder point cloud generation
     </description>
   </class>
 </library>
 
-<library path="lib/libdedicated_egocylindrical_propagator_nodelet">
-  <class name="egocylindrical/dedicated_egocylindrical_propagator_nodelet" type="egocylindrical::DedicatedEgocylindricalPropagatorNodelet" base_class_type="nodelet::Nodelet">
+<library path="lib/libdedicated_np_cylinder_propagator_nodelet">
+  <class name="np_egocylinder/dedicated_egocylindrical_propagator_nodelet" type="np_egocylinder::DedicatedEgocylindricalPropagatorNodelet" base_class_type="nodelet::Nodelet">
     <description>
-      Nodelet for egocylindrical propagation
+      Nodelet for np_egocylinder propagation
     </description>
   </class>
 </library>

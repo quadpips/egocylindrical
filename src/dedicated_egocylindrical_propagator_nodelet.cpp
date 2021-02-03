@@ -1,11 +1,11 @@
-#include <egocylindrical/dedicated_egocylindrical.h>
+#include <np_egocylinder/dedicated_egocylindrical.h>
 #include <nodelet/nodelet.h>
 #include <pluginlib/class_list_macros.h>
 
 
 
 
-namespace egocylindrical
+namespace np_egocylinder
 {
   
   /**
@@ -49,9 +49,9 @@ namespace egocylindrical
     std::shared_ptr<DedicatedEgoCylindricalPropagator> propagator_;
   };
   
-} // namespace egocylindrical
+} // namespace np_egocylinder
 
-PLUGINLIB_EXPORT_CLASS(egocylindrical::DedicatedEgocylindricalPropagatorNodelet,
+PLUGINLIB_EXPORT_CLASS(np_egocylinder::DedicatedEgocylindricalPropagatorNodelet,
                        nodelet::Nodelet);
 // %EndTag(FULLTEXT)%
 

@@ -7,7 +7,7 @@ int main(int argc, char** argv)
     
     ros::NodeHandle nh;
     ros::NodeHandle pnh("~");
-    egocylindrical::DedicatedEgoCylindricalPropagator s(nh, pnh);
+    np_egocylinder::DedicatedEgoCylindricalPropagator s(nh, pnh);
     s.init();
     ros::spin();
 }

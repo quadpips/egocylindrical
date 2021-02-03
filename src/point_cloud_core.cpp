@@ -1,4 +1,4 @@
-#include <egocylindrical/ecwrapper.h>
+#include <np_egocylinder/ecwrapper.h>
 
 #include <ros/ros.h>
 #include <opencv2/core.hpp>
@@ -14,7 +14,7 @@
 #include <sensor_msgs/PointCloud2.h>
 
 
-namespace egocylindrical
+namespace np_egocylinder
 {
     
     namespace utils

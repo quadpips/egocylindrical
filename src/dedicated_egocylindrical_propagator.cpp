@@ -4,10 +4,10 @@
 
 #include "point_transformer.cpp"
 
-#include <egocylindrical/dedicated_egocylindrical.h>
-#include <egocylindrical/point_transformer.h>
-#include <egocylindrical/depth_image_core.h>
-#include <egocylindrical/range_image_core.h>
+#include <np_egocylinder/dedicated_egocylindrical.h>
+#include <np_egocylinder/point_transformer.h>
+#include <np_egocylinder/depth_image_core.h>
+#include <np_egocylinder/range_image_core.h>
 
 //#include <tf/LinearMath/Matrix3x3.h>
 //#include <cv_bridge/cv_bridge.h>
@@ -21,7 +21,7 @@
 
 //#include <valgrind/callgrind.h>
 
-namespace egocylindrical
+namespace np_egocylinder
 {
 
     
@@ -113,7 +113,7 @@ namespace egocylindrical
         }
         ros::WallTime start = ros::WallTime::now();
         
-        //new_pts_ = utils::getECWrapper(cylinder_height_,cylinder_width_,vfov_);
+        //new_pts_ = utils::getECWrapper(cylinder_height_,cylinder_width_,world_height_);
         // NOTE: It may be better to only create the necessary wrappers once and just 'swap' the msg_ pointers
         new_pts_ = next_pts_;
         
@@ -163,11 +163,11 @@ namespace egocylindrical
             std::swap(next_pts_,old_pts_);
             if(!next_pts_)
             {
-              next_pts_ = utils::getECWrapper(config_.height, config_.width,config_.vfov,true);
+              next_pts_ = utils::getECWrapper(config_.height, config_.width,config_.world_height,true);
             }
             else
             {
-              next_pts_->init(config_.height, config_.width, config_.vfov, true);
+              next_pts_->init(config_.height, config_.width, config_.world_height, true);
             }
             
             ROS_DEBUG_STREAM_NAMED("timing", "Reinitting data structure took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
@@ -191,11 +191,11 @@ namespace egocylindrical
         }
     }
     
-    void DedicatedEgoCylindricalPropagator::configCB(const egocylindrical::PropagatorConfig &config, uint32_t level)
+    void DedicatedEgoCylindricalPropagator::configCB(const np_egocylinderPropagatorConfig &config, uint32_t level)
     {
         WriteLock lock(config_mutex_);
      
-        ROS_INFO_STREAM("Updating propagator config: height=" << config.height << ", width=" << config.width << ", vfov=" << config.vfov);
+        ROS_INFO_STREAM("Updating propagator config: height=" << config.height << ", width=" << config.width << ", world_height=" << config.world_height);
         config_ = config;
     }
      
@@ -205,14 +205,14 @@ namespace egocylindrical
         
         double pi = std::acos(-1);
         hfov_ = 2*pi;
-        vfov_ = pi/2;        
+        world_height_ = pi/2;        
         
         cylinder_width_ = 2048;
         cylinder_height_ = 320;
         
-        transformed_pts_ = utils::getECWrapper(config_.height, config_.width,config_.vfov,true);
+        transformed_pts_ = utils::getECWrapper(config_.height, config_.width,config_.world_height,true);
         
-        next_pts_ = utils::getECWrapper(config_.height, config_.width,config_.vfov, true);
+        next_pts_ = utils::getECWrapper(config_.height, config_.width,config_.world_height, true);
                 
         
         // Get topic names

@@ -1,5 +1,5 @@
-#ifndef EGOCYLINDRICAL_ECWRAPPER_H
-#define EGOCYLINDRICAL_ECWRAPPER_H
+#ifndef NP_EGOCYLINDER_ECWRAPPER_H
+#define NP_EGOCYLINDER_ECWRAPPER_H
 
 
 
@@ -15,8 +15,8 @@
 //#include <omp.h>
 //#include <sensor_msgs/PointCloud2.h>
 
-#include <egocylindrical/EgoCylinderPoints.h>
-//#include <egocylindrical/EgoCylinderInfo.h>
+#include <np_egocylinder/EgoCylinderPoints.h>
+//#include <np_egocylinder/EgoCylinderInfo.h>
 
 //#include <eigen_stl_containers/eigen_stl_containers.h>
 
@@ -30,7 +30,7 @@
 //#include <iomanip> // for debug printing
 
 
-namespace egocylindrical
+namespace np_egocylinder
 {
     
     namespace utils
@@ -115,9 +115,12 @@ namespace egocylindrical
          */
         template <typename T>
         inline
+        /* Note: This function is only possibly relevant for visualizing cylinder */
         cv::Point3_<T> projectWorldToCylinder(const cv::Point3_<T>& point)
         {
-          cv::Point3_<T> Pcyl_t = point / std::sqrt(point.x * point.x + point.z * point.z);
+          T distance = std::sqrt(point.x * point.x + point.z * point.z);
+          
+          cv::Point3_<T> Pcyl_t(point.x/distance, point.y/distance, point.z);
           return Pcyl_t;
         }
         
@@ -135,10 +138,10 @@ namespace egocylindrical
         cv::Point_<T> worldToCylindricalImage(const cv::Point3_<T>& point, int cyl_width, int cyl_height, float h_scale, float v_scale, float h_offset, float v_offset)
         {
             
-            cv::Point3_<T> p_cyl = projectWorldToCylinder(point);
+            //cv::Point3_<T> p_cyl = projectWorldToCylinder(point);
             
-            T x = std::atan2(p_cyl.x, p_cyl.z) * h_scale + cyl_width / 2;
-            T y = p_cyl.y * v_scale + cyl_height / 2;
+            T x = std::atan2(point.x, point.z) * h_scale + cyl_width / 2;
+            T y = point.y * v_scale + cyl_height / 2;
             
             cv::Point_<T> im_pt(x,y);
             return im_pt;
@@ -149,11 +152,11 @@ namespace egocylindrical
         cv::Point worldToCylindricalImageFast(const cv::Point3_<T>& point, int cyl_width, int cyl_height, float h_scale, float v_scale, float h_offset, float v_offset)
         {
           
-          cv::Point3_<T> p_cyl = projectWorldToCylinder(point);
+          //cv::Point3_<T> p_cyl = projectWorldToCylinder(point);
           
-          T x = atan2_approximation1(p_cyl.x, p_cyl.z) * h_scale + cyl_width / 2;
+          T x = atan2_approximation1(point.x, point.z) * h_scale + cyl_width / 2;
 
-          T y = p_cyl.y * v_scale + cyl_height / 2;
+          T y = point.y * v_scale + cyl_height / 2;
           
           cv::Point im_pt(x,y);
           return im_pt;
@@ -182,8 +185,8 @@ namespace egocylindrical
 
         
         
-        //typedef ::egocylindrical::EgoCylinderPoints_<Eigen::aligned_allocator<void, 32> > AlignedEgoCylinderPoints;
-        typedef ::egocylindrical::EgoCylinderPoints_<boost::alignment::aligned_allocator<void, 32> > AlignedEgoCylinderPoints;
+        //typedef ::np_egocylinder::EgoCylinderPoints_<Eigen::aligned_allocator<void, 32> > AlignedEgoCylinderPoints;
+        typedef ::np_egocylinder::EgoCylinderPoints_<boost::alignment::aligned_allocator<void, 32> > AlignedEgoCylinderPoints;
         
         // NOTE: I'm not sure that using this typedef renamed version was such a good idea after all...
         //typedef AlignedEgoCylinderPoints ECMsg;
@@ -202,11 +205,11 @@ namespace egocylindrical
         struct ECParams
         {
           int height, width;
-          float vfov;
+          float world_height;
           
           bool operator==(const ECParams &other) const 
           {
-            return (height==other.height && width==other.width && vfov==other.vfov);
+            return (height==other.height && width==other.width && world_height==other.world_height);
           }
         };
         
@@ -220,7 +223,7 @@ namespace egocylindrical
         {
         private:
           int height_, width_;
-          float vfov_;
+          float world_height_;
           float hscale_, vscale_;
           
         public:
@@ -233,7 +236,7 @@ namespace egocylindrical
           void update()
           {
             hscale_ = width_/(2*M_PI);
-            vscale_ = height_/vfov_;  //NOTE: In the paper, vscale=hscale. If keeping them separate does not prove useful, they should be merged
+            vscale_ = height_/world_height_;  //NOTE: In the paper, vscale=hscale. If keeping them separate does not prove useful, they should be merged
           }
           
           inline
@@ -241,7 +244,7 @@ namespace egocylindrical
           {
             
             //header_ = msg->header;
-            vfov_ = msg->fov_v;
+            world_height_ = msg->world_height;
             
             const std::vector<std_msgs::MultiArrayDimension>& dims = msg->points.layout.dim;
             height_ = dims[1].size;
@@ -253,7 +256,7 @@ namespace egocylindrical
           inline
           void fromParams(const ECParams& params)
           {
-            vfov_ = params.vfov;
+            world_height_ = params.world_height;
             height_ = params.height;
             width_ = params.width;
             
@@ -301,6 +304,7 @@ namespace egocylindrical
           
           
           inline
+          //TODO: This doesn't really apply to this model
           cv::Point3d projectPixelTo3dRay(const cv::Point2d& point) const
           {
             cv::Point3d ray;
@@ -330,7 +334,7 @@ namespace egocylindrical
             AlignedVector<int32_t> inds_;
 
             int height_, width_;
-            float vfov_;
+            float world_height_;
             float hscale_, vscale_;
             
             bool allocate_arrays_;
@@ -351,10 +355,10 @@ namespace egocylindrical
            
         public:
             
-            ECWrapper(int height, int width, float vfov, bool allocate_arrays = false):
+            ECWrapper(int height, int width, float world_height, bool allocate_arrays = false):
                 height_(height),
                 width_(width),
-                vfov_(vfov),
+                world_height_(world_height),
                 allocate_arrays_(allocate_arrays)
             {
                 msg_ = boost::make_shared<ECMsg>();
@@ -368,7 +372,7 @@ namespace egocylindrical
             {
                 const_msg_ = ec_points;
                 header_ = const_msg_->header;
-                vfov_ = const_msg_->fov_v;
+                world_height_ = const_msg_->world_height;
                 
                 const std::vector<std_msgs::MultiArrayDimension>& dims = const_msg_->points.layout.dim;
                 height_ = dims[1].size;
@@ -484,9 +488,9 @@ namespace egocylindrical
             }
             
             inline
-            int worldToCylindricalYIdx(float y, float range_squared) const
+            int worldToCylindricalYIdx(float y) const
             {
-                int yind = y * inv_sqrt_approximation(range_squared)*vscale_ + height_/2;
+                int yind = y *vscale_ + height_/2;
                 return yind;
             }
             
@@ -503,7 +507,7 @@ namespace egocylindrical
             {
               ECMsgPtr info = boost::make_shared<ECMsg>();
               info->header = msg_->header;
-              info->fov_v = msg_->fov_v;
+              info->world_height = msg_->world_height;
               info->points.layout.dim =  msg_->points.layout.dim;
               return (ECMsgConstPtr) info;
             }
@@ -514,7 +518,7 @@ namespace egocylindrical
                 ECParams params;
                 params.height=height_;
                 params.width=width_;
-                params.vfov=vfov_;
+                params.world_height=world_height_;
                 
                 return params;
             }
@@ -561,10 +565,10 @@ namespace egocylindrical
                     inds_.resize(height_*width_); 
                 }
                 
-                msg_->fov_v = vfov_;
+                msg_->world_height = world_height_;
                 
                 hscale_ = width_/(2*M_PI);
-                vscale_ = height_/vfov_;
+                vscale_ = height_/world_height_;
                 
                 
                 std::vector<std_msgs::MultiArrayDimension>& dims = msg_->points.layout.dim;
@@ -588,19 +592,19 @@ namespace egocylindrical
             
             bool init(const ECWrapper& other)
             {
-                return init(other.height_, other.width_, other.vfov_);
+                return init(other.height_, other.width_, other.world_height_);
             }
             
             inline
-            bool init(int height, int width, float vfov, bool clear=false)
+            bool init(int height, int width, float world_height, bool clear=false)
             {
                 if(!msg_locked_)
                 {
-                    if(height!=height_ || width!=width_ || vfov!=vfov_) //Update this to use the 'getParams functions
+                    if(height!=height_ || width!=width_ || world_height!=world_height_) //Update this to use the 'getParams functions
                     {
                         height_ = height;
                         width_ = width;
-                        vfov_ = vfov;
+                        world_height_ = world_height;
                         
                         if(clear)
                         {
@@ -635,15 +639,15 @@ namespace egocylindrical
         typedef std::shared_ptr<ECWrapper> ECWrapperPtr;
         
         inline
-        ECWrapperPtr getECWrapper(int height, int width, float vfov, bool allocate_arrays=false)
+        ECWrapperPtr getECWrapper(int height, int width, float world_height, bool allocate_arrays=false)
         {
-          return std::make_shared<ECWrapper>(height,width,vfov,allocate_arrays);
+          return std::make_shared<ECWrapper>(height,width,world_height,allocate_arrays);
         }
         
         inline
         ECWrapperPtr getECWrapper(const ECParams& params)
         {
-          return getECWrapper(params.height,params.width,params.vfov);
+          return getECWrapper(params.height,params.width,params.world_height);
         }
         
         inline

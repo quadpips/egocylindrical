@@ -2,9 +2,9 @@
 // Created by root on 2/5/18.
 //
 
-#include <egocylindrical/egocylindrical.h>
-#include <egocylindrical/point_transformer.h>
-#include <egocylindrical/depth_image_core.h>
+#include <np_egocylinder/egocylindrical.h>
+#include <np_egocylinder/point_transformer.h>
+#include <np_egocylinder/depth_image_core.h>
 
 //#include <tf/LinearMath/Matrix3x3.h>
 //#include <cv_bridge/cv_bridge.h>
@@ -18,7 +18,7 @@
 
 //#include <valgrind/callgrind.h>
 
-namespace egocylindrical
+namespace np_egocylinder
 {
 
 
@@ -82,7 +82,7 @@ namespace egocylindrical
              ROS_WARN_STREAM("Previous stamp " << old_pts_->getHeader().stamp);
         ros::WallTime start = ros::WallTime::now();
         
-        //new_pts_ = utils::getECWrapper(cylinder_height_,cylinder_width_,vfov_);
+        //new_pts_ = utils::getECWrapper(cylinder_height_,cylinder_width_,world_height_);
         // NOTE: It may be better to only create the necessary wrappers once and just 'swap' the msg_ pointers
         new_pts_ = next_pts_;
         bool allocate_next = !old_pts_ || old_pts_->isLocked();
@@ -141,14 +141,14 @@ namespace egocylindrical
             
             if(allocate_next)
             {
-                next_pts_ = utils::getECWrapper(config_.height, config_.width,config_.vfov);
+                next_pts_ = utils::getECWrapper(config_.height, config_.width,config_.world_height);
                 
             }
             else
             {
                 std::swap(next_pts_,old_pts_);
 
-                next_pts_->init(config_.height, config_.width, config_.vfov, true);
+                next_pts_->init(config_.height, config_.width, config_.world_height, true);
             }
             
             ROS_DEBUG_STREAM_NAMED("timing", "Creating new datastructure took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
@@ -173,30 +173,30 @@ namespace egocylindrical
         }
     }
     
-    void EgoCylindricalPropagator::configCB(const egocylindrical::PropagatorConfig &config, uint32_t level)
+    void EgoCylindricalPropagator::configCB(const np_egocylinder::PropagatorConfig &config, uint32_t level)
     {
         WriteLock lock(config_mutex_);
      
-        ROS_INFO_STREAM("Updating propagator config: height=" << config.height << ", width=" << config.width << ", vfov=" << config.vfov);
+        ROS_INFO_STREAM("Updating propagator config: height=" << config.height << ", width=" << config.width << ", world_height=" << config.world_height);
         config_ = config;
     }
     
     
-    // TODO: add dynamic reconfigure for cylinder height/width, vfov, etc
+    // TODO: add dynamic reconfigure for cylinder height/width, world_height, etc
     bool EgoCylindricalPropagator::init()
     {
         reconfigure_server_->setCallback(boost::bind(&EgoCylindricalPropagator::configCB, this, _1, _2));
         
         double pi = std::acos(-1);
         hfov_ = 2*pi;
-        vfov_ = pi/2;        
+        world_height_ = pi/2;        
         
         cylinder_width_ = 2048;
         cylinder_height_ = 320;
         
-        transformed_pts_ = utils::getECWrapper(config_.height, config_.width,config_.vfov,true);
+        transformed_pts_ = utils::getECWrapper(config_.height, config_.width,config_.world_height,true);
         
-        next_pts_ = utils::getECWrapper(config_.height, config_.width,config_.vfov);
+        next_pts_ = utils::getECWrapper(config_.height, config_.width,config_.world_height);
                 
         
         // Get topic names
@@ -212,11 +212,11 @@ namespace egocylindrical
         
         // Setup publishers
         ros::SubscriberStatusCallback image_cb = boost::bind(&EgoCylindricalPropagator::connectCB, this);        
-        ec_pub_ = nh_.advertise<egocylindrical::EgoCylinderPoints>(points_topic, 1, image_cb, image_cb);
+        ec_pub_ = nh_.advertise<np_egocylinder::EgoCylinderPoints>(points_topic, 1, image_cb, image_cb);
         
         //ros::SubscriberStatusCallback pc_cb = boost::bind(&EgoCylindricalPropagator::connectCB, this);        
         pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>(filtered_pc_topic, 3);
-        info_pub_ = nh_.advertise<egocylindrical::EgoCylinderPoints>(egocylinder_info_topic, 1);
+        info_pub_ = nh_.advertise<np_egocylinder::EgoCylinderPoints>(egocylinder_info_topic, 1);
         
         // Setup subscribers
         depthSub.subscribe(it_, depth_topic, 3);

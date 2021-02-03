@@ -1,12 +1,12 @@
 #ifndef RANGE_IMAGE_CORE_H
 #define RANGE_IMAGE_CORE_H
 
-#include <egocylindrical/ecwrapper.h>
+#include <np_egocylinder/ecwrapper.h>
 
 #include <sensor_msgs/Image.h>
 
 
-namespace egocylindrical
+namespace np_egocylinder
 {
     
     namespace utils

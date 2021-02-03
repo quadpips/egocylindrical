@@ -1,9 +1,9 @@
-#ifndef EGOCYLINDRICAL_RANGE_IMAGE_CONVERTER_H
-#define EGOCYLINDRICAL_RANGE_IMAGE_CONVERTER_H
+#ifndef NP_EGOCYLINDER_RANGE_IMAGE_CONVERTER_H
+#define NP_EGOCYLINDER_RANGE_IMAGE_CONVERTER_H
 
 
-//#include <egocylindrical/ecwrapper.h>
-#include <egocylindrical/EgoCylinderPoints.h>
+//#include <np_egocylinder/ecwrapper.h>
+#include <np_egocylinder/EgoCylinderPoints.h>
 #include <image_transport/image_transport.h>
 #include <image_transport/subscriber_filter.h>
 #include <message_filters/subscriber.h>
@@ -15,7 +15,7 @@
 
 #include <ros/ros.h>
 
-namespace egocylindrical
+namespace np_egocylinder
 {
 
 
@@ -25,9 +25,9 @@ namespace egocylindrical
         image_transport::ImageTransport it_;
 
         image_transport::SubscriberFilter im_sub_;
-        message_filters::Subscriber<egocylindrical::EgoCylinderPoints> ec_sub_;
+        message_filters::Subscriber<np_egocylinder::EgoCylinderPoints> ec_sub_;
         
-        typedef message_filters::TimeSynchronizer<sensor_msgs::Image, egocylindrical::EgoCylinderPoints> synchronizer;
+        typedef message_filters::TimeSynchronizer<sensor_msgs::Image, np_egocylinder::EgoCylinderPoints> synchronizer;
         boost::shared_ptr<synchronizer> timeSynchronizer;
         
         ros::Publisher ec_pub_;
@@ -44,7 +44,7 @@ namespace egocylindrical
 
     private:
         
-        void imageCB(const sensor_msgs::Image::ConstPtr& image, const egocylindrical::EgoCylinderPoints::ConstPtr& info);
+        void imageCB(const sensor_msgs::Image::ConstPtr& image, const np_egocylinder::EgoCylinderPoints::ConstPtr& info);
 
     };
 

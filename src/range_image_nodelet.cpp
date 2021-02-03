@@ -1,4 +1,4 @@
-#include <egocylindrical/range_image_generator.h>
+#include <np_egocylinder/range_image_generator.h>
 
 #include <nodelet/nodelet.h>
 #include <pluginlib/class_list_macros.h>
@@ -7,7 +7,7 @@
 #include <ros/ros.h>
 
 
-namespace egocylindrical
+namespace np_egocylinder
 {
 
     /**
@@ -52,7 +52,7 @@ namespace egocylindrical
     };
     
 
-PLUGINLIB_EXPORT_CLASS(egocylindrical::EgocylindricalRangeImageNodelet,
+PLUGINLIB_EXPORT_CLASS(np_egocylinder::EgocylindricalRangeImageNodelet,
                        nodelet::Nodelet);
 // %EndTag(FULLTEXT)%
 

@@ -1,3 +1,3 @@
 std_msgs/Header header
-float32 fov_v
+float32 world_height
 std_msgs/Float32MultiArray points

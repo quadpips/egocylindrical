@@ -1,10 +1,10 @@
-#ifndef EGOCYLINDRICAL_RANGE_IMAGE_GENERATOR_H
-#define EGOCYLINDRICAL_RANGE_IMAGE_GENERATOR_H
+#ifndef NP_EGOCYLINDER_RANGE_IMAGE_GENERATOR_H
+#define NP_EGOCYLINDER_RANGE_IMAGE_GENERATOR_H
 
 
-//#include <egocylindrical/ecwrapper.h>
-#include <egocylindrical/EgoCylinderPoints.h>
-#include <egocylindrical/RangeImageGeneratorConfig.h>
+//#include <np_egocylinder/ecwrapper.h>
+#include <np_egocylinder/EgoCylinderPoints.h>
+#include <np_egocylinder/RangeImageGeneratorConfig.h>
 #include <image_transport/image_transport.h>
 #include <ros/ros.h>
 
@@ -19,7 +19,7 @@ typedef boost::shared_lock< Mutex > ReadLock;
 
 
 
-namespace egocylindrical
+namespace np_egocylinder
 {
 
 
@@ -36,7 +36,7 @@ namespace egocylindrical
         
         sensor_msgs::Image::Ptr preallocated_msg_;
         
-        typedef egocylindrical::RangeImageGeneratorConfig ConfigType;
+        typedef RangeImageGeneratorConfig ConfigType;
         ConfigType config_;
         typedef dynamic_reconfigure::Server<ConfigType> ReconfigureServer;
         std::shared_ptr<ReconfigureServer> reconfigure_server_;
@@ -55,7 +55,7 @@ namespace egocylindrical
 
     private:
         
-        void ecPointsCB(const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg);
+        void ecPointsCB(const EgoCylinderPoints::ConstPtr& ec_msg);
 
     };
 

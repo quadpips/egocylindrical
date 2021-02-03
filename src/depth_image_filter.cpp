@@ -8,14 +8,14 @@
 #include <cv_bridge/cv_bridge.h>
 
 #include <dynamic_reconfigure/server.h>
-#include <egocylindrical/FilterConfig.h>
+#include <np_egocylinder/FilterConfig.h>
 
 #include <message_filters/synchronizer.h>
 #include <message_filters/time_synchronizer.h>
 
 #include <boost/thread/mutex.hpp>
 
-namespace egocylindrical
+namespace np_egocylinder
 {
 
   class DepthImageFilter
@@ -32,7 +32,7 @@ namespace egocylindrical
     typedef boost::mutex::scoped_lock Lock;
     
     
-    typedef egocylindrical::FilterConfig ConfigType;
+    typedef FilterConfig ConfigType;
     ConfigType config_;
     
     typedef dynamic_reconfigure::Server<ConfigType> ReconfigureServer;
@@ -156,7 +156,7 @@ int main(int argc, char** argv)
   
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
-  egocylindrical::DepthImageFilter s(nh, pnh);
+  np_egocylinder::DepthImageFilter s(nh, pnh);
   s.init();
   ros::spin();
 }

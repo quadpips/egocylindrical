@@ -1,16 +1,16 @@
-#ifndef EGOCYLINDRICAL_DEPTH_IMAGE_CORE_H
-#define EGOCYLINDRICAL_DEPTH_IMAGE_CORE_H
+#ifndef NP_EGOCYLINDER_DEPTH_IMAGE_CORE_H
+#define NP_EGOCYLINDER_DEPTH_IMAGE_CORE_H
 
 
-#include <egocylindrical/ecwrapper.h>
+#include <np_egocylinder/ecwrapper.h>
 #include <image_geometry/pinhole_camera_model.h>
 
 #include <pcl_ros/point_cloud.h>
 #include <sensor_msgs/PointCloud2.h>
 
-#include <egocylindrical/utils.h>
+#include <np_egocylinder/utils.h>
 
-namespace egocylindrical
+namespace np_egocylinder
 {
     namespace utils
     {

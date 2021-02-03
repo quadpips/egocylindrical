@@ -1,4 +1,4 @@
-#include <egocylindrical/ecwrapper.h>
+#include <np_egocylinder/ecwrapper.h>
 
 #include <ros/ros.h>
 #include <opencv2/core.hpp>
@@ -8,7 +8,7 @@
 #include <sensor_msgs/PointCloud2.h>
 
 
-namespace egocylindrical
+namespace np_egocylinder
 {
     
     namespace utils
@@ -42,8 +42,8 @@ namespace egocylindrical
             {   
                 cv::Point3f point(x[j],y[j],z[j]);
                 
-                cv::Point3f Pcyl_t = egocylindrical::utils::projectWorldToCylinder(point);
-                float range = egocylindrical::utils::worldToRange(point);
+                cv::Point3f Pcyl_t = np_egocylinder::utils::projectWorldToCylinder(point);
+                float range = np_egocylinder::utils::worldToRange(point);
 
                 data[8*j] =   Pcyl_t.x;
                 data[8*j+1] = Pcyl_t.y;

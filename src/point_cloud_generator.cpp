@@ -2,15 +2,15 @@
 // Created by root on 2/5/18.
 //
 
-#include <egocylindrical/point_cloud_generator.h>
-#include <egocylindrical/ecwrapper.h>
-#include <egocylindrical/EgoCylinderPoints.h>
+#include <np_egocylinder/point_cloud_generator.h>
+#include <np_egocylinder/ecwrapper.h>
+#include <np_egocylinder/EgoCylinderPoints.h>
 #include <ros/ros.h>
 
 #include <sensor_msgs/PointCloud2.h>
 
 
-namespace egocylindrical
+namespace np_egocylinder
 {
 
 
@@ -58,7 +58,7 @@ namespace egocylindrical
     }
     
     
-    void EgoCylinderPointCloudGenerator::ecPointsCB(const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg)
+    void EgoCylinderPointCloudGenerator::ecPointsCB(const np_egocylinder::EgoCylinderPoints::ConstPtr& ec_msg)
     {
         ROS_DEBUG("Received EgoCylinderPoints msg");
 

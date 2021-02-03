@@ -1,12 +1,12 @@
-#ifndef EGOCYLINDRICAL_POINT_TRANSFORMER_H
-#define EGOCYLINDRICAL_POINT_TRANSFORMER_H
+#ifndef NP_EGOCYLINDER_POINT_TRANSFORMER_H
+#define NP_EGOCYLINDER_POINT_TRANSFORMER_H
 
 
-#include <egocylindrical/ecwrapper.h>
+#include <np_egocylinder/ecwrapper.h>
 #include <geometry_msgs/TransformStamped.h>
 
 
-namespace egocylindrical
+namespace np_egocylinder
 {
     
     namespace utils

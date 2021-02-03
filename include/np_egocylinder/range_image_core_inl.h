@@ -1,8 +1,8 @@
 #ifndef RANGE_IMAGE_CORE_INL_H
 #define RANGE_IMAGE_CORE_INL_H
 
-#include <egocylindrical/ecwrapper.h>
-#include <egocylindrical/to_ieee754.h>
+#include <np_egocylinder/ecwrapper.h>
+#include <np_egocylinder/to_ieee754.h>
 
 #include <ros/ros.h>
 #include <cv_bridge/cv_bridge.h>
@@ -11,7 +11,7 @@
 #include <stdint.h>
 
 
-namespace egocylindrical
+namespace np_egocylinder
 {
     
     namespace utils

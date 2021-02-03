@@ -1,4 +1,4 @@
-#include <egocylindrical/range_image_converter.h>
+#include <np_egocylinder/range_image_converter.h>
 
 int main(int argc, char** argv)
 {
@@ -6,7 +6,7 @@ int main(int argc, char** argv)
     
     ros::NodeHandle nh;
     ros::NodeHandle pnh("~");
-    egocylindrical::RangeImageConverter s(nh, pnh);
+    np_egocylinder::RangeImageConverter s(nh, pnh);
     s.init();
     ros::spin();
 }

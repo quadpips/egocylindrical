@@ -1,4 +1,4 @@
-#include <egocylindrical/ecwrapper.h>
+#include <np_egocylinder/ecwrapper.h>
 
 
 //Max error: 0.0690737 @ 10.3055
@@ -10,7 +10,7 @@ float testInverse()
   for(float x=0.001; x < 1000; x+=.001)
   {    
     float truth = 1/x;
-    float approx = egocylindrical::utils::inverse_approximation(x);
+    float approx = np_egocylinder::utils::inverse_approximation(x);
     float error = std::abs(truth - approx);
     float percent_error = error / truth;
     
@@ -37,7 +37,7 @@ float testInvSqrt()
   for(float x=0.001; x < 100000; x+=.01)
   {    
     float truth = 1/std::sqrt(x);
-    float approx = egocylindrical::utils::inv_sqrt_approximation(x);
+    float approx = np_egocylinder::utils::inv_sqrt_approximation(x);
     float error = std::abs(truth - approx);
     float percent_error = error / truth;
     
@@ -69,7 +69,7 @@ float testAtan2()
     float y = std::sin(t);
     
     float truth = std::atan2(y,x);
-    float approx = egocylindrical::utils::atan2_approximation1(y,x);
+    float approx = np_egocylinder::utils::atan2_approximation1(y,x);
     float error = std::abs(truth - approx);
     float percent_error = error / twopi;
     
@@ -103,7 +103,7 @@ float testAtan22()
         continue;
       
       float truth = std::atan2(y,x);
-      float approx = egocylindrical::utils::atan2_approximation1(y,x);
+      float approx = np_egocylinder::utils::atan2_approximation1(y,x);
       float error = std::abs(truth - approx);
       
       //std::cout << "Truth: " << truth << ", Approx: " << approx << ", Error: " << error << ", %Error: " << percent_error << " @ " << x << std::endl;

@@ -1,4 +1,4 @@
-#include <egocylindrical/range_image_generator.h>
+#include <np_egocylinder/range_image_generator.h>
 
 //Redundant
 #include <ros/ros.h>
@@ -10,7 +10,7 @@ int main(int argc, char** argv)
         
     ros::NodeHandle nh;
     ros::NodeHandle pnh("~");
-    egocylindrical::EgoCylinderRangeImageGenerator s(nh, pnh);
+    np_egocylinder::EgoCylinderRangeImageGenerator s(nh, pnh);
     s.init();
     //ros::MultiThreadedSpinner spinner(2);
     //spinner.spin();

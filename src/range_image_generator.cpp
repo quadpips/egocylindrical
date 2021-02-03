@@ -2,17 +2,17 @@
 // Created by root on 2/5/18.
 //
 
-#include <egocylindrical/range_image_generator.h>
-#include <egocylindrical/range_image_core.h>
+#include <np_egocylinder/range_image_generator.h>
+#include <np_egocylinder/range_image_core.h>
 
 // The below are redundant
-#include <egocylindrical/EgoCylinderPoints.h>
+#include <np_egocylinder/EgoCylinderPoints.h>
 #include <image_transport/image_transport.h>
 #include <ros/ros.h>
-#include <egocylindrical/ecwrapper.h>
+#include <np_egocylinder/ecwrapper.h>
 
 
-namespace egocylindrical
+namespace np_egocylinder
 {
 
 
@@ -84,7 +84,7 @@ namespace egocylindrical
     }
 
     
-    void EgoCylinderRangeImageGenerator::ecPointsCB(const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg)
+    void EgoCylinderRangeImageGenerator::ecPointsCB(const np_egocylinder::EgoCylinderPoints::ConstPtr& ec_msg)
     {
         ROS_DEBUG("Received EgoCylinderPoints msg");
         

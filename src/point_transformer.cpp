@@ -1,5 +1,5 @@
-#include <egocylindrical/point_transformer.h>
-#include <egocylindrical/ecwrapper.h>
+#include <np_egocylinder/point_transformer.h>
+#include <np_egocylinder/ecwrapper.h>
 
 #include <ros/ros.h>
 //#include <opencv2/core.hpp>
@@ -15,7 +15,7 @@
 #include <geometry_msgs/TransformStamped.h>
 
 
-namespace egocylindrical
+namespace np_egocylinder
 {
     
     namespace utils
@@ -196,7 +196,7 @@ namespace egocylindrical
                     #else
                     {
                       //int idx = -1;
-                      int tidx = new_points.worldToCylindricalYIdx(y_n[p], range_squared);
+                      int tidx = new_points.worldToCylindricalYIdx(y_n[p]);
                       
                       //if(tidx < new_points.getHeight())
                       //  idx = tidx;

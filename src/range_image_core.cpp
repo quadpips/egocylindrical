@@ -1,10 +1,10 @@
-#include <egocylindrical/ecwrapper.h>
+#include <np_egocylinder/ecwrapper.h>
 
-#include <egocylindrical/range_image_core.h>
-#include <egocylindrical/range_image_core_inl.h>
+#include <np_egocylinder/range_image_core.h>
+#include <np_egocylinder/range_image_core_inl.h>
 
 
-namespace egocylindrical
+namespace np_egocylinder
 {
     
     namespace utils

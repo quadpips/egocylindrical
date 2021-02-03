@@ -2,14 +2,14 @@
 // Created by root on 2/5/18.
 //
 
-#include <egocylindrical/projected_point_cloud_generator.h>
+#include <np_egocylinder/projected_point_cloud_generator.h>
 #include <nodelet/nodelet.h>
 #include <pluginlib/class_list_macros.h>
 
 //Redundant
 #include <ros/ros.h>
 
-namespace egocylindrical
+namespace np_egocylinder
 {
 
     /**
@@ -54,7 +54,7 @@ namespace egocylindrical
     };
     
     
-    PLUGINLIB_EXPORT_CLASS(egocylindrical::ProjectedPointCloudNodelet,
+    PLUGINLIB_EXPORT_CLASS(np_egocylinder::ProjectedPointCloudNodelet,
                            nodelet::Nodelet);
     // %EndTag(FULLTEXT)%
     
