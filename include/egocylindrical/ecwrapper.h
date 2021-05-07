@@ -363,7 +363,7 @@ namespace egocylindrical
                 init();
             }
             
-            ECWrapper(const ECMsgConstPtr& ec_points) 
+            ECWrapper(const ECMsgConstPtr& ec_points, bool use_const_msg = true) 
             {
                 const_msg_ = ec_points;
                 header_ = const_msg_->header;
@@ -373,7 +373,18 @@ namespace egocylindrical
                 height_ = dims[1].size;
                 width_ = dims[2].size;
                 
-                points_ = (float*) const_msg_->points.data.data() + (const_msg_->points.layout.data_offset) / sizeof(float);
+                if(use_const_msg)
+                {
+                    points_ = (float*) const_msg_->points.data.data() + (const_msg_->points.layout.data_offset) / sizeof(float);
+                }
+                else
+                {
+                    hscale_ = width_/(2*M_PI);
+                    vscale_ = height_/vfov_;
+                    msg_ = boost::make_shared<ECMsg>(*ec_points);
+                    points_ = (float*) msg_->points.data.data() + (msg_->points.layout.data_offset) / sizeof(float);
+                }
+                
                                 
                 msg_locked_ = true;
                 
@@ -489,7 +500,14 @@ namespace egocylindrical
                 return yind;
             }
             
-            
+            // inline
+            // void updateMsg()
+            // {
+            //     msg_->header = header_;
+            //     msg_->fov_v = vfov_;
+            //     msg_->points.layout = const_msg_->points.layout;
+            // }
+
             inline
             ECMsgConstPtr getEgoCylinderPointsMsg()
             {
