@@ -68,7 +68,13 @@ namespace egocylindrical
 
     void EgoCylindricalPropagator::update(const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info)
     {
-        if(old_pts_ && old_pts_->getHeader().stamp >= cam_info->header.stamp)
+        // if(old_pts_)
+        // {
+        //     ROS_INFO_STREAM(old_pts_->getHeader().stamp);
+        //     ROS_INFO_STREAM(cam_info->header.stamp);
+        //     ROS_INFO_STREAM(image->header.stamp);
+        // }
+        if(old_pts_ && old_pts_->getHeader().stamp > cam_info->header.stamp)
         {
           old_pts_ = nullptr;
         }
