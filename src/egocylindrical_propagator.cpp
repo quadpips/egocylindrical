@@ -68,12 +68,30 @@ namespace egocylindrical
 
     void EgoCylindricalPropagator::update(const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info)
     {
+        // Debug header equality
+        // if(old_pts_ && old_pts_->getHeader().stamp == image->header.stamp)
+        // {
+        //     cv::Mat equal_check = prev_image_ - cv_bridge::toCvCopy(image, image->encoding)->image;
+        //     double equal = cv::sum(equal_check)[0];
+
+        //     if(equal > 0)
+        //     {
+        //         ROS_INFO_STREAM("Image not same. " << equal << " " << equal_check);
+        //         throw;
+        //     }
+        //     else
+        //     {
+        //         ROS_INFO_STREAM("Image same.");
+        //         throw;
+        //     }
+        // }
         // if(old_pts_)
         // {
         //     ROS_INFO_STREAM(old_pts_->getHeader().stamp);
         //     ROS_INFO_STREAM(cam_info->header.stamp);
         //     ROS_INFO_STREAM(image->header.stamp);
         // }
+
         if(old_pts_ && old_pts_->getHeader().stamp > cam_info->header.stamp)
         {
           old_pts_ = nullptr;
@@ -109,7 +127,7 @@ namespace egocylindrical
                 ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
             }
             
-            
+            if(old_pts_ && old_pts_->getHeader().stamp != image->header.stamp)
             {
                 ros::WallTime temp = ros::WallTime::now();
                 EgoCylindricalPropagator::addDepthImage(*new_pts_, image, cam_info);
@@ -155,7 +173,8 @@ namespace egocylindrical
         
         ROS_INFO_STREAM_NAMED("timing", "Total time: " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
         
-        
+        // Debug header equality
+        // prev_image_ = cv_bridge::toCvCopy(image, image->encoding)->image;
     }
     
     void EgoCylindricalPropagator::connectCB()

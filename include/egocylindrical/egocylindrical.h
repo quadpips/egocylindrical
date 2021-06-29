@@ -92,6 +92,9 @@ private:
 protected:
     tf2_ros::Buffer buffer_;
     std::string fixed_frame_id_;
+
+    // Debug header equality
+    // cv::Mat prev_image_;
     
     
 public:
