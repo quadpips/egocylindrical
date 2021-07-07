@@ -593,9 +593,9 @@ namespace egocylindrical
                 dim2.stride = width_;   
             }
             
-            bool init(const ECWrapper& other)
+            bool init(const ECWrapper& other, bool clear=false)
             {
-                return init(other.height_, other.width_, other.vfov_);
+                return init(other.height_, other.width_, other.vfov_, clear);
             }
             
             inline
