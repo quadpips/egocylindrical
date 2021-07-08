@@ -26,8 +26,6 @@
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/time_synchronizer.h>
-#include <message_filters/sync_policies/exact_time.h>
-#include <message_filters/sync_policies/approximate_time.h>
 
 #include <dynamic_reconfigure/server.h>
 #include <egocylindrical/PropagatorConfig.h>
@@ -70,8 +68,6 @@ private:
     typedef tf2_ros::MessageFilter<sensor_msgs::CameraInfo> tf_filter;
     boost::shared_ptr<tf_filter> info_tf_filter;
     
-    // typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::CameraInfo> image_sync_policy;
-    // typedef message_filters::Synchronizer<image_sync_policy> synchronizer;
     typedef message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::CameraInfo> synchronizer;
     boost::shared_ptr<synchronizer> timeSynchronizer;
     

@@ -239,7 +239,6 @@ namespace egocylindrical
         info_tf_filter = boost::make_shared<tf_filter>(depthInfoSub, *buffer_, fixed_frame_id_, 50,nh_);
         
         // Synchronize Image and CameraInfo callbacks
-        // timeSynchronizer = boost::make_shared<synchronizer>(synchronizer(50), depthSub, *info_tf_filter);
         timeSynchronizer = boost::make_shared<synchronizer>(depthSub, *info_tf_filter, 50);
         timeSynchronizer->registerCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1, _2));
         
