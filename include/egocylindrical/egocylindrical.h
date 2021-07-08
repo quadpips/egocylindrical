@@ -58,7 +58,7 @@ private:
     utils::DepthImageRemapper depth_remapper_;
 
     ros::NodeHandle nh_, pnh_;
-    boost::shared_ptr<tf2_ros::TransformListener> tf_listener_;
+    std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 
     
     image_transport::ImageTransport it_;
@@ -90,7 +90,7 @@ private:
     virtual void published(utils::ECWrapperPtr& points) { }
 
 protected:
-    boost::shared_ptr<tf2_ros::Buffer> buffer_;
+    std::shared_ptr<tf2_ros::Buffer> buffer_;
     std::string fixed_frame_id_;
 
     // Debug header equality

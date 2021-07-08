@@ -252,8 +252,8 @@ namespace egocylindrical
     {
         reconfigure_server_ = std::make_shared<ReconfigureServer>(pnh_);
         
-        buffer_ = boost::make_shared<tf2_ros::Buffer>(ros::Duration(20));
-        tf_listener_ = boost::make_shared<tf2_ros::TransformListener>(*buffer_);
+        buffer_ = std::make_shared<tf2_ros::Buffer>(ros::Duration(20));
+        tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*buffer_);
     }
     
     EgoCylindricalPropagator::~EgoCylindricalPropagator()
