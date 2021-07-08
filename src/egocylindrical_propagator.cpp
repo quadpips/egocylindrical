@@ -32,7 +32,7 @@ namespace egocylindrical
         new_pnts.setHeader(new_header);
         
         ROS_DEBUG("Getting Transformation details");
-                geometry_msgs::TransformStamped trans = buffer_.lookupTransform(new_header.frame_id, new_header.stamp,
+                geometry_msgs::TransformStamped trans = buffer_->lookupTransform(new_header.frame_id, new_header.stamp,
                                 old_header.frame_id, old_header.stamp,
                                 fixed_frame_id_);
         
@@ -91,7 +91,6 @@ namespace egocylindrical
         //     ROS_INFO_STREAM(cam_info->header.stamp);
         //     ROS_INFO_STREAM(image->header.stamp);
         // }
-
         if(old_pts_ && old_pts_->getHeader().stamp > cam_info->header.stamp)
         {
           old_pts_ = nullptr;
@@ -188,6 +187,7 @@ namespace egocylindrical
     
     void EgoCylindricalPropagator::configCB(const egocylindrical::PropagatorConfig &config, uint32_t level)
     {
+        
         WriteLock lock(config_mutex_);
      
         ROS_INFO_STREAM("Updating propagator config: height=" << config.height << ", width=" << config.width << ", vfov=" << config.vfov);
@@ -232,14 +232,15 @@ namespace egocylindrical
         
         
         // Setup subscribers
-        depthSub.subscribe(it_, depth_topic, 3);
-        depthInfoSub.subscribe(nh_, info_topic, 3);
+        depthSub.subscribe(it_, depth_topic, 10);
+        depthInfoSub.subscribe(nh_, info_topic, 10);
         
         // Ensure that CameraInfo is transformable
-        info_tf_filter = boost::make_shared<tf_filter>(depthInfoSub, buffer_, fixed_frame_id_, 2,nh_);
+        info_tf_filter = boost::make_shared<tf_filter>(depthInfoSub, *buffer_, fixed_frame_id_, 50,nh_);
         
         // Synchronize Image and CameraInfo callbacks
-        timeSynchronizer = boost::make_shared<synchronizer>(depthSub, *info_tf_filter, 2);
+        // timeSynchronizer = boost::make_shared<synchronizer>(synchronizer(50), depthSub, *info_tf_filter);
+        timeSynchronizer = boost::make_shared<synchronizer>(depthSub, *info_tf_filter, 50);
         timeSynchronizer->registerCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1, _2));
         
         return true;
@@ -248,12 +249,12 @@ namespace egocylindrical
     EgoCylindricalPropagator::EgoCylindricalPropagator(ros::NodeHandle& nh, ros::NodeHandle& pnh):
         nh_(nh),
         pnh_(pnh),
-        tf_listener_(buffer_),
         it_(nh)
     {
         reconfigure_server_ = std::make_shared<ReconfigureServer>(pnh_);
         
-        
+        buffer_ = boost::make_shared<tf2_ros::Buffer>(ros::Duration(20));
+        tf_listener_ = boost::make_shared<tf2_ros::TransformListener>(*buffer_);
     }
     
     EgoCylindricalPropagator::~EgoCylindricalPropagator()

@@ -19,6 +19,7 @@ int main(int argc, char** argv)
     ros::NodeHandle nh;
     ros::NodeHandle pnh("~");
     
+    ROS_INFO_STREAM("Start");
     egocylindrical::EgoCylindricalPropagator s(nh, pnh);
     s.init();
     
