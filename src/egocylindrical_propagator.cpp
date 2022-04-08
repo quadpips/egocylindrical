@@ -4,7 +4,7 @@
 
 #include <egocylindrical/egocylindrical.h>
 #include <egocylindrical/point_transformer.h>
-#include <egocylindrical/depth_image_core.h>
+#include <egocylindrical/depth_image_inserter.h>
 
 //#include <tf/LinearMath/Matrix3x3.h>
 //#include <cv_bridge/cv_bridge.h>
@@ -52,17 +52,19 @@ namespace egocylindrical
 
     void EgoCylindricalPropagator::addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info)
     {
-        if(pc_pub_.getNumSubscribers()>0)
-        {
-          ReadLock lock(config_mutex_);
-          sensor_msgs::PointCloud2::Ptr pcloud_msg;
-          depth_remapper_.update(cylindrical_points, image, cam_info, pcloud_msg, config_.filter_y_min, config_.filter_y_max);
-          pc_pub_.publish(pcloud_msg);
-        }
-        else
-        {
-            depth_remapper_.update(cylindrical_points, image, cam_info);
-        }
+        dii_.insert(cylindrical_points, image, cam_info);
+
+        // if(pc_pub_.getNumSubscribers()>0)
+        // {
+        //   ReadLock lock(config_mutex_);
+        //   sensor_msgs::PointCloud2::Ptr pcloud_msg;
+        //   depth_remapper_.update(cylindrical_points, image, cam_info, pcloud_msg, config_.filter_y_min, config_.filter_y_max);
+        //   pc_pub_.publish(pcloud_msg);
+        // }
+        // else
+        // {
+        //     depth_remapper_.update(cylindrical_points, image, cam_info);
+        // }
     }
 
 
@@ -272,6 +274,7 @@ namespace egocylindrical
         
         pnh_.getParam("fixed_frame_id", fixed_frame_id_);
 
+        dii_.init();
         cfh_.init();
 
         reset_sub_ = nh_.subscribe<std_msgs::Empty>("reset", 1, [this](const std_msgs::Empty::ConstPtr&) { reset(); });
@@ -303,6 +306,7 @@ namespace egocylindrical
         pnh_(pnh),
         buffer_(),
         tf_listener_(buffer_),
+        dii_(buffer_, pnh),
         cfh_(buffer_, pnh),
         it_(nh),
         should_reset_(false)

@@ -14,6 +14,7 @@
 #include <dynamic_reconfigure/server.h>
 
 #include <ros/ros.h>
+#include <boost/thread/mutex.hpp>
 
 namespace egocylindrical
 {
@@ -21,6 +22,9 @@ namespace egocylindrical
 
     class RangeImageConverter
     {
+        using Mutex = boost::mutex;
+        using Lock = Mutex::scoped_lock;
+
         ros::NodeHandle nh_, pnh_;
         image_transport::ImageTransport it_;
 
@@ -31,6 +35,8 @@ namespace egocylindrical
         boost::shared_ptr<synchronizer> timeSynchronizer;
         
         ros::Publisher ec_pub_;
+
+        Mutex connect_mutex_;
 
     public:
 

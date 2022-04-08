@@ -5,12 +5,6 @@
 #include <egocylindrical/range_image_generator.h>
 #include <egocylindrical/range_image_core.h>
 
-// The below are redundant
-#include <egocylindrical/EgoCylinderPoints.h>
-#include <image_transport/image_transport.h>
-#include <ros/ros.h>
-#include <egocylindrical/ecwrapper.h>
-
 
 namespace egocylindrical
 {
@@ -42,7 +36,10 @@ namespace egocylindrical
         
 
         image_transport::SubscriberStatusCallback image_cb = boost::bind(&EgoCylinderRangeImageGenerator::ssCB, this);
-        im_pub_ = it_.advertise(image_topic, 2, image_cb, image_cb);
+        {
+            Lock lock(connect_mutex_);
+            im_pub_ = it_.advertise(image_topic, 2, image_cb, image_cb);
+        }
         
         return true;
     }
@@ -60,7 +57,7 @@ namespace egocylindrical
     {
         
         //std::cout << (void*)ec_sub_ << ": " << im_pub_.getNumSubscribers() << std::endl;
-
+        Lock lock(connect_mutex_);
         if(im_pub_.getNumSubscribers()>0)
         {
             if((void*)ec_sub_) //if currently subscribed... no need to do anything
@@ -87,9 +84,15 @@ namespace egocylindrical
     void EgoCylinderRangeImageGenerator::ecPointsCB(const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg)
     {
         ROS_DEBUG("Received EgoCylinderPoints msg");
+
+        ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[range_image_generator] Received [" << ec_msg->header.stamp << "] at [" << ros::WallTime::now() << "]");
         
+        bool gen_range_image = im_pub_.getNumSubscribers() > 0;
+
+        utils::ECWrapper ec_pts(ec_msg);
+
         // This may be redundant now
-        if(im_pub_.getNumSubscribers() > 0)
+        if(gen_range_image)
         {
 
           ros::WallTime start = ros::WallTime::now();
@@ -98,17 +101,18 @@ namespace egocylindrical
                 
           sensor_msgs::Image::ConstPtr image_ptr = use_raw_ ? utils::getRawRangeImageMsg(ec_pts, num_threads_, preallocated_msg_) : utils::getRangeImageMsg(ec_pts, num_threads_, preallocated_msg_);
 
-          ROS_INFO_STREAM_NAMED("timing","Generating egocylindrical image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+          ROS_DEBUG_STREAM_NAMED("timing","Generating egocylindrical range image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
           
 
           ROS_DEBUG("publish egocylindrical image");
           
           im_pub_.publish(image_ptr);
+          ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[range_image_generator] Sent [" << image_ptr->header.stamp << "] at [" << ros::WallTime::now() << "]");
           
           start = ros::WallTime::now();
           preallocated_msg_= boost::make_shared<sensor_msgs::Image>();
           preallocated_msg_->data.resize(image_ptr->data.size()); //We initialize the image to the same size as the most recently generated image
-          ROS_INFO_STREAM_NAMED("timing","Preallocating image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+          ROS_DEBUG_STREAM_NAMED("timing","Preallocating range image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
           
         }
         

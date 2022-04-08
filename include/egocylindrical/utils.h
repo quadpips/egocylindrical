@@ -42,21 +42,11 @@ namespace utils
 
         ROS_DEBUG("Relocated the propagated image");
         //#pragma omp parallel for
-        for(int i = 0; i < new_points.getCols(); ++i)
+        for(int i = 0; i < new_points.getNumPts(); ++i)
         {
             
             int idx=-1;
-            
-            #ifndef PIPS_ON_ARM
-              idx= inds[i];
-            #else
-              int yidx = inds[i];
-              if(yidx >= 0)
-              {
-                int xidx = new_points.worldToCylindricalXIdx(n_x[i],n_z[i]);
-                idx = yidx * new_points.getWidth() + xidx;
-              }
-            #endif
+            idx= inds[i];
             
             if(idx >=0)
             {
