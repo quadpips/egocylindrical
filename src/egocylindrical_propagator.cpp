@@ -92,9 +92,37 @@ namespace egocylindrical
         //     ROS_INFO_STREAM(image->header.stamp);
         // }
 
-        if(old_pts_ && old_pts_->getHeader().stamp > cam_info->header.stamp)
+        // if(old_pts_ && old_pts_->getHeader().stamp > cam_info->header.stamp)
         {
-          old_pts_ = nullptr;
+            WriteLock lock(reset_mutex_);
+            if(should_reset_)
+            {
+                old_pts_ = nullptr;
+                should_reset_ = false;
+            }
+        }
+        if(old_pts_)
+        {
+            if(old_pts_->getHeader().stamp > cam_info->header.stamp)
+            {
+                old_pts_ = nullptr;
+            }
+            else if(old_pts_->getHeader().stamp == cam_info->header.stamp)
+            {
+              ROS_WARN_STREAM_NAMED("msg_timestamps","Repeat stamps received! " << cam_info->header.stamp);
+              return;
+            }
+        }
+
+        //TODO: Warn of out-of-order images
+        //TODO: If clock jumps back in time, reset egocylinder
+
+        ROS_DEBUG_STREAM_NAMED("msg_timestamps","Current stamp: " << cam_info->header.stamp);
+        ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[egocylinder] Received [" << cam_info->header.stamp << "] at [" << ros::WallTime::now() << "]");
+
+        if(old_pts_)
+        {
+            ROS_DEBUG_STREAM_NAMED("msg_timestamps","Previous stamp " << old_pts_->getHeader().stamp);
         }
         ros::WallTime start = ros::WallTime::now();
         
@@ -103,6 +131,14 @@ namespace egocylindrical
         new_pts_ = next_pts_;
         bool allocate_next = !old_pts_ || old_pts_->isLocked();
         
+        if(!cfh_.updateTransforms(image->header))
+        {
+            ROS_WARN_STREAM("Failed to update transforms!");
+            return;
+        }
+
+        std_msgs::Header target_header = cfh_.getTargetHeader();
+
         #pragma omp parallel sections num_threads(2) if(allocate_next)
         {
           #pragma omp section
@@ -113,12 +149,12 @@ namespace egocylindrical
                 {
                     ros::WallTime start = ros::WallTime::now();
                     
-                    EgoCylindricalPropagator::propagateHistory(*old_pts_, *new_pts_, image->header);
+                    EgoCylindricalPropagator::propagateHistory(*old_pts_, *new_pts_, target_header);
                     //ROS_INFO_STREAM("Propagation took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
                 }
                 else
                 {
-                    new_pts_->setHeader(image->header);
+                    new_pts_->setHeader(target_header);
                 }
                 
             }
@@ -126,8 +162,9 @@ namespace egocylindrical
             {
                 ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
             }
-            
-            if(old_pts_ && old_pts_->getHeader().stamp != image->header.stamp)
+            //TODO: Decide how to handle transform failure
+
+            // if(old_pts_ && old_pts_->getHeader().stamp != image->header.stamp)
             {
                 ros::WallTime temp = ros::WallTime::now();
                 EgoCylindricalPropagator::addDepthImage(*new_pts_, image, cam_info);
@@ -140,7 +177,12 @@ namespace egocylindrical
                 utils::ECMsgConstPtr msg = new_pts_->getEgoCylinderPointsMsg();
                 
                 ec_pub_.publish(msg);
+                ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[egocylinder] Sent [" << msg->header.stamp << "] at [" << ros::WallTime::now() << "]");
                 published(new_pts_);
+            }
+            if(info_pub_.getNumSubscribers() > 0)
+            {
+              info_pub_.publish(new_pts_->getEgoCylinderInfoMsg());
             }
           }
           
@@ -185,6 +227,13 @@ namespace egocylindrical
             
         }
     }
+
+    void EgoCylindricalPropagator::reset()
+    {
+        WriteLock lock(reset_mutex_);
+        should_reset_ = true;
+    }
+
     
     void EgoCylindricalPropagator::configCB(const egocylindrical::PropagatorConfig &config, uint32_t level)
     {
@@ -213,7 +262,7 @@ namespace egocylindrical
                 
         
         // Get topic names
-        std::string depth_topic="/camera/depth/image_raw", info_topic= "/camera/depth/camera_info", points_topic="egocylindrical_points", filtered_pc_topic="filtered_points";
+        std::string depth_topic="/camera/depth/image_raw", info_topic= "/camera/depth/camera_info", points_topic="egocylindrical_points", filtered_pc_topic="filtered_points", egocylinder_info_topic="egocylinder_info";;
         fixed_frame_id_ = "odom";
         
         pnh_.getParam("image_in", depth_topic );
@@ -222,6 +271,10 @@ namespace egocylindrical
         pnh_.getParam("filtered_points", filtered_pc_topic);
         
         pnh_.getParam("fixed_frame_id", fixed_frame_id_);
+
+        cfh_.init();
+
+        reset_sub_ = nh_.subscribe<std_msgs::Empty>("reset", 1, [this](const std_msgs::Empty::ConstPtr&) { reset(); });
         
         // Setup publishers
         ros::SubscriberStatusCallback image_cb = boost::bind(&EgoCylindricalPropagator::connectCB, this);        
@@ -229,7 +282,7 @@ namespace egocylindrical
         
         //ros::SubscriberStatusCallback pc_cb = boost::bind(&EgoCylindricalPropagator::connectCB, this);        
         pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>(filtered_pc_topic, 3);
-        
+        info_pub_ = nh_.advertise<egocylindrical::EgoCylinderPoints>(egocylinder_info_topic, 1);
         
         // Setup subscribers
         depthSub.subscribe(it_, depth_topic, 3);
@@ -248,8 +301,11 @@ namespace egocylindrical
     EgoCylindricalPropagator::EgoCylindricalPropagator(ros::NodeHandle& nh, ros::NodeHandle& pnh):
         nh_(nh),
         pnh_(pnh),
+        buffer_(),
         tf_listener_(buffer_),
-        it_(nh)
+        cfh_(buffer_, pnh),
+        it_(nh),
+        should_reset_(false)
     {
         reconfigure_server_ = std::make_shared<ReconfigureServer>(pnh_);
         

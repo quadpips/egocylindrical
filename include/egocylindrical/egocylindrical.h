@@ -7,6 +7,7 @@
 
 #include <egocylindrical/utils.h>
 #include <egocylindrical/depth_image_core.h>
+#include <egocylindrical/coordinate_frame_helper.h>
 
 #include <ros/ros.h>
 #include <opencv2/core.hpp>
@@ -44,7 +45,7 @@ class EgoCylindricalPropagator{
 private:
 
     
-    Mutex config_mutex_;
+    Mutex config_mutex_, reset_mutex_;
     
     int cylinder_height_;
     int cylinder_width_;
@@ -60,6 +61,7 @@ private:
     ros::NodeHandle nh_, pnh_;
     tf2_ros::TransformListener tf_listener_;
 
+    utils::CoordinateFrameHelper cfh_;
     
     image_transport::ImageTransport it_;
     image_transport::SubscriberFilter depthSub;
@@ -71,13 +73,14 @@ private:
     typedef message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::CameraInfo> synchronizer;
     boost::shared_ptr<synchronizer> timeSynchronizer;
     
-    ros::Publisher ec_pub_, pc_pub_;
+    ros::Publisher ec_pub_, pc_pub_, info_pub_;
+    ros::Subscriber reset_sub_;
     
     egocylindrical::PropagatorConfig config_;
     typedef dynamic_reconfigure::Server<egocylindrical::PropagatorConfig> ReconfigureServer;
     std::shared_ptr<ReconfigureServer> reconfigure_server_;
     
-
+    bool should_reset_;
 
     void propagateHistory(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::Header new_header);
     void addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info);
@@ -110,7 +113,7 @@ public:
     //pcl::PointCloud<pcl::PointXYZI> getCylindricalPointCloud();
     //pcl::PointCloud<pcl::PointXYZ> getWorldPointCloud();
 
-
+    void reset();
 };
 
 

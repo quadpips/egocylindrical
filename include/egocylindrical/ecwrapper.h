@@ -514,6 +514,16 @@ namespace egocylindrical
                 msg_locked_ = true;
                 return (ECMsgConstPtr) msg_;
             }
+
+            inline
+            ECMsgConstPtr getEgoCylinderInfoMsg()
+            {
+              ECMsgPtr info = boost::make_shared<ECMsg>();
+              info->header = msg_->header;
+              info->fov_v = msg_->fov_v;
+              info->points.layout.dim =  msg_->points.layout.dim;
+              return (ECMsgConstPtr) info;
+            }
             
             inline
             ECParams getParams() const
