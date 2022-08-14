@@ -182,8 +182,8 @@ namespace egocylindrical
                                               
                 try
                 {
-                    // ecs_ = buffer_.lookupTransform(cfd_.orientation_fixed_frame_id, stamp, cfd_.origin_fixed_frame_id, stamp, fixed_frame_id_);
-                    ecs_ = buffer_.lookupTransform(cfd_.orientation_fixed_frame_id, ros::Time(), cfd_.origin_fixed_frame_id, ros::Time(), fixed_frame_id_);
+                    ecs_ = buffer_.lookupTransform(cfd_.orientation_fixed_frame_id, stamp, cfd_.origin_fixed_frame_id, stamp, fixed_frame_id_);
+                    // ecs_ = buffer_.lookupTransform(cfd_.orientation_fixed_frame_id, ros::Time(), cfd_.origin_fixed_frame_id, ros::Time(), fixed_frame_id_);
                     
                     ecs_.transform.rotation = geometry_msgs::Quaternion();
                     ecs_.transform.rotation.w=1;

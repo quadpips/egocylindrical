@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(egocylindrical)
 
-## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-Wall -std=c++14)
 
 ## Find catkin macros and libraries
@@ -163,13 +162,10 @@ include_directories(
   ${PCL_INCLUDE_DIRS}
 )
 
-
-
 # This is a separate library partly to reduce compile times, but mostly because it needs to be compiled with certain 'fast-math' optimization options
 add_library(range_image_core src/range_image_core.cpp)
 add_dependencies(range_image_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-#target_compile_features(range_image_core PUBLIC ${CXX11_FEATURES})
-target_compile_options(range_image_core PRIVATE -ftree-vectorize ${SHOW_VECTORIZE_INFO} -funsafe-math-optimizations -fno-math-errno -ffinite-math-only #-ffinite-math-only and -fno-trapping-math.
+target_compile_options(range_image_core PRIVATE -ftree-vectorize -fopt-info-loop-optimized=vec_range_image_core.txt -funsafe-math-optimizations -fno-math-errno -ffinite-math-only #-ffinite-math-only and -fno-trapping-math.
    )
 target_link_libraries(range_image_core
    ${catkin_LIBRARIES}
@@ -178,27 +174,24 @@ target_link_libraries(range_image_core
    )
 
 
-  
+
 ##Verified that ${OpenMP_CXX_FLAGS} contains what it should
 #message(STATUS=WARNING ${OpenMP_CXX_FLAGS})
   
 add_library(point_cloud_core src/point_cloud_core.cpp)
 add_dependencies(point_cloud_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-#target_compile_features(point_cloud_core PUBLIC ${CXX11_FEATURES})
-target_compile_options(point_cloud_core PRIVATE -ftree-vectorize ${SHOW_VECTORIZE_INFO} ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
+target_compile_options(point_cloud_core PRIVATE -ftree-vectorize -fopt-info-loop-optimized=vec_point_cloud_core.txt ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
    )
 target_link_libraries(point_cloud_core
    ${catkin_LIBRARIES}
    #${OpenCV_LIBRARIES}
    #${PCL_LIBRARIES}
-   #${OpenMP_CXX_FLAGS}
+   #${OpenMP_CXX_FLAGS}    #Not currently needed
    )
-
 
 add_library(projected_point_cloud_core src/projected_point_cloud_core.cpp)
 add_dependencies(projected_point_cloud_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-#target_compile_features(projected_point_cloud_core PUBLIC ${CXX11_FEATURES})
-target_compile_options(projected_point_cloud_core PRIVATE -ftree-vectorize ${SHOW_VECTORIZE_INFO} ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
+target_compile_options(projected_point_cloud_core PRIVATE -ftree-vectorize -fno-trapping-math -fno-math-errno  -fopt-info-loop-optimized=vec_projected_point_cloud_core.txt ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
    )
 target_link_libraries(projected_point_cloud_core
    ${catkin_LIBRARIES}
@@ -207,12 +200,9 @@ target_link_libraries(projected_point_cloud_core
    #${OpenMP_CXX_FLAGS}
    )
 
-
-
 add_library(point_transformer src/point_transformer.cpp)
 add_dependencies(point_transformer ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-#target_compile_features(point_transformer PUBLIC ${CXX11_FEATURES})
-target_compile_options(point_transformer PRIVATE -ftree-vectorize   ${SHOW_VECTORIZE_INFO} -funsafe-math-optimizations -fno-math-errno ${OpenMP_CXX_FLAGS}#-finite-math-only and -fno-trapping-math. -ffinite-math-only 
+target_compile_options(point_transformer PRIVATE -ftree-vectorize -fopt-info-loop-optimized=vec_point_transformer.txt -funsafe-math-optimizations -fno-math-errno ${OpenMP_CXX_FLAGS} #-finite-math-only and -fno-trapping-math. -ffinite-math-only 
    )
 target_compile_definitions(point_transformer PRIVATE ${PLATFORM_FLAGS})
 target_link_libraries(point_transformer
@@ -221,29 +211,28 @@ target_link_libraries(point_transformer
    ${OpenMP_CXX_FLAGS}
    )
 
-
-   add_library(depth_image_remapper src/depth_image_remapper.cpp)
-   add_dependencies(depth_image_remapper ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-   target_compile_options(depth_image_remapper PRIVATE -ftree-vectorize  -fopt-info-vec-all=vec_depth_image_inserter.txt ${SHOW_VECTORIZE_INFO} -funsafe-math-optimizations -fno-math-errno ${OpenMP_CXX_FLAGS}#-finite-math-only and -fno-trapping-math. -ffinite-math-only 
-      )
-   target_compile_definitions(depth_image_remapper PRIVATE ${PLATFORM_FLAGS})
-   target_link_libraries(depth_image_remapper
-      ${catkin_LIBRARIES}
-      ${OpenCV_LIBRARIES}
-      ${OpenMP_CXX_FLAGS}
-      )
+add_library(depth_image_remapper src/depth_image_remapper.cpp)
+add_dependencies(depth_image_remapper ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_compile_options(depth_image_remapper PRIVATE -ftree-vectorize  -fopt-info-vec-all=vec_depth_image_remapper.txt -funsafe-math-optimizations -fno-math-errno ${OpenMP_CXX_FLAGS}#-finite-math-only and -fno-trapping-math. -ffinite-math-only 
+   )
+target_compile_definitions(depth_image_remapper PRIVATE ${PLATFORM_FLAGS})
+target_link_libraries(depth_image_remapper
+   ${catkin_LIBRARIES}
+   ${OpenCV_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
    
-   add_library(depth_image_inserter src/depth_image_inserter.cpp)
-   add_dependencies(depth_image_inserter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-   target_compile_options(depth_image_inserter PRIVATE -ftree-vectorize  -fopt-info-vec-all=vec_depth_image_inserter.txt ${SHOW_VECTORIZE_INFO} -funsafe-math-optimizations -fno-math-errno ${OpenMP_CXX_FLAGS}#-finite-math-only and -fno-trapping-math. -ffinite-math-only 
-      )
-   target_compile_definitions(depth_image_inserter PRIVATE ${PLATFORM_FLAGS})
-   target_link_libraries(depth_image_inserter
-      depth_image_remapper
-      ${catkin_LIBRARIES}
-      ${OpenCV_LIBRARIES}
-      ${OpenMP_CXX_FLAGS}
-      )
+add_library(depth_image_inserter src/depth_image_inserter.cpp)
+add_dependencies(depth_image_inserter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_compile_options(depth_image_inserter PRIVATE -ftree-vectorize  -fopt-info-vec-all=vec_depth_image_inserter.txt -funsafe-math-optimizations -fno-math-errno ${OpenMP_CXX_FLAGS}#-finite-math-only and -fno-trapping-math. -ffinite-math-only 
+   )
+target_compile_definitions(depth_image_inserter PRIVATE ${PLATFORM_FLAGS})
+target_link_libraries(depth_image_inserter
+   depth_image_remapper
+   ${catkin_LIBRARIES}
+   ${OpenCV_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
@@ -265,7 +254,7 @@ target_link_libraries(point_transformer
 #EGOCYLINDRICAL_PROPAGATOR
 add_library(egocylindrical_propagator src/egocylindrical_propagator.cpp)
 add_dependencies(egocylindrical_propagator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_compile_options(egocylindrical_propagator PRIVATE ${SHOW_VECTORIZE_INFO} -ftree-vectorize -funsafe-math-optimizations ${OpenMP_CXX_FLAGS} 
+target_compile_options(egocylindrical_propagator PRIVATE -ftree-vectorize -funsafe-math-optimizations ${OpenMP_CXX_FLAGS} 
    )
 target_compile_definitions(egocylindrical_propagator PRIVATE ${PLATFORM_FLAGS})
 target_link_libraries(egocylindrical_propagator
@@ -284,9 +273,8 @@ target_link_libraries(egocylindrical_propagator_node
    egocylindrical_propagator
    ${catkin_LIBRARIES}
    )
-
-
-
+   
+#EGOCYLINDRICAL_PROPAGATOR_NODELET
 add_library(egocylindrical_propagator_nodelet MODULE src/egocylindrical_propagator_nodelet.cpp)
 
 target_link_libraries(egocylindrical_propagator_nodelet
@@ -373,9 +361,6 @@ target_link_libraries(range_image_nodelet
    range_image_generator
    ${catkin_LIBRARIES}
    )
-
-   
-   
    
    
 # 
@@ -443,7 +428,6 @@ target_link_libraries(range_image_converter_node
 #RANGE_IMAGE_INFLATOR
 add_library(range_image_inflator src/range_image_inflator_generator.cpp)
 add_dependencies(range_image_inflator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-#target_compile_features(range_image_inflator PUBLIC ${CXX11_FEATURES})
 target_link_libraries(range_image_inflator
    ${catkin_LIBRARIES}
    ${OpenMP_CXX_FLAGS}
@@ -460,7 +444,6 @@ target_link_libraries(range_image_inflator_node
 #RANGE_IMAGE_INFLATOR_NODELET
 add_library(egocylindrical_range_image_inflator_nodelet MODULE src/range_image_inflator_nodelet.cpp)
 add_dependencies(egocylindrical_range_image_inflator_nodelet ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-#target_compile_features(egocylindrical_range_image_inflator_nodelet PUBLIC ${CXX11_FEATURES})
 target_link_libraries(egocylindrical_range_image_inflator_nodelet
    range_image_inflator
    ${catkin_LIBRARIES}
@@ -477,7 +460,6 @@ target_link_libraries(egocylindrical_range_image_converter_nodelet
 #APPROXIMATION_VALIDATION
 add_executable(approximation_validation src/approximation_validation.cpp)
 add_dependencies(approximation_validation ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-#target_compile_features(approximation_validation PUBLIC ${CXX11_FEATURES})
 target_link_libraries(approximation_validation
    ${catkin_LIBRARIES}
    )
@@ -486,7 +468,6 @@ target_link_libraries(approximation_validation
   
 add_executable(filter_node src/depth_image_filter.cpp)
 add_dependencies(filter_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-#target_compile_features(filter_node PUBLIC ${CXX11_FEATURES})
 target_link_libraries(filter_node
    ${catkin_LIBRARIES}
    )
