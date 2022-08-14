@@ -94,15 +94,11 @@ namespace egocylindrical
         // This may be redundant now
         if(gen_range_image)
         {
-
           ros::WallTime start = ros::WallTime::now();
-          
-          utils::ECWrapper ec_pts(ec_msg);
                 
           sensor_msgs::Image::ConstPtr image_ptr = use_raw_ ? utils::getRawRangeImageMsg(ec_pts, num_threads_, preallocated_msg_) : utils::getRangeImageMsg(ec_pts, num_threads_, preallocated_msg_);
 
           ROS_DEBUG_STREAM_NAMED("timing","Generating egocylindrical range image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
-          
 
           ROS_DEBUG("publish egocylindrical image");
           

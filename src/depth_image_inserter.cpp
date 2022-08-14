@@ -28,21 +28,22 @@ namespace egocylindrical
             const int num_pixels = image_width * image_height;
 
             const int max_ind = cylindrical_points.getCols();
-            float* x = cylindrical_points.getX();
-            float* y = cylindrical_points.getY();
-            float* z = cylindrical_points.getZ();
-
+            float* __restrict__ x = cylindrical_points.getX();
+            float* __restrict__ y = cylindrical_points.getY();
+            float* __restrict__ z = cylindrical_points.getZ();
+            
             PointTransformerObject point_transformer(transform);
 
             const uint scale = DepthScale<T>::scale();
 
             AlignedVector<float> ranges(num_pixels, dNaN), nx(num_pixels, dNaN), ny(num_pixels, dNaN), nz(num_pixels, dNaN);
             AlignedVector<int32_t> inds(num_pixels);
-
-            const T* const imgptr = (T* const) image.data;
-
+            
+            const T* const __restrict__ imgptr = (T* const) image.data;
+            
             const float row_factor = ((float) 1)/image_width;
-
+            
+            #pragma GCC ivdep
             for(int i = 0; i < num_pixels; ++i)
             {
                 float raw_row = i*row_factor;
@@ -382,7 +383,7 @@ namespace egocylindrical
             // if(target_header == source_header)
             if(target_header.frame_id == source_header.frame_id)
             {
-                ROS_INFO("Target and source headers match, using remapping approach");
+                ROS_INFO_ONCE("Target and source headers match, using remapping approach");
                 depth_remapper_.update(cylindrical_points, image_msg, cam_info);
                 return true;
             }

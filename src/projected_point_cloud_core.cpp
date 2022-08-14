@@ -33,19 +33,19 @@ namespace egocylindrical
             pcloud_msg->width = num_pts;
             pcloud_msg->height = 1;
             
-            const float* x = points.getX();
-            const float* y = points.getY();
-            const float* z = points.getZ();
+            const float* __restrict__ x = points.getX();
+            const float* __restrict__ y = points.getY();
+            const float* __restrict__ z = points.getZ();
             
             float* data = (float*) pcloud_msg->data.data();
 
             //TODO: Project top/bottom of egocan
             //#pragma omp parallel for num_threads(4)
+            #pragma GCC ivdep
             for(int j = 0; j < num_pts; ++j)
             {   
                 cv::Point3f point(x[j],y[j],z[j]);
-                
-                cv::Point3f Pcyl_t = egocylindrical::utils::projectWorldToCylinder(point);
+                cv::Point3f Pcyl_t = points.projectWorldToCylinder(point);
                 float range = egocylindrical::utils::worldToRange(point);
 
                 data[8*j] =   Pcyl_t.x;
