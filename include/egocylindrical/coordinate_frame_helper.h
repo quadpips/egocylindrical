@@ -36,6 +36,8 @@ namespace egocylindrical
             bool new_cfd_;
             ros::Subscriber pose_sub_;
             
+            ros::Duration nano_second;
+
             std::mutex cfd_mutex_;
             using Lock = const std::lock_guard<std::mutex>;
             
@@ -46,7 +48,8 @@ namespace egocylindrical
                 pnh_(pnh),
                 tf_br_(),
                 tf_prefix_(""),
-                new_cfd_(false)
+                new_cfd_(false),
+                nano_second(0,1)
             {
               
             }
@@ -197,8 +200,9 @@ namespace egocylindrical
                 
                 ROS_DEBUG_STREAM("[updateECSTransform] Updated transform! " << stamp);
 
-                
+                ecs_.header.stamp += nano_second;
                 buffer_.setTransform(ecs_, "coordinate_frame_helper", false);
+                ecs_.header.stamp -= nano_second;
                 tf_br_.sendTransform(ecs_);
                 
                 return true;
@@ -225,7 +229,9 @@ namespace egocylindrical
 
                 ROS_DEBUG_STREAM("[updateECCTransform] Updated transform! " << stamp);
 
+                ecc_.header.stamp += nano_second;
                 buffer_.setTransform(ecc_, "coordinate_frame_helper", false);
+                ecc_.header.stamp -= nano_second;
                 tf_br_.sendTransform(ecc_);
                 
                 return true;
@@ -286,7 +292,9 @@ namespace egocylindrical
 
                 ROS_DEBUG_STREAM("[updateOffsetTransform] Updated transform! " << stamp);
 
+                offset_transform_.header.stamp += nano_second;
                 buffer_.setTransform(offset_transform_, "coordinate_frame_helper", false);
+                offset_transform_.header.stamp -= nano_second;
                 tf_br_.sendTransform(offset_transform_);
                 
                 return true;
