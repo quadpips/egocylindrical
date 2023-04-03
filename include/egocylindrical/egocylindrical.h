@@ -34,6 +34,8 @@
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/thread/locks.hpp>
 
+#include <egocylindrical/laser_scan_inserter.h>
+
 typedef boost::shared_mutex Mutex;
 typedef boost::unique_lock< Mutex > WriteLock;
 typedef boost::shared_lock< Mutex > ReadLock;
@@ -60,12 +62,13 @@ private:
     tf2_ros::TransformListener tf_listener_;
     utils::DepthImageInserter dii_;
     utils::CoordinateFrameHelper cfh_;
+    utils::LaserScanInserter lsi_;
     
     image_transport::ImageTransport it_;
     image_transport::SubscriberFilter depthSub;
-    message_filters::Subscriber<sensor_msgs::CameraInfo> depthInfoSub;
+    message_filters::Subscriber<sensor_msgs::LaserScan> depthInfoSub;
     
-    typedef tf2_ros::MessageFilter<sensor_msgs::CameraInfo> tf_filter;
+    typedef tf2_ros::MessageFilter<sensor_msgs::LaserScan> tf_filter;
     boost::shared_ptr<tf_filter> info_tf_filter;
     
     typedef message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::CameraInfo> synchronizer;
@@ -97,7 +100,7 @@ public:
     EgoCylindricalPropagator(ros::NodeHandle& nh, ros::NodeHandle& pnh);
     ~EgoCylindricalPropagator();
     
-    void update(const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info);
+    void update(const sensor_msgs::LaserScan::ConstPtr& image);
     sensor_msgs::PointCloud2  getPropagatedPointCloud();
     sensor_msgs::Image::ConstPtr getRawRangeImage();
 

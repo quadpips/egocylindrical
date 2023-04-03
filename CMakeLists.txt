@@ -238,7 +238,14 @@ target_link_libraries(depth_image_inserter
    ${OpenMP_CXX_FLAGS}
    )
 
-
+   
+add_library(laser_scan_inserter src/laser_scan_inserter.cpp)
+add_dependencies(laser_scan_inserter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(laser_scan_inserter
+   ${catkin_LIBRARIES}
+   ${OpenCV_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
   
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
@@ -266,6 +273,7 @@ target_compile_definitions(egocylindrical_propagator PRIVATE ${PLATFORM_FLAGS})
 target_link_libraries(egocylindrical_propagator
    point_transformer
    depth_image_inserter
+   laser_scan_inserter
    ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
    ${OpenMP_CXX_FLAGS}

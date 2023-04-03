@@ -84,8 +84,8 @@ namespace egocylindrical
 //         }
     }
 
-
-    void EgoCylindricalPropagator::update(const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info)
+    void EgoCylindricalPropagator::update(const sensor_msgs::LaserScan::ConstPtr& image)
+//     void EgoCylindricalPropagator::update(const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info)
     {
         //TODO: Reset between runs so that the reset function returns once reset is complete
         {
@@ -96,15 +96,16 @@ namespace egocylindrical
                 should_reset_ = false;
             }
         }
+        auto new_stamp = image->header.stamp;
         if(old_pts_)
         {
-            if(old_pts_->getHeader().stamp > cam_info->header.stamp)
+            if(old_pts_->getHeader().stamp > new_stamp)
             {
                 old_pts_ = nullptr;
             }
-            else if(old_pts_->getHeader().stamp == cam_info->header.stamp)
+            else if(old_pts_->getHeader().stamp == new_stamp)
             {
-              ROS_WARN_STREAM_NAMED("msg_timestamps","Repeat stamps received! " << cam_info->header.stamp);
+              ROS_WARN_STREAM_NAMED("msg_timestamps","Repeat stamps received! " << new_stamp);
               return;
             }
         }
@@ -112,8 +113,8 @@ namespace egocylindrical
         //TODO: Warn of out-of-order images
         //TODO: If clock jumps back in time, reset egocylinder
         
-        ROS_DEBUG_STREAM_NAMED("msg_timestamps","Current stamp: " << cam_info->header.stamp);
-        ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[egocylinder] Received [" << cam_info->header.stamp << "] at [" << ros::WallTime::now() << "]");
+        ROS_DEBUG_STREAM_NAMED("msg_timestamps","Current stamp: " << new_stamp);
+        ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[egocylinder] Received [" << new_stamp << "] at [" << ros::WallTime::now() << "]");
         
         if(old_pts_)
         {
@@ -160,7 +161,8 @@ namespace egocylindrical
             
             {
                 ros::WallTime temp = ros::WallTime::now();
-                EgoCylindricalPropagator::addDepthImage(*new_pts_, image, cam_info);
+//                 EgoCylindricalPropagator::addDepthImage(*new_pts_, image, cam_info);
+                lsi_.insert(*new_pts_, image);
                 ROS_DEBUG_STREAM_NAMED("timing","Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
             }
             
@@ -253,17 +255,19 @@ namespace egocylindrical
                 
         
         // Get topic names
-        std::string depth_topic="/camera/depth/image_raw", info_topic= "/camera/depth/camera_info", points_topic="egocylindrical_points", filtered_pc_topic="filtered_points", egocylinder_info_topic="egocylinder_info";
+        std::string depth_topic="/camera/depth/image_raw", info_topic= "/camera/depth/camera_info", points_topic="egocylindrical_points", filtered_pc_topic="filtered_points", egocylinder_info_topic="egocylinder_info", scan_topic="scan";
         fixed_frame_id_ = "odom";
         
         pnh_.getParam("image_in", depth_topic );
         pnh_.getParam("info_in", info_topic );
+        pnh_.getParam("scan_in", scan_topic);
         pnh_.getParam("points_out", points_topic );
         pnh_.getParam("filtered_points", filtered_pc_topic);
         
         pnh_.getParam("fixed_frame_id", fixed_frame_id_);
         
         dii_.init();
+        lsi_.init();
         cfh_.init();
         
         reset_sub_ = nh_.subscribe<std_msgs::Empty>("reset", 1, [this](const std_msgs::Empty::ConstPtr&) { reset(); });
@@ -277,15 +281,16 @@ namespace egocylindrical
         info_pub_ = nh_.advertise<egocylindrical::EgoCylinderPoints>(egocylinder_info_topic, 1);
         
         // Setup subscribers
-        depthSub.subscribe(it_, depth_topic, 3);
-        depthInfoSub.subscribe(nh_, info_topic, 3);
+//         depthSub.subscribe(it_, depth_topic, 3);
+        depthInfoSub.subscribe(nh_, scan_topic, 3);
         
         // Ensure that CameraInfo is transformable
         info_tf_filter = boost::make_shared<tf_filter>(depthInfoSub, buffer_, fixed_frame_id_, 2,nh_);
         
         // Synchronize Image and CameraInfo callbacks
-        timeSynchronizer = boost::make_shared<synchronizer>(depthSub, *info_tf_filter, 2);
-        timeSynchronizer->registerCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1, _2));
+//         timeSynchronizer = boost::make_shared<synchronizer>(depthSub, *info_tf_filter, 2);
+//         timeSynchronizer->registerCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1, _2));
+        info_tf_filter->registerCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1));
         
         return true;
     }
@@ -297,6 +302,7 @@ namespace egocylindrical
         tf_listener_(buffer_),
         dii_(buffer_, pnh),
         cfh_(buffer_, pnh),
+        lsi_(buffer_, pnh),
         it_(nh),
         should_reset_(false)
     {

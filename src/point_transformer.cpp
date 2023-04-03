@@ -26,7 +26,6 @@ namespace egocylindrical
         inline
         void transform_impl(const utils::ECWrapper& points, utils::ECWrapper& transformed_points, const utils::ECWrapper& new_points, const PointTransformerObject& pto, int num_threads)
         {            
-            const int num_cols = points.getCols();
             const int max_ind = new_points.getCols();
             const int num_pts = points.getNumPts();
             
@@ -102,36 +101,9 @@ namespace egocylindrical
         
         
         
-        // TODO: This functionality could be moved into a tf2_ros implementation
+        // TODO: This functionality could be moved into a tf2_ros implementation, though it wouldn't be able to populate the 'inds'
         void transformPoints(const utils::ECWrapper& points, utils::ECWrapper& transformed_points, const utils::ECWrapper& new_points, const geometry_msgs::TransformStamped& trans, int num_threads)
         {
-  
-//             tf::Quaternion rotationQuaternion = tf::Quaternion(trans.transform.rotation.x,
-//                                                                trans.transform.rotation.y,
-//                                                                trans.transform.rotation.z,
-//                                                                trans.transform.rotation.w);
-//             
-//             
-//             tf::Matrix3x3 tempRotationMatrix = tf::Matrix3x3(rotationQuaternion);
-//             
-//             
-//             ROS_DEBUG("Getting Rotation Matrix");
-//             float rotationArray[9]  __attribute__ ((aligned (__BIGGEST_ALIGNMENT__)));
-//             rotationArray[0] = (float) tempRotationMatrix[0].getX();
-//             rotationArray[1] = (float) tempRotationMatrix[0].getY();
-//             rotationArray[2] = (float) tempRotationMatrix[0].getZ();
-//             rotationArray[3] = (float) tempRotationMatrix[1].getX();
-//             rotationArray[4] = (float) tempRotationMatrix[1].getY();
-//             rotationArray[5] = (float) tempRotationMatrix[1].getZ();
-//             rotationArray[6] = (float) tempRotationMatrix[2].getX();
-//             rotationArray[7] = (float) tempRotationMatrix[2].getY();
-//             rotationArray[8] = (float) tempRotationMatrix[2].getZ();
-//             //cv::Mat rotationMatrix = cv::Mat(3, 3, CV_32FC1, &rotationArray[0]);
-//             
-//             float translationArray[3] __attribute__ ((aligned (__BIGGEST_ALIGNMENT__)));
-//             translationArray[0] = trans.transform.translation.x;
-//             translationArray[1] = trans.transform.translation.y;
-//             translationArray[2] = trans.transform.translation.z;
               PointTransformerObject pto(trans);
             
           //  if(points.isLocked())
