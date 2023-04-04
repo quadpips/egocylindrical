@@ -67,22 +67,22 @@ namespace egocylindrical
     }
 
 
-    void EgoCylindricalPropagator::addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info)
-    {
-        dii_.insert(cylindrical_points, image, cam_info);
-        
-//         if(pc_pub_.getNumSubscribers()>0)
-//         {
-//           ReadLock lock(config_mutex_);
-//           sensor_msgs::PointCloud2::Ptr pcloud_msg;
-//           depth_remapper_.update(cylindrical_points, image, cam_info, pcloud_msg, config_.filter_y_min, config_.filter_y_max);
-//           pc_pub_.publish(pcloud_msg);
-//         }
-//         else
-//         {
-//             depth_remapper_.update(cylindrical_points, image, cam_info);
-//         }
-    }
+//     void EgoCylindricalPropagator::addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info)
+//     {
+//         dii_.insert(cylindrical_points, image, cam_info);
+//         
+// //         if(pc_pub_.getNumSubscribers()>0)
+// //         {
+// //           ReadLock lock(config_mutex_);
+// //           sensor_msgs::PointCloud2::Ptr pcloud_msg;
+// //           depth_remapper_.update(cylindrical_points, image, cam_info, pcloud_msg, config_.filter_y_min, config_.filter_y_max);
+// //           pc_pub_.publish(pcloud_msg);
+// //         }
+// //         else
+// //         {
+// //             depth_remapper_.update(cylindrical_points, image, cam_info);
+// //         }
+//     }
 
     void EgoCylindricalPropagator::update(utils::SensorMeasurement& measurement)
 //     void EgoCylindricalPropagator::update(const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info)
@@ -259,18 +259,18 @@ namespace egocylindrical
                 
         
         // Get topic names
-        std::string depth_topic="/camera/depth/image_raw", info_topic= "/camera/depth/camera_info", points_topic="egocylindrical_points", filtered_pc_topic="filtered_points", egocylinder_info_topic="egocylinder_info", scan_topic="scan";
+        std::string points_topic="egocylindrical_points", filtered_pc_topic="filtered_points", egocylinder_info_topic="egocylinder_info";
         fixed_frame_id_ = "odom";
-        
+        /*
         pnh_.getParam("image_in", depth_topic );
-        pnh_.getParam("info_in", info_topic );
+        pnh_.getParam("info_in", info_topic );*/
 //         pnh_.getParam("scan_in", scan_topic);
         pnh_.getParam("points_out", points_topic );
         pnh_.getParam("filtered_points", filtered_pc_topic);
         
         pnh_.getParam("fixed_frame_id", fixed_frame_id_);
         
-        dii_.init();
+//         dii_.init();
 //         lsi_.init();
         cfh_.init();
         
@@ -297,7 +297,9 @@ namespace egocylindrical
 //         info_tf_filter->registerCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1));
         
         lss_.setCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1));
+        dis_.setCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1));
         lss_.init(fixed_frame_id_);
+        dis_.init(fixed_frame_id_);
         
         return true;
     }
@@ -307,11 +309,11 @@ namespace egocylindrical
         pnh_(pnh),
         buffer_(),
         tf_listener_(buffer_),
-        dii_(buffer_, pnh),
         cfh_(buffer_, pnh),
 //         lsi_(buffer_, pnh),
-        lss_(buffer_, pnh),
         it_(nh),
+        lss_(buffer_, pnh),
+        dis_(buffer_, pnh, it_),
         should_reset_(false)
     {
         reconfigure_server_ = std::make_shared<ReconfigureServer>(pnh_);

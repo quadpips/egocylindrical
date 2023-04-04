@@ -455,6 +455,12 @@ namespace egocylindrical
             return status;
         }
         
+        bool DepthImageInserter::init(std::string fixed_frame_id)
+        {
+            fixed_frame_id_ = fixed_frame_id;
+            return true;
+        }
+        
         bool DepthImageInserter::insert(ECWrapper& cylindrical_points, const sensor_msgs::Image::ConstPtr& image_msg, const sensor_msgs::CameraInfo::ConstPtr& cam_info)
         {
             const std_msgs::Header& target_header = cylindrical_points.getHeader();

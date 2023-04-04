@@ -1,5 +1,5 @@
-#ifndef EGOCYLINDRICAL_LASERSCAN_SENSOR_H
-#define EGOCYLINDRICAL_LASERSCAN_SENSOR_H
+#ifndef EGOCYLINDRICAL_LASER_SCAN_SENSOR_H
+#define EGOCYLINDRICAL_LASER_SCAN_SENSOR_H
 
 #include <egocylindrical/sensor.h>
 #include <egocylindrical/laser_scan_inserter.h>
@@ -82,8 +82,8 @@ namespace egocylindrical
     };
     
     
-  }
-}
+  } //end namespace utils
+} //end namespace egocylindrical
 
 
-#endif //EGOCYLINDRICAL_LASERSCAN_SENSOR_H
+#endif //EGOCYLINDRICAL_LASER_SCAN_SENSOR_H

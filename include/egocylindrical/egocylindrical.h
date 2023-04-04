@@ -37,6 +37,7 @@
 #include <egocylindrical/sensor.h>
 // #include <egocylindrical/laser_scan_inserter.h>
 #include <egocylindrical/laser_scan_sensor.h>
+#include <egocylindrical/depth_image_sensor.h>
 
 typedef boost::shared_mutex Mutex;
 typedef boost::unique_lock< Mutex > WriteLock;
@@ -62,20 +63,23 @@ protected:
   
 private:
     tf2_ros::TransformListener tf_listener_;
-    utils::DepthImageInserter dii_;
+//     utils::DepthImageInserter dii_;
     utils::CoordinateFrameHelper cfh_;
 //     utils::LaserScanInserter lsi_;
-    utils::LaserScanSensor lss_;
-    
+
     image_transport::ImageTransport it_;
-    image_transport::SubscriberFilter depthSub;
-    message_filters::Subscriber<sensor_msgs::LaserScan> depthInfoSub;
     
-    typedef tf2_ros::MessageFilter<sensor_msgs::LaserScan> tf_filter;
-    boost::shared_ptr<tf_filter> info_tf_filter;
+    utils::LaserScanSensor lss_;
+    utils::DepthImageSensor dis_;
     
-    typedef message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::CameraInfo> synchronizer;
-    boost::shared_ptr<synchronizer> timeSynchronizer;
+//     image_transport::SubscriberFilter depthSub;
+//     message_filters::Subscriber<sensor_msgs::LaserScan> depthInfoSub;
+//     
+//     typedef tf2_ros::MessageFilter<sensor_msgs::LaserScan> tf_filter;
+//     boost::shared_ptr<tf_filter> info_tf_filter;
+//     
+//     typedef message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::CameraInfo> synchronizer;
+//     boost::shared_ptr<synchronizer> timeSynchronizer;
     
     ros::Publisher ec_pub_, pc_pub_, info_pub_;
     ros::Subscriber reset_sub_;
@@ -88,7 +92,7 @@ private:
 
 
     void propagateHistory(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::Header new_header);
-    void addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info);
+//     void addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info);
     
     void connectCB();
     
@@ -114,7 +118,7 @@ public:
 };
 
 
-}
+} //end namespace egocylindrical
 
 
 #endif //EGOCYLINDRICAL_EGOCYLINDRICAL_H

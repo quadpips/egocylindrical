@@ -30,8 +30,7 @@ namespace egocylindrical
     };
     
     
-    
-  }
-}
+  } //end namespace utils
+} //end namespace egocylindrical
 
 #endif //EGOCYLINDRICAL_SENSOR_H
