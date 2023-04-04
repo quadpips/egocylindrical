@@ -1,5 +1,6 @@
 #include <egocylindrical/laser_scan_inserter.h>
 #include <egocylindrical/point_transformer_object.h>
+#include <numeric>
 
 namespace egocylindrical
 {
@@ -94,11 +95,11 @@ namespace egocylindrical
             float* y = (float*)cylindrical_points.getY();
             float* z = (float*)cylindrical_points.getZ();
             
-            
-            for(int ind = 0; ind < scan_msg->ranges.size(); ++ind)
+            const int num_inds = (int)scan_msg->ranges.size();
+            for(int ind = 0; ind < num_inds; ++ind)
             {
               cv::Point3f point = converter.getPoint(ind);
-              if(point.x==point.x)
+              if(std::isfinite(point.x))
               {
                 cv::Point3f transformed_point = pto.transform(point);
                 int idx = getInd(cylindrical_points, transformed_point);
