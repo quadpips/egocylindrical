@@ -84,7 +84,7 @@ namespace egocylindrical
 //         }
     }
 
-    void EgoCylindricalPropagator::update(const sensor_msgs::LaserScan::ConstPtr& image)
+    void EgoCylindricalPropagator::update(utils::SensorMeasurement& measurement)
 //     void EgoCylindricalPropagator::update(const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info)
     {
         //TODO: Reset between runs so that the reset function returns once reset is complete
@@ -96,7 +96,9 @@ namespace egocylindrical
                 should_reset_ = false;
             }
         }
-        auto new_stamp = image->header.stamp;
+        
+        auto measurement_header = measurement.getHeader();
+        auto new_stamp = measurement_header.stamp;
         if(old_pts_)
         {
             if(old_pts_->getHeader().stamp > new_stamp)
@@ -126,7 +128,7 @@ namespace egocylindrical
         new_pts_ = next_pts_;
         bool allocate_next = !old_pts_ || old_pts_->isLocked();
         
-        if(!cfh_.updateTransforms(image->header))
+        if(!cfh_.updateTransforms(measurement_header))
         {
             ROS_WARN_STREAM("Failed to update transforms!");
             return;
@@ -162,7 +164,9 @@ namespace egocylindrical
             {
                 ros::WallTime temp = ros::WallTime::now();
 //                 EgoCylindricalPropagator::addDepthImage(*new_pts_, image, cam_info);
-                lsi_.insert(*new_pts_, image);
+//                 lsi_.insert(*new_pts_, image);
+                measurement.insert(*new_pts_);
+                
                 ROS_DEBUG_STREAM_NAMED("timing","Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
             }
             
@@ -260,14 +264,14 @@ namespace egocylindrical
         
         pnh_.getParam("image_in", depth_topic );
         pnh_.getParam("info_in", info_topic );
-        pnh_.getParam("scan_in", scan_topic);
+//         pnh_.getParam("scan_in", scan_topic);
         pnh_.getParam("points_out", points_topic );
         pnh_.getParam("filtered_points", filtered_pc_topic);
         
         pnh_.getParam("fixed_frame_id", fixed_frame_id_);
         
         dii_.init();
-        lsi_.init();
+//         lsi_.init();
         cfh_.init();
         
         reset_sub_ = nh_.subscribe<std_msgs::Empty>("reset", 1, [this](const std_msgs::Empty::ConstPtr&) { reset(); });
@@ -282,15 +286,18 @@ namespace egocylindrical
         
         // Setup subscribers
 //         depthSub.subscribe(it_, depth_topic, 3);
-        depthInfoSub.subscribe(nh_, scan_topic, 3);
+//         depthInfoSub.subscribe(nh_, scan_topic, 3);
         
         // Ensure that CameraInfo is transformable
-        info_tf_filter = boost::make_shared<tf_filter>(depthInfoSub, buffer_, fixed_frame_id_, 2,nh_);
+//         info_tf_filter = boost::make_shared<tf_filter>(depthInfoSub, buffer_, fixed_frame_id_, 2,nh_);
         
         // Synchronize Image and CameraInfo callbacks
 //         timeSynchronizer = boost::make_shared<synchronizer>(depthSub, *info_tf_filter, 2);
 //         timeSynchronizer->registerCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1, _2));
-        info_tf_filter->registerCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1));
+//         info_tf_filter->registerCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1));
+        
+        lss_.setCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1));
+        lss_.init(fixed_frame_id_);
         
         return true;
     }
@@ -302,7 +309,8 @@ namespace egocylindrical
         tf_listener_(buffer_),
         dii_(buffer_, pnh),
         cfh_(buffer_, pnh),
-        lsi_(buffer_, pnh),
+//         lsi_(buffer_, pnh),
+        lss_(buffer_, pnh),
         it_(nh),
         should_reset_(false)
     {

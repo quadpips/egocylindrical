@@ -151,6 +151,12 @@ namespace egocylindrical
             return status;
         }
         
+        bool LaserScanInserter::init(std::string fixed_frame_id)
+        {
+            fixed_frame_id_ = fixed_frame_id;
+            return true;
+        }
+        
             
         bool LaserScanInserter::insert(ECWrapper& cylindrical_points, const sensor_msgs::LaserScan::ConstPtr& scan_msg)
         {
