@@ -12,12 +12,13 @@ namespace egocylindrical
     {
     public:
       DepthImageMeasurement(const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr info, DepthImageInserter& dii):
+        SensorMeasurement(info->header),
         image_(image),
         info_(info),
         dii_(dii)
         {}
       
-      virtual std_msgs::Header getHeader() const {return info_->header;}
+      //virtual std_msgs::Header getHeader() const {return info_->header;}
       
       virtual void insert(ECWrapper& cylindrical_points)
       {

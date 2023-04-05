@@ -12,11 +12,12 @@ namespace egocylindrical
     {
     public:
       LaserScanMeasurement(const sensor_msgs::LaserScan::ConstPtr& scan, LaserScanInserter& lsi):
+        SensorMeasurement(scan->header),
         scan_(scan),
         lsi_(lsi)
         {}
       
-      virtual std_msgs::Header getHeader() const {return scan_->header;}
+      //virtual std_msgs::Header getHeader() const {return scan_->header;}
       
       virtual void insert(ECWrapper& cylindrical_points)
       {

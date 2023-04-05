@@ -8,8 +8,13 @@ namespace egocylindrical
     class SensorMeasurement
     {
     public:
-      virtual std_msgs::Header getHeader() const = 0;
+      SensorMeasurement(const std_msgs::Header& header): header_(header) {}
+      //virtual std_msgs::Header getHeader() const = 0;
       virtual void insert(ECWrapper& cylindrical_points) = 0;
+      const std_msgs::Header& getHeader() const {return header_;}
+      
+    public:
+      const std_msgs::Header& header_;
     };
     
     
