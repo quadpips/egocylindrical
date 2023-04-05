@@ -103,12 +103,12 @@ namespace egocylindrical
         {
             if(old_pts_->getHeader().stamp > new_stamp)
             {
-                old_pts_ = nullptr;
+                //old_pts_ = nullptr;
             }
             else if(old_pts_->getHeader().stamp == new_stamp)
             {
               ROS_WARN_STREAM_NAMED("msg_timestamps","Repeat stamps received! " << new_stamp);
-              return;
+              //return;
             }
         }
 
