@@ -84,7 +84,7 @@ namespace egocylindrical
         }
         
         
-        void insertPoints(ECWrapper& cylindrical_points, const sensor_msgs::LaserScan::ConstPtr &scan_msg, const geometry_msgs::TransformStamped& transform)
+        void insertPoints(ECWrapper& cylindrical_points, const sensor_msgs::LaserScan::ConstPtr &scan_msg, const geometry_msgs::TransformStamped& transform, bool clearing)
         {
             BasicLaserScan2Points converter;
             converter.setScan(scan_msg);
@@ -124,7 +124,8 @@ namespace egocylindrical
                 }
                 
                 
-                if(!(prev_val <= new_val))
+                //if(!(prev_val <= new_val))
+                if(new_val < prev_val || clearing)
                 {   
                   x[idx] = transformed_point.x;
                   y[idx] = transformed_point.y;
@@ -175,7 +176,11 @@ namespace egocylindrical
                 return false;
             }
             
-            insertPoints(cylindrical_points, scan_msg, transform);
+            const auto& t = transform.transform.translation;
+            bool clearing = (t.x == 0 && t.y == 0 && t.z == 0);
+            ROS_INFO_STREAM("Laser scan insertion clearing?: " << clearing);
+            
+            insertPoints(cylindrical_points, scan_msg, transform, clearing);
 
             return true;
         }
