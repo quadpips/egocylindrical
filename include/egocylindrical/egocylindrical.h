@@ -38,6 +38,8 @@
 // #include <egocylindrical/laser_scan_inserter.h>
 #include <egocylindrical/laser_scan_sensor.h>
 #include <egocylindrical/depth_image_sensor.h>
+#include <egocylindrical/point_propagator.h>
+
 
 typedef boost::shared_mutex Mutex;
 typedef boost::unique_lock< Mutex > WriteLock;
@@ -71,6 +73,7 @@ private:
     
     utils::LaserScanSensor lss_;
     utils::DepthImageSensor dis_;
+    utils::PointPropagator pp_;
     
 //     image_transport::SubscriberFilter depthSub;
 //     message_filters::Subscriber<sensor_msgs::LaserScan> depthInfoSub;

@@ -3,7 +3,7 @@
 //
 
 #include <egocylindrical/egocylindrical.h>
-#include <egocylindrical/point_transformer.h>
+// #include <egocylindrical/point_transformer.h>
 #include <egocylindrical/depth_image_inserter.h>
 
 //#include <tf/LinearMath/Matrix3x3.h>
@@ -39,7 +39,7 @@ namespace egocylindrical
         return utils::getECWrapper(getParams(config), allocate_arrays);
       }
     }
-
+/*
     void EgoCylindricalPropagator::propagateHistory(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::Header new_header)
     {
         ros::WallTime start = ros::WallTime::now();
@@ -64,7 +64,7 @@ namespace egocylindrical
         utils::addPoints(new_pnts, *transformed_pts_, false);
         ROS_DEBUG_STREAM_NAMED("timing", "Inserting transformed points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
 
-    }
+    }*/
 
 
     void EgoCylindricalPropagator::update(utils::SensorMeasurement& measurement)
@@ -126,9 +126,10 @@ namespace egocylindrical
             {
                 if(old_pts_)
                 {
-                    ros::WallTime start = ros::WallTime::now();
+//                     ros::WallTime start = ros::WallTime::now();
                     
-                    EgoCylindricalPropagator::propagateHistory(*old_pts_, *new_pts_, target_header);
+//                     EgoCylindricalPropagator::propagateHistory(*old_pts_, *new_pts_, target_header);
+                    pp_.transform(*old_pts_, *new_pts_, target_header, config_.num_threads);
                     //ROS_INFO_STREAM("Propagation took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
                 }
                 else
@@ -233,7 +234,7 @@ namespace egocylindrical
     {
         reconfigure_server_->setCallback(boost::bind(&EgoCylindricalPropagator::configCB, this, _1, _2));
         
-        transformed_pts_ = utils::getECWrapper(config_, true);
+//         transformed_pts_ = utils::getECWrapper(config_, true);
         
         next_pts_ = utils::getECWrapper(config_);
                 
@@ -263,6 +264,7 @@ namespace egocylindrical
         dis_.setCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1));
         lss_.init(fixed_frame_id_);
         dis_.init(fixed_frame_id_);
+        pp_.init(fixed_frame_id_);
         
         return true;
     }
@@ -277,6 +279,7 @@ namespace egocylindrical
         it_(nh),
         lss_(buffer_, pnh),
         dis_(buffer_, pnh, it_),
+        pp_(buffer_),
         should_reset_(false)
     {
         reconfigure_server_ = std::make_shared<ReconfigureServer>(pnh_);
