@@ -5,16 +5,30 @@ namespace egocylindrical
 {
   namespace utils
   {
-    class SensorMeasurement
+    struct SensorCharacteristics
+    {
+      SensorCharacteristics(const SensorCharacteristics& c):
+        publish_update(c.publish_update),
+        raytrace(c.raytrace)
+        {}
+      bool publish_update=false;
+      bool raytrace=false;      
+    };
+    
+    class SensorMeasurement : public SensorCharacteristics
     {
     public:
-      SensorMeasurement(const std_msgs::Header& header): header_(header) {}
+      SensorMeasurement(const SensorCharacteristics sc, const std_msgs::Header header): 
+        SensorCharacteristics(sc),
+        header(header) 
+        {}
       //virtual std_msgs::Header getHeader() const = 0;
       virtual void insert(ECWrapper& cylindrical_points) = 0;
-      const std_msgs::Header& getHeader() const {return header_;}
+      std_msgs::Header getHeader() const {return header;}
       
     public:
-      const std_msgs::Header& header_;
+      const std_msgs::Header header;
+      const SensorCharacteristics sc_;
     };
     
     
@@ -26,6 +40,8 @@ namespace egocylindrical
       
     protected:
       Callback cb_=0;
+      
+      SensorCharacteristics sc_;
     };
     
     template<typename T>

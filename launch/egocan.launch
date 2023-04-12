@@ -1,7 +1,7 @@
 <launch>
   <arg name="depth_image" default="/camera/depth/image_raw"/>
   <arg name="depth_info" default="/camera/depth/camera_info"/>
-  <arg name="scan_topic" default="/scan"/>
+  <arg name="scan_topic" default="/scant"/>
   <arg name="fixed_frame_id" default="odom"/>
   
   <arg name="viz_inflated" default="true"/>

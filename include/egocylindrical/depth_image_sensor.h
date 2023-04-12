@@ -11,8 +11,8 @@ namespace egocylindrical
     class DepthImageMeasurement: public SensorMeasurement
     {
     public:
-      DepthImageMeasurement(const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr info, DepthImageInserter& dii):
-        SensorMeasurement(info->header),
+      DepthImageMeasurement(SensorCharacteristics sc, const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr info, DepthImageInserter& dii):
+        SensorMeasurement(sc, info->header),
         image_(image),
         info_(info),
         dii_(dii)
@@ -22,7 +22,9 @@ namespace egocylindrical
       
       virtual void insert(ECWrapper& cylindrical_points)
       {
+        ros::WallTime temp = ros::WallTime::now();
         dii_.insert(cylindrical_points, image_, info_);
+        ROS_INFO_STREAM_NAMED("timing","Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
       }
 
       
@@ -63,6 +65,12 @@ namespace egocylindrical
       void init(std::string fixed_frame_id)
       {
         std::string depth_topic="/camera/depth/image_raw", info_topic= "/camera/depth/camera_info";
+        pnh_.getParam("image_in", depth_topic );
+        pnh_.getParam("info_in", info_topic );
+        
+        sc_.publish_update = true;
+        sc_.raytrace = true;
+        
         dii_.init(fixed_frame_id);
         
         depth_sub_.subscribe(it_, depth_topic, 3);
@@ -81,7 +89,7 @@ namespace egocylindrical
       {
         if(cb_)
         {
-          DepthImageMeasurement m(image, info, dii_);
+          DepthImageMeasurement m(sc_, image, info, dii_);
           cb_(m);
         }
         else

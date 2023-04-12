@@ -79,7 +79,7 @@ namespace egocylindrical
             }
         }
         
-        auto measurement_header = measurement.getHeader();
+        auto measurement_header = measurement.header;
         auto new_stamp = measurement_header.stamp;
         if(old_pts_)
         {
@@ -110,10 +110,18 @@ namespace egocylindrical
         new_pts_ = next_pts_;
         bool allocate_next = !old_pts_ || old_pts_->isLocked();
         
-        if(!cfh_.updateTransforms(measurement_header))
+        if(old_pts_ || measurement.raytrace)
         {
-            ROS_WARN_STREAM("Failed to update transforms!");
-            return;
+          if(!cfh_.updateTransforms(measurement_header))
+          {
+              ROS_WARN_STREAM("Failed to update transforms!");
+              return;
+          }
+        }
+        else
+        {
+          ROS_WARN_STREAM("Ignoring measurement");
+          return;
         }
         
         std_msgs::Header target_header = cfh_.getTargetHeader();
@@ -124,7 +132,7 @@ namespace egocylindrical
           {
             try
             {
-                if(old_pts_)
+                if(old_pts_ && measurement.raytrace)
                 {
 //                     ros::WallTime start = ros::WallTime::now();
                     
@@ -145,26 +153,30 @@ namespace egocylindrical
             //TODO: Decide how to handle transform failure
             
             {
-                ros::WallTime temp = ros::WallTime::now();
+                // ros::WallTime temp = ros::WallTime::now();
 //                 EgoCylindricalPropagator::addDepthImage(*new_pts_, image, cam_info);
 //                 lsi_.insert(*new_pts_, image);
                 measurement.insert(*new_pts_);
                 
-                ROS_DEBUG_STREAM_NAMED("timing","Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
+                // ROS_DEBUG_STREAM_NAMED("timing","Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
             }
             
-            if(ec_pub_.getNumSubscribers() > 0 && shouldPublish(new_pts_))
+            if(measurement.publish_update)
             {
-                // TODO: if no one is subscribing, we can propagate the points in place next time (if that turns out to be faster)
-                utils::ECMsgConstPtr msg = new_pts_->getEgoCylinderPointsMsg();
-                
-                ec_pub_.publish(msg);
-                ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[egocylinder] Sent [" << msg->header.stamp << "] at [" << ros::WallTime::now() << "]");
-                published(new_pts_);
-            }
-            if(info_pub_.getNumSubscribers() > 0)
-            {
-              info_pub_.publish(new_pts_->getEgoCylinderInfoMsg());
+                if(ec_pub_.getNumSubscribers() > 0 && shouldPublish(new_pts_))
+                {
+                  // TODO: if no one is subscribing, we can propagate the points in place next time (if that turns out to be faster)
+                  utils::ECMsgConstPtr msg = new_pts_->getEgoCylinderPointsMsg();
+                  
+                  ec_pub_.publish(msg);
+                  ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[egocylinder] Sent [" << msg->header.stamp << "] at [" << ros::WallTime::now() << "]");
+                  published(new_pts_);
+                }
+
+                if(info_pub_.getNumSubscribers() > 0)
+                {
+                  info_pub_.publish(new_pts_->getEgoCylinderInfoMsg());
+                }
             }
           }
           
@@ -260,6 +272,8 @@ namespace egocylindrical
         pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>(filtered_pc_topic, 3);
         info_pub_ = nh_.advertise<egocylindrical::EgoCylinderPoints>(egocylinder_info_topic, 1);
 
+        //seq_.registerCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1));
+
         lss_.setCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1));
         dis_.setCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1));
         lss_.init(fixed_frame_id_);
@@ -280,7 +294,8 @@ namespace egocylindrical
         lss_(buffer_, pnh),
         dis_(buffer_, pnh, it_),
         pp_(buffer_),
-        should_reset_(false)
+        should_reset_(false),
+        seq_(ros::Duration(0.005), ros::Duration(0.01), 10)
     {
         reconfigure_server_ = std::make_shared<ReconfigureServer>(pnh_);
         

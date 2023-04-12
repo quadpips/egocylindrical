@@ -11,17 +11,17 @@ namespace egocylindrical
     class LaserScanMeasurement: public SensorMeasurement
     {
     public:
-      LaserScanMeasurement(const sensor_msgs::LaserScan::ConstPtr& scan, LaserScanInserter& lsi):
-        SensorMeasurement(scan->header),
+      LaserScanMeasurement(SensorCharacteristics sc, const sensor_msgs::LaserScan::ConstPtr& scan, LaserScanInserter& lsi):
+        SensorMeasurement(sc, scan->header),
         scan_(scan),
         lsi_(lsi)
         {}
       
-      //virtual std_msgs::Header getHeader() const {return scan_->header;}
-      
       virtual void insert(ECWrapper& cylindrical_points)
       {
+        ros::WallTime temp = ros::WallTime::now();
         lsi_.insert(cylindrical_points, scan_);
+        ROS_INFO_STREAM_NAMED("timing","Adding laser scan took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
       }
 
       
@@ -57,6 +57,9 @@ namespace egocylindrical
         pnh_.getParam("scan_in", scan_topic);
         scan_sub_.subscribe(pnh_, scan_topic, 3);
         lsi_.init(fixed_frame_id);
+        
+        sc_.publish_update = false;
+        sc_.raytrace = false;
 //         std::string fixed_frame_id = "odom";
 //         pnh_.getParam("fixed_frame_id", fixed_frame_id);
 
@@ -71,7 +74,7 @@ namespace egocylindrical
       {
         if(cb_)
         {
-          LaserScanMeasurement m(scan, lsi_);
+          LaserScanMeasurement m(sc_, scan, lsi_);
           cb_(m);
         }
         else
