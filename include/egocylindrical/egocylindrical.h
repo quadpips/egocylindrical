@@ -41,6 +41,7 @@
 #include <egocylindrical/depth_image_sensor.h>
 #include <egocylindrical/point_propagator.h>
 #include <egocylindrical/sensor_filter.h>
+#include <egocylindrical/non_message_sequencer_filter.h>
 
 typedef boost::shared_mutex Mutex;
 typedef boost::unique_lock< Mutex > WriteLock;
@@ -88,7 +89,9 @@ private:
     ros::Publisher ec_pub_, pc_pub_, info_pub_;
     ros::Subscriber reset_sub_;
     
-    message_filters::TimeSequencer<utils::SensorMeasurement> seq_;
+    //message_filters::TimeSequencer<utils::SensorMeasurement> seq_;
+    egocylindrical::TimeSequencer<utils::SensorMeasurement> seq_;
+
     
     egocylindrical::PropagatorConfig config_;
     typedef dynamic_reconfigure::Server<egocylindrical::PropagatorConfig> ReconfigureServer;

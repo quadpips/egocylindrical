@@ -1,7 +1,7 @@
 <launch>
   <arg name="depth_image" default="/camera/depth/image_raw"/>
   <arg name="depth_info" default="/camera/depth/camera_info"/>
-  <arg name="scan_topic" default="/scant"/>
+  <arg name="scan_topic" default="/scan"/>
   <arg name="fixed_frame_id" default="odom"/>
   
   <arg name="viz_inflated" default="true"/>
@@ -18,6 +18,8 @@
   <arg name="projected_prefix" default="xterm -e gdb --args" if="$(arg debugproj)" />
   <arg name="projected_prefix" default="" unless="$(arg debugproj)" />
   
+  <arg name="hybrid" default="false"/>
+  
   <group ns="egocylinder">
 
 
@@ -28,6 +30,10 @@
       <param name="points_out" value="data"/>
       <param name="filtered_points" value="filtered_points"/>
       <param name="fixed_frame_id" value="$(arg fixed_frame_id)"/>
+      
+      <param name="orientation_fixed_frame_id" value="map" if="$(arg hybrid)"/>
+      <param name="orientation_fixed_frame_id" value="laser_link" unless="$(arg hybrid)"/>
+      <param name="origin_fixed_frame_id" value="laser_link"/>
     </node>
 
     <node name="egocylindrical_to_pointcloud" pkg="egocylindrical" type="point_cloud_node" output="log">

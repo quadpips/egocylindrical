@@ -7,10 +7,10 @@ namespace egocylindrical
   {
     struct SensorCharacteristics
     {
-      SensorCharacteristics(const SensorCharacteristics& c):
-        publish_update(c.publish_update),
-        raytrace(c.raytrace)
-        {}
+//       SensorCharacteristics() = default;
+// //       SensorCharacteristics(SensorCharacteristics c) = default;
+//       SensorCharacteristics(const SensorCharacteristics& c) = default;
+      std::string name;
       bool publish_update=false;
       bool raytrace=false;      
     };
@@ -18,7 +18,7 @@ namespace egocylindrical
     class SensorMeasurement : public SensorCharacteristics
     {
     public:
-      SensorMeasurement(const SensorCharacteristics sc, const std_msgs::Header header): 
+      SensorMeasurement(SensorCharacteristics sc, std_msgs::Header header): 
         SensorCharacteristics(sc),
         header(header) 
         {}
@@ -27,15 +27,18 @@ namespace egocylindrical
       std_msgs::Header getHeader() const {return header;}
       
     public:
-      const std_msgs::Header header;
-      const SensorCharacteristics sc_;
+       std_msgs::Header header;
+//       const SensorCharacteristics sc_;
+       
+       using Ptr = boost::shared_ptr<SensorMeasurement>;
+       using ConstPtr = boost::shared_ptr<const SensorMeasurement>;
     };
     
     
     class SensorInterface
     {
     public:
-      using Callback = boost::function<void(SensorMeasurement&) > ;
+      using Callback = boost::function<void(SensorMeasurement::Ptr) > ;
       void setCallback(Callback cb) {cb_ = cb;}
       
     protected:

@@ -950,6 +950,14 @@ namespace egocylindrical
                 msg_locked_ = true;
             }
             
+            ECWrapper copy() const
+            {
+                ECWrapper lh(getParams(), allocate_arrays_);
+                std::copy(getPoints(), getPoints()+3*getNumPts(), lh.getPoints());
+                lh.setHeader(getHeader());
+                return lh;
+            }
+            
             ~ECWrapper()
             {
 
@@ -1130,6 +1138,13 @@ namespace egocylindrical
         {
           return getECWrapper(wrapper.getParams(), allocate_arrays);
         }
+        
+        inline
+        ECWrapperPtr copyECWrapper(const ECWrapper& wrapper)
+        {
+          return std::make_shared<ECWrapper>(wrapper.copy());
+        }
+        
 
     }
     

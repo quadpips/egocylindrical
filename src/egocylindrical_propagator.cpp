@@ -39,33 +39,6 @@ namespace egocylindrical
         return utils::getECWrapper(getParams(config), allocate_arrays);
       }
     }
-/*
-    void EgoCylindricalPropagator::propagateHistory(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::Header new_header)
-    {
-        ros::WallTime start = ros::WallTime::now();
-        
-        std_msgs::Header old_header = old_pnts.getHeader();
-        
-        new_pnts.setHeader(new_header);
-        
-        ROS_DEBUG("Getting Transformation details");
-                geometry_msgs::TransformStamped trans = buffer_.lookupTransform(new_header.frame_id, new_header.stamp,
-                                old_header.frame_id, old_header.stamp,
-                                fixed_frame_id_);
-        
-        ROS_DEBUG_STREAM_NAMED("timing", "Finding transform took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
-                
-        
-        start = ros::WallTime::now();    
-        utils::transformPoints(old_pnts, *transformed_pts_, new_pnts, trans, config_.num_threads);
-        ROS_DEBUG_STREAM_NAMED("timing", "Transforming points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
-        
-        start = ros::WallTime::now();
-        utils::addPoints(new_pnts, *transformed_pts_, false);
-        ROS_DEBUG_STREAM_NAMED("timing", "Inserting transformed points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
-
-    }*/
-
 
     void EgoCylindricalPropagator::update(utils::SensorMeasurement& measurement)
     {
@@ -96,7 +69,7 @@ namespace egocylindrical
 
         //TODO: Warn of out-of-order images
         //TODO: If clock jumps back in time, reset egocylinder
-        
+        ROS_INFO_STREAM_NAMED("update", "Measurement source: " << measurement.name);
         ROS_DEBUG_STREAM_NAMED("msg_timestamps","Current stamp: " << new_stamp);
         ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[egocylinder] Received [" << new_stamp << "] at [" << ros::WallTime::now() << "]");
         
@@ -110,19 +83,24 @@ namespace egocylindrical
         new_pts_ = next_pts_;
         bool allocate_next = !old_pts_ || old_pts_->isLocked();
         
-        if(old_pts_ || measurement.raytrace)
+        if(!cfh_.updateTransforms(measurement_header))
         {
-          if(!cfh_.updateTransforms(measurement_header))
-          {
-              ROS_WARN_STREAM("Failed to update transforms!");
-              return;
-          }
+            ROS_WARN_STREAM("Failed to update transforms!");
+            return;
         }
-        else
-        {
-          ROS_WARN_STREAM("Ignoring measurement");
-          return;
-        }
+//         if(old_pts_) // || measurement.raytrace)
+//         {
+//           if(!cfh_.updateTransforms(measurement_header))
+//           {
+//               ROS_WARN_STREAM("Failed to update transforms!");
+//               return;
+//           }
+//         }
+//         else
+//         {
+//           ROS_WARN_STREAM("Ignoring measurement");
+//           return;
+//         }
         
         std_msgs::Header target_header = cfh_.getTargetHeader();
         
@@ -134,11 +112,7 @@ namespace egocylindrical
             {
                 if(old_pts_ && measurement.raytrace)
                 {
-//                     ros::WallTime start = ros::WallTime::now();
-                    
-//                     EgoCylindricalPropagator::propagateHistory(*old_pts_, *new_pts_, target_header);
                     pp_.transform(*old_pts_, *new_pts_, target_header, config_.num_threads);
-                    //ROS_INFO_STREAM("Propagation took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
                 }
                 else
                 {
@@ -153,12 +127,7 @@ namespace egocylindrical
             //TODO: Decide how to handle transform failure
             
             {
-                // ros::WallTime temp = ros::WallTime::now();
-//                 EgoCylindricalPropagator::addDepthImage(*new_pts_, image, cam_info);
-//                 lsi_.insert(*new_pts_, image);
                 measurement.insert(*new_pts_);
-                
-                // ROS_DEBUG_STREAM_NAMED("timing","Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
             }
             
             if(measurement.publish_update)
@@ -191,7 +160,6 @@ namespace egocylindrical
             {
                 ROS_DEBUG_STREAM("Create new ECWrapper for next time");
                 next_pts_ = utils::getECWrapper(config_);
-                
             }
             else
             {
@@ -272,10 +240,23 @@ namespace egocylindrical
         pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>(filtered_pc_topic, 3);
         info_pub_ = nh_.advertise<egocylindrical::EgoCylinderPoints>(egocylinder_info_topic, 1);
 
-        //seq_.registerCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1));
+        auto seq_cb = [this](utils::SensorMeasurement::Ptr measurement)
+        {
+          this->update(*measurement);
+        };
 
-        lss_.setCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1));
-        dis_.setCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1));
+//         seq_.setCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1));
+        seq_.setCallback(seq_cb);
+        
+        auto seq_input = [this](utils::SensorMeasurement::Ptr measurement)
+        {
+          seq_.add(measurement);
+        };
+        
+//         lss_.setCallback(boost::bind(&EgoCylindricalPropagator::update, seq_, _1));
+        lss_.setCallback(seq_input);
+//         dis_.setCallback(boost::bind(&EgoCylindricalPropagator::update, seq_, _1));
+        dis_.setCallback(seq_input);
         lss_.init(fixed_frame_id_);
         dis_.init(fixed_frame_id_);
         pp_.init(fixed_frame_id_);

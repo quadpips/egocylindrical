@@ -178,7 +178,7 @@ namespace egocylindrical
             
             const auto& t = transform.transform.translation;
             bool clearing = (t.x == 0 && t.y == 0 && t.z == 0);
-            ROS_INFO_STREAM("Laser scan insertion clearing?: " << clearing);
+            ROS_INFO_STREAM_NAMED("clearing", "Laser scan insertion clearing?: " << clearing << ": translation = " << t);
             
             insertPoints(cylindrical_points, scan_msg, transform, clearing);
 

@@ -3,6 +3,7 @@
 
 #include <egocylindrical/sensor.h>
 #include <egocylindrical/depth_image_inserter.h>
+#include <egocylindrical/time_filter.h>
 
 namespace egocylindrical
 {
@@ -11,7 +12,7 @@ namespace egocylindrical
     class DepthImageMeasurement: public SensorMeasurement
     {
     public:
-      DepthImageMeasurement(SensorCharacteristics sc, const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr info, DepthImageInserter& dii):
+      DepthImageMeasurement(SensorCharacteristics sc, const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& info, DepthImageInserter* dii):
         SensorMeasurement(sc, info->header),
         image_(image),
         info_(info),
@@ -23,7 +24,7 @@ namespace egocylindrical
       virtual void insert(ECWrapper& cylindrical_points)
       {
         ros::WallTime temp = ros::WallTime::now();
-        dii_.insert(cylindrical_points, image_, info_);
+        dii_->insert(cylindrical_points, image_, info_);
         ROS_INFO_STREAM_NAMED("timing","Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
       }
 
@@ -31,7 +32,7 @@ namespace egocylindrical
     protected:
       const sensor_msgs::Image::ConstPtr image_;
       const sensor_msgs::CameraInfo::ConstPtr info_;
-      utils::DepthImageInserter& dii_;
+      utils::DepthImageInserter* dii_;
     };
     
     class DepthImageSensor: public SensorInterface
@@ -45,6 +46,9 @@ namespace egocylindrical
       image_transport::ImageTransport it_;
       image_transport::SubscriberFilter depth_sub_;
       message_filters::Subscriber<sensor_msgs::CameraInfo> depth_info_sub_;
+      
+      using TimeFilter_t = TimeFilter<sensor_msgs::CameraInfo>;
+      boost::shared_ptr<TimeFilter_t> time_filter_;
       
       using TfFilter = tf2_ros::MessageFilter<sensor_msgs::CameraInfo>;
       boost::shared_ptr<TfFilter> info_tf_filter;
@@ -68,6 +72,7 @@ namespace egocylindrical
         pnh_.getParam("image_in", depth_topic );
         pnh_.getParam("info_in", info_topic );
         
+        sc_.name = depth_topic;
         sc_.publish_update = true;
         sc_.raytrace = true;
         
@@ -76,8 +81,10 @@ namespace egocylindrical
         depth_sub_.subscribe(it_, depth_topic, 3);
         depth_info_sub_.subscribe(pnh_, info_topic, 3);
 
+        time_filter_ = boost::make_shared<TimeFilter_t>(depth_info_sub_);
+        
         // Ensure that the scan is transformable
-        info_tf_filter = boost::make_shared<TfFilter>(depth_info_sub_, buffer_, fixed_frame_id, 2, pnh_);
+        info_tf_filter = boost::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, pnh_);
 
         // Synchronize Image and CameraInfo callbacks
         msg_sync_ = boost::make_shared<MsgSynchronizer>(depth_sub_, *info_tf_filter, 2);
@@ -89,7 +96,7 @@ namespace egocylindrical
       {
         if(cb_)
         {
-          DepthImageMeasurement m(sc_, image, info, dii_);
+          auto m = boost::make_shared<DepthImageMeasurement>(sc_, image, info, &dii_);
           cb_(m);
         }
         else

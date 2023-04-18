@@ -3,6 +3,7 @@
 
 #include <egocylindrical/sensor.h>
 #include <egocylindrical/laser_scan_inserter.h>
+#include <egocylindrical/time_filter.h>
 
 namespace egocylindrical
 {
@@ -40,6 +41,9 @@ namespace egocylindrical
       
       message_filters::Subscriber<sensor_msgs::LaserScan> scan_sub_;
       
+      using TimeFilter_t = TimeFilter<sensor_msgs::LaserScan>;
+      boost::shared_ptr<TimeFilter_t> time_filter_;
+      
       using TfFilter = tf2_ros::MessageFilter<sensor_msgs::LaserScan>;
       boost::shared_ptr<TfFilter> scan_tf_filter;
       
@@ -58,13 +62,17 @@ namespace egocylindrical
         scan_sub_.subscribe(pnh_, scan_topic, 3);
         lsi_.init(fixed_frame_id);
         
-        sc_.publish_update = false;
-        sc_.raytrace = false;
+        sc_.name = scan_topic;
+        sc_.publish_update = true;
+        sc_.raytrace = true;
 //         std::string fixed_frame_id = "odom";
 //         pnh_.getParam("fixed_frame_id", fixed_frame_id);
+        
+        
+        time_filter_ = boost::make_shared<TimeFilter_t>(scan_sub_);
 
         // Ensure that the scan is transformable
-        scan_tf_filter = boost::make_shared<TfFilter>(scan_sub_, buffer_, fixed_frame_id, 2, pnh_);
+        scan_tf_filter = boost::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, pnh_);
 
         scan_tf_filter->registerCallback(boost::bind(&LaserScanSensor::update, this, _1));
       }
@@ -74,7 +82,7 @@ namespace egocylindrical
       {
         if(cb_)
         {
-          LaserScanMeasurement m(sc_, scan, lsi_);
+          auto m = boost::make_shared<LaserScanMeasurement>(sc_, scan, lsi_);
           cb_(m);
         }
         else
