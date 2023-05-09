@@ -10,9 +10,6 @@ namespace egocylindrical
   {
     struct SensorCharacteristics
     {
-//       SensorCharacteristics() = default;
-// //       SensorCharacteristics(SensorCharacteristics c) = default;
-//       SensorCharacteristics(const SensorCharacteristics& c) = default;
       std::string name;
       bool publish_update=false;
       bool raytrace=false;      
@@ -25,13 +22,12 @@ namespace egocylindrical
         SensorCharacteristics(sc),
         header(header) 
         {}
-      //virtual std_msgs::Header getHeader() const = 0;
+
       virtual void insert(ECWrapper& cylindrical_points) = 0;
       std_msgs::Header getHeader() const {return header;}
       
     public:
        std_msgs::Header header;
-//       const SensorCharacteristics sc_;
        
        using Ptr = boost::shared_ptr<SensorMeasurement>;
        using ConstPtr = boost::shared_ptr<const SensorMeasurement>;

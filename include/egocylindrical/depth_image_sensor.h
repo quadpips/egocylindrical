@@ -8,9 +8,7 @@
 #include <image_transport/subscriber_filter.h>
 #include <tf2_ros/message_filter.h>
 #include <message_filters/subscriber.h>
-//#include <message_filters/synchronizer.h>
 #include <message_filters/time_synchronizer.h>
-//#include <message_filters/time_sequencer.h>
 
 namespace egocylindrical
 {

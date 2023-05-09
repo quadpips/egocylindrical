@@ -5,29 +5,15 @@
 #ifndef EGOCYLINDRICAL_EGOCYLINDRICAL_H
 #define EGOCYLINDRICAL_EGOCYLINDRICAL_H
 
-//#include <egocylindrical/utils.h>
+
 #include <egocylindrical/coordinate_frame_helper.h>
-//#include <egocylindrical/depth_image_inserter.h>
+
 
 #include <ros/ros.h>
-//#include <opencv2/core.hpp>
-//#include <opencv2/highgui.hpp>
-//#include <opencv2/imgproc.hpp>
-//#include <cv_bridge/cv_bridge.h>
-//#include <image_geometry/pinhole_camera_model.h>
 #include <pcl_ros/point_cloud.h>
-//#include <pcl.h>
 
 #include <tf2_ros/transform_listener.h>
-//#include <image_transport/image_transport.h>
-//#include <image_transport/subscriber_filter.h>
 
-//#include <tf2_ros/message_filter.h>
-
-//#include <message_filters/subscriber.h>
-//#include <message_filters/synchronizer.h>
-//#include <message_filters/time_synchronizer.h>
-//#include <message_filters/time_sequencer.h>
 
 #include <dynamic_reconfigure/server.h>
 #include <egocylindrical/PropagatorConfig.h>
@@ -36,11 +22,9 @@
 #include <boost/thread/locks.hpp>
 
 #include <egocylindrical/sensor.h>
-// #include <egocylindrical/laser_scan_inserter.h>
 #include <egocylindrical/laser_scan_sensor.h>
 #include <egocylindrical/depth_image_sensor.h>
 #include <egocylindrical/point_propagator.h>
-//#include <egocylindrical/sensor_filter.h> //Needed for non_message_sequencer_filter to operate on SensorMeasurement
 #include <egocylindrical/non_message_sequencer_filter.h>
 
 
@@ -69,9 +53,7 @@ protected:
   
 private:
     tf2_ros::TransformListener tf_listener_;
-//     utils::DepthImageInserter dii_;
     utils::CoordinateFrameHelper cfh_;
-//     utils::LaserScanInserter lsi_;
 
     image_transport::ImageTransport it_;
     
@@ -79,19 +61,9 @@ private:
     utils::DepthImageSensor dis_;
     utils::PointPropagator pp_;
     
-//     image_transport::SubscriberFilter depthSub;
-//     message_filters::Subscriber<sensor_msgs::LaserScan> depthInfoSub;
-//     
-//     typedef tf2_ros::MessageFilter<sensor_msgs::LaserScan> tf_filter;
-//     boost::shared_ptr<tf_filter> info_tf_filter;
-//     
-//     typedef message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::CameraInfo> synchronizer;
-//     boost::shared_ptr<synchronizer> timeSynchronizer;
-    
     ros::Publisher ec_pub_, pc_pub_, info_pub_;
     ros::Subscriber reset_sub_;
     
-    //message_filters::TimeSequencer<utils::SensorMeasurement> seq_;
     egocylindrical::TimeSequencer<utils::SensorMeasurement> seq_;
 
     
@@ -103,7 +75,6 @@ private:
 
 
     void propagateHistory(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::Header new_header);
-//     void addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info);
     
     void connectCB();
     
@@ -119,7 +90,6 @@ public:
     ~EgoCylindricalPropagator();
     
     void update(utils::SensorMeasurement& measurement);
-//     void update(const sensor_msgs::LaserScan::ConstPtr& image);
     sensor_msgs::PointCloud2  getPropagatedPointCloud();
     sensor_msgs::Image::ConstPtr getRawRangeImage();
 

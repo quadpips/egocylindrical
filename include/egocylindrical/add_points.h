@@ -5,17 +5,6 @@
 
 #include <ros/console.h>
 #include <opencv2/core.hpp>
-//#include <opencv2/highgui.hpp>
-//#include <opencv2/imgproc.hpp>
-//#include <image_transport/image_transport.h>
-//#include <cv_bridge/cv_bridge.h>
-//#include <image_geometry/pinhole_camera_model.h>
-//#include <tf2_ros/transform_listener.h>
-//#include <tf/LinearMath/Matrix3x3.h>
-//#include <omp.h>
-//#include <sensor_msgs/PointCloud2.h>
-
-//#include <egocylindrical/EgoCylinderPoints.h>
 
 namespace egocylindrical
 {

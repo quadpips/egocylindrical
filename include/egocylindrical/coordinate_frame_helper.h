@@ -85,7 +85,7 @@ namespace egocylindrical
             {
                 Lock lock(cfd_mutex_);
 
-                //TODO: Lock a recursive mutex
+                //TODO: Lock a recursive mutex?
                 //TODO: possibly only specify orientation fixed frame, since should really be using same origin as the camera regardless
                 if(cfd_.orientation_fixed_frame_id=="" || cfd_.origin_fixed_frame_id=="")
                 {
