@@ -14,7 +14,7 @@
 //#include <opencv2/imgproc.hpp>
 #include <image_transport/image_transport.h>
 //#include <cv_bridge/cv_bridge.h>
-#include <image_geometry/pinhole_camera_model.h>
+//#include <image_geometry/pinhole_camera_model.h>
 //#include <valgrind/callgrind.h>
 
 namespace egocylindrical
