@@ -4,7 +4,7 @@
 
 #include <egocylindrical/egocylindrical.h>
 // #include <egocylindrical/point_transformer.h>
-#include <egocylindrical/depth_image_inserter.h>
+//#include <egocylindrical/depth_image_inserter.h>
 
 //#include <tf/LinearMath/Matrix3x3.h>
 //#include <cv_bridge/cv_bridge.h>
@@ -12,10 +12,11 @@
 //#include <opencv2/core.hpp>
 //#include <opencv2/highgui.hpp>
 //#include <opencv2/imgproc.hpp>
-#include <image_transport/image_transport.h>
+//#include <image_transport/image_transport.h>
 //#include <cv_bridge/cv_bridge.h>
 //#include <image_geometry/pinhole_camera_model.h>
 //#include <valgrind/callgrind.h>
+
 
 namespace egocylindrical
 {

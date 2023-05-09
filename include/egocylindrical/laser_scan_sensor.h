@@ -3,7 +3,10 @@
 
 #include <egocylindrical/sensor.h>
 #include <egocylindrical/laser_scan_inserter.h>
+
 #include <egocylindrical/time_filter.h>
+#include <tf2_ros/message_filter.h>
+#include <message_filters/subscriber.h>
 
 namespace egocylindrical
 {

@@ -214,6 +214,13 @@ target_link_libraries(point_transformer
    ${OpenCV_LIBRARIES}
    ${OpenMP_CXX_FLAGS}
    )
+   
+add_library(point_propagator src/point_propagator.cpp)
+target_compile_definitions(point_transformer PRIVATE ${PLATFORM_FLAGS})
+target_link_libraries(point_propagator
+   point_transformer
+   ${catkin_LIBRARIES}
+   )
 
 add_library(depth_image_remapper src/depth_image_remapper.cpp)
 add_dependencies(depth_image_remapper ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -227,9 +234,9 @@ target_link_libraries(depth_image_remapper
    )
    
 add_library(depth_image_inserter src/depth_image_inserter.cpp)
-add_dependencies(depth_image_inserter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_compile_options(depth_image_inserter PRIVATE -ftree-vectorize  -fopt-info-vec-all=vec_depth_image_inserter.txt -funsafe-math-optimizations -fno-math-errno ${OpenMP_CXX_FLAGS}#-finite-math-only and -fno-trapping-math. -ffinite-math-only 
-   )
+#add_dependencies(depth_image_inserter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+#target_compile_options(depth_image_inserter PRIVATE -ftree-vectorize  -fopt-info-vec-all=vec_depth_image_inserter.txt -funsafe-math-optimizations -fno-math-errno ${OpenMP_CXX_FLAGS}#-finite-math-only and -fno-trapping-math. -ffinite-math-only 
+#   )
 target_compile_definitions(depth_image_inserter PRIVATE ${PLATFORM_FLAGS})
 target_link_libraries(depth_image_inserter
    depth_image_remapper
@@ -271,7 +278,7 @@ target_compile_options(egocylindrical_propagator PRIVATE -ftree-vectorize -funsa
    )
 target_compile_definitions(egocylindrical_propagator PRIVATE ${PLATFORM_FLAGS})
 target_link_libraries(egocylindrical_propagator
-   point_transformer
+   point_propagator
    depth_image_inserter
    laser_scan_inserter
    ${catkin_LIBRARIES}

@@ -5,29 +5,29 @@
 #ifndef EGOCYLINDRICAL_EGOCYLINDRICAL_H
 #define EGOCYLINDRICAL_EGOCYLINDRICAL_H
 
-#include <egocylindrical/utils.h>
+//#include <egocylindrical/utils.h>
 #include <egocylindrical/coordinate_frame_helper.h>
-#include <egocylindrical/depth_image_inserter.h>
+//#include <egocylindrical/depth_image_inserter.h>
 
 #include <ros/ros.h>
-#include <opencv2/core.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc.hpp>
-#include <cv_bridge/cv_bridge.h>
-#include <image_geometry/pinhole_camera_model.h>
+//#include <opencv2/core.hpp>
+//#include <opencv2/highgui.hpp>
+//#include <opencv2/imgproc.hpp>
+//#include <cv_bridge/cv_bridge.h>
+//#include <image_geometry/pinhole_camera_model.h>
 #include <pcl_ros/point_cloud.h>
 //#include <pcl.h>
 
 #include <tf2_ros/transform_listener.h>
-#include <image_transport/image_transport.h>
-#include <image_transport/subscriber_filter.h>
+//#include <image_transport/image_transport.h>
+//#include <image_transport/subscriber_filter.h>
 
-#include <tf2_ros/message_filter.h>
+//#include <tf2_ros/message_filter.h>
 
-#include <message_filters/subscriber.h>
-#include <message_filters/synchronizer.h>
-#include <message_filters/time_synchronizer.h>
-#include <message_filters/time_sequencer.h>
+//#include <message_filters/subscriber.h>
+//#include <message_filters/synchronizer.h>
+//#include <message_filters/time_synchronizer.h>
+//#include <message_filters/time_sequencer.h>
 
 #include <dynamic_reconfigure/server.h>
 #include <egocylindrical/PropagatorConfig.h>
@@ -40,12 +40,9 @@
 #include <egocylindrical/laser_scan_sensor.h>
 #include <egocylindrical/depth_image_sensor.h>
 #include <egocylindrical/point_propagator.h>
-#include <egocylindrical/sensor_filter.h>
+//#include <egocylindrical/sensor_filter.h> //Needed for non_message_sequencer_filter to operate on SensorMeasurement
 #include <egocylindrical/non_message_sequencer_filter.h>
 
-typedef boost::shared_mutex Mutex;
-typedef boost::unique_lock< Mutex > WriteLock;
-typedef boost::shared_lock< Mutex > ReadLock;
 
 namespace egocylindrical
 {
@@ -55,6 +52,11 @@ class EgoCylindricalPropagator{
 
   
 private:
+
+    typedef boost::shared_mutex Mutex;
+    typedef boost::unique_lock< Mutex > WriteLock;
+    typedef boost::shared_lock< Mutex > ReadLock;
+
     Mutex config_mutex_, reset_mutex_;
 
     utils::ECWrapperPtr new_pts_, old_pts_, transformed_pts_, next_pts_;

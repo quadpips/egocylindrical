@@ -1,6 +1,9 @@
 #ifndef EGOCYLINDRICAL_SENSOR_H
 #define EGOCYLINDRICAL_SENSOR_H
 
+#include <egocylindrical/ecwrapper.h>
+#include <std_msgs/Header.h>
+
 namespace egocylindrical
 {
   namespace utils
@@ -56,5 +59,7 @@ namespace egocylindrical
     
   } //end namespace utils
 } //end namespace egocylindrical
+
+#include <egocylindrical/sensor_filter.h>
 
 #endif //EGOCYLINDRICAL_SENSOR_H

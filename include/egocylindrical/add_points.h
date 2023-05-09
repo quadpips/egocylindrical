@@ -1,9 +1,9 @@
-#ifndef EGOCYLINDRICAL_UTILS_H
-#define EGOCYLINDRICAL_UTILS_H
+#ifndef EGOCYLINDRICAL_ADD_POINTS_H
+#define EGOCYLINDRICAL_ADD_POINTS_H
 
 #include <egocylindrical/ecwrapper.h>
 
-#include <ros/ros.h>
+#include <ros/console.h>
 #include <opencv2/core.hpp>
 //#include <opencv2/highgui.hpp>
 //#include <opencv2/imgproc.hpp>
@@ -117,4 +117,4 @@ namespace utils
 
 }
 
-#endif
+#endif  //EGOCYLINDRICAL_ADD_POINTS_H
