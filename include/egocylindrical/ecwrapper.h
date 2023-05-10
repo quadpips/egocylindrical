@@ -454,6 +454,18 @@ namespace egocylindrical
             {
                 return height_;
             }
+
+            inline
+            int getHScale() const
+            {
+                return hscale_;
+            }
+
+            inline
+            int getVScale() const
+            {
+                return vscale_;
+            }
             
             inline
             std_msgs::Header getHeader() const

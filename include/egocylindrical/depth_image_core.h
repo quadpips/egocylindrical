@@ -246,6 +246,43 @@ namespace egocylindrical
                     initializeDepthMapping(cylindrical_points, image_msg, cam_model_, inds_.data(), x_.data(), y_.data(), z_.data());
                 }
             }
+
+            inline
+            void clearDepthImageArea(utils::ECWrapper& cylindrical_points)
+            {
+                cv::Size image_size = cam_model_.reducedResolution();
+                int image_width = image_size.width;
+
+                // Top left
+                cv::Point2d pt;
+                pt.x = 0;
+                pt.y = 0;
+                
+                cv::Point3f world_pnt = cam_model_.projectPixelTo3dRay(pt);
+                cv::Point image_pnt_tl = utils::worldToCylindricalImageFast(world_pnt, cylindrical_points.getWidth(), cylindrical_points.getHeight(), cylindrical_points.getHScale(), cylindrical_points.getVScale(), 0, 0);
+
+                // Top right
+                pt.x = image_width - 1;
+                pt.y = 0;
+                
+                world_pnt = cam_model_.projectPixelTo3dRay(pt);
+                cv::Point image_pnt_tr = utils::worldToCylindricalImageFast(world_pnt, cylindrical_points.getWidth(), cylindrical_points.getHeight(), cylindrical_points.getHScale(), cylindrical_points.getVScale(), 0, 0);
+
+                float* x = cylindrical_points.getX();
+                float* y = cylindrical_points.getY();
+                float* z = cylindrical_points.getZ();
+
+                for(size_t i = image_pnt_tl.x; i <= image_pnt_tr.x; i++)
+                {
+                    for(size_t j = 0; j < cylindrical_points.getHeight(); j++)
+                    {
+                        int idx = j * cylindrical_points.getWidth() + i;
+                        x[idx] = utils::dNaN;
+                        y[idx] = utils::dNaN;
+                        z[idx] = utils::dNaN;
+                    }
+                }
+            }
             
             template <bool fill_cloud>
             inline
@@ -264,6 +301,7 @@ namespace egocylindrical
                 updateMapping( cylindrical_points, image_msg, cam_info);
                 ros::WallTime mid = ros::WallTime::now();
                 
+                clearDepthImageArea(cylindrical_points);
                 remapDepthImage<fill_cloud>( cylindrical_points, image_msg, pcloud_msg, thresh_min, thresh_max);
                 ros::WallTime end = ros::WallTime::now();
                 
