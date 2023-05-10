@@ -27,6 +27,8 @@ namespace egocylindrical
             const int image_height = image_size.height;
             const int num_pixels = image_width * image_height;
             
+            const bool use_egocan = cylindrical_points.getParams().can_width>0;
+            
             const int max_ind = cylindrical_points.getCols();
             float* __restrict__ x = cylindrical_points.getX();
             float* __restrict__ y = cylindrical_points.getY();
@@ -102,7 +104,7 @@ namespace egocylindrical
                             z[cyl_idx] = transformed_pnt.z;
                         }
                     }
-                    else
+                    else if(use_egocan)
                     {
                         cyl_idx = cylindrical_points.worldToCanIdx(transformed_pnt);
                     

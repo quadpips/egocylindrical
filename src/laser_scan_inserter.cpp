@@ -65,7 +65,8 @@ namespace egocylindrical
         { 
             int idx = -1;
             const int max_ind = cylindrical_points.getCols();
-
+            const bool use_egocan = cylindrical_points.getParams().can_width>0;
+            
             {
               int tidx = cylindrical_points.worldToCylindricalIdx(pnt);
               
@@ -75,7 +76,7 @@ namespace egocylindrical
               }
             }
             
-            if(idx<0)
+            if(idx<0 && use_egocan)
             {
               idx = cylindrical_points.worldToCanIdx(pnt);
             }
@@ -90,6 +91,7 @@ namespace egocylindrical
             converter.setScan(scan_msg);
             PointTransformerObject pto(transform);
             const int max_ind = cylindrical_points.getCols();
+            const bool use_egocan = cylindrical_points.getParams().can_width>0;
             
             float* x = (float*)cylindrical_points.getX();
             float* y = (float*)cylindrical_points.getY();
@@ -104,23 +106,36 @@ namespace egocylindrical
                 cv::Point3f transformed_point = pto.transform(point);
                 int idx = getInd(cylindrical_points, transformed_point);
                 
+                if(idx < 0)
+                {
+                  continue;
+                }
+                
                 cv::Point3f prev_point(x[idx], y[idx], z[idx]);
                 
                 float prev_val = -1;
                 float new_val = -1;
-                if(idx < max_ind)
+                if(idx < 0)
+                {
+                  if(use_egocan)
+                  {
+                    //Something went wrong
+                    ROS_WARN_STREAM("Invalid index [" << idx << "] for point (" << transformed_point.x << "," << transformed_point.y << "," << transformed_point.z << ")");
+                  }
+                  else
+                  {
+                    //Ignoring point
+                  }
+                }
+                else if(idx < max_ind)
                 {
                   new_val = worldToRangeSquared(transformed_point);
                   prev_val = worldToRangeSquared(prev_point);
                 }
-                else if(idx >= 0)
+                else
                 {
                   new_val = worldToCanDepth(transformed_point);
                   prev_val = worldToCanDepth(prev_point);
-                }
-                else
-                {
-                    ROS_WARN_STREAM("Invalid index [" << idx << "] for point (" << transformed_point.x << "," << transformed_point.y << "," << transformed_point.z << ")");
                 }
                 
                 

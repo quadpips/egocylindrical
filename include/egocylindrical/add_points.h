@@ -28,6 +28,7 @@ namespace utils
         const float* ranges = new_points.getRanges();
         const int32_t* inds = new_points.getInds();
         
+        const bool use_egocan = (new_points.getParams().can_width > 0);
 
         ROS_DEBUG("Relocated the propagated image");
         //#pragma omp parallel for
@@ -60,7 +61,7 @@ namespace utils
                 }
                 
             }
-            else
+            else if(use_egocan)
             {
                 if(n_x[i]==n_x[i])  //Skip NaNs
                 {
