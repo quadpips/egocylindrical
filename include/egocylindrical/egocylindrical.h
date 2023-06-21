@@ -57,8 +57,8 @@ private:
 
     image_transport::ImageTransport it_;
     
-    utils::LaserScanSensor lss_;
-    utils::DepthImageSensor dis_;
+    //utils::LaserScanSensor lss_;
+    //utils::DepthImageSensor dis_;
     utils::PointPropagator pp_;
     
     ros::Publisher ec_pub_, pc_pub_, info_pub_;

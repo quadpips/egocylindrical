@@ -1,8 +1,8 @@
 #ifndef EGOCYLINDRICAL_SENSOR_FILTER_H
 #define EGOCYLINDRICAL_SENSOR_FILTER_H
 
-
-//#include <egocylindrical/sensor.h>
+///NOTE: Having sensor.h include this file ensures that this functionality is available by including just sensor.h while also avoiding a circular dependency
+//#include <egocylindrical/sensor.h>  
 #include <ros/message_traits.h>
 
 

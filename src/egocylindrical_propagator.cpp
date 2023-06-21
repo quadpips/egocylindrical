@@ -243,11 +243,11 @@ namespace egocylindrical
         };
         
 //         lss_.setCallback(boost::bind(&EgoCylindricalPropagator::update, seq_, _1));
-        lss_.setCallback(seq_input);
+        //lss_.setCallback(seq_input);
 //         dis_.setCallback(boost::bind(&EgoCylindricalPropagator::update, seq_, _1));
-        dis_.setCallback(seq_input);
-        lss_.init(fixed_frame_id_);
-        dis_.init(fixed_frame_id_);
+        //dis_.setCallback(seq_input);
+        //lss_.init(fixed_frame_id_);
+        //dis_.init(fixed_frame_id_);
         pp_.init(fixed_frame_id_);
         
         return true;
@@ -261,11 +261,11 @@ namespace egocylindrical
         cfh_(buffer_, pnh),
 //         lsi_(buffer_, pnh),
         it_(nh),
-        lss_(buffer_, pnh),
-        dis_(buffer_, pnh, it_),
+        //lss_(buffer_, pnh),
+        //dis_(buffer_, pnh, it_),
         pp_(buffer_),
-        should_reset_(false),
-        seq_(ros::Duration(0.005), ros::Duration(0.01), 10)
+        seq_(ros::Duration(0.005), ros::Duration(0.01), 10),
+        should_reset_(false)
     {
         reconfigure_server_ = std::make_shared<ReconfigureServer>(pnh_);
         

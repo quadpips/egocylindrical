@@ -254,6 +254,17 @@ target_link_libraries(laser_scan_inserter
    ${OpenMP_CXX_FLAGS}
    )
   
+  
+add_library(sensors src/sensor.cpp src/sensor_collection.cpp)
+target_compile_options(sensors PRIVATE -O0 -g)
+target_link_libraries(sensors
+   ##TODO: add the various sensor libraries here
+   depth_image_inserter
+   laser_scan_inserter
+   ${catkin_LIBRARIES}
+   )
+
+  
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
@@ -279,8 +290,9 @@ target_compile_options(egocylindrical_propagator PRIVATE -ftree-vectorize -funsa
 target_compile_definitions(egocylindrical_propagator PRIVATE ${PLATFORM_FLAGS})
 target_link_libraries(egocylindrical_propagator
    point_propagator
-   depth_image_inserter
-   laser_scan_inserter
+   #depth_image_inserter
+   #laser_scan_inserter
+   sensors  ##TODO: Once sensors encapsulates depth/laser implementations, can remove them from this list
    ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
    ${OpenMP_CXX_FLAGS}
@@ -476,7 +488,15 @@ target_link_libraries(egocylindrical_range_image_converter_nodelet
    ${catkin_LIBRARIES}
    )
 
-  
+
+add_executable(sensor_collection_tester src/sensor_collection_tester)
+add_dependencies(sensor_collection_tester ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(sensor_collection_tester
+   sensors
+   ${catkin_LIBRARIES}
+   )
+
+
 #APPROXIMATION_VALIDATION
 add_executable(approximation_validation src/approximation_validation.cpp)
 add_dependencies(approximation_validation ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

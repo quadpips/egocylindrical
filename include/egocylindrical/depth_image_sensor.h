@@ -10,6 +10,7 @@
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
 
+
 namespace egocylindrical
 {
   namespace utils
@@ -42,9 +43,8 @@ namespace egocylindrical
     
     class DepthImageSensor: public SensorInterface
     {
-      tf2_ros::Buffer& buffer_;
       ros::NodeHandle pnh_;
-//       std::string fixed_frame_id_;
+      tf2_ros::Buffer& buffer_;
       
       utils::DepthImageInserter dii_;
       
@@ -63,32 +63,39 @@ namespace egocylindrical
       
       
     public:
-      DepthImageSensor(tf2_ros::Buffer& buffer, ros::NodeHandle pnh, image_transport::ImageTransport it):
-        buffer_(buffer),
+      DepthImageSensor(ros::NodeHandle pnh, tf2_ros::Buffer& buffer):
         pnh_(pnh),
+        buffer_(buffer),
         dii_(buffer, pnh),
-        it_(it)
+        it_(pnh)
         {}
 
       
-      void init(std::string fixed_frame_id)
+      void init(std::string fixed_frame_id) override
       {
+        //Load general parameters
+        sc_.init(pnh_);
+        
+        //sc_.name = depth_topic;
+        //sc_.publish_update = true;
+        //sc_.raytrace = true;
+        
+        //Load implementation parameters
         std::string depth_topic="/camera/depth/image_raw", info_topic= "/camera/depth/camera_info";
         pnh_.getParam("image_in", depth_topic );
         pnh_.getParam("info_in", info_topic );
         
-        sc_.name = depth_topic;
-        sc_.publish_update = true;
-        sc_.raytrace = true;
-        
+        //Initialize helper classes
         dii_.init(fixed_frame_id);
         
+        //Set up publishers/subscribers and any necessary filters
         depth_sub_.subscribe(it_, depth_topic, 3);
         depth_info_sub_.subscribe(pnh_, info_topic, 3);
 
+        //Filter out images with duplicate time stamps
         time_filter_ = boost::make_shared<TimeFilter_t>(depth_info_sub_);
         
-        // Ensure that the scan is transformable
+        // Ensure that the message is transformable
         info_tf_filter = boost::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, pnh_);
 
         // Synchronize Image and CameraInfo callbacks
@@ -109,6 +116,9 @@ namespace egocylindrical
           ROS_ERROR("No callback defined for DepthImageSensor!");
         }
       }
+      
+    public:
+      using Ptr = std::shared_ptr<DepthImageSensor>;
 
     };
     

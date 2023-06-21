@@ -1,0 +1,24 @@
+<launch>
+  <arg name="depth_image" default="/camera/depth/image_raw"/>
+  <arg name="depth_info" default="/camera/depth/camera_info"/>
+  <arg name="scan_topic" default="/scan"/>
+  
+  <arg name="fixed_frame_id" default="odom"/>
+  
+  <arg name="debug" default="false"/>
+  
+  <arg name="prefix" default="xterm -e gdb --args" if="$(arg debug)" />
+  <arg name="prefix" default="" unless="$(arg debug)" />
+
+  
+  <group ns="egocylinder">
+
+
+    <node name="test_node" pkg="egocylindrical" type="sensor_collection_tester" output="log" launch-prefix="$(arg prefix)">        
+      <param name="fixed_frame_id" value="$(arg fixed_frame_id)"/>
+      
+      <rosparam command="load" file="$(find my_stretch)/params/depth_laser.yaml"/>
+    </node>
+  </group>
+  
+</launch>

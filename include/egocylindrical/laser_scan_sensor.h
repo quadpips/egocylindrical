@@ -36,9 +36,8 @@ namespace egocylindrical
     
     class LaserScanSensor: public SensorInterface
     {
-      tf2_ros::Buffer& buffer_;
       ros::NodeHandle pnh_;
-//       std::string fixed_frame_id_;
+      tf2_ros::Buffer& buffer_;
       
       LaserScanInserter lsi_;
       
@@ -51,27 +50,33 @@ namespace egocylindrical
       boost::shared_ptr<TfFilter> scan_tf_filter;
       
     public:
-      LaserScanSensor(tf2_ros::Buffer& buffer, ros::NodeHandle pnh):
-        buffer_(buffer),
+      LaserScanSensor(ros::NodeHandle pnh, tf2_ros::Buffer& buffer):
         pnh_(pnh),
+        buffer_(buffer),
         lsi_(buffer, pnh)
         {}
 
       
-      void init(std::string fixed_frame_id)
+      void init(std::string fixed_frame_id) override
       {
+        //Load general parameters
+        sc_.init(pnh_);
+        
+        //sc_.name = scan_topic;
+        //sc_.publish_update = true;
+        //sc_.raytrace = true;
+        
+        //Load implementation parameters
         std::string scan_topic = "scan";
         pnh_.getParam("scan_in", scan_topic);
-        scan_sub_.subscribe(pnh_, scan_topic, 3);
+        
+        //Initialize helper classes
         lsi_.init(fixed_frame_id);
         
-        sc_.name = scan_topic;
-        sc_.publish_update = true;
-        sc_.raytrace = true;
-//         std::string fixed_frame_id = "odom";
-//         pnh_.getParam("fixed_frame_id", fixed_frame_id);
+        //Set up publishers/subscribers and any necessary filters
+        scan_sub_.subscribe(pnh_, scan_topic, 3);
         
-        
+        //Filter out images with duplicate time stamps
         time_filter_ = boost::make_shared<TimeFilter_t>(scan_sub_);
 
         // Ensure that the scan is transformable
@@ -93,6 +98,9 @@ namespace egocylindrical
           ROS_ERROR("No callback defined for LaserScanSensor!");
         }
       }
+      
+    public:
+      using Ptr = std::shared_ptr<LaserScanSensor>;
 
     };
     
