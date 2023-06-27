@@ -32,7 +32,7 @@ namespace egocylindrical
             std::string sensor_type;
             if(!sensor_nh.getParam("type", sensor_type))
             {
-                throw std::runtime_error("[Type] is not defined for Sensor!");
+                throw std::runtime_error("Type [" + sensor_type + "] is not defined for Sensor! [" + name + "]");
             }
             
             //This isn't possible w/ C++11 apparently
@@ -101,7 +101,7 @@ namespace egocylindrical
             
             auto get_sensor_names2 = [](ros::NodeHandle nh)
             {
-                std::vector<std::string> sensor_names {"depth", "laser"};
+                std::vector<std::string> sensor_names;// {"depth", "laser"};
                 if(nh.getParam("observation_sources", sensor_names))
                 {
                     //Based on https://stackoverflow.com/a/5689061
@@ -115,7 +115,22 @@ namespace egocylindrical
                 return sensor_names;
             };
             
-            std::vector<std::string> sensor_names = get_sensor_names2(sensor_root_nh);
+            auto get_sensor_names3 = [](ros::NodeHandle nh)
+            {
+                XmlRpc::XmlRpcValue my_list;
+                nh.getParam("observation_sources", my_list);
+                ROS_ASSERT(my_list.getType() == XmlRpc::XmlRpcValue::TypeArray);
+
+                std::vector<std::string> sensor_names;
+                for (int32_t i = 0; i < my_list.size(); ++i) 
+                {
+                  ROS_ASSERT(my_list[i].getType() == XmlRpc::XmlRpcValue::TypeString);
+                  sensor_names.push_back(static_cast<std::string>(my_list[i]));
+                }
+                return sensor_names;
+            };
+            
+            std::vector<std::string> sensor_names = get_sensor_names3(sensor_root_nh);
             
             for(const auto& name : sensor_names)
             {
@@ -138,6 +153,7 @@ namespace egocylindrical
             else
             {
                 ROS_ERROR_STREAM("Did not find any sensors!");
+                return false;
             }
             
             //init sensors

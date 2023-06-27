@@ -14,10 +14,29 @@
   <group ns="egocylinder">
 
 
-    <node name="test_node" pkg="egocylindrical" type="sensor_collection_tester" output="log" launch-prefix="$(arg prefix)">        
+    <node name="test_node" pkg="egocylindrical" type="sensor_collection_tester" output="screen" launch-prefix="$(arg prefix)">        
       <param name="fixed_frame_id" value="$(arg fixed_frame_id)"/>
       
-      <rosparam command="load" file="$(find my_stretch)/params/depth_laser.yaml"/>
+      <rosparam subst_value="True">
+        sensors:
+          observation_sources: [depth, laser]
+          depth:
+            type: depth
+            image_in: $(arg depth_image)
+            info_in: $(arg depth_info)
+            
+            publish_update: true
+            raytrace: true
+            
+          laser:
+            type: laser
+            scan_in: $(arg scan_topic)
+            
+            publish_update: true
+            raytrace: false
+      </rosparam>
+      
+      <!--<rosparam command="load" file="$(find egocylindrical)/params/depth_laser.yaml"/>-->
     </node>
   </group>
   
