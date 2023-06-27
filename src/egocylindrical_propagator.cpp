@@ -55,17 +55,19 @@ namespace egocylindrical
               //return;
             }
         }
+        
+                
+        if(old_pts_)
+        {
+            ROS_DEBUG_STREAM_NAMED("msg_timestamps","Previous stamp " << old_pts_->getHeader().stamp);
+        }
 
         //TODO: Warn of out-of-order images
         //TODO: If clock jumps back in time, reset egocylinder
         ROS_INFO_STREAM_NAMED("update", "Measurement source: " << measurement.name);
         ROS_DEBUG_STREAM_NAMED("msg_timestamps","Current stamp: " << new_stamp);
         ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[egocylinder] Received [" << new_stamp << "] at [" << ros::WallTime::now() << "]");
-        
-        if(old_pts_)
-        {
-            ROS_DEBUG_STREAM_NAMED("msg_timestamps","Previous stamp " << old_pts_->getHeader().stamp);
-        }
+
         ros::WallTime start = ros::WallTime::now();
         
         // NOTE: It may be better to only create the necessary wrappers once and just 'swap' the msg_ pointers
@@ -235,12 +237,14 @@ namespace egocylindrical
         };
 
 //         seq_.setCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1));
-        seq_.setCallback(seq_cb);
+        //seq_.setCallback(seq_cb);
         
-        auto seq_input = [this](utils::SensorMeasurement::Ptr measurement)
-        {
-          seq_.add(measurement);
-        };
+        //auto seq_input = [this](utils::SensorMeasurement::Ptr measurement)
+        //{
+        //  seq_.add(measurement);
+        //};
+        
+        sensors_.init(fixed_frame_id_, seq_cb);
         
 //         lss_.setCallback(boost::bind(&EgoCylindricalPropagator::update, seq_, _1));
         //lss_.setCallback(seq_input);
@@ -259,12 +263,13 @@ namespace egocylindrical
         buffer_(),
         tf_listener_(buffer_),
         cfh_(buffer_, pnh),
+        sensors_(pnh, buffer_),
 //         lsi_(buffer_, pnh),
-        it_(nh),
+//        it_(nh),
         //lss_(buffer_, pnh),
         //dis_(buffer_, pnh, it_),
         pp_(buffer_),
-        seq_(ros::Duration(0.005), ros::Duration(0.01), 10),
+        //seq_(ros::Duration(0.005), ros::Duration(0.01), 10),
         should_reset_(false)
     {
         reconfigure_server_ = std::make_shared<ReconfigureServer>(pnh_);

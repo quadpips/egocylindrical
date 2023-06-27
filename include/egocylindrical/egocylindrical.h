@@ -21,11 +21,12 @@
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/thread/locks.hpp>
 
-#include <egocylindrical/sensor.h>
-#include <egocylindrical/laser_scan_sensor.h>
-#include <egocylindrical/depth_image_sensor.h>
+//#include <egocylindrical/sensor.h>
+//#include <egocylindrical/laser_scan_sensor.h>
+//#include <egocylindrical/depth_image_sensor.h>
 #include <egocylindrical/point_propagator.h>
-#include <egocylindrical/non_message_sequencer_filter.h>
+//#include <egocylindrical/non_message_sequencer_filter.h>
+#include <egocylindrical/sensor_collection.h>
 
 
 namespace egocylindrical
@@ -55,8 +56,8 @@ private:
     tf2_ros::TransformListener tf_listener_;
     utils::CoordinateFrameHelper cfh_;
 
-    image_transport::ImageTransport it_;
-    
+    //image_transport::ImageTransport it_;
+    utils::SensorCollection sensors_;
     //utils::LaserScanSensor lss_;
     //utils::DepthImageSensor dis_;
     utils::PointPropagator pp_;
@@ -64,7 +65,7 @@ private:
     ros::Publisher ec_pub_, pc_pub_, info_pub_;
     ros::Subscriber reset_sub_;
     
-    egocylindrical::TimeSequencer<utils::SensorMeasurement> seq_;
+    //egocylindrical::TimeSequencer<utils::SensorMeasurement> seq_;
 
     
     egocylindrical::PropagatorConfig config_;
