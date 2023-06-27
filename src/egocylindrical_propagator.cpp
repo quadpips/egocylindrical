@@ -105,11 +105,21 @@ namespace egocylindrical
                 {
                     pp_.transform(*old_pts_, *new_pts_, target_header, config_.num_threads);
                 }
+                else if(old_pts_)
+                {
+                    if(old_pts_->isLocked())
+                    {
+                        new_pts_ = copyECWrapper(*old_pts_);
+                    }
+                    else
+                    {
+                        new_pts_ = old_pts_;
+                    }
+                }
                 else
                 {
                     new_pts_->setHeader(target_header);
                 }
-                
             }
             catch (tf2::TransformException &ex) 
             {

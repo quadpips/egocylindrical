@@ -248,6 +248,7 @@ target_link_libraries(depth_image_inserter
    
 add_library(laser_scan_inserter src/laser_scan_inserter.cpp)
 add_dependencies(laser_scan_inserter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+#target_compile_options(laser_scan_inserter PRIVATE -O0 -g)
 target_link_libraries(laser_scan_inserter
    ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
@@ -256,9 +257,9 @@ target_link_libraries(laser_scan_inserter
   
   
 add_library(sensors src/sensor.cpp src/sensor_collection.cpp)
-target_compile_options(sensors PRIVATE -O0 -g)
+#target_compile_options(sensors PRIVATE -O0 -g)
 target_link_libraries(sensors
-   ##TODO: add the various sensor libraries here
+   ##TODO: add the various sensor libraries here once implementations moved to source files
    depth_image_inserter
    laser_scan_inserter
    ${catkin_LIBRARIES}
