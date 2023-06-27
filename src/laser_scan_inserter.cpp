@@ -140,7 +140,7 @@ namespace egocylindrical
                 
                 
                 //if(!(prev_val <= new_val))
-                if(new_val < prev_val || clearing)
+                if(!(new_val > prev_val) || clearing)
                 {   
                   x[idx] = transformed_point.x;
                   y[idx] = transformed_point.y;
