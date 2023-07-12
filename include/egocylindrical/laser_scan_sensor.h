@@ -12,11 +12,11 @@ namespace egocylindrical
 {
   namespace utils
   {
-    class LaserScanMeasurement: public SensorMeasurement
+    class LaserScanMeasurement: public TypedSensorMeasurement<LaserScanMeasurement>
     {
     public:
       LaserScanMeasurement(SensorCharacteristics sc, const sensor_msgs::LaserScan::ConstPtr& scan, LaserScanInserter& lsi):
-        SensorMeasurement(sc, scan->header),
+        TypedSensorMeasurement<LaserScanMeasurement>(sc, scan->header),
         scan_(scan),
         lsi_(lsi)
         {}
@@ -34,7 +34,7 @@ namespace egocylindrical
       utils::LaserScanInserter& lsi_;
     };
     
-    class LaserScanSensor: public SensorInterface
+    class LaserScanSensor: public TypedSensorInterface<LaserScanMeasurement>
     {
       ros::NodeHandle pnh_;
       tf2_ros::Buffer& buffer_;
@@ -84,6 +84,11 @@ namespace egocylindrical
 
         scan_tf_filter->registerCallback(boost::bind(&LaserScanSensor::update, this, _1));
       }
+      
+      //void start() override
+      //{
+      //    
+      //}
       
     protected:
       void update(const sensor_msgs::LaserScan::ConstPtr& scan)

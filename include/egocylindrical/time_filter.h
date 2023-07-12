@@ -8,6 +8,10 @@
   class TimeFilter: public message_filters::SimpleFilter<M>
   {
   public:
+    typedef boost::shared_ptr<M const> MConstPtr;
+    typedef ros::MessageEvent<M const> EventType;
+    
+  public:
     TimeFilter() = default;
     
     template<class F>
@@ -52,6 +56,12 @@
       
       this->signalMessage(evt);
 
+    }
+    
+    void add(const typename M::ConstPtr& msg)
+    {
+      EventType event(msg, boost::shared_ptr<ros::M_string>(), ros::Time::now(), true, msg->getMessageCreator() );
+      add(event);
     }
 
   protected:

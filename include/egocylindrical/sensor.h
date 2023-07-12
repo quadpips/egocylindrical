@@ -2,7 +2,9 @@
 #define EGOCYLINDRICAL_SENSOR_H
 
 #include <egocylindrical/ecwrapper.h>
+//#include <message_filters/simple_filter.h>
 #include <std_msgs/Header.h>
+#include <ros/message_event.h>
 
 namespace egocylindrical
 {
@@ -30,6 +32,7 @@ namespace egocylindrical
       std::string name;
       bool publish_update=false;
       bool raytrace=false;
+      bool main=false;
       
       //This is really a factory method, should potentially be moved elsewhere
       virtual bool init(ros::NodeHandle sensor_nh);
@@ -83,6 +86,7 @@ namespace egocylindrical
         {}
 
       virtual void insert(ECWrapper& cylindrical_points) = 0;
+      virtual ros::MessageEvent<SensorMeasurement>::CreateFunction getMessageCreator() = 0;
       std_msgs::Header getHeader() const {return header;}
       
     public:
@@ -92,11 +96,32 @@ namespace egocylindrical
        using ConstPtr = boost::shared_ptr<const SensorMeasurement>;
     };
     
+    template<typename M>
+    class TypedSensorMeasurement : public SensorMeasurement
+    {
+    public:
+      TypedSensorMeasurement(SensorCharacteristics sc, std_msgs::Header header):
+        SensorMeasurement(sc, header)
+        {}
+    
+      virtual ros::MessageEvent<SensorMeasurement>::CreateFunction getMessageCreator() override
+      {
+        struct DefaultMessageCreator
+        {
+          SensorMeasurement::Ptr operator()()
+          {
+            return boost::make_shared<M>();
+          }
+        };
+        return DefaultMessageCreator();
+      }
+    };
+    
     
     class SensorInterface
     {
     public:
-      using Callback = boost::function<void(SensorMeasurement::Ptr) > ;
+      using Callback = boost::function<void(const SensorMeasurement::ConstPtr&) > ;
       void setCallback(Callback cb) {cb_ = cb;}
       virtual void init(std::string fixed_frame_id)=0;
       
@@ -109,10 +134,11 @@ namespace egocylindrical
       using Ptr = std::shared_ptr<SensorInterface>;
     };
     
-    template<typename T>
-    class TypedSensorInterface: public SensorInterface
+    template<typename M>
+    class TypedSensorInterface: public SensorInterface //, public message_filters::SimpleFilter<M>
     {
     public:
+      
     };
     
     

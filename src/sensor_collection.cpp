@@ -3,7 +3,7 @@
 #include <egocylindrical/parameter_getter.hpp>
 
 #include <egocylindrical/depth_image_sensor.h>
-#include <egocylindrical/laser_scan_sensor.h>
+//#include <egocylindrical/laser_scan_sensor.h>
 
 #include <stdexcept>
 #include <string>
@@ -40,7 +40,7 @@ namespace egocylindrical
             
             if(sensor_type == "laser")
             {
-                sensor = std::dynamic_pointer_cast<SensorInterface>(std::make_shared<LaserScanSensor>(sensor_nh, buffer));
+                //sensor = std::dynamic_pointer_cast<SensorInterface>(std::make_shared<LaserScanSensor>(sensor_nh, buffer));
             }
             else if(sensor_type == "depth")
             {
@@ -156,12 +156,27 @@ namespace egocylindrical
                 return false;
             }
             
+            auto seq_input = [this](const utils::SensorMeasurement::ConstPtr& measurement)
+            {
+              seq_.add(measurement);
+            };
+            
             //init sensors
             for(auto& sensor : sensors_)
             {
-                sensor->setCallback(f);
+                sensor->setCallback(seq_input);
                 sensor->init(fixed_frame_id);
             }
+            
+            seq_.registerCallback(f);
+            
+            /*
+            SensorInterface::Ptr main_sensor;
+            for(auto& sensor : sensors_)
+            {
+            
+            }
+            */
             
             return true;
         }

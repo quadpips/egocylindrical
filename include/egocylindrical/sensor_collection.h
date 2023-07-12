@@ -12,7 +12,7 @@
 
 #include <tf2_ros/buffer.h>
 //#include <image_transport/image_transport.h>
-
+#include <egocylindrical/time_filter.h>
 
 
 namespace egocylindrical
@@ -29,6 +29,7 @@ namespace egocylindrical
             tf2_ros::Buffer& buffer_;
             ros::NodeHandle pnh_;
             //image_transport::ImageTransport it_;
+            TimeFilter<utils::SensorMeasurement> seq_;
 
             std::vector<SensorInterface::Ptr> sensors_;
             

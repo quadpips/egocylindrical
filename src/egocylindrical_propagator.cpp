@@ -241,7 +241,7 @@ namespace egocylindrical
         pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>(filtered_pc_topic, 3);
         info_pub_ = nh_.advertise<egocylindrical::EgoCylinderPoints>(egocylinder_info_topic, 1);
 
-        auto seq_cb = [this](utils::SensorMeasurement::Ptr measurement)
+        auto seq_cb = [this](utils::SensorMeasurement::ConstPtr measurement)
         {
           this->update(*measurement);
         };

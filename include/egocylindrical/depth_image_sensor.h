@@ -15,11 +15,11 @@ namespace egocylindrical
 {
   namespace utils
   {
-    class DepthImageMeasurement: public SensorMeasurement
+    class DepthImageMeasurement: public TypedSensorMeasurement<DepthImageMeasurement>
     {
     public:
       DepthImageMeasurement(SensorCharacteristics sc, const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& info, DepthImageInserter* dii):
-        SensorMeasurement(sc, info->header),
+        TypedSensorMeasurement<DepthImageMeasurement>(sc, info->header),
         image_(image),
         info_(info),
         dii_(dii)
@@ -41,7 +41,7 @@ namespace egocylindrical
       utils::DepthImageInserter* dii_;
     };
     
-    class DepthImageSensor: public SensorInterface
+    class DepthImageSensor: public TypedSensorInterface<DepthImageMeasurement>
     {
       ros::NodeHandle pnh_;
       tf2_ros::Buffer& buffer_;
@@ -108,7 +108,7 @@ namespace egocylindrical
       {
         if(cb_)
         {
-          auto m = boost::make_shared<DepthImageMeasurement>(sc_, image, info, &dii_);
+          auto m = boost::make_shared<const DepthImageMeasurement>(sc_, image, info, &dii_);
           cb_(m);
         }
         else
