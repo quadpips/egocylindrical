@@ -20,7 +20,7 @@ namespace egocylindrical
       params.cyl_radius = config.cyl_radius;
       return params;
     }
-    
+
     namespace utils
     {
       utils::ECWrapperPtr getECWrapper(const egocylindrical::PropagatorConfig &config, bool allocate_arrays=false)
@@ -99,6 +99,7 @@ namespace egocylindrical
         {
           #pragma omp section
           {
+            bool insert = true;
             try
             {
                 if(old_pts_ && measurement.raytrace)
@@ -124,28 +125,31 @@ namespace egocylindrical
             catch (tf2::TransformException &ex) 
             {
                 ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
+                insert = false;
             }
-            //TODO: Decide how to handle transform failure
-            
+
+            if(insert)
             {
-                measurement.insert(*new_pts_);
-            }
-            
-            if(measurement.publish_update)
-            {
-                if(ec_pub_.getNumSubscribers() > 0 && shouldPublish(new_pts_))
                 {
-                  // TODO: if no one is subscribing, we can propagate the points in place next time (if that turns out to be faster)
-                  utils::ECMsgConstPtr msg = new_pts_->getEgoCylinderPointsMsg();
-                  
-                  ec_pub_.publish(msg);
-                  ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[egocylinder] Sent [" << msg->header.stamp << "] at [" << ros::WallTime::now() << "]");
-                  published(new_pts_);
+                    measurement.insert(*new_pts_);
                 }
 
-                if(info_pub_.getNumSubscribers() > 0)
+                if(measurement.publish_update)
                 {
-                  info_pub_.publish(new_pts_->getEgoCylinderInfoMsg());
+                    if(ec_pub_.getNumSubscribers() > 0 && shouldPublish(new_pts_))
+                    {
+                    // TODO: if no one is subscribing, we can propagate the points in place next time (if that turns out to be faster)
+                    utils::ECMsgConstPtr msg = new_pts_->getEgoCylinderPointsMsg();
+
+                    ec_pub_.publish(msg);
+                    ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[egocylinder] Sent [" << msg->header.stamp << "] at [" << ros::WallTime::now() << "]");
+                    published(new_pts_);
+                    }
+
+                    if(info_pub_.getNumSubscribers() > 0)
+                    {
+                    info_pub_.publish(new_pts_->getEgoCylinderInfoMsg());
+                    }
                 }
             }
           }
