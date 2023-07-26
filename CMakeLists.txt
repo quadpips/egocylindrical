@@ -286,7 +286,7 @@ target_link_libraries(sensors
 #EGOCYLINDRICAL_PROPAGATOR
 add_library(egocylindrical_propagator src/egocylindrical_propagator.cpp)
 add_dependencies(egocylindrical_propagator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_compile_options(egocylindrical_propagator PRIVATE -ftree-vectorize -funsafe-math-optimizations ${OpenMP_CXX_FLAGS} 
+target_compile_options(egocylindrical_propagator PRIVATE -g -O0 -ftree-vectorize -funsafe-math-optimizations ${OpenMP_CXX_FLAGS}
    )
 target_compile_definitions(egocylindrical_propagator PRIVATE ${PLATFORM_FLAGS})
 target_link_libraries(egocylindrical_propagator

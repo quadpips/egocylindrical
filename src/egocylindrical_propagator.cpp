@@ -9,28 +9,29 @@
 namespace egocylindrical
 {
     
-    utils::ECParams getParams(const egocylindrical::PropagatorConfig &config)
-    {
-      utils::ECParams params;
-      params.height = config.height;
-      params.width = config.width;
-      params.vfov = config.vfov;
-      params.can_width = config.can_width;
-      params.v_offset = config.v_offset;
-      params.cyl_radius = config.cyl_radius;
-      return params;
-    }
-
-    namespace utils
-    {
-      utils::ECWrapperPtr getECWrapper(const egocylindrical::PropagatorConfig &config, bool allocate_arrays=false)
-      {
-        return utils::getECWrapper(getParams(config), allocate_arrays);
-      }
-    }
+    // utils::ECParams getParams(const egocylindrical::PropagatorConfig &config)
+    // {
+    //   utils::ECParams params;
+    //   params.height = config.height;
+    //   params.width = config.width;
+    //   params.vfov = config.vfov;
+    //   params.can_width = config.can_width;
+    //   params.v_offset = config.v_offset;
+    //   params.cyl_radius = config.cyl_radius;
+    //   return params;
+    // }
+    //
+    // namespace utils
+    // {
+    //   utils::ECWrapperPtr getECWrapper(const egocylindrical::PropagatorConfig &config, bool allocate_arrays=false)
+    //   {
+    //     return utils::getECWrapper(getParams(config), allocate_arrays);
+    //   }
+    // }
 
     void EgoCylindricalPropagator::update(utils::SensorMeasurement& measurement)
     {
+        old_pts_ = wrapper_buffer_.getOld();
         //TODO: Reset between runs so that the reset function returns once reset is complete
         {
             WriteLock lock(reset_mutex_);
@@ -71,7 +72,8 @@ namespace egocylindrical
         ros::WallTime start = ros::WallTime::now();
         
         // NOTE: It may be better to only create the necessary wrappers once and just 'swap' the msg_ pointers
-        new_pts_ = next_pts_;
+        new_pts_ = wrapper_buffer_.getNew();
+        //new_pts_ = next_pts_;
         bool allocate_next = !old_pts_ || old_pts_->isLocked();
         
         if(!cfh_.updateTransforms(measurement_header))
@@ -95,7 +97,7 @@ namespace egocylindrical
         
         std_msgs::Header target_header = cfh_.getTargetHeader();
         
-        #pragma omp parallel sections num_threads(2) if(allocate_next)
+        #pragma omp parallel sections num_threads(2) if(false && allocate_next)
         {
           #pragma omp section
           {
@@ -158,26 +160,26 @@ namespace egocylindrical
           {
             ros::WallTime start = ros::WallTime::now();
             
-            //Lock mutex
-            ReadLock lock(config_mutex_);
-            
-            if(allocate_next)
-            {
-                ROS_DEBUG_STREAM("Create new ECWrapper for next time");
-                next_pts_ = utils::getECWrapper(config_);
-            }
-            else
-            {
-                ROS_DEBUG_STREAM("Reuse old ECWrapper for next time");
-                std::swap(next_pts_,old_pts_);
-
-                next_pts_->init(getParams(config_), true);
-            }
-            
-            if((!next_pts_) || next_pts_->getNumPts()==0 || (!next_pts_->msg_) || next_pts_->msg_->points.data.size()==0)
-            {
-              int tempa = 0;  //Just a place to put a breakpoint
-            }
+//             //Lock mutex
+//             ReadLock lock(config_mutex_);
+//
+//             if(allocate_next)
+//             {
+//                 ROS_DEBUG_STREAM("Create new ECWrapper for next time");
+//                 next_pts_ = utils::getECWrapper(config_);
+//             }
+//             else
+//             {
+//                 ROS_DEBUG_STREAM("Reuse old ECWrapper for next time");
+//                 std::swap(next_pts_,old_pts_);
+//
+//                 next_pts_->init(getParams(config_), true);
+//             }
+//
+//             if((!next_pts_) || next_pts_->getNumPts()==0 || (!next_pts_->msg_) || next_pts_->msg_->points.data.size()==0)
+//             {
+//               int tempa = 0;  //Just a place to put a breakpoint
+//             }
             
             ROS_DEBUG_STREAM_NAMED("timing", "Creating new datastructure took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
           }
@@ -185,7 +187,9 @@ namespace egocylindrical
         
         }
         
-        std::swap(new_pts_, old_pts_);  
+        //std::swap(new_pts_, old_pts_);
+        //wrapper_buffer_.put(old_pts_, new_pts_);
+        wrapper_buffer_.update();
         
         ROS_DEBUG_STREAM_NAMED("timing", "Total time: " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
     }
@@ -221,7 +225,7 @@ namespace egocylindrical
         
 //         transformed_pts_ = utils::getECWrapper(config_, true);
         
-        next_pts_ = utils::getECWrapper(config_);
+        //next_pts_ = utils::getECWrapper(config_);
                 
         
         // Get topic names
@@ -267,6 +271,7 @@ namespace egocylindrical
         //lss_.init(fixed_frame_id_);
         //dis_.init(fixed_frame_id_);
         pp_.init(fixed_frame_id_);
+        wrapper_buffer_.init();
         
         return true;
     }
@@ -283,6 +288,7 @@ namespace egocylindrical
         //lss_(buffer_, pnh),
         //dis_(buffer_, pnh, it_),
         pp_(buffer_),
+        wrapper_buffer_(config_),
         //seq_(ros::Duration(0.005), ros::Duration(0.01), 10),
         should_reset_(false)
     {

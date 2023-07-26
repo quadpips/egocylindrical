@@ -27,7 +27,7 @@
 #include <egocylindrical/point_propagator.h>
 //#include <egocylindrical/non_message_sequencer_filter.h>
 #include <egocylindrical/sensor_collection.h>
-
+#include <egocylindrical/ecwrapper_buffer.h>
 
 namespace egocylindrical
 {
@@ -61,7 +61,8 @@ private:
     //utils::LaserScanSensor lss_;
     //utils::DepthImageSensor dis_;
     utils::PointPropagator pp_;
-    
+    ECWrapperBuffer wrapper_buffer_;
+
     ros::Publisher ec_pub_, pc_pub_, info_pub_;
     ros::Subscriber reset_sub_;
     
