@@ -72,9 +72,9 @@ namespace egocylindrical
         ros::WallTime start = ros::WallTime::now();
         
         // NOTE: It may be better to only create the necessary wrappers once and just 'swap' the msg_ pointers
-        new_pts_ = wrapper_buffer_.getNew();
+        // new_pts_ = wrapper_buffer_.getNew();
         //new_pts_ = next_pts_;
-        bool allocate_next = !old_pts_ || old_pts_->isLocked();
+        // bool allocate_next = !old_pts_ || old_pts_->isLocked();
         
         if(!cfh_.updateTransforms(measurement_header))
         {
@@ -94,18 +94,19 @@ namespace egocylindrical
 //           ROS_WARN_STREAM("Ignoring measurement");
 //           return;
 //         }
-        
+
         std_msgs::Header target_header = cfh_.getTargetHeader();
         
-        #pragma omp parallel sections num_threads(2) if(false && allocate_next)
-        {
-          #pragma omp section
+        // #pragma omp parallel sections num_threads(2) if(false && allocate_next)
+        // {
+        //   #pragma omp section
           {
-            bool insert = true;
+            // bool insert = true;
             try
             {
                 if(old_pts_ && measurement.raytrace)
                 {
+                    new_pts_ = wrapper_buffer_.getNew();
                     pp_.transform(*old_pts_, *new_pts_, target_header, config_.num_threads);
                 }
                 else if(old_pts_)
@@ -121,16 +122,17 @@ namespace egocylindrical
                 }
                 else
                 {
+                    new_pts_ = wrapper_buffer_.getNew();
                     new_pts_->setHeader(target_header);
                 }
             }
             catch (tf2::TransformException &ex) 
             {
                 ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
-                insert = false;
+                return; //Or do something else?
             }
 
-            if(insert)
+            //if(insert)
             {
                 {
                     measurement.insert(*new_pts_);
@@ -156,10 +158,10 @@ namespace egocylindrical
             }
           }
           
-          #pragma omp section
+          // #pragma omp section
           {
             ros::WallTime start = ros::WallTime::now();
-            
+
 //             //Lock mutex
 //             ReadLock lock(config_mutex_);
 //
@@ -180,7 +182,7 @@ namespace egocylindrical
 //             {
 //               int tempa = 0;  //Just a place to put a breakpoint
 //             }
-            
+
             ROS_DEBUG_STREAM_NAMED("timing", "Creating new datastructure took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
           }
           
