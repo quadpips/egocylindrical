@@ -98,39 +98,36 @@ namespace egocylindrical
         std_msgs::Header target_header = cfh_.getTargetHeader();
         
         // #pragma omp parallel sections num_threads(2) if(false && allocate_next)
-        // {
+        {
         //   #pragma omp section
           {
             // bool insert = true;
-            try
             {
                 if(old_pts_ && measurement.raytrace)
                 {
                     new_pts_ = wrapper_buffer_.getNew();
-                    pp_.transform(*old_pts_, *new_pts_, target_header, config_.num_threads);
+                    try
+                    {
+                        pp_.transform(*old_pts_, *new_pts_, target_header, config_.num_threads);
+                    }
+                    catch (tf2::TransformException &ex)
+                    {
+                        ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
+                    return; //Or do something else?
+                    }
                 }
                 else if(old_pts_)
                 {
-                    if(old_pts_->isLocked())
-                    {
-                        new_pts_ = copyECWrapper(*old_pts_);
-                    }
-                    else
-                    {
-                        new_pts_ = old_pts_;
-                    }
+                    new_pts_ = wrapper_buffer_.reuseOld();
                 }
                 else
                 {
                     new_pts_ = wrapper_buffer_.getNew();
                     new_pts_->setHeader(target_header);
                 }
+                wrapper_buffer_.releaseOld();
             }
-            catch (tf2::TransformException &ex) 
-            {
-                ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
-                return; //Or do something else?
-            }
+
 
             //if(insert)
             {

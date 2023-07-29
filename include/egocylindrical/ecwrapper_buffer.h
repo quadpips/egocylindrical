@@ -30,16 +30,6 @@ namespace egocylindrical
       }
     }
 
-    class ECWrapperBuffer;
-
-    class TrackedECWrapper : public ECWrapper
-    {
-    protected:
-        ECWrapperBuffer::Ptr
-    public:
-        void release
-    };
-
 
     class ECWrapperBuffer
     {
@@ -47,27 +37,20 @@ namespace egocylindrical
 
     public:
         ECWrapperBuffer(egocylindrical::PropagatorConfig& config):
-            config_(config)
+            config_(config),
+            old_pts_(nullptr)
         {}
 
         bool init()
         {
-            old_pts_buffer_.push(nullptr);
+            // old_pts_buffer_.push(nullptr);
             addNew();
             return true;
         }
 
         utils::ECWrapper::Ptr getOld()
         {
-            if(!old_pts_buffer_.empty())
-            {
-                return old_pts_buffer_.front();
-            }
-            else
-            {
-                ROS_ERROR_STREAM("There should at least be a nullptr in [old_pts_buffer_]");
-                throw std::out_of_range("There should at least be a nullptr in [old_pts_buffer_]");
-            }
+            return old_pts_;
         }
 
         void addNew()
@@ -76,19 +59,12 @@ namespace egocylindrical
              prepareNext();
         }
 
-        // void addIfNeeded()
-        // {
-        //     if(buffer_.empty())
-        //     {
-        //         addNew();
-        //     }
-        // }
-
         utils::ECWrapper::Ptr getNew()
         {
             if(!new_pts_buffer_.empty())
             {
-                return new_pts_buffer_.front();
+                new_pts_ = new_pts_buffer_.front();
+                return new_pts_;
             }
             else
             {
@@ -96,37 +72,44 @@ namespace egocylindrical
 
                 throw std::out_of_range("There must be a valid ECWrapper in [new_pts_buffer_]");
             }
-//             if(!new_pts_buffer_.empty())
-//             {
-//
-//             }
-//             else
-//             {
-//                 ROS_WARN_STREAM("New ECWrapper should already have been constructed!");
-//                 return nullptr;
-//             }
         }
 
-        utils::ECWrapper::Ptr reuse(utils::ECWrapper::Ptr)
-        {
+        //utils::ECWrapper::Ptr updatePoints(utils::ECWrapper::Ptr old_pts)
 
+
+
+        utils::ECWrapper::Ptr reuseOld()
+        {
+            auto old = old_pts_;
+            if(old->isLocked())
+            {
+                new_pts_ = copyECWrapper(*old);
+                // old_pts_buffer_.pop();
+                //releaseOld();
+            }
+            else
+            {
+                new_pts_ = old_pts_;
+                old_pts_ = nullptr;
+            }
+            return new_pts_;
         }
 
         void update()
         {
-            releaseOld();
+            //releaseOld();
             makeNewOld();
             prepareNext();
         }
 
 
-    protected:
+    public:
+
         void releaseOld()
         {
-            // try
-            // {
-                auto v = getOld();
-                old_pts_buffer_.pop();
+            auto v = old_pts_;
+            if(v)
+            {
                 next_pts_buffer_.push(v);
                 if(!v)
                 {
@@ -140,32 +123,17 @@ namespace egocylindrical
                 {
                     ROS_DEBUG_STREAM("Adding old locked ECWrapper");
                 }
-            // }
-            // catch (std::out_of_range& e)
-            // {
-            //     ROS_ERROR_STREAM("There should at least be a nullptr in [old_pts_buffer_]");
-            //     throw;
-            // }
+            }
         }
+
+    protected:
 
         void makeNewOld()
         {
-            auto v = getNew();
-            new_pts_buffer_.pop();
-            old_pts_buffer_.push(v);
+            old_pts_ = new_pts_;
+            // new_pts_buffer_.pop();
+            new_pts_ = nullptr;
         }
-
-        // void makeOldNew()
-        // {
-        //     auto v = getOld();
-        //
-        //     if(v->isLocked())
-        //     {
-        //
-        //         new_pts_buffer_.
-        //
-        //     }
-        // }
 
         utils::ECWrapper::Ptr createNew()
         {
@@ -204,12 +172,16 @@ namespace egocylindrical
 
         }
 
+    public:
+        using Ptr = std::shared_ptr<ECWrapperBuffer>;
 
 
     protected:
         egocylindrical::PropagatorConfig& config_;
 
-        std::queue<utils::ECWrapper::Ptr> new_pts_buffer_, old_pts_buffer_, next_pts_buffer_;
+        std::queue<utils::ECWrapper::Ptr> new_pts_buffer_, next_pts_buffer_; //old_pts_buffer_,
+
+        utils::ECWrapper::Ptr old_pts_, new_pts_;
     };
 
     // class ECWrapperUpdateLogic
