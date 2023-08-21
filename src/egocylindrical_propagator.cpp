@@ -103,22 +103,25 @@ namespace egocylindrical
           {
             // bool insert = true;
             {
-                if(old_pts_ && measurement.raytrace)
+                if(old_pts_)
                 {
-                    new_pts_ = wrapper_buffer_.getNew();
-                    try
+                    if(measurement.raytrace)
                     {
-                        pp_.transform(*old_pts_, *new_pts_, target_header, config_.num_threads);
+                        new_pts_ = wrapper_buffer_.getNew();
+                        try
+                        {
+                            pp_.transform(*old_pts_, *new_pts_, target_header, config_.num_threads);
+                        }
+                        catch (tf2::TransformException &ex)
+                        {
+                            ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
+                            return; //Or do something else?
+                        }
                     }
-                    catch (tf2::TransformException &ex)
+                    else
                     {
-                        ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
-                    return; //Or do something else?
+                        new_pts_ = wrapper_buffer_.reuseOld();
                     }
-                }
-                else if(old_pts_)
-                {
-                    new_pts_ = wrapper_buffer_.reuseOld();
                 }
                 else
                 {
@@ -149,7 +152,7 @@ namespace egocylindrical
 
                     if(info_pub_.getNumSubscribers() > 0)
                     {
-                    info_pub_.publish(new_pts_->getEgoCylinderInfoMsg());
+                        info_pub_.publish(new_pts_->getEgoCylinderInfoMsg());
                     }
                 }
             }
