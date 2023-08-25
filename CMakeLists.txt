@@ -291,9 +291,7 @@ target_compile_options(egocylindrical_propagator PRIVATE -g -O0 -ftree-vectorize
 target_compile_definitions(egocylindrical_propagator PRIVATE ${PLATFORM_FLAGS})
 target_link_libraries(egocylindrical_propagator
    point_propagator
-   #depth_image_inserter
-   #laser_scan_inserter
-   sensors  ##TODO: Once sensors encapsulates depth/laser implementations, can remove them from this list
+   sensors
    ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
    ${OpenMP_CXX_FLAGS}
