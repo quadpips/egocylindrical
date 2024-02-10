@@ -216,7 +216,7 @@ target_link_libraries(point_transformer
    )
    
 add_library(point_propagator src/point_propagator.cpp)
-target_compile_definitions(point_transformer PRIVATE ${PLATFORM_FLAGS})
+target_compile_definitions(point_propagator PRIVATE ${PLATFORM_FLAGS})
 target_link_libraries(point_propagator
    point_transformer
    ${catkin_LIBRARIES}
@@ -265,6 +265,12 @@ target_link_libraries(sensors
    ${catkin_LIBRARIES}
    )
 
+add_library(ecwrapper_buffer src/ecwrapper_buffer.cpp)
+add_dependencies(ecwrapper_buffer ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+#target_compile_options(laser_scan_inserter PRIVATE -O0 -g)
+target_link_libraries(ecwrapper_buffer
+   ${catkin_LIBRARIES}
+   )
   
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
@@ -292,6 +298,7 @@ target_compile_definitions(egocylindrical_propagator PRIVATE ${PLATFORM_FLAGS})
 target_link_libraries(egocylindrical_propagator
    point_propagator
    sensors
+   ecwrapper_buffer
    ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
    ${OpenMP_CXX_FLAGS}

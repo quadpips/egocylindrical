@@ -4,173 +4,42 @@
 #include <egocylindrical/PropagatorConfig.h>
 #include <egocylindrical/ecwrapper.h>
 
-#include <stdexcept>
 #include <queue>
 
 namespace egocylindrical
 {
-
-    utils::ECParams getParams(const egocylindrical::PropagatorConfig &config)
-    {
-      utils::ECParams params;
-      params.height = config.height;
-      params.width = config.width;
-      params.vfov = config.vfov;
-      params.can_width = config.can_width;
-      params.v_offset = config.v_offset;
-      params.cyl_radius = config.cyl_radius;
-      return params;
-    }
-
-    namespace utils
-    {
-      utils::ECWrapperPtr getECWrapper(const egocylindrical::PropagatorConfig &config, bool allocate_arrays=false)
-      {
-        return utils::getECWrapper(getParams(config), allocate_arrays);
-      }
-    }
-
 
     class ECWrapperBuffer
     {
 
 
     public:
-        ECWrapperBuffer(egocylindrical::PropagatorConfig& config):
-            config_(config),
-            old_pts_(nullptr)
-        {}
+        ECWrapperBuffer(egocylindrical::PropagatorConfig& config);
 
-        bool init()
-        {
-            // old_pts_buffer_.push(nullptr);
-            addNew();
-            return true;
-        }
+        bool init();
 
-        utils::ECWrapper::Ptr getOld()
-        {
-            return old_pts_;
-        }
+        utils::ECWrapper::Ptr getOld();
 
-        void addNew()
-        {
-             next_pts_buffer_.push(nullptr);
-             prepareNext();
-        }
+        void addNew();
 
-        utils::ECWrapper::Ptr getNew()
-        {
-            if(!new_pts_buffer_.empty())
-            {
-                new_pts_ = new_pts_buffer_.front();
-                return new_pts_;
-            }
-            else
-            {
-                ROS_ERROR_STREAM("There must be a valid ECWrapper in [new_pts_buffer_]");
+        utils::ECWrapper::Ptr getNew();
 
-                throw std::out_of_range("There must be a valid ECWrapper in [new_pts_buffer_]");
-            }
-        }
+        utils::ECWrapper::Ptr reuseOld();
 
-        //utils::ECWrapper::Ptr updatePoints(utils::ECWrapper::Ptr old_pts)
-
-
-
-        utils::ECWrapper::Ptr reuseOld()
-        {
-            auto old = old_pts_;
-            if(old->isLocked())
-            {
-                new_pts_ = copyECWrapper(*old);
-                // old_pts_buffer_.pop();
-                //releaseOld();
-            }
-            else
-            {
-                new_pts_ = old_pts_;
-                old_pts_ = nullptr;
-            }
-            return new_pts_;
-        }
-
-        void update()
-        {
-            //releaseOld();
-            makeNewOld();
-            prepareNext();
-        }
-
+        void update();
 
     public:
 
-        void releaseOld()
-        {
-            auto v = old_pts_;
-            if(v)
-            {
-                next_pts_buffer_.push(v);
-                if(!v)
-                {
-                    ROS_DEBUG_STREAM("Adding nullptr ECWrapper");
-                }
-                else if(!v->isLocked())
-                {
-                    ROS_DEBUG_STREAM("Adding old unlocked ECWrapper");
-                }
-                else
-                {
-                    ROS_DEBUG_STREAM("Adding old locked ECWrapper");
-                }
-            }
-        }
+        void releaseOld();
 
     protected:
 
-        void makeNewOld()
-        {
-            old_pts_ = new_pts_;
-            // new_pts_buffer_.pop();
-            new_pts_ = nullptr;
-        }
+        void makeNewOld();
 
-        utils::ECWrapper::Ptr createNew()
-        {
-            return utils::getECWrapper(config_);
-        }
+        utils::ECWrapper::Ptr createNew();
 
         //In the future, this can be done by separate thread as triggered by condition variable
-        void prepareNext()
-        {
-            while(!next_pts_buffer_.empty())
-            {
-                auto v = next_pts_buffer_.front();
-                next_pts_buffer_.pop();
-
-                if(v)
-                {
-                    if(!v->isLocked())
-                    {
-                        v->init(getParams(config_), true);
-                        ROS_DEBUG_STREAM("Reuse old ECWrapper for next time");
-                    }
-                    else
-                    {
-                        v = createNew();
-                        ROS_DEBUG_STREAM("Cannot reuse old locked ECWrapper, create new one");
-                    }
-                }
-                else
-                {
-                    v = createNew();
-                    ROS_DEBUG_STREAM("No old ECWrapper to reuse, create new one");
-                }
-
-                new_pts_buffer_.push(v);
-            }
-
-        }
+        void prepareNext();
 
     public:
         using Ptr = std::shared_ptr<ECWrapperBuffer>;
