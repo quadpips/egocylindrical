@@ -11,7 +11,9 @@ namespace egocylindrical
 
     void EgoCylindricalPropagator::update(utils::SensorMeasurement& measurement)
     {
+        //TODO: Make ecwrapper pointers into local variables
         old_pts_ = wrapper_buffer_.getOld();
+        
         //TODO: Reset between runs so that the reset function returns once reset is complete
         {
             WriteLock lock(reset_mutex_);
@@ -51,86 +53,69 @@ namespace egocylindrical
 
         ros::WallTime start = ros::WallTime::now();
         
-        // NOTE: It may be better to only create the necessary wrappers once and just 'swap' the msg_ pointers
-        // new_pts_ = wrapper_buffer_.getNew();
-        //new_pts_ = next_pts_;
-        // bool allocate_next = !old_pts_ || old_pts_->isLocked();
-        
         if(!cfh_.updateTransforms(measurement_header))
         {
             ROS_WARN_STREAM("Failed to update transforms!");
             return;
         }
 
-
         std_msgs::Header target_header = cfh_.getTargetHeader();
         
         {
-          {
+            if(old_pts_)
             {
-                if(old_pts_)
+                if(measurement.raytrace)
                 {
-                    if(measurement.raytrace)
+                    new_pts_ = wrapper_buffer_.getNew();
+                    try
                     {
-                        new_pts_ = wrapper_buffer_.getNew();
-                        try
-                        {
-                            pp_.transform(*old_pts_, *new_pts_, target_header, config_.num_threads);
-                        }
-                        catch (tf2::TransformException &ex)
-                        {
-                            ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
-                            return; //Or do something else?
-                        }
+                        pp_.transform(*old_pts_, *new_pts_, target_header, config_.num_threads);
                     }
-                    else
+                    catch (tf2::TransformException &ex)
                     {
-                        new_pts_ = wrapper_buffer_.reuseOld();
+                        ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
+                        return; //TODO: After a configurable timeout, reset
                     }
                 }
                 else
                 {
-                    new_pts_ = wrapper_buffer_.getNew();
-                    new_pts_->setHeader(target_header);
+                    new_pts_ = wrapper_buffer_.reuseOld();
                 }
-                wrapper_buffer_.releaseOld();
             }
-
-
+            else
             {
+                new_pts_ = wrapper_buffer_.getNew();
+                new_pts_->setHeader(target_header);
+            }
+            wrapper_buffer_.releaseOld();
+        }
+
+
+        {
+            {
+                measurement.insert(*new_pts_);
+            }
+
+            if(measurement.publish_update)
+            {
+                if(ec_pub_.getNumSubscribers() > 0 && shouldPublish(new_pts_))
                 {
-                    measurement.insert(*new_pts_);
+                // TODO: if no one is subscribing, we can propagate the points in place next time (if that turns out to be faster)
+                utils::ECMsgConstPtr msg = new_pts_->getEgoCylinderPointsMsg();
+
+                ec_pub_.publish(msg);
+                ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[egocylinder] Sent [" << msg->header.stamp << "] at [" << ros::WallTime::now() << "]");
+                published(new_pts_);
                 }
 
-                if(measurement.publish_update)
+                if(info_pub_.getNumSubscribers() > 0)
                 {
-                    if(ec_pub_.getNumSubscribers() > 0 && shouldPublish(new_pts_))
-                    {
-                    // TODO: if no one is subscribing, we can propagate the points in place next time (if that turns out to be faster)
-                    utils::ECMsgConstPtr msg = new_pts_->getEgoCylinderPointsMsg();
-
-                    ec_pub_.publish(msg);
-                    ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[egocylinder] Sent [" << msg->header.stamp << "] at [" << ros::WallTime::now() << "]");
-                    published(new_pts_);
-                    }
-
-                    if(info_pub_.getNumSubscribers() > 0)
-                    {
-                        info_pub_.publish(new_pts_->getEgoCylinderInfoMsg());
-                    }
+                    info_pub_.publish(new_pts_->getEgoCylinderInfoMsg());
                 }
             }
-          }
-          
-          {
-            //ros::WallTime start = ros::WallTime::now();
-            //ROS_DEBUG_STREAM_NAMED("timing", "Creating new datastructure took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
-          }
-        
         }
-        
-        //std::swap(new_pts_, old_pts_);
-        //wrapper_buffer_.put(old_pts_, new_pts_);
+
+
         wrapper_buffer_.update();
         
         ROS_DEBUG_STREAM_NAMED("timing", "Total time: " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
@@ -175,6 +160,8 @@ namespace egocylindrical
         pnh_.getParam("fixed_frame_id", fixed_frame_id_);
 
         cfh_.init();
+        wrapper_buffer_.init();
+
         
         reset_sub_ = nh_.subscribe<std_msgs::Empty>("reset", 1, [this](const std_msgs::Empty::ConstPtr&) { reset(); });
 
@@ -193,7 +180,6 @@ namespace egocylindrical
 
         sensors_.init(fixed_frame_id_, seq_cb);
         pp_.init(fixed_frame_id_);
-        wrapper_buffer_.init();
         
         return true;
     }
