@@ -107,23 +107,23 @@ namespace egocylindrical
     void ECWrapperBuffer::releaseOld()
     {
         auto v = old_pts_;
-        if(v)
+        // if(v)
         {
             next_pts_buffer_.push(v);
             if(!v)
             {
-                ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.releaseOld", "Adding nullptr ECWrapper");
+                ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.releaseOld", "Releasing nullptr ECWrapper");
             }
             else if(!v->isLocked())
             {
-                ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.releaseOld", "Adding old unlocked ECWrapper");
+                ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.releaseOld", "Releasing old unlocked ECWrapper");
             }
             else
             {
-                ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.releaseOld", "Adding old locked ECWrapper");
+                ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.releaseOld", "Releasing old locked ECWrapper");
             }
         }
-        ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.releaseOld", "No old ECWrapper");
+        // ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.releaseOld", "No old ECWrapper");
     }
 
 
