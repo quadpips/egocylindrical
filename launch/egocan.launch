@@ -19,14 +19,20 @@
   <arg name="projected_prefix" default="" unless="$(arg debugproj)" />
   
   <arg name="hybrid" default="false"/>
-  
+  <arg name="use_laser" default="false"/>
+
+  <arg name="laser_source" value="$(eval 'laser' if use_laser else '')"/>
+
+  <env name="ROSCONSOLE_CONFIG_FILE"
+       value="$(find egocylindrical)/data/custom_rosconsole.conf"/>
+
   <group ns="egocylinder">
 
 
     <node name="depth_to_egocylindrical_node" pkg="egocylindrical" type="egocylindrical_propagator_node" output="log" launch-prefix="$(arg prefix)">        
       <rosparam subst_value="True">
         sensors:
-          observation_sources: [depth, laser]
+          observation_sources: [depth, $(arg laser_source)]
           depth:
             type: depth
             image_in: $(arg depth_image)
