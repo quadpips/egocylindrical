@@ -644,13 +644,28 @@ namespace egocylindrical
                 init(params);
             }
             
-            ECWrapper(const ECMsgConstPtr& ec_points) 
+            ECWrapper(const ECMsgConstPtr& ec_points, bool use_const_msg = true) 
             {
                 fromCameraInfo(ec_points);
                 const_msg_ = ec_points;
                 header_ = const_msg_->header;
+                params_.vfov = const_msg_->fov_v;
 
-                points_ = (float*) const_msg_->points.data.data() + (const_msg_->points.layout.data_offset) / sizeof(float);
+                const std::vector<std_msgs::MultiArrayDimension>& dims = const_msg_->points.layout.dim;
+                params_.height = dims[1].size;
+                params_.width = dims[2].size;
+
+                if(use_const_msg)
+                {
+                    points_ = (float*) const_msg_->points.data.data() + (const_msg_->points.layout.data_offset) / sizeof(float);
+                }
+                else
+                {
+                    params_.hscale = params_.width/(2*M_PI);
+                    params_.vscale = params_.height/params_.vfov;
+                    msg_ = boost::make_shared<ECMsg>(*ec_points);
+                    points_ = (float*) msg_->points.data.data() + (msg_->points.layout.data_offset) / sizeof(float);
+                }
                                 
                 msg_locked_ = true;
             }
