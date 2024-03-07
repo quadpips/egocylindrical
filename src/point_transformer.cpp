@@ -66,7 +66,7 @@ namespace egocylindrical
                 }
                 
                 
-                //#pragma GCC ivdep  //https://gcc.gnu.org/onlinedocs/gcc/Loop-Specific-Pragmas.html
+                // #pragma GCC ivdep  //https://gcc.gnu.org/onlinedocs/gcc/Loop-Specific-Pragmas.html
                 #pragma omp for simd schedule(static) aligned(x:__BIGGEST_ALIGNMENT__) aligned(x_n:__BIGGEST_ALIGNMENT__) aligned(ranges:__BIGGEST_ALIGNMENT__) aligned(inds:__BIGGEST_ALIGNMENT__)
                 for(int p = 0; p < num_pts; ++p)
                 {
@@ -82,7 +82,7 @@ namespace egocylindrical
                     int idx = -1;
                     {
                       int tidx = new_points.worldToCylindricalIdx(x_n[p],y_n[p],z_n[p]);
-                      
+                    //   idx = (tidx < max_ind) ? tidx : -1;
                       if(tidx < max_ind)
                       {
                         idx = tidx;

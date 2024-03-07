@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(egocylindrical)
 
-add_compile_options(-Wall -std=c++14)
+add_compile_options(-Wall -std=c++14 -march=native -mavx)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -39,6 +39,7 @@ else()
     set(SHOW_VECTORIZE_INFO "")
 endif()
 
+set(PLATFORM_OPTIONS "-march=native") #sandybridge
 
 if(0) #if on arm...
     set(PLATFORM_FLAGS "PIPS_ON_ARM=arm")
@@ -161,7 +162,7 @@ include_directories(
 # This is a separate library partly to reduce compile times, but mostly because it needs to be compiled with certain 'fast-math' optimization options
 add_library(range_image_core src/range_image_core.cpp)
 add_dependencies(range_image_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_compile_options(range_image_core PRIVATE -ftree-vectorize -fopt-info-loop-optimized=vec_range_image_core.txt -funsafe-math-optimizations -fno-math-errno -ffinite-math-only #-ffinite-math-only and -fno-trapping-math.
+target_compile_options(range_image_core PRIVATE ${PLATFORM_OPTIONS} -ftree-vectorize -fopt-info-loop-optimized=vec_range_image_core.txt -funsafe-math-optimizations -fno-math-errno -ffinite-math-only #-ffinite-math-only and -fno-trapping-math.
    )
 target_link_libraries(range_image_core
    ${catkin_LIBRARIES}
@@ -171,7 +172,7 @@ target_link_libraries(range_image_core
 
 add_library(can_image_core src/can_image_core.cpp)
 add_dependencies(can_image_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_compile_options(can_image_core PRIVATE -ftree-vectorize -fopt-info-loop-optimized=vec_can_image_core.txt -funsafe-math-optimizations -fno-math-errno -ffinite-math-only #-ffinite-math-only and -fno-trapping-math.
+target_compile_options(can_image_core PRIVATE ${PLATFORM_OPTIONS} -ftree-vectorize -fopt-info-loop-optimized=vec_can_image_core.txt -funsafe-math-optimizations -fno-math-errno -ffinite-math-only #-ffinite-math-only and -fno-trapping-math.
    )
 target_link_libraries(can_image_core
    ${catkin_LIBRARIES}
@@ -184,7 +185,7 @@ target_link_libraries(can_image_core
   
 add_library(point_cloud_core src/point_cloud_core.cpp)
 add_dependencies(point_cloud_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_compile_options(point_cloud_core PRIVATE -ftree-vectorize -fopt-info-loop-optimized=vec_point_cloud_core.txt ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
+target_compile_options(point_cloud_core PRIVATE ${PLATFORM_OPTIONS} -ftree-vectorize -fopt-info-loop-optimized=vec_point_cloud_core.txt ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
    )
 target_link_libraries(point_cloud_core
    ${catkin_LIBRARIES}
@@ -195,7 +196,7 @@ target_link_libraries(point_cloud_core
 
 add_library(projected_point_cloud_core src/projected_point_cloud_core.cpp)
 add_dependencies(projected_point_cloud_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_compile_options(projected_point_cloud_core PRIVATE -ftree-vectorize -fno-trapping-math -fno-math-errno  -fopt-info-loop-optimized=vec_projected_point_cloud_core.txt ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
+target_compile_options(projected_point_cloud_core PRIVATE ${PLATFORM_OPTIONS} -ftree-vectorize -fno-trapping-math -fno-math-errno  -fopt-info-loop-optimized=vec_projected_point_cloud_core.txt ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
    )
 target_link_libraries(projected_point_cloud_core
    ${catkin_LIBRARIES}
@@ -206,7 +207,7 @@ target_link_libraries(projected_point_cloud_core
 
 add_library(point_transformer src/point_transformer.cpp)
 add_dependencies(point_transformer ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_compile_options(point_transformer PRIVATE -ftree-vectorize -fopt-info-loop-optimized=vec_point_transformer.txt -funsafe-math-optimizations -fno-math-errno ${OpenMP_CXX_FLAGS} #-finite-math-only and -fno-trapping-math. -ffinite-math-only 
+target_compile_options(point_transformer PRIVATE ${PLATFORM_OPTIONS} -ftree-vectorize -ftree-vectorizer-verbose=6 -fopt-info-all=vec_point_transformer.txt    -funroll-loops   -fvariable-expansion-in-unroller     -funsafe-math-optimizations -fno-math-errno ${OpenMP_CXX_FLAGS} --param max-variable-expansions-in-unroller=4  #-finite-math-only and -fno-trapping-math. -ffinite-math-only 
    )
 target_compile_definitions(point_transformer PRIVATE ${PLATFORM_FLAGS})
 target_link_libraries(point_transformer
@@ -224,7 +225,7 @@ target_link_libraries(point_propagator
 
 add_library(depth_image_remapper src/depth_image_remapper.cpp)
 add_dependencies(depth_image_remapper ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_compile_options(depth_image_remapper PRIVATE -ftree-vectorize  -fopt-info-vec-all=vec_depth_image_remapper.txt -funsafe-math-optimizations -fno-math-errno ${OpenMP_CXX_FLAGS}#-finite-math-only and -fno-trapping-math. -ffinite-math-only 
+target_compile_options(depth_image_remapper PRIVATE ${PLATFORM_OPTIONS} -ftree-vectorize  -fopt-info-vec-all=vec_depth_image_remapper.txt -funsafe-math-optimizations -fno-math-errno ${OpenMP_CXX_FLAGS}#-finite-math-only and -fno-trapping-math. -ffinite-math-only 
    )
 target_compile_definitions(depth_image_remapper PRIVATE ${PLATFORM_FLAGS})
 target_link_libraries(depth_image_remapper
@@ -232,14 +233,32 @@ target_link_libraries(depth_image_remapper
    ${OpenCV_LIBRARIES}
    ${OpenMP_CXX_FLAGS}
    )
+
+
+# add_library(depth_image_difference src/depth_image_difference.cpp)
+# add_dependencies(depth_image_difference ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# # target_compile_options(depth_image_difference PRIVATE ${PLATFORM_OPTIONS} -ftree-vectorize  -fopt-info-vec-all=vec_depth_image_remapper.txt -funsafe-math-optimizations -fno-math-errno ${OpenMP_CXX_FLAGS}#-finite-math-only and -fno-trapping-math. -ffinite-math-only 
+# #    )
+# target_compile_definitions(depth_image_difference PRIVATE ${PLATFORM_FLAGS})
+# target_link_libraries(depth_image_difference
+#    ${catkin_LIBRARIES}
+#    ${OpenCV_LIBRARIES}
+#    # ${OpenMP_CXX_FLAGS}
+#    )
    
-add_library(depth_image_inserter src/depth_image_inserter.cpp)
+
+
+add_library(depth_image_inserter 
+   src/depth_image_inserter.cpp
+   # src/depth_image_difference.cpp
+   )
 #add_dependencies(depth_image_inserter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 #target_compile_options(depth_image_inserter PRIVATE -ftree-vectorize  -fopt-info-vec-all=vec_depth_image_inserter.txt -funsafe-math-optimizations -fno-math-errno ${OpenMP_CXX_FLAGS}#-finite-math-only and -fno-trapping-math. -ffinite-math-only 
 #   )
 target_compile_definitions(depth_image_inserter PRIVATE ${PLATFORM_FLAGS})
 target_link_libraries(depth_image_inserter
    depth_image_remapper
+   # depth_image_difference
    ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
    ${OpenMP_CXX_FLAGS}
@@ -292,7 +311,7 @@ target_link_libraries(ecwrapper_buffer
 #EGOCYLINDRICAL_PROPAGATOR
 add_library(egocylindrical_propagator src/egocylindrical_propagator.cpp)
 add_dependencies(egocylindrical_propagator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_compile_options(egocylindrical_propagator PRIVATE -g -O0 -ftree-vectorize -funsafe-math-optimizations ${OpenMP_CXX_FLAGS}
+target_compile_options(egocylindrical_propagator PRIVATE ${PLATFORM_OPTIONS} -ftree-vectorize -funsafe-math-optimizations ${OpenMP_CXX_FLAGS}
    )
 target_compile_definitions(egocylindrical_propagator PRIVATE ${PLATFORM_FLAGS})
 target_link_libraries(egocylindrical_propagator
@@ -348,6 +367,7 @@ target_link_libraries(projected_point_cloud_generator
    ${catkin_LIBRARIES}
    )
 
+#TODO: Confirm if all of these linked libraries are really needed
 #PROJECTED_POINT_CLOUD_NODE
 add_executable(projected_point_cloud_node src/projected_point_cloud_node.cpp)
 target_link_libraries(projected_point_cloud_node

@@ -66,6 +66,7 @@ namespace egocylindrical
             {
                 if(measurement.raytrace)
                 {
+                    // TODO: check if transform is non-identity first?
                     new_pts_ = wrapper_buffer_.getNew();
                     try
                     {

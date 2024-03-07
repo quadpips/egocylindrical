@@ -7,12 +7,16 @@
   <arg name="viz_inflated" default="true"/>
   <arg name="sanity_check" default="true"/>
   
-  <arg name="profile_args" default="valgrind --tool=callgrind"/>
   
   <arg name="debug" default="false"/>
-  
+  <arg name="profile" default="false"/>
+
+  <arg name="profile_args" value="" unless="$(arg profile)"/>
+  <arg name="profile_args" value="xterm -e valgrind --tool=callgrind" if="$(arg profile)"/>
+
+
   <arg name="prefix" default="xterm -e gdb --args" if="$(arg debug)" />
-  <arg name="prefix" default="" unless="$(arg debug)" />
+  <arg name="prefix" default="$(arg profile_args)" unless="$(arg debug)" />
 
   <arg name="debugproj" default="false"/>
   <arg name="projected_prefix" default="xterm -e gdb --args" if="$(arg debugproj)" />
@@ -53,8 +57,8 @@
       <param name="fixed_frame_id" value="$(arg fixed_frame_id)"/>
       
       <param name="orientation_fixed_frame_id" value="map" if="$(arg hybrid)"/>
-      <param name="orientation_fixed_frame_id" value="camera_depth_frame" unless="$(arg hybrid)"/>
-      <param name="origin_fixed_frame_id" value="camera_depth_frame"/>
+      <param name="orientation_fixed_frame_id" value="camera_depth_optical_frame" unless="$(arg hybrid)"/>
+      <param name="origin_fixed_frame_id" value="camera_depth_optical_frame"/>
     </node>
 
     <node name="egocylindrical_to_pointcloud" pkg="egocylindrical" type="point_cloud_node" output="log">

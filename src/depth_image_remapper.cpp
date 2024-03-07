@@ -69,7 +69,7 @@ namespace egocylindrical
         
         template <typename T, bool fill_cloud, typename U, typename S>
         inline
-        void remapDepthImage(utils::ECWrapper& cylindrical_points, const T* depths, const U* inds, const S* n_x, const S* n_y, const S* n_z, int num_pixels, sensor_msgs::PointCloud2::Ptr& pcloud_msg, S thresh_min, S thresh_max)
+        void remapDepthImage(utils::ECWrapper& cylindrical_points, const T* depths, const U* inds, const S* n_x, const S* n_y, const S* n_z, int num_pixels, bool clearing, sensor_msgs::PointCloud2::Ptr& pcloud_msg, S thresh_min, S thresh_max)
         {
 
             float* x = cylindrical_points.getX();
@@ -140,24 +140,25 @@ namespace egocylindrical
         
         template <bool fill_cloud, typename U, typename S>
         inline
-        void remapDepthImage(utils::ECWrapper& cylindrical_points, const cv::Mat& image, const U* inds, const S* n_x, const S* n_y, const S* n_z, int num_pixels, sensor_msgs::PointCloud2::Ptr& pcloud_msg, S thresh_min, S thresh_max)
+        void remapDepthImage(utils::ECWrapper& cylindrical_points, const cv::Mat& image, const U* inds, const S* n_x, const S* n_y, const S* n_z, int num_pixels, bool clearing, sensor_msgs::PointCloud2::Ptr& pcloud_msg, S thresh_min, S thresh_max)
         {
             if(image.depth() == CV_32FC1)
             {
-                remapDepthImage<float,fill_cloud>(cylindrical_points, (const float*)image.data, inds, n_x, n_y, n_z, num_pixels, pcloud_msg, thresh_min, thresh_max);
+                remapDepthImage<float,fill_cloud>(cylindrical_points, (const float*)image.data, inds, n_x, n_y, n_z, num_pixels, clearing, pcloud_msg, thresh_min, thresh_max);
             }
             else if (image.depth() == CV_16UC1)
             {
-                remapDepthImage<uint16_t,fill_cloud>(cylindrical_points, (const uint16_t*)image.data, inds, n_x, n_y, n_z, num_pixels, pcloud_msg, thresh_min, thresh_max);
+                remapDepthImage<uint16_t,fill_cloud>(cylindrical_points, (const uint16_t*)image.data, inds, n_x, n_y, n_z, num_pixels, clearing, pcloud_msg, thresh_min, thresh_max);
             }
+            //TODO: Add error message on unsuported format
         }
         
         template <bool fill_cloud, typename U, typename S>
         inline
-        void remapDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::Image::ConstPtr& image_msg, const U* inds, const S* n_x, const S* n_y, const S* n_z, int num_pixels, sensor_msgs::PointCloud2::Ptr& pcloud_msg, S thresh_min, S thresh_max)
+        void remapDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::Image::ConstPtr& image_msg, const U* inds, const S* n_x, const S* n_y, const S* n_z, int num_pixels, bool clearing, sensor_msgs::PointCloud2::Ptr& pcloud_msg, S thresh_min, S thresh_max)
         {
             const cv::Mat image = cv_bridge::toCvShare(image_msg)->image;
-            remapDepthImage<fill_cloud>(cylindrical_points, image, inds, n_x, n_y, n_z, num_pixels, pcloud_msg, thresh_min, thresh_max);
+            remapDepthImage<fill_cloud>(cylindrical_points, image, inds, n_x, n_y, n_z, num_pixels, clearing, pcloud_msg, thresh_min, thresh_max);
         }
         
 
@@ -217,6 +218,7 @@ namespace egocylindrical
         inline
         void DepthImageRemapper::update( ECWrapper& cylindrical_points, const sensor_msgs::Image::ConstPtr& image_msg, const sensor_msgs::CameraInfo::ConstPtr& cam_info, sensor_msgs::PointCloud2::Ptr& pcloud_msg, float thresh_min, float thresh_max, bool fill_cloud)
         {
+            bool clearing = true;
             ROS_DEBUG("Updating cylindrical points with depth image");
             
             ros::WallTime start = ros::WallTime::now();
@@ -225,10 +227,10 @@ namespace egocylindrical
             
             if(fill_cloud)
             {
-                utils::remapDepthImage<true>(cylindrical_points, image_msg, inds_.data(), x_.data(), y_.data(), z_.data(), num_pixels_, pcloud_msg, thresh_min, thresh_max);            }
+                utils::remapDepthImage<true>(cylindrical_points, image_msg, inds_.data(), x_.data(), y_.data(), z_.data(), num_pixels_, clearing, pcloud_msg, thresh_min, thresh_max);            }
             else
             {
-                utils::remapDepthImage<false>(cylindrical_points, image_msg, inds_.data(), x_.data(), y_.data(), z_.data(), num_pixels_, pcloud_msg, thresh_min, thresh_max);            }
+                utils::remapDepthImage<false>(cylindrical_points, image_msg, inds_.data(), x_.data(), y_.data(), z_.data(), num_pixels_, clearing, pcloud_msg, thresh_min, thresh_max);            }
             ros::WallTime end = ros::WallTime::now();
             
             ROS_DEBUG_STREAM_NAMED("timing", "Updating camera model took " <<  (mid - start).toSec() * 1e3 << "ms");

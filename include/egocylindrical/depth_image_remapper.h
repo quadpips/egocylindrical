@@ -14,9 +14,18 @@ namespace egocylindrical
 {
     namespace utils
     {
-        
+
+
         class DepthImageRemapper
         {
+        public:
+            
+            struct Params
+            {
+                bool clearing;
+                float thresh_farther;
+                float thresh_closer;
+            };
         private:
             AlignedVector<long int> inds_;
             AlignedVector<float> x_;
