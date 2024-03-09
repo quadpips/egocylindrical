@@ -953,9 +953,38 @@ namespace egocylindrical
             ECWrapper copy() const
             {
                 ECWrapper lh(getParams(), allocate_arrays_);
-                std::copy(getPoints(), getPoints()+3*getNumPts(), lh.getPoints());
-                lh.setHeader(getHeader());
+                // std::copy(getPoints(), getPoints()+3*getNumPts(), lh.getPoints());
+                // lh.setHeader(getHeader());
+                copyContents(lh, *this);
                 return lh;
+            }
+
+            ECWrapper& operator=(const ECWrapper& rhs)
+            {
+                if(&rhs != this) 
+                {
+                    ROS_ASSERT_MSG(!isLocked(), "Error! Cannot use assignment operator on a 'locked' ECWrapper instance!");
+
+                    allocate_arrays_ = rhs.allocate_arrays_;
+                    init(rhs);
+                    // std::copy(getPoints(), getPoints()+3*getNumPts(), lh.getPoints());
+                    // lh.setHeader(getHeader());
+                    copyContents(*this, rhs);
+                }
+                
+                return *this;
+            }
+
+            ECWrapper(const ECWrapper& rhs):
+                ECWrapper(rhs.getParams(), rhs.allocate_arrays_)
+            {
+                copyContents(*this, rhs);
+            }
+
+            static void copyContents(ECWrapper& lhs, const ECWrapper& rhs)
+            {
+                std::copy(rhs.getPoints(), rhs.getPoints()+3*rhs.getNumPts(), lhs.getPoints());
+                lhs.setHeader(rhs.getHeader());
             }
             
             ~ECWrapper()

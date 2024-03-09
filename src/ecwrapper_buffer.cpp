@@ -28,34 +28,77 @@ namespace egocylindrical
       }
     }
 
-
-
     ECWrapperBuffer::ECWrapperBuffer(egocylindrical::PropagatorConfig& config):
         config_(config),
         old_pts_(nullptr)
     {}
 
+    ECWrapperBuffer::~ECWrapperBuffer()
+    {
+
+    }
+
     bool ECWrapperBuffer::init()
     {
+        processing_thread_ = std::make_unique<Thread>(&egocylindrical::ECWrapperBuffer::bufferProcessingThread, this);
+
         ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.init", "Initialize ECWrapperBuffer");
-        // old_pts_buffer_.push(nullptr);
         addNew();
         return true;
     }
 
     utils::ECWrapper::Ptr ECWrapperBuffer::getOld()
     {
+        {
+            Lock lk(old_pnts_mutex_);
+            if(reset_requested_)
+            {
+                old_pts_ = nullptr;
+                reset_requested_ = false;
+            }
+        }
+
         return old_pts_;
+    }
+
+    void ECWrapperBuffer::reset(float block)
+    {
+        {
+            Lock lk(reset_mutex_);
+            reset_requested_ = true;
+        }
+
+        if(block < 0)   //Wait indefinitely
+        {
+            Lock lk(reset_mutex_);
+            old_pnts_cv_.wait(lk, [this]{return reset_requested_;});
+        }
+        else if(block > 0)
+        {
+            Lock lk(reset_mutex_);
+            std::chrono::duration<float> fblock;
+            old_pnts_cv_.wait_for(lk, std::chrono::duration_cast<std::chrono::milliseconds>(fblock), [this]{return reset_requested_;});
+        }
     }
 
     void ECWrapperBuffer::addNew()
     {
-            next_pts_buffer_.push(nullptr);
-            prepareNext();
+        addToBuffer(nullptr);
+    }
+
+    void ECWrapperBuffer::addToBuffer(utils::ECWrapper::Ptr v)
+    {
+        next_pts_buffer_.push(v);
+        next_pts_cv_.notify_one();
     }
 
     utils::ECWrapper::Ptr ECWrapperBuffer::getNew()
     {
+        while(new_pts_buffer_.empty())
+        {
+            ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.getNew", "Waiting for wrapper to become available...");
+            ros::WallDuration(0.01).sleep();
+        }
         if(!new_pts_buffer_.empty())
         {
             ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.getNew", "Retrieving clean, preallocated ECWrapper");
@@ -70,10 +113,6 @@ namespace egocylindrical
             throw std::out_of_range("There must be a valid ECWrapper in [new_pts_buffer_]");
         }
     }
-
-    //utils::ECWrapper::Ptr updatePoints(utils::ECWrapper::Ptr old_pts)
-
-
 
     utils::ECWrapper::Ptr ECWrapperBuffer::reuseOld()
     {
@@ -98,7 +137,7 @@ namespace egocylindrical
     {
         //releaseOld();
         makeNewOld();
-        prepareNext();
+        // prepareNext();
 
         ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.update", "new_pts_buffer: " << new_pts_buffer_.size() << "; next_pts_buffer: " << next_pts_buffer_.size());
     }
@@ -107,9 +146,7 @@ namespace egocylindrical
     void ECWrapperBuffer::releaseOld()
     {
         auto v = old_pts_;
-        // if(v)
         {
-            next_pts_buffer_.push(v);
             if(!v)
             {
                 ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.releaseOld", "Releasing nullptr ECWrapper");
@@ -122,6 +159,8 @@ namespace egocylindrical
             {
                 ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.releaseOld", "Releasing old locked ECWrapper");
             }
+
+            addToBuffer(v);
         }
         // ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.releaseOld", "No old ECWrapper");
     }
@@ -132,46 +171,60 @@ namespace egocylindrical
         old_pts_ = new_pts_;
         // new_pts_buffer_.pop();
         new_pts_ = nullptr;
-        ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.makeNewOld", "'New' becomes 'old', 'New' becomes nullptr");
+        ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.makeNewOld", "'old'='new', 'new'=nullptr");
     }
 
+    // TODO: Move config reconfigure and mutex into separate class used by this and main class
     utils::ECWrapper::Ptr ECWrapperBuffer::createNew()
     {
         ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.createNew", "Create new ECWrapper with current config");
         return utils::getECWrapper(config_);
     }
 
-    //In the future, this can be done by separate thread as triggered by condition variable
-    void ECWrapperBuffer::prepareNext()
-    {
-        while(!next_pts_buffer_.empty())
-        {
-            auto v = next_pts_buffer_.front();
-            next_pts_buffer_.pop();
 
-            if(v)
+    void ECWrapperBuffer::bufferProcessingThread()
+    {
+        while(true || ros::ok())
+        {
+            // Wait until object added to buffer
+            Lock lk(next_pts_mutex_);
+            next_pts_cv_.wait_for(lk, std::chrono::seconds(1));
+        
+            while(!next_pts_buffer_.empty())
             {
-                if(!v->isLocked())
+                ros::WallTime t1 = ros::WallTime::now();
+                auto v = next_pts_buffer_.front();
+                next_pts_buffer_.pop();
+
+                if(v)
                 {
-                    v->init(getParams(config_), true);
-                    ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.prepareNext", "Reuse old ECWrapper for next time");
+                    if(!v->isLocked())
+                    {
+                        v->init(getParams(config_), true);
+                        ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.prepareNext", "Reuse old ECWrapper for next time");
+                    }
+                    else
+                    {
+                        v = createNew();
+                        ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.prepareNext", "Cannot reuse old locked ECWrapper, create new one");
+                    }
                 }
                 else
                 {
                     v = createNew();
-                    ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.prepareNext", "Cannot reuse old locked ECWrapper, create new one");
+                    ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.makprepareNexteNewOld", "No old ECWrapper to reuse, create new one");
                 }
-            }
-            else
-            {
-                v = createNew();
-                ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.makprepareNexteNewOld", "No old ECWrapper to reuse, create new one");
-            }
 
-            new_pts_buffer_.push(v);
+                ros::WallTime t2 = ros::WallTime::now();
+                ROS_DEBUG_STREAM_NAMED("timing", "Allocating wrapper took " << (t2-t1).toSec()*1000 << "ms");
+
+                new_pts_buffer_.push(v);
+            }
         }
 
     }
+
+
 
     // class ECWrapperUpdateLogic
     // {
