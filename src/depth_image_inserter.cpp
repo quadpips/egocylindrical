@@ -437,11 +437,11 @@ namespace egocylindrical
 
             if(image.depth() == CV_32FC1)
             {
-                insertPoints6<float>(cylindrical_points, image, cam_model, transform, request);
+                insertPoints6<float>(cylindrical_points, image, *image_msg, cam_model, transform, request);
             }
             else if (image.depth() == CV_16UC1)
             {
-                insertPoints6<uint16_t>(cylindrical_points, image, cam_model, transform, request);
+                insertPoints6<uint16_t>(cylindrical_points, image, *image_msg, cam_model, transform, request);
             }
         }
 
@@ -463,8 +463,8 @@ namespace egocylindrical
         bool DepthImageInserter::init(std::string fixed_frame_id)
         {
             fixed_frame_id_ = fixed_frame_id;
-            pub_diff_ = pnh_.advertise<sensor_msgs::PointCloud2>("diff_points",2);
-
+            pub_diff_pc_ = pnh_.advertise<sensor_msgs::PointCloud2>("diff_points",2);
+            pub_diff_im_ = pnh_.advertise<sensor_msgs::Image>("diff_im", 2);
             return true;
         }
         
@@ -507,12 +507,17 @@ namespace egocylindrical
             request.params.neg_eps = -0.05;
             request.params.pos_eps = 0.05;
             request.params.fill_cloud = true;
+            request.params.fill_im = true;
 
             // sensor_msgs::PointCloud2::Ptr pcloud_msg = boost::make_shared<sensor_msgs::PointCloud2>();
             insertPoints(cylindrical_points, image_msg, cam_model_, transform, request);
             auto pcloud_msg = request.results.point_cloud;
             pcloud_msg->header = target_header; //image_msg->header;
-            pub_diff_.publish(pcloud_msg);
+            pub_diff_pc_.publish(pcloud_msg);
+
+            auto depthim_msg = request.results.depth_image;
+            // depthim_msg->header
+            pub_diff_im_.publish(depthim_msg);
 
             return true;
         }

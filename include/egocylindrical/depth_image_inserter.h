@@ -25,7 +25,7 @@ namespace egocylindrical
             ros::NodeHandle pnh_;
             CleanCameraModel cam_model_;
             utils::DepthImageRemapper depth_remapper_;
-            ros::Publisher pub_diff_;
+            ros::Publisher pub_diff_pc_, pub_diff_im_;
           
         public:
             DepthImageInserter(tf2_ros::Buffer& buffer, ros::NodeHandle pnh);

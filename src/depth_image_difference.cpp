@@ -12,23 +12,61 @@
 
 #include <cstdlib>
 
+#include <tf2/LinearMath/Transform.h>
+
+
+namespace tf2
+{
+    //Both functions copied from tf2/src/buffer_core.cpp; ideally, tf2 would declare them in a header so we could just use them directly
+
+    void transformMsgToTF2(const geometry_msgs::Transform& msg, tf2::Transform& tf2)
+    {tf2 = tf2::Transform(tf2::Quaternion(msg.rotation.x, msg.rotation.y, msg.rotation.z, msg.rotation.w), tf2::Vector3(msg.translation.x, msg.translation.y, msg.translation.z));}
+
+    /** \brief convert Transform to Transform msg*/
+    void transformTF2ToMsg(const tf2::Transform& tf2, geometry_msgs::Transform& msg)
+    {
+        msg.translation.x = tf2.getOrigin().x();
+        msg.translation.y = tf2.getOrigin().y();
+        msg.translation.z = tf2.getOrigin().z();
+        msg.rotation.x = tf2.getRotation().x();
+        msg.rotation.y = tf2.getRotation().y();
+        msg.rotation.z = tf2.getRotation().z();
+        msg.rotation.w = tf2.getRotation().w();
+    }
+}
 
 
 namespace egocylindrical
 {
     namespace utils
     {
+        
+
+        geometry_msgs::TransformStamped getInverse(const geometry_msgs::TransformStamped& transform_msg)
+        {
+            tf2::Transform transform;
+            transformMsgToTF2(transform_msg.transform, transform);
+            geometry_msgs::TransformStamped inverted_transform_msg;
+            tf2::transformTF2ToMsg(transform.inverse(), inverted_transform_msg.transform);
+            inverted_transform_msg.header.stamp = transform_msg.header.stamp;
+            inverted_transform_msg.header.frame_id = transform_msg.child_frame_id;
+            inverted_transform_msg.child_frame_id = transform_msg.header.frame_id;
+
+            return inverted_transform_msg;
+        }
 
         //immediate insert
         template <typename T>
-        void insertPoints6(utils::ECWrapper& cylindrical_points, const cv::Mat image, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request)
+        void insertPoints6(utils::ECWrapper& cylindrical_points, const cv::Mat& image, const sensor_msgs::Image& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request)
         {
             auto neg_eps = request.params.neg_eps;
             auto pos_eps = request.params.pos_eps;
             
             bool fill_cloud = request.params.fill_cloud;
+            bool fill_im = request.params.fill_im;
 
             sensor_msgs::PointCloud2::Ptr& pcloud_msg = request.results.point_cloud;
+            sensor_msgs::Image::Ptr& gen_im_msg = request.results.depth_image;
 
             cv::Size image_size = cam_model.reducedResolution();
             int image_width = image_size.width;
@@ -43,8 +81,25 @@ namespace egocylindrical
             
             const uint scale = DepthScale<T>::scale();
 
+            PointTransformerObject inverse_point_transformer(getInverse(transform));
 
-            float* data;
+            // T* gen_im_data;
+            // if(fill_im)
+            // {
+            //     const int num_pixels = image_width * image_height;
+            //     gen_im_msg = boost::make_shared<sensor_msgs::Image>();
+            //     gen_im_msg->data.resize(sizeof(T) * num_pixels);
+            //     gen_im_data = (T*) gen_im_msg->data.data();
+            // }
+
+            cv::Mat gen_im_mat;//(image.rows(), image.cols(), image.type());
+            if(fill_im)
+            {
+                gen_im_mat = cv::Mat(image.rows, image.cols, image.type());
+            }
+            
+
+            float* pc_data;
             if(fill_cloud)
             {
                 const int num_pixels = image_width * image_height;
@@ -53,7 +108,7 @@ namespace egocylindrical
                 pcl::toROSMsg(pcloud, *pcloud_msg);
                 pcloud_msg->data.resize(sizeof(pcl::PointXYZ) * num_pixels);
                 pcloud_msg->is_dense = true;  //should be false, but seems to work with true
-                data = (float*) pcloud_msg->data.data();
+                pc_data = (float*) pcloud_msg->data.data();
             }
 
             int pc_counter = 0;
@@ -88,7 +143,7 @@ namespace egocylindrical
                             
                             float range = std::sqrt(range_sq);
                             float prev_range = std::sqrt(prev_range_sq);
-                            
+
                             bool vr = !std::isnan(range);
                             bool vpr = !std::isnan(prev_range);
 
@@ -114,6 +169,13 @@ namespace egocylindrical
                                 x[cyl_idx] = transformed_pnt.x;
                                 y[cyl_idx] = transformed_pnt.y;
                                 z[cyl_idx] = transformed_pnt.z;
+                            }
+
+                            if(fill_im)
+                            {
+                                auto pp = inverse_point_transformer.transform(prev_point);
+                                // gen_im_data[i + j*image_width] = (T)(scale * pp.z);
+                                gen_im_mat.at<T>(i,j) = (T)(scale * pp.z);
                             }
                         }
                         else
@@ -156,16 +218,21 @@ namespace egocylindrical
                                     z[cyl_idx] = transformed_pnt.z;
                                 }
                             }
+                            //TODO: fill in gen_im_data hear
                         }
 
                         if(save_point)
                         {
-                            data[4*j] = transformed_pnt.x;
-                            data[4*j+1] = transformed_pnt.y;
-                            data[4*j+2] = transformed_pnt.z;
-                            data[4*j+3] = 1;  //Not necessary, only include if improves performance
-                        
-                            ++pc_counter;
+                            //TODO: Move this logic to separate class?
+                            if(fill_cloud)
+                            {
+                                pc_data[4*j] = transformed_pnt.x;
+                                pc_data[4*j+1] = transformed_pnt.y;
+                                pc_data[4*j+2] = transformed_pnt.z;
+                                pc_data[4*j+3] = 1;  //Not necessary, only include if improves performance
+                            
+                                ++pc_counter;
+                            }
                         }
                     }
                     
@@ -179,6 +246,19 @@ namespace egocylindrical
                 pcloud_msg->height = 1;
                 pcloud_msg->data.resize(sizeof(pcl::PointXYZ)*pc_counter);
                 pcloud_msg->row_step = static_cast<uint32_t> (sizeof (pcl::PointXYZ) * pcloud_msg->width);
+            }
+
+            if(fill_im)
+            {
+                cv_bridge::CvImage cvim;
+                cvim.image = gen_im_mat;
+                cvim.header = image_msg.header;
+                cvim.encoding = image_msg.encoding;
+                gen_im_msg = cvim.toImageMsg();
+                // const int num_pixels = image_width * image_height;
+                // gen_im_msg = boost::make_shared<sensor_msgs::Image>();
+                // gen_im_msg->data.resize(sizeof(T) * num_pixels);
+                // gen_im_data = (T*) gen_im_msg->data.data();
             }
         }
 
