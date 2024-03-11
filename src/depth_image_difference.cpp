@@ -21,8 +21,15 @@ namespace egocylindrical
 
         //immediate insert
         template <typename T>
-        void insertPoints6(utils::ECWrapper& cylindrical_points, const cv::Mat image, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, float neg_eps, float pos_eps,  sensor_msgs::PointCloud2::Ptr& pcloud_msg)
+        void insertPoints6(utils::ECWrapper& cylindrical_points, const cv::Mat image, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request)
         {
+            auto neg_eps = request.params.neg_eps;
+            auto pos_eps = request.params.pos_eps;
+            
+            bool fill_cloud = request.params.fill_cloud;
+
+            sensor_msgs::PointCloud2::Ptr& pcloud_msg = request.results.point_cloud;
+
             cv::Size image_size = cam_model.reducedResolution();
             int image_width = image_size.width;
             int image_height = image_size.height;
@@ -36,7 +43,6 @@ namespace egocylindrical
             
             const uint scale = DepthScale<T>::scale();
 
-            bool fill_cloud = true;
 
             float* data;
             if(fill_cloud)

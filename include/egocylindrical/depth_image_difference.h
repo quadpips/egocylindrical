@@ -14,8 +14,26 @@ namespace egocylindrical
     namespace utils
     {
 
+        struct DIDiffParams
+        {
+            float neg_eps, pos_eps;
+            bool fill_cloud;
+        };
+
+        struct DIDiffResults
+        {
+            sensor_msgs::PointCloud2::Ptr point_cloud;
+            sensor_msgs::Image::Ptr depth_image;
+        };
+
+        struct DIDiffRequest
+        {
+            DIDiffParams params;
+            DIDiffResults results;
+        };
+
         template <typename T>
-        void insertPoints6(utils::ECWrapper& cylindrical_points, const cv::Mat image, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, float neg_eps, float pos_eps,  sensor_msgs::PointCloud2::Ptr& pcloud_msg);
+        void insertPoints6(utils::ECWrapper& cylindrical_points, const cv::Mat image, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request);
 
     }
 
