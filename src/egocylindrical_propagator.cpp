@@ -14,15 +14,15 @@ namespace egocylindrical
         //TODO: Make ecwrapper pointers into local variables
         old_pts_ = wrapper_buffer_.getOld();
         
-        //TODO: Reset between runs so that the reset function returns once reset is complete
-        {
-            WriteLock lock(reset_mutex_);
-            if(should_reset_)
-            {
-                old_pts_ = nullptr;
-                should_reset_ = false;
-            }
-        }
+        // //TODO: Reset between runs so that the reset function returns once reset is complete
+        // {
+        //     WriteLock lock(reset_mutex_);
+        //     if(should_reset_)
+        //     {
+        //         old_pts_ = nullptr;
+        //         should_reset_ = false;
+        //     }
+        // }
         
         auto measurement_header = measurement.header;
         auto new_stamp = measurement_header.stamp;
@@ -132,8 +132,9 @@ namespace egocylindrical
     
     void EgoCylindricalPropagator::reset()
     {
-        WriteLock lock(reset_mutex_);
-        should_reset_ = true;
+        // WriteLock lock(reset_mutex_);
+        // should_reset_ = true;
+        wrapper_buffer_.reset();
     }
     
     void EgoCylindricalPropagator::configCB(const egocylindrical::PropagatorConfig &config, uint32_t level)
@@ -163,7 +164,7 @@ namespace egocylindrical
         wrapper_buffer_.init();
 
         
-        reset_sub_ = nh_.subscribe<std_msgs::Empty>("reset", 1, [this](const std_msgs::Empty::ConstPtr&) { reset(); });
+        reset_sub_ = nh_.subscribe<std_msgs::Empty>("reset", 1, [this](const std_msgs::Empty::ConstPtr&) { wrapper_buffer_.reset(2); });
 
         // Setup publishers
         ros::SubscriberStatusCallback image_cb = boost::bind(&EgoCylindricalPropagator::connectCB, this);        

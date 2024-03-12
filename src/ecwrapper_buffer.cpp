@@ -50,11 +50,13 @@ namespace egocylindrical
     utils::ECWrapper::Ptr ECWrapperBuffer::getOld()
     {
         {
-            Lock lk(old_pnts_mutex_);
+            // Lock lk(old_pnts_mutex_);
+            Lock lk(reset_mutex_);
             if(reset_requested_)
             {
                 old_pts_ = nullptr;
                 reset_requested_ = false;
+                old_pnts_cv_.notify_all();
             }
         }
 
@@ -97,6 +99,7 @@ namespace egocylindrical
         while(new_pts_buffer_.empty())
         {
             ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.getNew", "Waiting for wrapper to become available...");
+            addNew();
             ros::WallDuration(0.01).sleep();
         }
         if(!new_pts_buffer_.empty())
