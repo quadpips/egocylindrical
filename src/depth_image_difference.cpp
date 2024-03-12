@@ -95,7 +95,7 @@ namespace egocylindrical
             cv::Mat gen_im_mat;//(image.rows(), image.cols(), image.type());
             if(fill_im)
             {
-                gen_im_mat = cv::Mat(image.rows, image.cols, image.type());
+                gen_im_mat = cv::Mat(image.rows, image.cols, image.type(), dNaN);
             }
             
 
@@ -218,7 +218,7 @@ namespace egocylindrical
                                     z[cyl_idx] = transformed_pnt.z;
                                 }
                             }
-                            //TODO: fill in gen_im_data hear
+                            //TODO: fill in gen_im_data here
                         }
 
                         if(save_point)
