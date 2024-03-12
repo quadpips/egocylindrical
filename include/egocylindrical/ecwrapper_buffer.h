@@ -11,10 +11,6 @@
 #include <condition_variable>
 #include <thread>
 
-// #include <boost/thread/shared_mutex.hpp>
-// #include <boost/thread/locks.hpp>
-
-
 
 namespace egocylindrical
 {
@@ -26,14 +22,13 @@ namespace egocylindrical
 
         using Mutex = std::mutex;
         using Lock = std::unique_lock<Mutex>;
-        Mutex config_mutex_, reset_mutex_;
-
         using ConditionVar = std::condition_variable;
+        
         Mutex next_pts_mutex_;
         ConditionVar next_pts_cv_;
 
-        Mutex old_pnts_mutex_;
-        ConditionVar old_pnts_cv_;
+        Mutex reset_mutex_;
+        ConditionVar reset_cv_;
         bool reset_requested_;
 
         using Thread = std::thread;
@@ -72,9 +67,6 @@ namespace egocylindrical
 
         utils::ECWrapper::Ptr createNew();
 
-        //In the future, this can be done by separate thread as triggered by condition variable
-        // void prepareNext();
-
         void bufferProcessingThread();
 
     public:
@@ -84,37 +76,12 @@ namespace egocylindrical
     protected:
         egocylindrical::PropagatorConfig& config_;
 
-        std::queue<utils::ECWrapper::Ptr> new_pts_buffer_, next_pts_buffer_; //old_pts_buffer_,
+        std::queue<utils::ECWrapper::Ptr> new_pts_buffer_, next_pts_buffer_;
         
         utils::ECWrapper::Ptr old_pts_, new_pts_;
 
 
     };
-
-    // class ECWrapperUpdateLogic
-    // {
-    //
-    // public:
-    //     ECWrapperUpdateLogic(egocylindrical::PropagatorConfig& config):
-    //         config_(config)
-    //         buffers_(config)
-    //     {}
-    //
-    //     void update(std_msgs::Header target_header, utils::SensorMeasurement& measurement)
-    //     {
-    //         utils::ECWrapper::Ptr old_pts = buffers_.getOld();
-    //         utils::ECWrapper::Ptr new_pts;
-    //         if(old_pts && measurement.raytrace)
-    //         {
-    //             new_pts = buffers_.getNew();
-    //             pp_.transform(*old_pts, *new_pts, target_header, config_.num_threads);
-    //         }
-    //     }
-    //
-    // protected:
-    //     egocylindrical::PropagatorConfig& config_;
-    //     ECWrapperBuffer buffers_;
-    // };
 
 }   //end namespace egocylindrical
 

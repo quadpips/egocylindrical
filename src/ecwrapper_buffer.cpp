@@ -50,13 +50,12 @@ namespace egocylindrical
     utils::ECWrapper::Ptr ECWrapperBuffer::getOld()
     {
         {
-            // Lock lk(old_pnts_mutex_);
             Lock lk(reset_mutex_);
             if(reset_requested_)
             {
                 old_pts_ = nullptr;
                 reset_requested_ = false;
-                old_pnts_cv_.notify_all();
+                reset_cv_.notify_all();
             }
         }
 
@@ -73,13 +72,13 @@ namespace egocylindrical
         if(block < 0)   //Wait indefinitely
         {
             Lock lk(reset_mutex_);
-            old_pnts_cv_.wait(lk, [this]{return reset_requested_;});
+            reset_cv_.wait(lk, [this]{return reset_requested_;});
         }
         else if(block > 0)
         {
             Lock lk(reset_mutex_);
             std::chrono::duration<float> fblock;
-            old_pnts_cv_.wait_for(lk, std::chrono::duration_cast<std::chrono::milliseconds>(fblock), [this]{return reset_requested_;});
+            reset_cv_.wait_for(lk, std::chrono::duration_cast<std::chrono::milliseconds>(fblock), [this]{return reset_requested_;});
         }
     }
 
@@ -138,13 +137,10 @@ namespace egocylindrical
 
     void ECWrapperBuffer::update()
     {
-        //releaseOld();
         makeNewOld();
-        // prepareNext();
 
         ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.update", "new_pts_buffer: " << new_pts_buffer_.size() << "; next_pts_buffer: " << next_pts_buffer_.size());
     }
-
 
     void ECWrapperBuffer::releaseOld()
     {
@@ -165,14 +161,11 @@ namespace egocylindrical
 
             addToBuffer(v);
         }
-        // ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.releaseOld", "No old ECWrapper");
     }
-
 
     void ECWrapperBuffer::makeNewOld()
     {
         old_pts_ = new_pts_;
-        // new_pts_buffer_.pop();
         new_pts_ = nullptr;
         ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.makeNewOld", "'old'='new', 'new'=nullptr");
     }
@@ -183,7 +176,6 @@ namespace egocylindrical
         ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.createNew", "Create new ECWrapper with current config");
         return utils::getECWrapper(config_);
     }
-
 
     void ECWrapperBuffer::bufferProcessingThread()
     {
@@ -226,32 +218,5 @@ namespace egocylindrical
         }
 
     }
-
-
-
-    // class ECWrapperUpdateLogic
-    // {
-    //
-    // public:
-    //     ECWrapperUpdateLogic(egocylindrical::PropagatorConfig& config):
-    //         config_(config)
-    //         buffers_(config)
-    //     {}
-    //
-    //     void update(std_msgs::Header target_header, utils::SensorMeasurement& measurement)
-    //     {
-    //         utils::ECWrapper::Ptr old_pts = buffers_.getOld();
-    //         utils::ECWrapper::Ptr new_pts;
-    //         if(old_pts && measurement.raytrace)
-    //         {
-    //             new_pts = buffers_.getNew();
-    //             pp_.transform(*old_pts, *new_pts, target_header, config_.num_threads);
-    //         }
-    //     }
-    //
-    // protected:
-    //     egocylindrical::PropagatorConfig& config_;
-    //     ECWrapperBuffer buffers_;
-    // };
 
 }   //end namespace egocylindrical
