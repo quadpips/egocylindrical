@@ -495,6 +495,14 @@ target_link_libraries(egocylindrical_range_image_converter_nodelet
    )
 
 
+add_executable(range_image_dilator_node src/range_image_dilator_node.cpp
+            src/range_image_dilator_generator.cpp
+            src/range_image_dilator_core.cpp)
+add_dependencies(range_image_dilator_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(range_image_dilator_node
+   ${catkin_LIBRARIES}
+   )
+
 add_executable(sensor_collection_tester src/sensor_collection_tester)
 add_dependencies(sensor_collection_tester ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(sensor_collection_tester
