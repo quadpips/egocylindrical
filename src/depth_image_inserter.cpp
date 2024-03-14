@@ -435,14 +435,15 @@ namespace egocylindrical
         {
             const cv::Mat image = cv_bridge::toCvShare(image_msg)->image;
             insertPoints6(cylindrical_points, image, *image_msg, cam_model, transform, request);
-//             if(image.depth() == CV_32FC1)
-//             {
-//                 insertPoints6<float>(cylindrical_points, image, *image_msg, cam_model, transform, request);
-//             }
-//             else if (image.depth() == CV_16UC1)
-//             {
-//                 insertPoints6<uint16_t>(cylindrical_points, image, *image_msg, cam_model, transform, request);
-//             }
+
+            if(image.depth() == CV_32FC1)
+            {
+                insertPoints4<float>(cylindrical_points, image, cam_model, transform);
+            }
+            else if (image.depth() == CV_16UC1)
+            {
+                insertPoints4<uint16_t>(cylindrical_points, image, cam_model, transform);
+            }
         }
 
         

@@ -64,9 +64,9 @@ namespace egocylindrical
 
         //immediate insert
         template <typename T>
-        void insertPoints6_impl(utils::ECWrapper& original_cylindrical_points, const cv::Mat& image, const sensor_msgs::Image& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request)
+        void insertPoints6_impl(const utils::ECWrapper& original_cylindrical_points, const cv::Mat& image, const sensor_msgs::Image& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request)
         {
-            auto getDilatedPoints = [&request](utils::ECWrapper& cyl_points)    //  utils::ECWrapperPtr
+            auto getDilatedPoints = [&request](const utils::ECWrapper& cyl_points)    //  utils::ECWrapperPtr
             {
                 ros::WallTime range_start = ros::WallTime::now();
                 sensor_msgs::Image::Ptr range_image_ptr = utils::getRawRangeImageMsg(cyl_points, 1);
@@ -202,9 +202,9 @@ namespace egocylindrical
 
                             if(!(prev_range_sq <= range_sq)) //overwrite || 
                             {   
-                                x[cyl_idx] = transformed_pnt.x;
-                                y[cyl_idx] = transformed_pnt.y;
-                                z[cyl_idx] = transformed_pnt.z;
+//                                 x[cyl_idx] = transformed_pnt.x;
+//                                 y[cyl_idx] = transformed_pnt.y;
+//                                 z[cyl_idx] = transformed_pnt.z;
                             }
 
                             if(fill_im)
@@ -249,9 +249,9 @@ namespace egocylindrical
                                 if(!(prev_can_depth <= can_depth)) //overwrite || 
                                 {   
                                     
-                                    x[cyl_idx] = transformed_pnt.x;
-                                    y[cyl_idx] = transformed_pnt.y;
-                                    z[cyl_idx] = transformed_pnt.z;
+//                                     x[cyl_idx] = transformed_pnt.x;
+//                                     y[cyl_idx] = transformed_pnt.y;
+//                                     z[cyl_idx] = transformed_pnt.z;
                                 }
                             }
                             //TODO: fill in gen_im_data here
@@ -299,7 +299,7 @@ namespace egocylindrical
         }
 
 
-        void insertPoints6(utils::ECWrapper& cylindrical_points, const cv::Mat& image, const sensor_msgs::Image& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request)
+        void insertPoints6(const utils::ECWrapper& cylindrical_points, const cv::Mat& image, const sensor_msgs::Image& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request)
         {
             if(image.depth() == CV_32FC1)
             {
