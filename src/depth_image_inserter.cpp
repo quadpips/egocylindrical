@@ -1,5 +1,5 @@
 #include <egocylindrical/depth_image_inserter.h>
-#include "depth_image_difference.cpp"
+// #include "depth_image_difference.cpp"
 
 #include <egocylindrical/point_transformer_object.h>
 #include <egocylindrical/depth_image_common.h>
@@ -434,15 +434,15 @@ namespace egocylindrical
         void insertPoints(utils::ECWrapper& cylindrical_points, const sensor_msgs::Image::ConstPtr& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request)
         {
             const cv::Mat image = cv_bridge::toCvShare(image_msg)->image;
-
-            if(image.depth() == CV_32FC1)
-            {
-                insertPoints6<float>(cylindrical_points, image, *image_msg, cam_model, transform, request);
-            }
-            else if (image.depth() == CV_16UC1)
-            {
-                insertPoints6<uint16_t>(cylindrical_points, image, *image_msg, cam_model, transform, request);
-            }
+            insertPoints6(cylindrical_points, image, *image_msg, cam_model, transform, request);
+//             if(image.depth() == CV_32FC1)
+//             {
+//                 insertPoints6<float>(cylindrical_points, image, *image_msg, cam_model, transform, request);
+//             }
+//             else if (image.depth() == CV_16UC1)
+//             {
+//                 insertPoints6<uint16_t>(cylindrical_points, image, *image_msg, cam_model, transform, request);
+//             }
         }
 
         
@@ -465,6 +465,7 @@ namespace egocylindrical
             fixed_frame_id_ = fixed_frame_id;
             pub_diff_pc_ = pnh_.advertise<sensor_msgs::PointCloud2>("diff_points",2);
             pub_diff_im_ = pnh_.advertise<sensor_msgs::Image>("diff_im", 2);
+            debug_pub_.init(pnh_);
             return true;
         }
         
@@ -508,6 +509,7 @@ namespace egocylindrical
             request.params.pos_eps = 0.05;
             request.params.fill_cloud = true;
             request.params.fill_im = true;
+            request.params.fill_debug = true;
 
             // sensor_msgs::PointCloud2::Ptr pcloud_msg = boost::make_shared<sensor_msgs::PointCloud2>();
             insertPoints(cylindrical_points, image_msg, cam_model_, transform, request);
@@ -518,6 +520,8 @@ namespace egocylindrical
             auto depthim_msg = request.results.depth_image;
             // depthim_msg->header
             pub_diff_im_.publish(depthim_msg);
+
+            debug_pub_.publish(request.results.debug);
 
             return true;
         }

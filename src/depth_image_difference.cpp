@@ -14,6 +14,13 @@
 
 #include <tf2/LinearMath/Transform.h>
 
+//These are only needed to get dilatedPoints()
+#include <egocylindrical/range_image_core.h>
+#include <egocylindrical/range_image_dilator_core.h>
+#include <egocylindrical/range_image_core.h>
+#include <egocylindrical/range_to_points.h>
+
+
 
 namespace tf2
 {
@@ -57,8 +64,37 @@ namespace egocylindrical
 
         //immediate insert
         template <typename T>
-        void insertPoints6(utils::ECWrapper& cylindrical_points, const cv::Mat& image, const sensor_msgs::Image& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request)
+        void insertPoints6_impl(const utils::ECWrapper& original_cylindrical_points, const cv::Mat& image, const sensor_msgs::Image& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request)
         {
+            auto getDilatedPoints = [&request](utils::ECWrapper& cyl_points)    //  utils::ECWrapperPtr
+            {
+                ros::WallTime range_start = ros::WallTime::now();
+                sensor_msgs::Image::Ptr range_image_ptr = utils::getRawRangeImageMsg(cyl_points, 1);
+                request.results.debug.range_image = range_image_ptr;
+
+                ros::WallTime dilate_start = ros::WallTime::now();
+                sensor_msgs::Image::Ptr dilated_image_ptr = dilateImage(range_image_ptr);
+                request.results.debug.dilated_range_image = dilated_image_ptr;
+
+                ros::WallTime wrapper_start = ros::WallTime::now();
+                ECMsgConstPtr info = cyl_points.getEgoCylinderInfoMsg();
+                utils::ECWrapperPtr ec_pts = utils::range_image_to_wrapper(info, range_image_ptr, nullptr);
+
+                ros::WallTime end_time = ros::WallTime::now();
+
+                ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Generating range image took " <<  (dilate_start - range_start).toSec() * 1e3 << "ms");
+                ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Dilating range image took " <<  (wrapper_start - dilate_start).toSec() * 1e3 << "ms");
+                ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Converting dilated range image to wrapper took " <<  (end_time - wrapper_start).toSec() * 1e3 << "ms");
+                ROS_INFO_STREAM_NAMED("depth_diff.timing", "Total dilation process took " <<  (end_time - range_start).toSec() * 1e3 << "ms");
+
+                return ec_pts;
+            };
+
+            utils::ECWrapper::Ptr cylindrical_points_ptr = getDilatedPoints(original_cylindrical_points);
+//             auto& cylindrical_points = original_cylindrical_points;
+            auto& cylindrical_points = *cylindrical_points_ptr;
+
+
             auto neg_eps = request.params.neg_eps;
             auto pos_eps = request.params.pos_eps;
             
@@ -263,6 +299,18 @@ namespace egocylindrical
         }
 
 
+        void insertPoints6(utils::ECWrapper& cylindrical_points, const cv::Mat& image, const sensor_msgs::Image& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request)
+        {
+            if(image.depth() == CV_32FC1)
+            {
+                insertPoints6_impl<float>(cylindrical_points, image, image_msg, cam_model, transform, request);
+            }
+            else if (image.depth() == CV_16UC1)
+            {
+                insertPoints6_impl<uint16_t>(cylindrical_points, image, image_msg, cam_model, transform, request);
+            }
+            ROS_DEBUG_STREAM("Finished inserting points and stuff");
+        }
 
         // template <uint16_t>
         // void insertPoints6(utils::ECWrapper& cylindrical_points, const cv::Mat image, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, float neg_eps, float pos_eps,  sensor_msgs::PointCloud2::Ptr& pcloud_msg);

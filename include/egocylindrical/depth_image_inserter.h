@@ -3,6 +3,8 @@
 
 #include <egocylindrical/depth_image_remapper.h>
 #include <egocylindrical/depth_image_common.h>
+#include <egocylindrical/depth_image_difference_debugging_publisher.h>
+
 #include <egocylindrical/ecwrapper.h>
 
 #include <ros/node_handle.h>
@@ -26,6 +28,7 @@ namespace egocylindrical
             CleanCameraModel cam_model_;
             utils::DepthImageRemapper depth_remapper_;
             ros::Publisher pub_diff_pc_, pub_diff_im_;
+            DIDiffDebuggingPublisher debug_pub_;
           
         public:
             DepthImageInserter(tf2_ros::Buffer& buffer, ros::NodeHandle pnh);

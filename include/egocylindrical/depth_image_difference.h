@@ -17,13 +17,20 @@ namespace egocylindrical
         struct DIDiffParams
         {
             float neg_eps, pos_eps;
-            bool fill_cloud=false, fill_im=false;
+            bool fill_cloud=false, fill_im=false, fill_debug=false;
+        };
+
+        struct DIDiffDebugging
+        {
+            sensor_msgs::PointCloud2::Ptr point_cloud, dilated_point_cloud;
+            sensor_msgs::Image::Ptr depth_image, range_image, dilated_range_image;
         };
 
         struct DIDiffResults
         {
             sensor_msgs::PointCloud2::Ptr point_cloud;
             sensor_msgs::Image::Ptr depth_image;
+            DIDiffDebugging debug;
         };
 
         struct DIDiffRequest
@@ -32,7 +39,6 @@ namespace egocylindrical
             DIDiffResults results;
         };
 
-        template <typename T>
         void insertPoints6(utils::ECWrapper& cylindrical_points, const cv::Mat& image, const sensor_msgs::Image& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request);
 
     }

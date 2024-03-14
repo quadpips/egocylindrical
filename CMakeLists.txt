@@ -232,6 +232,39 @@ target_link_libraries(depth_image_remapper
    ${OpenCV_LIBRARIES}
    ${OpenMP_CXX_FLAGS}
    )
+
+
+add_library(range_image_dilator src/range_image_dilator_generator.cpp
+            src/range_image_dilator_core.cpp)
+add_dependencies(range_image_dilator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_compile_options(range_image_dilator PRIVATE)
+target_link_libraries(range_image_dilator
+   ${catkin_LIBRARIES}
+   )
+
+#RANGE_IMAGE_CONVERTER
+add_library(range_image_converter src/range_image_converter.cpp)
+add_dependencies(range_image_converter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(range_image_converter
+   ${catkin_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
+
+
+add_library(depth_image_difference src/depth_image_difference.cpp
+            src/depth_image_difference_debugging_publisher.cpp)
+add_dependencies(depth_image_difference ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_compile_options(depth_image_difference PRIVATE -O0 -g)
+target_compile_definitions(depth_image_difference PRIVATE ${PLATFORM_FLAGS} )
+target_link_libraries(depth_image_difference
+   range_image_core
+   range_image_dilator
+   range_image_converter
+   ${catkin_LIBRARIES}
+   ${OpenCV_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
+
    
 add_library(depth_image_inserter src/depth_image_inserter.cpp)
 #add_dependencies(depth_image_inserter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -240,6 +273,7 @@ add_library(depth_image_inserter src/depth_image_inserter.cpp)
 target_compile_definitions(depth_image_inserter PRIVATE ${PLATFORM_FLAGS})
 target_link_libraries(depth_image_inserter
    depth_image_remapper
+   depth_image_difference
    ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
    ${OpenMP_CXX_FLAGS}
@@ -292,7 +326,7 @@ target_link_libraries(ecwrapper_buffer
 #EGOCYLINDRICAL_PROPAGATOR
 add_library(egocylindrical_propagator src/egocylindrical_propagator.cpp)
 add_dependencies(egocylindrical_propagator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_compile_options(egocylindrical_propagator PRIVATE -g -O0 -ftree-vectorize -funsafe-math-optimizations ${OpenMP_CXX_FLAGS}
+target_compile_options(egocylindrical_propagator PRIVATE -g -ftree-vectorize -funsafe-math-optimizations ${OpenMP_CXX_FLAGS}
    )
 target_compile_definitions(egocylindrical_propagator PRIVATE ${PLATFORM_FLAGS})
 target_link_libraries(egocylindrical_propagator
@@ -428,14 +462,14 @@ target_link_libraries(range_image_nodelet
    
    
    
-#RANGE_IMAGE_CONVERTER
-add_library(range_image_converter src/range_image_converter.cpp)
-add_dependencies(range_image_converter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(range_image_converter
-   ${catkin_LIBRARIES}
-   ${OpenMP_CXX_FLAGS}
-   )
-  
+##RANGE_IMAGE_CONVERTER
+# add_library(range_image_converter src/range_image_converter.cpp)
+# add_dependencies(range_image_converter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# target_link_libraries(range_image_converter
+#    ${catkin_LIBRARIES}
+#    ${OpenMP_CXX_FLAGS}
+#    )
+
 #RANGE_IMAGE_CONVERTER_NODE
 add_executable(range_image_converter_node src/range_image_converter_node.cpp)
 add_dependencies(range_image_converter_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -444,6 +478,12 @@ target_link_libraries(range_image_converter_node
    ${catkin_LIBRARIES}
    )
 
+add_executable(range_image_dilator_node src/range_image_dilator_node.cpp)
+target_compile_options(range_image_dilator_node PRIVATE)
+target_link_libraries(range_image_dilator_node
+   range_image_dilator
+   ${catkin_LIBRARIES}
+   )
 
 #RANGE_IMAGE_INFLATOR
 add_library(range_image_inflator src/range_image_inflator_generator.cpp)
@@ -494,14 +534,6 @@ target_link_libraries(egocylindrical_range_image_converter_nodelet
    ${catkin_LIBRARIES}
    )
 
-
-add_executable(range_image_dilator_node src/range_image_dilator_node.cpp
-            src/range_image_dilator_generator.cpp
-            src/range_image_dilator_core.cpp)
-add_dependencies(range_image_dilator_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(range_image_dilator_node
-   ${catkin_LIBRARIES}
-   )
 
 add_executable(sensor_collection_tester src/sensor_collection_tester)
 add_dependencies(sensor_collection_tester ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
