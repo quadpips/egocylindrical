@@ -31,10 +31,14 @@ namespace egocylindrical
             };
 
             add_publisher("depth_image", [](DIDiffDebugging data){return data.depth_image;});
-
+            add_publisher("depth_diff_image", [](DIDiffDebugging data){return data.depth_diff_image;});
+            add_publisher("reprojected_depth_image", [](DIDiffDebugging data){return data.reproj_depth_image;});
             add_publisher("range_image", [](DIDiffDebugging data){return data.range_image;});
-
+            add_publisher("point_cloud", [](DIDiffDebugging data){return data.point_cloud;});
             add_publisher("dilated_range_image", [](DIDiffDebugging data){return data.dilated_range_image;});
+            add_publisher("dilated_point_cloud", [](DIDiffDebugging data){return data.dilated_point_cloud;});
+            add_publisher("marker_array", [](DIDiffDebugging data){return data.marker_array;});
+            
         }
 
         void DIDiffDebuggingPublisher::publish(const DIDiffDebugging& data)

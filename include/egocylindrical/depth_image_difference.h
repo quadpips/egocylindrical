@@ -8,6 +8,7 @@
 
 #include <geometry_msgs/TransformStamped.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <visualization_msgs/MarkerArray.h>
 
 namespace egocylindrical
 {
@@ -23,7 +24,8 @@ namespace egocylindrical
         struct DIDiffDebugging
         {
             sensor_msgs::PointCloud2::Ptr point_cloud, dilated_point_cloud;
-            sensor_msgs::Image::Ptr depth_image, range_image, dilated_range_image;
+            sensor_msgs::Image::Ptr depth_image, reproj_depth_image, depth_diff_image, range_image, dilated_range_image;
+            visualization_msgs::MarkerArray::Ptr marker_array;
         };
 
         struct DIDiffResults
@@ -39,7 +41,7 @@ namespace egocylindrical
             DIDiffResults results;
         };
 
-        void insertPoints6(const utils::ECWrapper& cylindrical_points, const cv::Mat& image, const sensor_msgs::Image& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request);
+        void insertPoints6(const utils::ECWrapper& cylindrical_points, const cv::Mat& image, const sensor_msgs::Image::ConstPtr& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request);
 
     }
 

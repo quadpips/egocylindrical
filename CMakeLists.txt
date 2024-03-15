@@ -260,6 +260,7 @@ target_link_libraries(depth_image_difference
    range_image_core
    range_image_dilator
    range_image_converter
+   point_cloud_core
    ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
    ${OpenMP_CXX_FLAGS}

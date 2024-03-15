@@ -19,7 +19,7 @@
 #include <egocylindrical/range_image_dilator_core.h>
 #include <egocylindrical/range_image_core.h>
 #include <egocylindrical/range_to_points.h>
-
+#include <egocylindrical/point_cloud_core.h>
 
 
 namespace tf2
@@ -62,15 +62,54 @@ namespace egocylindrical
             return inverted_transform_msg;
         }
 
+        visualization_msgs::Marker getECPointMarker(const utils::ECWrapper& ec_points, std::string ns="points", float scale=0.025, float r=1, float g=1, float b=1, float a=1)
+        {
+            visualization_msgs::Marker m;
+            m.type = visualization_msgs::Marker::POINTS;
+            m.ns = ns;
+            m.action = visualization_msgs::Marker::ADD;
+            m.id = 0;
+            m.header = ec_points.getHeader();
+            m.pose.orientation.w = 1;
+            m.scale.x = scale;
+            m.scale.y = scale;
+            m.color.r = r;
+            m.color.g = g;
+            m.color.b = b;
+            m.color.a = a;
+
+            const float* x = ec_points.getX();
+            const float* y = ec_points.getY();
+            const float* z = ec_points.getZ();
+
+            for(int i = 0; i < ec_points.getNumPts(); ++i)
+            {
+                geometry_msgs::Point p;
+                p.x = x[i];
+                p.y = y[i];
+                p.z = z[i];
+                if(p.x==p.x)
+                {
+                    m.points.push_back(p);
+                }
+            }
+
+            return m;
+        }
+
         //immediate insert
         template <typename T>
-        void insertPoints6_impl(const utils::ECWrapper& original_cylindrical_points, const cv::Mat& image, const sensor_msgs::Image& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request)
+        void insertPoints6_impl(const utils::ECWrapper& original_cylindrical_points, const cv::Mat& image, const sensor_msgs::Image::ConstPtr& image_msg_ptr, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request)
         {
             auto getDilatedPoints = [&request](const utils::ECWrapper& cyl_points)    //  utils::ECWrapperPtr
             {
                 ros::WallTime range_start = ros::WallTime::now();
-                sensor_msgs::Image::Ptr range_image_ptr = utils::getRawRangeImageMsg(cyl_points, 1);
+                sensor_msgs::Image::Ptr range_image_ptr = utils::getRangeImageMsg(cyl_points, 1);
                 request.results.debug.range_image = range_image_ptr;
+
+                ros::WallTime pc_start = ros::WallTime::now();
+                sensor_msgs::PointCloud2::Ptr point_cloud_ptr = utils::generate_point_cloud(cyl_points);
+                request.results.debug.point_cloud = point_cloud_ptr;
 
                 ros::WallTime dilate_start = ros::WallTime::now();
                 sensor_msgs::Image::Ptr dilated_image_ptr = dilateImage(range_image_ptr);
@@ -80,11 +119,36 @@ namespace egocylindrical
                 ECMsgConstPtr info = cyl_points.getEgoCylinderInfoMsg();
                 utils::ECWrapperPtr ec_pts = utils::range_image_to_wrapper(info, range_image_ptr, nullptr);
 
+                ros::WallTime dilated_pc_start = ros::WallTime::now();
+                sensor_msgs::PointCloud2::Ptr dilated_point_cloud_ptr = utils::generate_point_cloud(*ec_pts);
+                request.results.debug.dilated_point_cloud = dilated_point_cloud_ptr;
+
                 ros::WallTime end_time = ros::WallTime::now();
 
-                ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Generating range image took " <<  (dilate_start - range_start).toSec() * 1e3 << "ms");
+                if(request.params.fill_debug)
+                {
+                    visualization_msgs::MarkerArray::Ptr& marker_array = request.results.debug.marker_array;
+                    marker_array = boost::make_shared<visualization_msgs::MarkerArray>();
+
+                    visualization_msgs::Marker m_cyl = getECPointMarker(cyl_points, "ec_points", 0.025, 0.6, 0.1, 0.3, 1);
+                    marker_array->markers.push_back(m_cyl);
+
+                    visualization_msgs::Marker m_dil_cyl = getECPointMarker(*ec_pts, "dilated_ec_points", 0.025, 0.2, 0.6, 0.2, 1);
+                    m_cyl.ns = "dilated_ec_points";
+                    m_cyl.color.r = 0.2;
+                    m_cyl.color.g = 0.6;
+                    m_cyl.color.b = 0.2;
+                    m_cyl.color.a = 1;
+                    marker_array->markers.push_back(m_dil_cyl);
+
+                }
+
+
+                ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Generating range image took " <<  (pc_start - range_start).toSec() * 1e3 << "ms");
+                ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Generating point cloud took " <<  (dilate_start - pc_start).toSec() * 1e3 << "ms");
                 ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Dilating range image took " <<  (wrapper_start - dilate_start).toSec() * 1e3 << "ms");
-                ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Converting dilated range image to wrapper took " <<  (end_time - wrapper_start).toSec() * 1e3 << "ms");
+                ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Converting dilated range image to wrapper took " <<  (dilated_pc_start - wrapper_start).toSec() * 1e3 << "ms");
+                ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Converting dilated wrapper to point cloud took " <<  (end_time - dilated_pc_start).toSec() * 1e3 << "ms");
                 ROS_INFO_STREAM_NAMED("depth_diff.timing", "Total dilation process took " <<  (end_time - range_start).toSec() * 1e3 << "ms");
 
                 return ec_pts;
@@ -100,9 +164,13 @@ namespace egocylindrical
             
             bool fill_cloud = request.params.fill_cloud;
             bool fill_im = request.params.fill_im;
+            bool fill_debug = request.params.fill_debug;
 
             sensor_msgs::PointCloud2::Ptr& pcloud_msg = request.results.point_cloud;
             sensor_msgs::Image::Ptr& gen_im_msg = request.results.depth_image;
+            const sensor_msgs::Image& image_msg = *image_msg_ptr;
+
+            cv::Mat dilated_range_image = cv_bridge::toCvCopy(request.results.debug.dilated_range_image)->image;
 
             cv::Size image_size = cam_model.reducedResolution();
             int image_width = image_size.width;
@@ -133,6 +201,27 @@ namespace egocylindrical
             {
                 gen_im_mat = cv::Mat(image.rows, image.cols, image.type(), dNaN);
             }
+
+            visualization_msgs::Marker novel_pc_marker;
+            if(fill_debug)
+            {
+                request.results.debug.depth_image = boost::make_shared<sensor_msgs::Image>(*image_msg_ptr);
+
+                novel_pc_marker.type = visualization_msgs::Marker::POINTS;
+                novel_pc_marker.ns = "novel_points";
+                novel_pc_marker.action = visualization_msgs::Marker::ADD;
+                novel_pc_marker.id = 0;
+                novel_pc_marker.header = transform.header;  //.frame_id = transform.child_frame_id;
+                // novel_pc_marker.header.stamp = transform.header.stamp;
+                novel_pc_marker.color.a = 1;
+                novel_pc_marker.color.g = 1;
+                novel_pc_marker.color.b = 1;
+                novel_pc_marker.scale.x = 0.025;
+                novel_pc_marker.scale.y = 0.025;
+                novel_pc_marker.pose.orientation.w = 1;
+
+                // request.results.debug.marker_array = boost::make_shared<visualization_msgs::MarkerArray>();
+            }
             
 
             float* pc_data;
@@ -143,7 +232,7 @@ namespace egocylindrical
                 pcloud_msg = boost::make_shared<sensor_msgs::PointCloud2>();
                 pcl::toROSMsg(pcloud, *pcloud_msg);
                 pcloud_msg->data.resize(sizeof(pcl::PointXYZ) * num_pixels);
-                pcloud_msg->is_dense = true;  //should be false, but seems to work with true
+                pcloud_msg->is_dense = false;  //should be false, but seems to work with true
                 pc_data = (float*) pcloud_msg->data.data();
             }
 
@@ -157,13 +246,26 @@ namespace egocylindrical
                     pt.x = j;
                     pt.y = i;
                     
+                    // cv::Point3f ray = cam_model.projectPixelTo3dRay(pt);
+                    // cv::Point3f world_pnt = ray * (((float) depth)/scale);
+                    // cv::Point3f transformed_ray = point_transformer.transform(ray);
+                    
+                    
+
                     T depth = image.at<T>(i,j);
+                    bool vr = !std::isnan(depth);
+                    if(!vr)
+                    {
+                        // depth = 1;
+                    }
                     
-                    
+
                     // if(depth>0)  //Only insert actual points (works for both float and uint16)
                     {                        
                         cv::Point3f ray = cam_model.projectPixelTo3dRay(pt);
                         cv::Point3f world_pnt = ray * (((float) depth)/scale);
+                        cv::Point3f transformed_ray = point_transformer.transform(ray);
+
                         cv::Point3f transformed_pnt = point_transformer.transform(world_pnt);
                         
                         int cyl_idx = cylindrical_points.worldToCylindricalIdx(transformed_pnt);
@@ -171,24 +273,32 @@ namespace egocylindrical
                         
                         if(cyl_idx >= 0  && cyl_idx < max_ind)
                         {
-                            float range_sq = worldToRangeSquared(transformed_pnt);
-                    
-                            cv::Point3f prev_point(x[cyl_idx], y[cyl_idx], z[cyl_idx]);
-                            
-                            float prev_range_sq = worldToRangeSquared(prev_point);
-                            
-                            float range = std::sqrt(range_sq);
-                            float prev_range = std::sqrt(prev_range_sq);
+                            cv::Point img_inds = cylindrical_points.project3dToPixel(transformed_ray);
 
-                            bool vr = !std::isnan(range);
+                            uint16_t prev_range_uint = dilated_range_image.at<uint16_t>(img_inds);
+                            float prev_range_f = (prev_range_uint > 0) ? prev_range_uint /1000.0 : dNaN;
+
+                            cv::Point3f prev_point(x[cyl_idx], y[cyl_idx], z[cyl_idx]);
+                            float prev_range_sq = worldToRangeSquared(prev_point);
+                            float prev_range = std::sqrt(prev_range_sq);
                             bool vpr = !std::isnan(prev_range);
+
+                            float range_sq = worldToRangeSquared(transformed_pnt);
+                            float range = std::sqrt(range_sq);
+                            
+                            {
+                                if(std::isnan(prev_range) == std::isnan(prev_range_f))
+                                {
+                                    float pr_diff = prev_range_f - prev_range;
+                                }
+                            }
 
                             if(vr && vpr)
                             {
                                 float diff = range - prev_range;
                                 if(diff > pos_eps || diff < neg_eps)
                                 {
-                                    save_point = true;
+                                    // save_point = true;
                                 }
                             }
                             else if(vr)
@@ -197,7 +307,7 @@ namespace egocylindrical
                             }
                             else //if(vpr)
                             {
-                                //save_point = false;
+                                // save_point = false;
                             }
 
                             if(!(prev_range_sq <= range_sq)) //overwrite || 
@@ -213,8 +323,31 @@ namespace egocylindrical
                                 // gen_im_data[i + j*image_width] = (T)(scale * pp.z);
                                 gen_im_mat.at<T>(i,j) = (T)(scale * pp.z);
                             }
+
+                            if(save_point)
+                            {
+                                //TODO: Move this logic to separate class?
+                                if(fill_cloud)
+                                {
+                                    pc_data[4*pc_counter] = transformed_pnt.x;
+                                    pc_data[4*pc_counter+1] = transformed_pnt.y;
+                                    pc_data[4*pc_counter+2] = transformed_pnt.z;
+                                    pc_data[4*pc_counter+3] = 1;  //Not necessary, only include if improves performance
+                                
+                                    ++pc_counter;
+                                }
+
+                                if(fill_debug)
+                                {
+                                    geometry_msgs::Point p;
+                                    p.x = transformed_pnt.x;
+                                    p.y = transformed_pnt.y;
+                                    p.z = transformed_pnt.z;
+                                    novel_pc_marker.points.push_back(p);
+                                }
+                            }
                         }
-                        else
+                        else if(false)
                         {
                             cyl_idx = cylindrical_points.worldToCanIdx(transformed_pnt);
                         
@@ -257,19 +390,19 @@ namespace egocylindrical
                             //TODO: fill in gen_im_data here
                         }
 
-                        if(save_point)
-                        {
-                            //TODO: Move this logic to separate class?
-                            if(fill_cloud)
-                            {
-                                pc_data[4*j] = transformed_pnt.x;
-                                pc_data[4*j+1] = transformed_pnt.y;
-                                pc_data[4*j+2] = transformed_pnt.z;
-                                pc_data[4*j+3] = 1;  //Not necessary, only include if improves performance
+                        // if(save_point)
+                        // {
+                        //     //TODO: Move this logic to separate class?
+                        //     if(fill_cloud)
+                        //     {
+                        //         pc_data[4*j] = transformed_pnt.x;
+                        //         pc_data[4*j+1] = transformed_pnt.y;
+                        //         pc_data[4*j+2] = transformed_pnt.z;
+                        //         pc_data[4*j+3] = 1;  //Not necessary, only include if improves performance
                             
-                                ++pc_counter;
-                            }
-                        }
+                        //         ++pc_counter;
+                        //     }
+                        // }
                     }
                     
                 }
@@ -295,11 +428,28 @@ namespace egocylindrical
                 // gen_im_msg = boost::make_shared<sensor_msgs::Image>();
                 // gen_im_msg->data.resize(sizeof(T) * num_pixels);
                 // gen_im_data = (T*) gen_im_msg->data.data();
+
+                if(fill_debug)
+                {
+                    cv::Mat depth_diff_im = gen_im_mat - image;
+                    cvim.image = depth_diff_im;
+                    request.results.debug.depth_diff_image = cvim.toImageMsg();
+                    request.results.debug.reproj_depth_image = gen_im_msg;
+                }
+            }
+
+            if(fill_debug)
+            {
+                if(novel_pc_marker.points.size()==0)
+                {
+                    novel_pc_marker.action = visualization_msgs::Marker::DELETE;
+                }
+                request.results.debug.marker_array->markers.push_back(novel_pc_marker);
             }
         }
 
 
-        void insertPoints6(const utils::ECWrapper& cylindrical_points, const cv::Mat& image, const sensor_msgs::Image& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request)
+        void insertPoints6(const utils::ECWrapper& cylindrical_points, const cv::Mat& image, const sensor_msgs::Image::ConstPtr& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request)
         {
             if(image.depth() == CV_32FC1)
             {
