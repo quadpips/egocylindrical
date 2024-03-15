@@ -3,6 +3,7 @@
 //
 
 #include <egocylindrical/point_cloud_generator.h>
+#include <egocylindrical/point_cloud_core.h>
 #include <egocylindrical/ecwrapper.h>
 #include <egocylindrical/EgoCylinderPoints.h>
 #include <ros/ros.h>

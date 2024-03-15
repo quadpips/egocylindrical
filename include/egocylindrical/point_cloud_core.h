@@ -1,0 +1,17 @@
+#ifndef EGOCYLINDRICAL_POINT_CLOUD_CORE_H
+#define EGOCYLINDRICAL_POINT_CLOUD_CORE_H
+
+#include <egocylindrical/ecwrapper.h>
+#include <sensor_msgs/PointCloud2.h>
+
+
+namespace egocylindrical
+{
+    namespace utils
+    {
+        sensor_msgs::PointCloud2::Ptr generate_point_cloud(const utils::ECWrapper& points);
+    }
+
+}
+
+#endif  //EGOCYLINDRICAL_POINT_CLOUD_CORE_H
