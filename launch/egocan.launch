@@ -6,7 +6,7 @@
   
   <arg name="viz_inflated" default="true"/>
   <arg name="sanity_check" default="true"/>
-  
+  <arg name="novel_points" default="true"/>
   
   <arg name="debug" default="false"/>
   <arg name="profile" default="false"/>
@@ -150,6 +150,24 @@
       <node name="raw_sanity_check_ec_point_publisher" pkg="egocylindrical" type="point_cloud_node" output="log">
         <remap from="egocylindrical_points" to="sanity_data_raw"/>
         <remap from="cylindrical" to="sanity_points_raw"/>
+      </node>
+    </group>
+
+    <group if="$(arg novel_points)">
+      <node name="reprojected_depth_image_to_pointcloud" pkg="nodelet" type="nodelet" args="standalone depth_image_proc/point_cloud_xyz">
+        <remap from="depth_to_egocylindrical_node/sensors/depth/debugging/camera_info" to="$(arg depth_info)"/>
+        <remap from="image_rect" to="depth_to_egocylindrical_node/sensors/depth/debugging/reprojected_depth_image"/>
+        <remap from="points" to="reprojected_depth_image_points"/>
+
+        <param name="queue_size" value="40"/>
+      </node>
+
+      <node name="original_depth_image_to_pointcloud" pkg="nodelet" type="nodelet" args="standalone depth_image_proc/point_cloud_xyz">
+        <remap from="depth_to_egocylindrical_node/sensors/depth/debugging/camera_info" to="$(arg depth_info)"/>
+        <remap from="image_rect" to="depth_to_egocylindrical_node/sensors/depth/debugging/depth_image"/>
+        <remap from="points" to="depth_image_points"/>
+
+        <param name="queue_size" value="40"/>
       </node>
     </group>
     
