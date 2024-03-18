@@ -20,8 +20,14 @@
 
 #include <sensor_msgs/Image.h>
 
+namespace egocylindrical
+{
 
+namespace utils
+{
 
 sensor_msgs::Image::Ptr dilateImage(const sensor_msgs::Image::ConstPtr& image_in);
+}
+}
 
 #endif //EGOCYLINDRICAL_RANGE_IMAGE_DILATOR_IMPL_H

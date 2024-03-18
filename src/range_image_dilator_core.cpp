@@ -1,4 +1,5 @@
 #include <egocylindrical/range_image_dilator_core.h>
+#include <egocylindrical/range_image_common.h>
 
 #include <sensor_msgs/image_encodings.h>
 
@@ -9,22 +10,28 @@
 
 #include <stdexcept>    //To throw runtime error
 
-  template<typename T> struct RangeVals {};
+//   template<typename T> struct RangeVals {};
 
  
-template<>
-struct RangeVals<uint16_t>
-{
-    static inline uint scale() { return 1000;}
-    static inline bool is_valid(uint16_t v) {return v > 0;}
-};
+// template<>
+// struct RangeVals<uint16_t>
+// {
+//     static inline uint scale() { return 1000;}
+//     static inline bool is_valid(uint16_t v) {return v > 0;}
+// };
 
-template<>
-struct RangeVals<float>
+// template<>
+// struct RangeVals<float>
+// {
+//     static inline uint scale() { return 1;}
+//     static inline bool is_valid(float v) {return v == v;}
+// };
+
+namespace egocylindrical
 {
-    static inline uint scale() { return 1;}
-    static inline bool is_valid(float v) {return v == v;}
-};
+
+namespace utils
+{
 
 
 template <typename T>
@@ -36,6 +43,7 @@ cv::Mat dilateImage(const cv::Mat image_in)
     cv::Point anchor(-1,-1);
     int iterations = 1;
     cv::dilate(image_in, image_out, kernel, anchor, iterations);
+    cv::erode(image_out, image_out, kernel, anchor, iterations);
 
     for (int x = 0; x < image_in.cols; x++)
     {
@@ -111,4 +119,8 @@ sensor_msgs::Image::Ptr dilateImage(const sensor_msgs::Image::ConstPtr& image_ms
 
     sensor_msgs::Image::Ptr image_msg_out = cv_image_out.toImageMsg();
     return image_msg_out;
+}
+
+}
+
 }

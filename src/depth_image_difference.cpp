@@ -2,6 +2,7 @@
 
 #include <egocylindrical/ecwrapper.h>   //redundant
 #include <egocylindrical/depth_image_common.h>  //redundant
+#include <egocylindrical/range_image_common.h>
 #include <egocylindrical/point_transformer_object.h>
 
 #include <cv_bridge/cv_bridge.h> //redundant
@@ -205,7 +206,7 @@ namespace egocylindrical
             visualization_msgs::Marker novel_pc_marker;
             if(fill_debug)
             {
-                request.results.debug.depth_image = boost::make_shared<sensor_msgs::Image>(*image_msg_ptr);
+                request.results.debug.depth_image = boost::make_shared<sensor_msgs::Image>(*image_msg_ptr); //Any reason not to just use image_msg_ptr directly here?
 
                 novel_pc_marker.type = visualization_msgs::Marker::POINTS;
                 novel_pc_marker.ns = "novel_points";
@@ -224,7 +225,7 @@ namespace egocylindrical
             }
             
 
-            float* pc_data;
+            float* pc_data=nullptr;
             if(fill_cloud)
             {
                 const int num_pixels = image_width * image_height;
@@ -236,8 +237,13 @@ namespace egocylindrical
                 pc_data = (float*) pcloud_msg->data.data();
             }
 
-            int pc_counter = 0;
+            cv::Mat range_mat = cv_bridge::toCvShare(request.results.debug.range_image)->image;
+            cv::Mat non_nans_mat = (range_mat == range_mat);
+            int num_filled = cv::countNonZero(non_nans_mat);
+            ROS_INFO_STREAM("Num range image pixel filled: " << num_filled);
 
+            int pc_counter = 0;
+            ros::WallTime reprojection_start = ros::WallTime::now();
             for(int i = 0; i < image_height; ++i)
             {
                 for(int j = 0; j < image_width; ++j)
@@ -275,8 +281,25 @@ namespace egocylindrical
                         {
                             cv::Point img_inds = cylindrical_points.project3dToPixel(transformed_ray);
 
-                            uint16_t prev_range_uint = dilated_range_image.at<uint16_t>(img_inds);
-                            float prev_range_f = (prev_range_uint > 0) ? prev_range_uint /1000.0 : dNaN;
+                            // float prev_range_f = (prev_range_uint > 0) ? prev_range_uint /1000.0 : dNaN;
+
+                            float prev_range_f;
+                            if(dilated_range_image.depth() == CV_32FC1)
+                            {
+                                // float v = dilated_range_image.at<float>(img_inds);
+                                // v = (RangeVals<float>::)
+                                prev_range_f = dilated_range_image.at<float>(img_inds)/RangeVals<float>::scale();
+                            }
+                            else if(dilated_range_image.depth() == CV_16UC1)
+                            {
+                                uint16_t v = dilated_range_image.at<uint16_t>(img_inds);
+                                prev_range_f = (RangeVals<uint16_t>::is_valid(v)) ? float(v)/RangeVals<uint16_t>::scale() : dNaN;
+                            }
+
+                            if(num_filled > 0 && prev_range_f != prev_range_f)
+                            {
+                                ROS_DEBUG_STREAM_NAMED("weird_nans", "depth im coords with unexpected NaN: " << pt);
+                            }
 
                             cv::Point3f prev_point(x[cyl_idx], y[cyl_idx], z[cyl_idx]);
                             float prev_range_sq = worldToRangeSquared(prev_point);
@@ -407,6 +430,8 @@ namespace egocylindrical
                     
                 }
             }
+            
+            ROS_INFO_STREAM("Time to reproject range image to depth image: " << (ros::WallTime::now() - reprojection_start).toSec()*1000 << "ms");
 
             if(fill_cloud)
             {

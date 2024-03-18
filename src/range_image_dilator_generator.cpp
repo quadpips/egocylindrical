@@ -16,8 +16,6 @@
 namespace egocylindrical
 {
 
-
-
     RangeImageDilator::RangeImageDilator(ros::NodeHandle& nh, ros::NodeHandle& pnh) :
         nh_(nh),
         pnh_(pnh),
@@ -106,7 +104,7 @@ namespace egocylindrical
         {
             ros::WallTime start = ros::WallTime::now();
 
-            auto dilated_img_ptr = dilateImage(image);
+            auto dilated_img_ptr = utils::dilateImage(image);
 
             ROS_DEBUG_STREAM("Dilating egocylindrical image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
 
@@ -117,8 +115,5 @@ namespace egocylindrical
         }
 
     }
-
-
-
 
 }
