@@ -39,7 +39,7 @@ cv::Mat dilateImage(const cv::Mat image_in)
 {
     cv::Mat image_out(image_in.rows, image_in.cols, image_in.type(), cv::Scalar(0));
 
-    cv::Mat kernel;
+    cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT,cv::Size(5,5));
     cv::Point anchor(-1,-1);
     int iterations = 1;
     cv::dilate(image_in, image_out, kernel, anchor, iterations);
