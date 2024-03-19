@@ -591,7 +591,8 @@ namespace egocylindrical
           inline
           void worldToCylindricalXIdxFast(const cv::Point3_<S>& point, T& x_idx) const
           {
-            x_idx = atan2_approximation1(point.x, point.z) * params_.hscale + params_.width / 2;
+            // x_idx = atan2_approximation1(point.x, point.z) * params_.hscale + params_.width / 2;
+            worldToCylindricalXIdx(point, x_idx);
           }
           
 
