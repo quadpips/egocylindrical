@@ -254,7 +254,7 @@ target_link_libraries(range_image_converter
 add_library(depth_image_difference src/depth_image_difference.cpp
             src/depth_image_difference_debugging_publisher.cpp)
 add_dependencies(depth_image_difference ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_compile_options(depth_image_difference PRIVATE -O0 -g)
+target_compile_options(depth_image_difference PRIVATE)
 target_compile_definitions(depth_image_difference PRIVATE ${PLATFORM_FLAGS} )
 target_link_libraries(depth_image_difference
    range_image_core

@@ -183,7 +183,12 @@ namespace egocylindrical
         {
             // Wait until object added to buffer
             Lock lk(next_pts_mutex_);
-            next_pts_cv_.wait_for(lk, std::chrono::seconds(1));
+            std::cv_status res = next_pts_cv_.wait_for(lk, std::chrono::seconds(1));
+            if (res == std::cv_status::timeout)
+            {
+                // addNew();
+            }
+
         
             while(!next_pts_buffer_.empty())
             {
