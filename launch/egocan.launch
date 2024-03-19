@@ -2,7 +2,7 @@
   <arg name="depth_image" default="/camera/depth/image_raw"/>
   <arg name="depth_info" default="/camera/depth/camera_info"/>
   <arg name="scan_topic" default="/scan"/>
-  <arg name="fixed_frame_id" default="odom"/>
+  <arg name="fixed_frame_id" default="map"/>
   
   <arg name="viz_inflated" default="true"/>
   <arg name="sanity_check" default="true"/>
@@ -56,9 +56,12 @@
       <param name="filtered_points" value="filtered_points"/>
       <param name="fixed_frame_id" value="$(arg fixed_frame_id)"/>
       
-      <param name="orientation_fixed_frame_id" value="odom" if="$(arg hybrid)"/> <!-- TODO: Make it use the most recent available transform so as not to have hard dependency on global pose-->
+      <param name="orientation_fixed_frame_id" value="map" if="$(arg hybrid)"/> <!-- TODO: Make it use the most recent available transform so as not to have hard dependency on global pose-->
       <param name="orientation_fixed_frame_id" value="camera_depth_optical_frame" unless="$(arg hybrid)"/>
       <param name="origin_fixed_frame_id" value="camera_depth_optical_frame"/>
+
+      <param name="width" value="256"/>
+      <param name="height" value="120"/>
     </node>
 
     <node name="egocylindrical_to_pointcloud" pkg="egocylindrical" type="point_cloud_node" output="log">
