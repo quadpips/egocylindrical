@@ -105,7 +105,7 @@ namespace egocylindrical
             auto getDilatedPoints = [&request](const utils::ECWrapper& cyl_points)    //  utils::ECWrapperPtr
             {
                 ros::WallTime range_start = ros::WallTime::now();
-                sensor_msgs::Image::Ptr range_image_ptr = utils::getRangeImageMsg(cyl_points, 1);
+                sensor_msgs::Image::Ptr range_image_ptr = utils::getRawRangeImageMsg(cyl_points, 1);
                 request.results.debug.range_image = range_image_ptr;
 
                 ros::WallTime pc_start = ros::WallTime::now();
@@ -118,7 +118,7 @@ namespace egocylindrical
 
                 ros::WallTime wrapper_start = ros::WallTime::now();
                 ECMsgConstPtr info = cyl_points.getEgoCylinderInfoMsg();
-                utils::ECWrapperPtr ec_pts = utils::range_image_to_wrapper(info, range_image_ptr, nullptr);
+                utils::ECWrapperPtr ec_pts = utils::range_image_to_wrapper(info, dilated_image_ptr, nullptr);
 
                 ros::WallTime dilated_pc_start = ros::WallTime::now();
                 sensor_msgs::PointCloud2::Ptr dilated_point_cloud_ptr = utils::generate_point_cloud(*ec_pts);
@@ -310,7 +310,7 @@ namespace egocylindrical
                             float range = std::sqrt(range_sq);
                             
                             {
-                                if(std::isnan(prev_range) == std::isnan(prev_range_f))
+                                if(!std::isnan(prev_range) && !std::isnan(prev_range_f))
                                 {
                                     float pr_diff = prev_range_f - prev_range;
                                 }
