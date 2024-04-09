@@ -105,10 +105,10 @@ namespace egocylindrical
           
                 
 
-          ROS_DEBUG_STREAM("Generating egocylindrical image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+          ROS_DEBUG_STREAM("Converting egocylindrical image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
           
 
-          ROS_DEBUG("publish egocylindrical image");
+          ROS_DEBUG("publish generated egocylindrical data");
           
           ec_pub_.publish(ec_msg);
         }
