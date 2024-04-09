@@ -434,7 +434,7 @@ namespace egocylindrical
         void insertPoints(utils::ECWrapper& cylindrical_points, const sensor_msgs::Image::ConstPtr& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request)
         {
             const cv::Mat image = cv_bridge::toCvShare(image_msg)->image;
-            insertPoints6(cylindrical_points, image, image_msg, cam_model, transform, request);
+            // insertPoints6(cylindrical_points, image, image_msg, cam_model, transform, request);
 
             if(image.depth() == CV_32FC1)
             {
@@ -506,23 +506,23 @@ namespace egocylindrical
             }
 
             DIDiffRequest request;
-            request.params.neg_eps = -0.2;
-            request.params.pos_eps = 0.2;
-            request.params.fill_cloud = true;
-            request.params.fill_im = true;
-            request.params.fill_debug = true;
+            // request.params.neg_eps = -0.2;
+            // request.params.pos_eps = 0.2;
+            // request.params.fill_cloud = true;
+            // request.params.fill_im = true;
+            // request.params.fill_debug = true;
 
             // sensor_msgs::PointCloud2::Ptr pcloud_msg = boost::make_shared<sensor_msgs::PointCloud2>();
             insertPoints(cylindrical_points, image_msg, cam_model_, transform, request);
-            auto pcloud_msg = request.results.point_cloud;
-            pcloud_msg->header = target_header; //image_msg->header;
-            pub_diff_pc_.publish(pcloud_msg);
+            // auto pcloud_msg = request.results.point_cloud;
+            // pcloud_msg->header = target_header; //image_msg->header;
+            // pub_diff_pc_.publish(pcloud_msg);
 
-            auto depthim_msg = request.results.depth_image;
-            // depthim_msg->header
-            pub_diff_im_.publish(depthim_msg);
+            // auto depthim_msg = request.results.depth_image;
+            // // depthim_msg->header
+            // pub_diff_im_.publish(depthim_msg);
 
-            debug_pub_.publish(request.results.debug);
+            // debug_pub_.publish(request.results.debug);
 
             return true;
         }
