@@ -63,7 +63,7 @@ private:
     utils::PointPropagator pp_;
     ECWrapperBuffer wrapper_buffer_;
 
-    ros::Publisher ec_pub_, pc_pub_, info_pub_;
+    ros::Publisher ec_pub_, pc_pub_, info_pub_, propagated_ec_pub_;
     ros::Subscriber reset_sub_;
     
     //egocylindrical::TimeSequencer<utils::SensorMeasurement> seq_;

@@ -461,6 +461,16 @@ namespace egocylindrical
           ECConverter()
           {
           }
+
+          ECConverter(const ECMsgConstPtr& msg)
+          {
+            fromCameraInfo(msg);
+          }
+
+          ECConverter(const ECParams& params)
+          {
+            fromParams(params);
+          }
           
           
           inline
@@ -591,8 +601,8 @@ namespace egocylindrical
           inline
           void worldToCylindricalXIdxFast(const cv::Point3_<S>& point, T& x_idx) const
           {
-            // x_idx = atan2_approximation1(point.x, point.z) * params_.hscale + params_.width / 2;
-            worldToCylindricalXIdx(point, x_idx);
+            x_idx = atan2_approximation1(point.x, point.z) * params_.hscale + params_.width / 2;
+            // worldToCylindricalXIdx(point, x_idx);
           }
           
 
@@ -1033,13 +1043,27 @@ namespace egocylindrical
                 msg_locked_ = true;
                 return (ECMsgConstPtr) msg_;
             }
+
+            inline
+            ECMsgConstPtr getEgoCylinderPointsMsg() const
+            {
+                if(msg_locked_)
+                {
+                  return (ECMsgConstPtr) msg_;
+                }
+
+                ROS_WARN("Getting PointsMsg from const but non-locked ECWrapper requires making a copy");
+
+                ECMsgPtr msg = boost::make_shared<ECMsg>(*msg_);
+                return (ECMsgConstPtr) msg;
+            }
             
             inline
             ECMsgConstPtr getEgoCylinderInfoMsg() const
             {
               ECMsgPtr info = boost::make_shared<ECMsg>();
               fillMsgInfo(*info);
-              info->header = msg_->header;
+              info->header = (const_msg_) ? const_msg_->header : msg_->header;
               return (ECMsgConstPtr) info;
             }
             

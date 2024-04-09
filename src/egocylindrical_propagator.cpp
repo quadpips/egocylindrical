@@ -90,6 +90,20 @@ namespace egocylindrical
             wrapper_buffer_.releaseOld();
         }
 
+        if(propagated_ec_pub_.getNumSubscribers())
+        {
+            ros::WallTime t1 = ros::WallTime::now();
+            utils::ECWrapper ec_copy = *new_pts_;
+            ros::WallTime t2 = ros::WallTime::now();
+            utils::ECMsgConstPtr msg = ec_copy.getEgoCylinderPointsMsg();
+            ros::WallTime t3 = ros::WallTime::now();
+            propagated_ec_pub_.publish(msg);
+            ros::WallTime t4 = ros::WallTime::now();
+            ROS_DEBUG_STREAM_NAMED("timing", "Time to copy propagated points: " <<  (t2 - t1).toSec() * 1e3 << "ms");
+            ROS_DEBUG_STREAM_NAMED("timing", "Time to get message: " <<  (t3 - t2).toSec() * 1e3 << "ms");
+            ROS_DEBUG_STREAM_NAMED("timing", "Time to publish: " <<  (t4 - t3).toSec() * 1e3 << "ms");
+            ROS_DEBUG_STREAM_NAMED("timing", "Total time to copy & publish propagated points: " <<  (t4 - t1).toSec() * 1e3 << "ms");
+        }
 
         {
             {
@@ -152,7 +166,10 @@ namespace egocylindrical
         reconfigure_server_->setCallback(boost::bind(&EgoCylindricalPropagator::configCB, this, _1, _2));
         
         // Get topic names
-        std::string points_topic="egocylindrical_points", filtered_pc_topic="filtered_points", egocylinder_info_topic="egocylinder_info";
+        std::string points_topic="egocylindrical_points", 
+                    filtered_pc_topic="filtered_points", 
+                    egocylinder_info_topic="egocylinder_info",
+                    propagated_points_topic="propagated_egocylindrical_points";
         fixed_frame_id_ = "odom";
 
         pnh_.getParam("points_out", points_topic );
@@ -173,6 +190,8 @@ namespace egocylindrical
         //ros::SubscriberStatusCallback pc_cb = boost::bind(&EgoCylindricalPropagator::connectCB, this);
         pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>(filtered_pc_topic, 3);
         info_pub_ = nh_.advertise<egocylindrical::EgoCylinderPoints>(egocylinder_info_topic, 1);
+
+        propagated_ec_pub_ = nh_.advertise<egocylindrical::EgoCylinderPoints>(propagated_points_topic, 3);
 
         auto seq_cb = [this](utils::SensorMeasurement::Ptr measurement)
         {
