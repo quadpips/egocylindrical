@@ -57,7 +57,7 @@
       <param name="fixed_frame_id" value="$(arg fixed_frame_id)"/>
       
       <param name="orientation_fixed_frame_id" value="map" if="$(arg hybrid)"/> <!-- TODO: Make it use the most recent available transform so as not to have hard dependency on global pose-->
-      <param name="orientation_fixed_frame_id" value="camera_depth_optical_frame" unless="$(arg hybrid)"/>
+      <param name="orientation_fixed_frame_id" value="base" unless="$(arg hybrid)"/>
       <param name="origin_fixed_frame_id" value="camera_depth_optical_frame"/>
 
       <param name="width" value="256"/>

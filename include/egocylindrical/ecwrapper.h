@@ -37,7 +37,8 @@ namespace egocylindrical
     {
 
         constexpr float dNaN=(std::numeric_limits<float>::has_quiet_NaN) ? std::numeric_limits<float>::quiet_NaN() : 0;
-        
+        constexpr float iNaN=(std::numeric_limits<int>::has_quiet_NaN) ? std::numeric_limits<int>::quiet_NaN() : 0;
+
         
         //Source: https://stackoverflow.com/a/39714493/2906021
         inline
@@ -918,6 +919,7 @@ namespace egocylindrical
         private:
         public:         
             float* points_;
+            int* labels_;
             
             AlignedVector<float> ranges_;
             AlignedVector<int32_t> inds_;
@@ -957,6 +959,7 @@ namespace egocylindrical
                 header_ = const_msg_->header;
 
                 points_ = (float*) const_msg_->points.data.data() + (const_msg_->points.layout.data_offset) / sizeof(float);
+                labels_ = (int*) const_msg_->labels.data.data() + (const_msg_->labels.layout.data_offset) / sizeof(int);
                                 
                 msg_locked_ = true;
             }
@@ -995,6 +998,8 @@ namespace egocylindrical
             static void copyContents(ECWrapper& lhs, const ECWrapper& rhs)
             {
                 std::copy(rhs.getPoints(), rhs.getPoints()+3*rhs.getNumPts(), lhs.getPoints());
+                std::copy(rhs.getLabels(), rhs.getLabels()+rhs.getNumPts(), lhs.getLabels());
+
                 lhs.setHeader(rhs.getHeader());
             }
             
@@ -1003,7 +1008,9 @@ namespace egocylindrical
 
             }
 
-            
+            inline int* getLabels()                   { return (int*) labels_; } //__builtin_assume_aligned(points_, __BIGGEST_ALIGNMENT__)
+            inline const int* getLabels() const       { return (const int*) labels_; } //__builtin_assume_aligned(points_, __BIGGEST_ALIGNMENT__)
+                        
             inline float* getPoints()                   { return (float*) points_; } //__builtin_assume_aligned(points_, __BIGGEST_ALIGNMENT__)
             inline const float* getPoints() const       { return (const float*) points_; } //__builtin_assume_aligned(points_, __BIGGEST_ALIGNMENT__)
             
@@ -1085,11 +1092,17 @@ namespace egocylindrical
                 
                 ROS_DEBUG_STREAM("max_alignment: " << max_alignment << ", biggest_alignment: " << biggest_alignment << ", object_size: " << object_size << ", object_alignment: " << object_alignment << ", number buffer objects: " << buffer_objects);
                 
-                ROS_DEBUG_STREAM("Allocating space for " << getNumPts() << " points.");
+                ROS_DEBUG_STREAM("Allocating space for " << getNumPts() << " points (and labels).");
                 msg_->points.data.resize(3*getNumPts() + buffer_objects, dNaN);
                 
+                size_t labels_object_size = sizeof(int);
+                size_t labels_buffer_size = biggest_alignment - labels_object_size;
+                size_t labels_buffer_objects = labels_buffer_size / labels_object_size;
                 
-                //Align data pointer
+                msg_->labels.data.resize(getNumPts() + labels_buffer_objects, iNaN);
+
+                
+                //Align data pointer (points)
                 {
                     void* temp_points = (void*) msg_->points.data.data();
                     
@@ -1104,6 +1117,21 @@ namespace egocylindrical
                     ROS_DEBUG_STREAM("Aligned points_, adjusted pointer by " << (space_before - space_after) << " bytes");
                 }
                 
+                //Align data pointer (labels)
+                {
+                    void* temp_labels = (void*) msg_->labels.data.data();
+                    
+                    size_t space_before = getNumPts()*sizeof(int);
+                    size_t space_after = space_before;
+                    
+                    std::align(biggest_alignment, sizeof(int), temp_labels, space_after);
+                    labels_ = (int*) temp_labels;
+                    
+                    msg_->labels.layout.data_offset = (space_before - space_after);
+                    
+                    ROS_DEBUG_STREAM("Aligned labels_, adjusted pointer by " << (space_before - space_after) << " bytes");
+                }
+
                 if(allocate_arrays_)
                 {
                     ranges_.resize(getNumPts());
@@ -1135,6 +1163,7 @@ namespace egocylindrical
                         if(clear)
                         {
                             msg_->points.data.clear();
+                            msg_->labels.data.clear();
                         }
                             
                         init();
@@ -1145,6 +1174,7 @@ namespace egocylindrical
                       if(clear)
                       {
                         std::fill(msg_->points.data.begin(), msg_->points.data.end(), dNaN);
+                        std::fill(msg_->labels.data.begin(), msg_->labels.data.end(), iNaN);
                       }
                     }
                     if(msg_->points.data.size()==0)
@@ -1163,6 +1193,7 @@ namespace egocylindrical
             {
                 msg_ = other.msg_;
                 points_ = other.points_;
+                labels_ = other.labels_;
             }
             
             using Ptr=std::shared_ptr<ECWrapper>;

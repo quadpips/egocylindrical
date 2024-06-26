@@ -177,6 +177,13 @@ namespace egocylindrical
         
         pnh_.getParam("fixed_frame_id", fixed_frame_id_);
 
+        // ROS_INFO_STREAM_NAMED("update", "points_topic: " << points_topic);
+        // ROS_INFO_STREAM_NAMED("update", "filtered_pc_topic: " << filtered_pc_topic);
+        // ROS_INFO_STREAM_NAMED("update", "egocylinder_info_topic: " << egocylinder_info_topic);
+        // ROS_INFO_STREAM_NAMED("update", "propagated_points_topic: " << propagated_points_topic);
+        // ROS_INFO_STREAM_NAMED("update", "fixed_frame_id_: " << fixed_frame_id_);
+
+
         cfh_.init();
         wrapper_buffer_.init();
 

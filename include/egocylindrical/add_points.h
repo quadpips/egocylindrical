@@ -20,10 +20,12 @@ namespace utils
         float* x = cylindrical_history.getX();
         float* y = cylindrical_history.getY();
         float* z = cylindrical_history.getZ();
-        
+        int* labels = cylindrical_history.getLabels();
+
         const float* n_x = new_points.getX();
         const float* n_y = new_points.getY();
         const float* n_z = new_points.getZ();
+        const int* n_labels = new_points.getLabels();
         
         const float* ranges = new_points.getRanges();
         const int32_t* inds = new_points.getInds();
@@ -46,7 +48,7 @@ namespace utils
                 
                 float prev_depth = worldToRangeSquared(prev_point);
                 
-                if(!(prev_depth <= depth)) //overwrite || 
+                if(!(prev_depth <= depth)) // if new depth is less than old depth, then update
                 {   
                     /*TODO: Check if this gets compiled out or not. If not, remove this object, 
                      * or perhaps use basic templated custom point class to combine benefits of
@@ -57,7 +59,11 @@ namespace utils
                     x[idx] = world_pnt.x;
                     y[idx] = world_pnt.y;
                     z[idx] = world_pnt.z;
-                    
+                    // if (n_labels[i] != n_labels[i])
+                    //     ROS_INFO_STREAM_NAMED("update", "n_labels[i] is NaN"); 
+                    // // ROS_INFO_STREAM_NAMED("update", "labels[idx]: " << labels[idx]);
+                    // ROS_INFO_STREAM_NAMED("update", "i: " << i << ", idx: " << idx << ", numPts: " << new_points.getNumPts());
+                    // labels[i] =  n_labels[i]; // overwrite label as well
                 }
                 
             }
@@ -73,7 +79,6 @@ namespace utils
                     {
                         float depth = worldToCanDepth(world_pnt);
                           
-                        
                         cv::Point3f prev_point(x[idx], y[idx], z[idx]);
                         
                         float prev_depth = worldToCanDepth(prev_point);
@@ -84,6 +89,12 @@ namespace utils
                             x[idx] = world_pnt.x;
                             y[idx] = world_pnt.y;
                             z[idx] = world_pnt.z;
+                            // if (n_labels[i] != n_labels[i])
+                            //     ROS_INFO_STREAM_NAMED("update", "n_labels[i] is NaN");      
+                            // // ROS_INFO_STREAM_NAMED("update", "labels[idx]: " << labels[idx]);
+                            // // ROS_INFO_STREAM_NAMED("update", "n_labels[i]: " << n_labels[i]);
+                            // ROS_INFO_STREAM_NAMED("update", "i: " << i << ", idx: " << idx << ", numPts: " << new_points.getNumPts());  
+                            // labels[i] =  n_labels[i]; // overwrite label as well
                         }
                     }
                     else
