@@ -20,12 +20,12 @@ namespace utils
         float* x = cylindrical_history.getX();
         float* y = cylindrical_history.getY();
         float* z = cylindrical_history.getZ();
-        int* labels = cylindrical_history.getLabels();
+        // int* labels = cylindrical_history.getLabels();
 
         const float* n_x = new_points.getX();
         const float* n_y = new_points.getY();
         const float* n_z = new_points.getZ();
-        const int* n_labels = new_points.getLabels();
+        // const int* n_labels = new_points.getLabels();
         
         const float* ranges = new_points.getRanges();
         const int32_t* inds = new_points.getInds();

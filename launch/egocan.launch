@@ -41,7 +41,7 @@
             type: depth
             image_in: $(arg depth_image)
             info_in: $(arg depth_info)
-            
+
             publish_update: true
             raytrace: true
             
