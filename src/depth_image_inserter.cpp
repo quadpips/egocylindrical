@@ -23,7 +23,11 @@ namespace egocylindrical
     {
         //whole image vectorization w/ inds
         template <typename T>
-        void insertPoints4(utils::ECWrapper& cylindrical_points, const cv::Mat image, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform)
+        void insertPoints4(utils::ECWrapper& cylindrical_points, 
+                            const cv::Mat & image, 
+                            const cv::Mat & labels_image, 
+                            const CleanCameraModel& cam_model, 
+                            const geometry_msgs::TransformStamped transform)
         {
             cv::Size image_size = cam_model.reducedResolution();
             const int image_width = image_size.width;
@@ -33,19 +37,40 @@ namespace egocylindrical
             const bool use_egocan = cylindrical_points.getParams().can_width>0;
             
             const int max_ind = cylindrical_points.getCols();
-            float* __restrict__ x = cylindrical_points.getX();
-            float* __restrict__ y = cylindrical_points.getY();
-            float* __restrict__ z = cylindrical_points.getZ();
+            float* __restrict__ x = cylindrical_points.getX(); // size: getNumPt()
+            float* __restrict__ y = cylindrical_points.getY(); // size: getNumPt()
+            float* __restrict__ z = cylindrical_points.getZ(); // size: getNumPt()
+            int* __restrict__ labels = cylindrical_points.getLabels(); // size: getNumPt()
             
             PointTransformerObject point_transformer(transform);
             
             const uint scale = DepthScale<T>::scale();
             
-            AlignedVector<float> ranges(num_pixels, dNaN), nx(num_pixels, dNaN), ny(num_pixels, dNaN), nz(num_pixels, dNaN);
+            AlignedVector<float> ranges(num_pixels, dNaN), // size: num_pixels
+                                    nx(num_pixels, dNaN), // size: num_pixels
+                                    ny(num_pixels, dNaN), // size: num_pixels
+                                    nz(num_pixels, dNaN); // size: num_pixels
+
+            AlignedVector<int8_t> nlabels(num_pixels, iNaN); // size: num_pixels
             AlignedVector<int32_t> inds(num_pixels);
             
+            ROS_INFO_STREAM_NAMED("timing", "getNumPts:" << cylindrical_points.getNumPts());
+            ROS_INFO_STREAM_NAMED("timing", "num_pixels:" << num_pixels);
+
             const T* const __restrict__ imgptr = (T* const) image.data;
+            // const int* const __restrict__ labelsptr = (int* const) labels_image.data; // do not do!!
             
+            // ROS_INFO_STREAM_NAMED("timing", "labels_image cols: " << labels_image.cols);
+            // ROS_INFO_STREAM_NAMED("timing", "labels_image rows: " << labels_image.rows);
+            // ROS_INFO_STREAM_NAMED("timing", "labels_image size: " << labels_image.size);
+            // ROS_INFO_STREAM_NAMED("timing", "nlabels[200000]: " << nlabels[200000]);
+            // int label = labels_image.data[100000]; // labels_image.at<uint8_t>(120, 120);
+
+            // ROS_INFO_STREAM_NAMED("timing", "labels_image.at<uint8_t>(3, 3): " << label);
+            // ROS_INFO_STREAM_NAMED("timing", "imgptr[2]: " << imgptr[2]);
+
+            // nlabels[200000] = labelsptr[200000];
+
             const float row_factor = ((float) 1)/image_width;
             
             #pragma GCC ivdep
@@ -73,6 +98,11 @@ namespace egocylindrical
                     nx[i] = transformed_pnt.x;
                     ny[i] = transformed_pnt.y;
                     nz[i] = transformed_pnt.z;
+                    // ROS_INFO_STREAM_NAMED("timing", "nlabels size: " << nlabels.size());
+                    // ROS_INFO_STREAM_NAMED("timing", "i: " << i);
+
+                    // nlabels[i] = 0; // Fine.
+                    nlabels[i] = labels_image.data[i]; // Fine now.                   
                     
                     int cyl_idx = cylindrical_points.worldToCylindricalIdx(transformed_pnt);
                     
@@ -105,6 +135,8 @@ namespace egocylindrical
                             x[cyl_idx] = transformed_pnt.x;
                             y[cyl_idx] = transformed_pnt.y;
                             z[cyl_idx] = transformed_pnt.z;
+                            // labels[i] = nlabels[i]; // setting i for i does not feel right to me.
+
                         }
                     }
                     else if(use_egocan)
@@ -120,11 +152,14 @@ namespace egocylindrical
                             float prev_can_depth = worldToCanDepth(prev_point);
                             
                             if(!(prev_can_depth <= can_depth)) //overwrite || 
-                            {   
-                                
+                            {                               
                                 x[cyl_idx] = transformed_pnt.x;
                                 y[cyl_idx] = transformed_pnt.y;
                                 z[cyl_idx] = transformed_pnt.z;
+                                if (i < 0 || i >= 307200)
+                                    ROS_INFO_STREAM_NAMED("timing", "i: " << i << " out of bounds for label");
+                                // labels[i] = nlabels[i]; // setting i for i does not feel right to me.
+
                             }
                         }
                     }
@@ -352,7 +387,10 @@ namespace egocylindrical
       
         //immediate insert
         template <typename T>
-        void insertPoints(utils::ECWrapper& cylindrical_points, const cv::Mat image, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform)
+        void insertPoints(utils::ECWrapper& cylindrical_points, 
+                            const cv::Mat image, 
+                            const CleanCameraModel& cam_model, 
+                            const geometry_msgs::TransformStamped transform)
         {
             cv::Size image_size = cam_model.reducedResolution();
             int image_width = image_size.width;
@@ -431,18 +469,33 @@ namespace egocylindrical
 
 
         inline
-        void insertPoints(utils::ECWrapper& cylindrical_points, const sensor_msgs::Image::ConstPtr& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request)
+        void insertPoints(utils::ECWrapper& cylindrical_points, 
+                            const sensor_msgs::Image::ConstPtr& image_msg, 
+                            const sensor_msgs::Image::ConstPtr& labels_msg, 
+                            const CleanCameraModel& cam_model, 
+                            const geometry_msgs::TransformStamped transform, 
+                            DIDiffRequest& request)
         {
             const cv::Mat image = cv_bridge::toCvShare(image_msg)->image;
+            // const cv::Mat labels = cv_bridge::toCvCopy(labels_msg, "8UC1")->image; // do not do!
+            cv_bridge::CvImageConstPtr cvImagePtr = cv_bridge::toCvShare(labels_msg, "8UC1");
+            const cv::Mat labels = cvImagePtr->image;
+
+            // int label = labels.at<uint8_t>(3, 3);
+            // ROS_INFO_STREAM_NAMED("timing", "in DepthImageInserter::insertPoints, label: " << label);
+            // ROS_INFO_STREAM_NAMED("timing", "in DepthImageInserter::insertPoints, current use: " << labels.at<uint8_t>(3, 3));
+
+
+
             // insertPoints6(cylindrical_points, image, image_msg, cam_model, transform, request);
 
             if(image.depth() == CV_32FC1)
             {
-                insertPoints4<float>(cylindrical_points, image, cam_model, transform);
+                insertPoints4<float>(cylindrical_points, image, labels, cam_model, transform); // labels, 
             }
             else if (image.depth() == CV_16UC1)
             {
-                insertPoints4<uint16_t>(cylindrical_points, image, cam_model, transform);
+                insertPoints4<uint16_t>(cylindrical_points, image, labels, cam_model, transform); // labels, 
             }
         }
 
@@ -470,11 +523,14 @@ namespace egocylindrical
             return true;
         }
         
-        bool DepthImageInserter::insert(ECWrapper& cylindrical_points, const sensor_msgs::Image::ConstPtr& image_msg, const sensor_msgs::CameraInfo::ConstPtr& cam_info)
+        bool DepthImageInserter::insert(ECWrapper& cylindrical_points, 
+                                        const sensor_msgs::Image::ConstPtr& image_msg, 
+                                        const sensor_msgs::CameraInfo::ConstPtr& cam_info, 
+                                        const sensor_msgs::Image::ConstPtr& labels_msg)                                        
         {
             const std_msgs::Header& target_header = cylindrical_points.getHeader();
             const std_msgs::Header& source_header = image_msg->header;
-            
+
             if(target_header == source_header)
             {
                 ROS_INFO_ONCE("Target and source headers match, using remapping approach");
@@ -513,7 +569,7 @@ namespace egocylindrical
             // request.params.fill_debug = true;
 
             // sensor_msgs::PointCloud2::Ptr pcloud_msg = boost::make_shared<sensor_msgs::PointCloud2>();
-            insertPoints(cylindrical_points, image_msg, cam_model_, transform, request);
+            insertPoints(cylindrical_points, image_msg, labels_msg, cam_model_, transform, request); // , 
             // auto pcloud_msg = request.results.point_cloud;
             // pcloud_msg->header = target_header; //image_msg->header;
             // pub_diff_pc_.publish(pcloud_msg);

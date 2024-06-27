@@ -76,44 +76,44 @@ namespace egocylindrical
             //read configuration from parameter server
             auto sensor_root_nh = ros::NodeHandle(pnh_, "sensors");
             
-            auto get_sensor_names1 = [ ](ros::NodeHandle nh)
-            {
-                std::vector<std::string> keys;
-                nh.getParamNames(keys);
+            // auto get_sensor_names1 = [ ](ros::NodeHandle nh)
+            // {
+            //     std::vector<std::string> keys;
+            //     nh.getParamNames(keys);
                 
-                const std::string sensor_ns = nh.getNamespace();
-                const size_t ns_len = sensor_ns.length();
+            //     const std::string sensor_ns = nh.getNamespace();
+            //     const size_t ns_len = sensor_ns.length();
                 
-                std::vector<std::string> names;
+            //     std::vector<std::string> names;
                 
-                for(const auto& key : keys)
-                {
-                    if(key.rfind(sensor_ns,0) != 0)
-                    {
-                        continue;
-                    }
-                    //Extract just the next level of the parameter namespace
-                    //Add to a set/list
-                }
+            //     for(const auto& key : keys)
+            //     {
+            //         if(key.rfind(sensor_ns,0) != 0)
+            //         {
+            //             continue;
+            //         }
+            //         //Extract just the next level of the parameter namespace
+            //         //Add to a set/list
+            //     }
                 
-                return names;
-            };
+            //     return names;
+            // };
             
-            auto get_sensor_names2 = [](ros::NodeHandle nh)
-            {
-                std::vector<std::string> sensor_names;// {"depth", "laser"};
-                if(nh.getParam("observation_sources", sensor_names))
-                {
-                    //Based on https://stackoverflow.com/a/5689061
-                    const char* const delim = ", ";
-                    std::ostringstream imploded;
-                    std::copy(sensor_names.begin(), sensor_names.end(),
-                    std::ostream_iterator<std::string>(imploded, delim));
-                    ROS_INFO_STREAM("Enabled observation sources: " << delim);
-                }
+            // auto get_sensor_names2 = [](ros::NodeHandle nh)
+            // {
+            //     std::vector<std::string> sensor_names;// {"depth", "laser"};
+            //     if(nh.getParam("observation_sources", sensor_names))
+            //     {
+            //         //Based on https://stackoverflow.com/a/5689061
+            //         const char* const delim = ", ";
+            //         std::ostringstream imploded;
+            //         std::copy(sensor_names.begin(), sensor_names.end(),
+            //         std::ostream_iterator<std::string>(imploded, delim));
+            //         ROS_INFO_STREAM("Enabled observation sources: " << delim);
+            //     }
 
-                return sensor_names;
-            };
+            //     return sensor_names;
+            // };
             
             auto get_sensor_names3 = [](ros::NodeHandle nh)
             {
