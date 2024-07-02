@@ -20,12 +20,12 @@ namespace utils
         float* x = cylindrical_history.getX();
         float* y = cylindrical_history.getY();
         float* z = cylindrical_history.getZ();
-        // int* labels = cylindrical_history.getLabels();
+        short* labels = cylindrical_history.getLabels();
 
         const float* n_x = new_points.getX();
         const float* n_y = new_points.getY();
         const float* n_z = new_points.getZ();
-        // const int* n_labels = new_points.getLabels();
+        const short* n_labels = new_points.getLabels();
         
         const float* ranges = new_points.getRanges();
         const int32_t* inds = new_points.getInds();
@@ -33,6 +33,10 @@ namespace utils
         const bool use_egocan = (new_points.getParams().can_width > 0);
 
         ROS_DEBUG("Relocated the propagated image");
+
+        ROS_DEBUG_STREAM_NAMED("labels", "new_points.getNumPts(): " << new_points.getNumPts());
+        ROS_DEBUG_STREAM_NAMED("labels", "cylindrical_history.getNumPts(): " << cylindrical_history.getNumPts());
+
         //#pragma omp parallel for
         for(int i = 0; i < new_points.getNumPts(); ++i)
         {
@@ -59,11 +63,17 @@ namespace utils
                     x[idx] = world_pnt.x;
                     y[idx] = world_pnt.y;
                     z[idx] = world_pnt.z;
-                    // if (n_labels[i] != n_labels[i])
-                    //     ROS_INFO_STREAM_NAMED("update", "n_labels[i] is NaN"); 
+                    if (n_labels[i] == n_labels[i])
+                    {
+                        // ROS_INFO_STREAM_NAMED("labels", "labels[" << idx << "]: " << labels[idx] << " (1)");
+                        // ROS_INFO_STREAM_NAMED("labels", "n_labels[" << i << "]: " << n_labels[i] << " (1)");
+                        // labels[idx] = n_labels[i]; // overwrite label as well
+                    } else
+                    {
+                        ROS_INFO_STREAM_NAMED("labels", "n_labels[" << i << "] is NaN (1)"); 
+                    }
                     // // ROS_INFO_STREAM_NAMED("update", "labels[idx]: " << labels[idx]);
                     // ROS_INFO_STREAM_NAMED("update", "i: " << i << ", idx: " << idx << ", numPts: " << new_points.getNumPts());
-                    // labels[i] =  n_labels[i]; // overwrite label as well
                 }
                 
             }
@@ -89,12 +99,15 @@ namespace utils
                             x[idx] = world_pnt.x;
                             y[idx] = world_pnt.y;
                             z[idx] = world_pnt.z;
-                            // if (n_labels[i] != n_labels[i])
-                            //     ROS_INFO_STREAM_NAMED("update", "n_labels[i] is NaN");      
-                            // // ROS_INFO_STREAM_NAMED("update", "labels[idx]: " << labels[idx]);
-                            // // ROS_INFO_STREAM_NAMED("update", "n_labels[i]: " << n_labels[i]);
-                            // ROS_INFO_STREAM_NAMED("update", "i: " << i << ", idx: " << idx << ", numPts: " << new_points.getNumPts());  
-                            // labels[i] =  n_labels[i]; // overwrite label as well
+                            if (n_labels[i] == n_labels[i])
+                            {
+                                // ROS_INFO_STREAM_NAMED("labels", "labels[" << idx << "]: " << labels[idx] << " (2)");
+                                // ROS_INFO_STREAM_NAMED("labels", "n_labels[" << i << "]: " << n_labels[i] << " (1)");
+                                // labels[idx] =  n_labels[i]; // overwrite label as well
+                            } else
+                            {
+                                ROS_INFO_STREAM_NAMED("labels", "n_labels[" << i << "] is NaN (2)"); 
+                            }
                         }
                     }
                     else
