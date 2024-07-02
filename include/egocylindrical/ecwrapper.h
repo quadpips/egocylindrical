@@ -919,7 +919,7 @@ namespace egocylindrical
         private:
         public:         
             float* points_;
-            short* labels_;
+            uint8_t* labels_;
             
             AlignedVector<float> ranges_;
             AlignedVector<int32_t> inds_;
@@ -960,7 +960,7 @@ namespace egocylindrical
                 header_ = const_msg_->header;
 
                 points_ = (float*) const_msg_->points.data.data() + (const_msg_->points.layout.data_offset) / sizeof(float);
-                labels_ = (short*) const_msg_->labels.data.data() + (const_msg_->labels.layout.data_offset) / sizeof(short);
+                labels_ = (uint8_t*) const_msg_->labels.data.data() + (const_msg_->labels.layout.data_offset) / sizeof(uint8_t);
                                 
                 msg_locked_ = true;
             }
@@ -1012,8 +1012,8 @@ namespace egocylindrical
 
             }
 
-            inline short* getLabels()                   { return (short*) labels_; } //__builtin_assume_aligned(points_, __BIGGEST_ALIGNMENT__)
-            inline const short* getLabels() const       { return (const short*) labels_; } //__builtin_assume_aligned(points_, __BIGGEST_ALIGNMENT__)
+            inline uint8_t* getLabels()                   { return (uint8_t*) labels_; } //__builtin_assume_aligned(points_, __BIGGEST_ALIGNMENT__)
+            inline const uint8_t* getLabels() const       { return (const uint8_t*) labels_; } //__builtin_assume_aligned(points_, __BIGGEST_ALIGNMENT__)
                         
             inline float* getPoints()                   { return (float*) points_; } //__builtin_assume_aligned(points_, __BIGGEST_ALIGNMENT__)
             inline const float* getPoints() const       { return (const float*) points_; } //__builtin_assume_aligned(points_, __BIGGEST_ALIGNMENT__)
@@ -1100,7 +1100,7 @@ namespace egocylindrical
                 ROS_DEBUG_STREAM("Allocating space for " << getNumPts() << " points (and labels).");
                 msg_->points.data.resize(3*getNumPts() + buffer_objects, dNaN);
                 
-                size_t labels_object_size = sizeof(short);
+                size_t labels_object_size = sizeof(uint8_t);
                 size_t labels_buffer_size = biggest_alignment - labels_object_size;
                 size_t labels_buffer_objects = labels_buffer_size / labels_object_size;
                 
@@ -1127,11 +1127,11 @@ namespace egocylindrical
                 {
                     void* temp_labels = (void*) msg_->labels.data.data();
                     
-                    size_t space_before = getNumPts()*sizeof(short);
+                    size_t space_before = getNumPts()*sizeof(uint8_t);
                     size_t space_after = space_before;
                     
-                    std::align(biggest_alignment, sizeof(short), temp_labels, space_after);
-                    labels_ = (short*) temp_labels;
+                    std::align(biggest_alignment, sizeof(uint8_t), temp_labels, space_after);
+                    labels_ = (uint8_t*) temp_labels;
                     
                     msg_->labels.layout.data_offset = (space_before - space_after);
 

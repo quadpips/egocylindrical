@@ -1,0 +1,131 @@
+#include <egocylindrical/ecwrapper.h>
+
+#include <ros/ros.h>
+#include <opencv2/core.hpp>
+
+#include <omp.h>
+#include <pcl_ros/point_cloud.h>
+#include <sensor_msgs/PointCloud2.h>
+
+
+namespace egocylindrical
+{
+    
+    namespace utils
+    {
+        /* TODO: ensure that the right size 'ints' are used everywhere. On my current system, the size of int = minimum size of long int, so 32 bit system might fail */
+        sensor_msgs::PointCloud2::ConstPtr generate_labeled_point_cloud(const utils::ECWrapper& points)
+        {
+            const int num_pts = points.getNumPts();
+          
+            const int num_cols = points.getCols();
+            
+            pcl::PointCloud<pcl::PointXYZRGB> pcloud;
+            
+            sensor_msgs::PointCloud2::Ptr pcloud_msg = boost::make_shared<sensor_msgs::PointCloud2>();
+            
+            pcl::toROSMsg(pcloud, *pcloud_msg);
+            
+            ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZ): " << sizeof(pcl::PointXYZ));
+            ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZRGB): " << sizeof(pcl::PointXYZRGB));
+            ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZI): " << sizeof(pcl::PointXYZI));
+            pcloud_msg->data.resize(sizeof(pcl::PointXYZRGB) * num_pts);
+            
+            pcloud_msg->width = num_pts;
+            pcloud_msg->height = 1;
+            
+            const float* __restrict__ x = points.getX();
+            const float* __restrict__ y = points.getY();
+            const float* __restrict__ z = points.getZ();
+            const uint8_t* __restrict__ labels = points.getLabels();
+            
+            float* data = (float*) pcloud_msg->data.data();
+
+            std::uint8_t r = 0, g = 0, b = 0;    // Example: Red color
+
+            //#pragma omp parallel for num_threads(4)
+            #pragma GCC ivdep
+            for(int j = 0; j < num_cols; ++j) //Vectorization requires -fno-trapping-math -fno-math-errno
+            {   
+                cv::Point3f point(x[j],y[j],z[j]);
+                cv::Point3f Pcyl_t = points.projectWorldToCylinder(point);
+                float range = egocylindrical::utils::worldToRange(point);
+
+                if (labels[j] == 0) // VOID
+                {
+                    // ROS_DEBUG_STREAM_NAMED("labels", " label is void");
+                    r = 0; g = 0; b = 0;
+                } else if (labels[j] == 1) // NONPASS
+                {
+                    // ROS_DEBUG_STREAM_NAMED("labels", " label is non-passable");
+                    r = 255; g = 0; b = 0;
+                }  else if (labels[j] == 2) // PASS
+                {
+                    // ROS_DEBUG_STREAM_NAMED("labels", " label is passable");
+                    r = 255; g = 255; b = 0;
+                }  else if (labels[j] == 3) // STEP
+                {
+                    // ROS_DEBUG_STREAM_NAMED("labels", " label is steppable");
+                    r = 0; g = 255; b = 0;
+                } else
+                {
+                    ROS_DEBUG_STREAM_NAMED("labels", " label not recognized!");
+                }
+
+
+                std::uint32_t rgb = ((std::uint32_t)r << 16 | (std::uint32_t)g << 8 | (std::uint32_t)b);
+                float color_f = *reinterpret_cast<float*>(&rgb);
+
+                data[8*j] =   Pcyl_t.x;
+                data[8*j+1] = Pcyl_t.y;
+                data[8*j+2] = Pcyl_t.z;
+                data[8*j+4] = color_f;
+            }
+            
+            #pragma GCC ivdep
+            for(int j = num_cols; j < num_pts; ++j) //Vectorization requires -fno-trapping-math
+            {   
+                cv::Point3f point(x[j],y[j],z[j]);
+                cv::Point3f Pcyl_t = points.projectWorldToCan(point); 
+
+                if (labels[j] == 0) // VOID
+                {
+                    // ROS_DEBUG_STREAM_NAMED("labels", " label is void");
+                    r = 0; g = 0; b = 0;
+                } else if (labels[j] == 1) // NONPASS
+                {
+                    // ROS_DEBUG_STREAM_NAMED("labels", " label is non-passable");
+                    r = 255; g = 0; b = 0;
+                }  else if (labels[j] == 2) // PASS
+                {
+                    // ROS_DEBUG_STREAM_NAMED("labels", " label is passable");
+                    r = 255; g = 255; b = 0;
+                }  else if (labels[j] == 3) // STEP
+                {
+                    // ROS_DEBUG_STREAM_NAMED("labels", " label is steppable");
+                    r = 0; g = 255; b = 0;
+                } else
+                {
+                    ROS_DEBUG_STREAM_NAMED("labels", " label not recognized!");
+                }
+
+
+                std::uint32_t rgb = ((std::uint32_t)r << 16 | (std::uint32_t)g << 8 | (std::uint32_t)b);
+                float color_f = *reinterpret_cast<float*>(&rgb);
+
+                data[8*j] =   Pcyl_t.x;
+                data[8*j+1] = Pcyl_t.y;
+                data[8*j+2] = Pcyl_t.z;
+                data[8*j+4] = color_f; 
+            }
+            
+            
+
+            pcloud_msg->header = points.getHeader();
+            
+            return pcloud_msg;
+        
+        }
+        
+    }   
+}

@@ -66,7 +66,7 @@ namespace egocylindrical
             {
                 if(measurement.raytrace)
                 {
-                    new_pts_ = wrapper_buffer_.getNew();
+                    new_pts_ = wrapper_buffer_.getNew(); // adds nullptr
                     try
                     {
                         pp_.transform(*old_pts_, *new_pts_, target_header, config_.num_threads);

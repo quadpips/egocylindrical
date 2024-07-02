@@ -30,8 +30,8 @@ namespace utils
       
       ROS_DEBUG("Getting Transformation details");
       geometry_msgs::TransformStamped trans = buffer_.lookupTransform(new_header.frame_id, new_header.stamp,
-                      old_header.frame_id, old_header.stamp,
-                      fixed_frame_id_);
+                                                                      old_header.frame_id, old_header.stamp,
+                                                                      fixed_frame_id_);
       
       ROS_DEBUG_STREAM_NAMED("timing", "Finding transform took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
               

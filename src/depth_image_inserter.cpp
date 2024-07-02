@@ -40,7 +40,7 @@ namespace egocylindrical
             float* __restrict__ x = cylindrical_points.getX(); // size: getNumPt()
             float* __restrict__ y = cylindrical_points.getY(); // size: getNumPt()
             float* __restrict__ z = cylindrical_points.getZ(); // size: getNumPt()
-            short* __restrict__ labels = cylindrical_points.getLabels(); // size: getNumPt()
+            uint8_t* __restrict__ labels = cylindrical_points.getLabels(); // size: getNumPt()
             
             PointTransformerObject point_transformer(transform);
             
@@ -51,7 +51,7 @@ namespace egocylindrical
                                     ny(num_pixels, dNaN), // size: num_pixels
                                     nz(num_pixels, dNaN); // size: num_pixels
 
-            AlignedVector<short> nlabels(num_pixels); // size: num_pixels
+            AlignedVector<uint8_t> nlabels(num_pixels); // size: num_pixels
             AlignedVector<int32_t> inds(num_pixels);
             
             ROS_INFO_STREAM_NAMED("timing", "getNumPts:" << cylindrical_points.getNumPts());
@@ -94,9 +94,9 @@ namespace egocylindrical
 
                 //if(depth>0)  //Only insert actual points (works for both float and uint16)
                 {                        
-                    cv::Point3f ray = cam_model.projectPixelTo3dRay(pt);
-                    cv::Point3f world_pnt = ray * (((float) depth)/scale);
-                    cv::Point3f transformed_pnt = point_transformer.transform(world_pnt);
+                    cv::Point3f ray = cam_model.projectPixelTo3dRay(pt); // compute image ray
+                    cv::Point3f world_pnt = ray * (((float) depth)/scale); // scale image ray by depth to get world point
+                    cv::Point3f transformed_pnt = point_transformer.transform(world_pnt); // transform between prior timestep and current timestep (or something, not so sure)
                     
                     nx[i] = transformed_pnt.x;
                     ny[i] = transformed_pnt.y;
@@ -105,13 +105,15 @@ namespace egocylindrical
                     // ROS_INFO_STREAM_NAMED("timing", "i: " << i);
 
                     // nlabels[i] = 0; // Fine.
-                    short label = labels_image.data[i]; // labels_image.at<uint8_t>(row_int, col_int); // labels_image.data[100000]; // 
+                    uint8_t label = labels_image.data[i]; // labels_image.at<uint8_t>(row_int, col_int); // labels_image.data[100000]; // 
 
-                    nlabels[i] = label;  // labels_image.data[i]; // Fine now.                   
+                    nlabels[i] = label;  // labels_image.data[i]; // Fine now.                
+                       
                     // if (i == 100)
                     // {
-                    //     ROS_DEBUG_STREAM_NAMED("labels", "label:" << label);
-                    //     ROS_DEBUG_STREAM_NAMED("labels", "nlabels[" << i << "]:" << nlabels[i]);
+                    //     // ROS_DEBUG_STREAM_NAMED("labels", "label:" << label);
+                    //     ROS_DEBUG_STREAM_NAMED("labels", "nlabels[" << i << "]:" << std::hex << (uint16_t) nlabels[i]);                     
+                    //     // ROS_DEBUG_STREAM_NAMED("labels", "nlabels[" << i << "]:" << nlabels[i]);
                     // }
 
                     int cyl_idx = cylindrical_points.worldToCylindricalIdx(transformed_pnt);
@@ -132,7 +134,7 @@ namespace egocylindrical
                     
                     int cyl_idx = inds[i];
                             
-                    if(cyl_idx >= 0  && cyl_idx < max_ind)
+                    if(cyl_idx >= 0  && cyl_idx < max_ind) // mapping onto columns of egocylinder
                     {
                         float range_sq = ranges[i];
                 
@@ -149,8 +151,9 @@ namespace egocylindrical
                             labels[cyl_idx] = nlabels[i]; // setting i for i does not feel right to me.
                             // if (i == 100)
                             // {
-                            //     ROS_DEBUG_STREAM_NAMED("labels", "nlabels[" << i << "]:" << nlabels[i]);
-                            //     ROS_DEBUG_STREAM_NAMED("labels", "labels[" << cyl_idx << "]:" << labels[cyl_idx]);
+                            //     // ROS_DEBUG_STREAM_NAMED("labels", "nlabels[" << i << "]:" << nlabels[i]);
+                            //     ROS_DEBUG_STREAM_NAMED("labels", "labels[" << cyl_idx << "]:" << std::hex << (uint16_t) labels[cyl_idx]);                     
+                            //     // ROS_DEBUG_STREAM_NAMED("labels", "labels[" << cyl_idx << "]:" << labels[cyl_idx]);
                             // } 
                         }
                     }
@@ -158,7 +161,7 @@ namespace egocylindrical
                     {
                         cyl_idx = cylindrical_points.worldToCanIdx(transformed_pnt);
                     
-                        if(cyl_idx >=0 && cyl_idx < cylindrical_points.getNumPts())
+                        if(cyl_idx >=0 && cyl_idx < cylindrical_points.getNumPts()) // mapping onto top/bottom of egocan
                         {
                             float can_depth = worldToCanDepth(transformed_pnt);
                             
@@ -175,8 +178,9 @@ namespace egocylindrical
                                 labels[cyl_idx] = nlabels[i]; // setting i for i does not feel right to me.
                                 // if (i == 100)
                                 // {
-                                //     ROS_DEBUG_STREAM_NAMED("labels", "nlabels[" << i << "]:" << nlabels[i]);
-                                //     ROS_DEBUG_STREAM_NAMED("labels", "labels[" << cyl_idx << "]:" << labels[cyl_idx]);
+                                //     // ROS_DEBUG_STREAM_NAMED("labels", "nlabels[" << i << "]:" << nlabels[i]);
+                                //     ROS_DEBUG_STREAM_NAMED("labels", "labels[" << cyl_idx << "]:" << std::hex << (uint16_t) labels[cyl_idx]);                     
+                                //     // ROS_DEBUG_STREAM_NAMED("labels", "labels[" << cyl_idx << "]:" << labels[cyl_idx]);
                                 // }                                
                                 // ROS_DEBUG_STREAM_NAMED("labels", "labels[cyl_idx]: " << labels[cyl_idx]);
 
@@ -498,37 +502,53 @@ namespace egocylindrical
         {
             const cv::Mat image = cv_bridge::toCvShare(image_msg)->image;
             // const cv::Mat labels = cv_bridge::toCvCopy(labels_msg, "8UC1")->image; // do not do!
-            cv_bridge::CvImageConstPtr cvImagePtr = cv_bridge::toCvCopy(labels_msg, "8UC1");
+            cv_bridge::CvImageConstPtr cvImagePtr = cv_bridge::toCvCopy(labels_msg, "8UC1"); // , "8UC1"
             const cv::Mat labels = cvImagePtr->image;
 
+            // ROS_INFO_STREAM_NAMED("labels", "labels: " << labels.data);
 
-            uint8_t test_label_uint8_t = labels.at<uint8_t>(0, 100); // DOES NOT WORK 
-            int test_label_int = labels.at<uint8_t>(0, 100); // WORKS
-            int8_t test_label_int8_t = labels.at<int8_t>(0, 100); // DOES NOT WORK 
-            int test_label_int2 = labels.at<int8_t>(0, 100); // WORKS
+            // uint8_t test_label_uint8_t = labels.at<uint8_t>(0, 100); // DOES NOT WORK 
+            // int test_label_int = labels.at<uint8_t>(0, 100); // WORKS
+            // int8_t test_label_int8_t = labels.at<int8_t>(0, 100); // DOES NOT WORK 
+            // int test_label_int2 = labels.at<int8_t>(0, 100); // WORKS
 
-            int test_label_data_int = labels.data[100]; // WORKS
-            int8_t test_label_data_int8_t = labels.data[100]; // DOES NOT WORK
+            // uint16_t test_label_uint16_t = labels.at<uint16_t>(0, 100); // WORKS, returns 771
+            // uint8_t test_16_to_8_convert = static_cast<uint8_t>((test_label_uint16_t & 0xFF00) >> 8);
 
-            uint8_t test_convert_uint8 = test_label_data_int; // DOES NOT WORK
-            int8_t test_convert_int8 = test_label_data_int; // DOES NOT WORK
+            // int test_label_data_int = labels.data[100]; // WORKS
+            // int8_t test_label_data_int8_t = labels.data[100]; // DOES NOT WORK
 
-            short test_convert_short = labels.at<uint8_t>(0, 100); // WORKS
+            // uint8_t * test_convert_uint8 = (uint8_t*) &test_label_data_int; // DOES NOT WORK
+            // int8_t * test_convert_int8 = (int8_t*) &test_label_data_int; // DOES NOT WORK
 
-            ROS_INFO_STREAM_NAMED("labels", "test_label_uint8_t: " << test_label_uint8_t);
-            ROS_INFO_STREAM_NAMED("labels", "test_label_int: " << test_label_int);
-            ROS_INFO_STREAM_NAMED("labels", "test_label_int8_t: " << test_label_int8_t);
-            ROS_INFO_STREAM_NAMED("labels", "test_label_int2: " << test_label_int2);
-            ROS_INFO_STREAM_NAMED("labels", "test_label_data: " << test_label_data_int);
-            ROS_INFO_STREAM_NAMED("labels", "test_label_data_int8_t: " << test_label_data_int8_t);
-            ROS_INFO_STREAM_NAMED("labels", "test_convert_uint8: " << test_convert_uint8);
-            ROS_INFO_STREAM_NAMED("labels", "test_convert_int8: " << test_convert_int8);
-            ROS_INFO_STREAM_NAMED("labels", "test_convert_short: " << test_convert_short);
-            ROS_INFO_STREAM_NAMED("labels", "labels.at<uint8_t>(0, 100): " << labels.at<uint8_t>(0, 100));
-            ROS_INFO_STREAM_NAMED("labels", "labels.at<int8_t>(0, 100): " << labels.at<int8_t>(0, 100));
-            ROS_INFO_STREAM_NAMED("labels", "labels.at<uint32_t>(0, 100): " << labels.at<uint32_t>(0, 100)); // huge number 
-            ROS_INFO_STREAM_NAMED("labels", "labels.at<int32_t>(0, 100): " << labels.at<int32_t>(0, 100)); // huge number
-            ROS_INFO_STREAM_NAMED("labels", "labels.at<int>(0, 100): " << labels.at<int>(0, 100));
+            // short test_convert_short = labels.at<uint8_t>(0, 100); // WORKS
+            // float test_convert_float = labels.at<uint8_t>(0, 100); // WORKS
+
+            // uint8_t test_label_uint8_t_int = labels.at<int>(0, 100); // DOES NOT WORK 
+
+            // if (test_label_uint8_t == 3)
+            //     ROS_INFO_STREAM_NAMED("labels", "COMPARING IS FINE!!");    
+
+            // ROS_INFO_STREAM_NAMED("labels", "test_label_uint8_t: " << std::hex << (uint16_t) test_label_uint8_t);
+            // ROS_INFO_STREAM_NAMED("labels", "test_label_int: " << test_label_int);
+            // ROS_INFO_STREAM_NAMED("labels", "test_label_int8_t: " << test_label_int8_t);
+            // ROS_INFO_STREAM_NAMED("labels", "test_label_int2: " << test_label_int2);
+            // ROS_INFO_STREAM_NAMED("labels", "test_label_data: " << test_label_data_int);
+            // ROS_INFO_STREAM_NAMED("labels", "test_label_data_int8_t: " << test_label_data_int8_t);
+            // ROS_INFO_STREAM_NAMED("labels", "test_convert_uint8: " << *test_convert_uint8);
+            // ROS_INFO_STREAM_NAMED("labels", "test_convert_int8: " << *test_convert_int8);
+            // ROS_INFO_STREAM_NAMED("labels", "test_convert_short: " << test_convert_short);
+            // ROS_INFO_STREAM_NAMED("labels", "test_convert_float: " << test_convert_float);
+            // ROS_INFO_STREAM_NAMED("labels", "labels.at<uint8_t>(0, 100): " << labels.at<uint8_t>(0, 100));
+            // ROS_INFO_STREAM_NAMED("labels", "labels.at<int8_t>(0, 100): " << labels.at<int8_t>(0, 100));
+            // ROS_INFO_STREAM_NAMED("labels", "labels.at<uint16_t>(0, 100): " << labels.at<uint16_t>(0, 100)); // huge number 
+            // ROS_INFO_STREAM_NAMED("labels", "labels.at<int16_t>(0, 100): " << labels.at<int16_t>(0, 100)); // huge number            
+            // ROS_INFO_STREAM_NAMED("labels", "labels.at<uint32_t>(0, 100): " << labels.at<uint32_t>(0, 100)); // huge number 
+            // ROS_INFO_STREAM_NAMED("labels", "labels.at<int32_t>(0, 100): " << labels.at<int32_t>(0, 100)); // huge number
+            // ROS_INFO_STREAM_NAMED("labels", "labels.at<int>(0, 100): " << labels.at<int>(0, 100));
+            // ROS_INFO_STREAM_NAMED("labels", "test_label_uint8_t_int: " << test_label_uint8_t_int);
+            // ROS_INFO_STREAM_NAMED("labels", "test_label_uint16_t: " << test_label_uint16_t); 
+            // ROS_INFO_STREAM_NAMED("labels", "test_16_to_8_convert: " << test_16_to_8_convert); 
 
             // int label = labels.at<uint8_t>(3, 3);
             // ROS_INFO_STREAM_NAMED("timing", "in DepthImageInserter::insertPoints, label: " << label);

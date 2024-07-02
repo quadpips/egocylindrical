@@ -20,12 +20,12 @@ namespace utils
         float* x = cylindrical_history.getX();
         float* y = cylindrical_history.getY();
         float* z = cylindrical_history.getZ();
-        short* labels = cylindrical_history.getLabels();
+        uint8_t* labels = cylindrical_history.getLabels();
 
         const float* n_x = new_points.getX();
         const float* n_y = new_points.getY();
         const float* n_z = new_points.getZ();
-        const short* n_labels = new_points.getLabels();
+        const uint8_t* n_labels = new_points.getLabels();
         
         const float* ranges = new_points.getRanges();
         const int32_t* inds = new_points.getInds();
@@ -63,15 +63,18 @@ namespace utils
                     x[idx] = world_pnt.x;
                     y[idx] = world_pnt.y;
                     z[idx] = world_pnt.z;
-                    if (n_labels[i] == n_labels[i])
-                    {
-                        // ROS_INFO_STREAM_NAMED("labels", "labels[" << idx << "]: " << labels[idx] << " (1)");
-                        // ROS_INFO_STREAM_NAMED("labels", "n_labels[" << i << "]: " << n_labels[i] << " (1)");
-                        // labels[idx] = n_labels[i]; // overwrite label as well
-                    } else
-                    {
-                        ROS_INFO_STREAM_NAMED("labels", "n_labels[" << i << "] is NaN (1)"); 
-                    }
+                    labels[idx] = n_labels[i]; // fine at lab, overwrite label as well
+                    // ROS_DEBUG_STREAM_NAMED("labels", "labels[" << idx << "]:" << std::hex << (uint16_t) labels[idx]);                     
+
+                    // if (n_labels[i] == n_labels[i])
+                    // {
+                    //     // ROS_INFO_STREAM_NAMED("labels", "labels[" << idx << "]: " << labels[idx] << " (1)");
+                    //     // ROS_INFO_STREAM_NAMED("labels", "n_labels[" << i << "]: " << n_labels[i] << " (1)");
+                    //     // labels[idx] = n_labels[i]; // overwrite label as well
+                    // } else
+                    // {
+                    //     ROS_INFO_STREAM_NAMED("labels", "n_labels[" << i << "] is NaN (1)"); 
+                    // }
                     // // ROS_INFO_STREAM_NAMED("update", "labels[idx]: " << labels[idx]);
                     // ROS_INFO_STREAM_NAMED("update", "i: " << i << ", idx: " << idx << ", numPts: " << new_points.getNumPts());
                 }
@@ -99,15 +102,18 @@ namespace utils
                             x[idx] = world_pnt.x;
                             y[idx] = world_pnt.y;
                             z[idx] = world_pnt.z;
-                            if (n_labels[i] == n_labels[i])
-                            {
-                                // ROS_INFO_STREAM_NAMED("labels", "labels[" << idx << "]: " << labels[idx] << " (2)");
-                                // ROS_INFO_STREAM_NAMED("labels", "n_labels[" << i << "]: " << n_labels[i] << " (1)");
-                                // labels[idx] =  n_labels[i]; // overwrite label as well
-                            } else
-                            {
-                                ROS_INFO_STREAM_NAMED("labels", "n_labels[" << i << "] is NaN (2)"); 
-                            }
+                            labels[idx] =  n_labels[i]; // overwrite label as well
+                            // ROS_DEBUG_STREAM_NAMED("labels", "labels[" << idx << "]:" << std::hex << (uint16_t) labels[idx]);                     
+
+                            // if (n_labels[i] == n_labels[i])
+                            // {
+                            //     // ROS_INFO_STREAM_NAMED("labels", "labels[" << idx << "]: " << labels[idx] << " (2)");
+                            //     // ROS_INFO_STREAM_NAMED("labels", "n_labels[" << i << "]: " << n_labels[i] << " (1)");
+                            //     // labels[idx] =  n_labels[i]; // overwrite label as well
+                            // } else
+                            // {
+                            //     ROS_INFO_STREAM_NAMED("labels", "n_labels[" << i << "] is NaN (2)"); 
+                            // }
                         }
                     }
                     else
