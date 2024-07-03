@@ -26,9 +26,9 @@ namespace egocylindrical
             
             pcl::toROSMsg(pcloud, *pcloud_msg);
             
-            ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZ): " << sizeof(pcl::PointXYZ));
-            ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZRGB): " << sizeof(pcl::PointXYZRGB));
-            ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZI): " << sizeof(pcl::PointXYZI));
+            // ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZ): " << sizeof(pcl::PointXYZ));
+            // ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZRGB): " << sizeof(pcl::PointXYZRGB));
+            // ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZI): " << sizeof(pcl::PointXYZI));
             pcloud_msg->data.resize(sizeof(pcl::PointXYZRGB) * num_pts);
             
             pcloud_msg->width = num_pts;

@@ -37,8 +37,6 @@ namespace egocylindrical
     {
 
         constexpr float dNaN=(std::numeric_limits<float>::has_quiet_NaN) ? std::numeric_limits<float>::quiet_NaN() : 0;
-        constexpr float iNaN=(std::numeric_limits<int>::has_quiet_NaN) ? std::numeric_limits<int>::quiet_NaN() : 0;
-
         
         //Source: https://stackoverflow.com/a/39714493/2906021
         inline
@@ -1104,7 +1102,7 @@ namespace egocylindrical
                 size_t labels_buffer_size = biggest_alignment - labels_object_size;
                 size_t labels_buffer_objects = labels_buffer_size / labels_object_size;
                 
-                msg_->labels.data.resize(getNumPts() + labels_buffer_objects, iNaN);
+                msg_->labels.data.resize(getNumPts() + labels_buffer_objects, 0);
 
                 
                 //Align data pointer (points)
@@ -1181,7 +1179,7 @@ namespace egocylindrical
                       if(clear)
                       {
                         std::fill(msg_->points.data.begin(), msg_->points.data.end(), dNaN);
-                        std::fill(msg_->labels.data.begin(), msg_->labels.data.end(), iNaN);
+                        std::fill(msg_->labels.data.begin(), msg_->labels.data.end(), 0);
                       }
                     }
                     if(msg_->points.data.size()==0)
