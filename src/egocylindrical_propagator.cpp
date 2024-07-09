@@ -11,6 +11,8 @@ namespace egocylindrical
 
     void EgoCylindricalPropagator::update(utils::SensorMeasurement& measurement)
     {
+        ROS_INFO_STREAM_NAMED("timing", "update()");
+
         //TODO: Make ecwrapper pointers into local variables
         old_pts_ = wrapper_buffer_.getOld();
         
@@ -28,6 +30,8 @@ namespace egocylindrical
         auto new_stamp = measurement_header.stamp;
         if(old_pts_)
         {
+            ROS_INFO_STREAM_NAMED("timing", "old_pts_->getOneLabel(17772): " << std::hex << (uint16_t) old_pts_->getOneLabel(17772));
+
             if(old_pts_->getHeader().stamp > new_stamp)
             {
                 //old_pts_ = nullptr;
@@ -90,6 +94,9 @@ namespace egocylindrical
             wrapper_buffer_.releaseOld();
         }
 
+        ROS_INFO_STREAM_NAMED("timing", "new_pts_->getOneLabel(17772) (before insert): " << std::hex << (uint16_t) new_pts_->getOneLabel(17772));
+
+
         if(propagated_ec_pub_.getNumSubscribers())
         {
             ros::WallTime t1 = ros::WallTime::now();
@@ -109,6 +116,8 @@ namespace egocylindrical
             {
                 measurement.insert(*new_pts_);
             }
+
+            ROS_INFO_STREAM_NAMED("timing", "new_pts_->getOneLabel(17772) (after insert): " << std::hex << (uint16_t) new_pts_->getOneLabel(17772));
 
             if(measurement.publish_update)
             {

@@ -2,6 +2,7 @@
 
 #include <egocylindrical/parameter_getter.hpp>
 
+#include <egocylindrical/labeled_depth_image_sensor.h>
 #include <egocylindrical/depth_image_sensor.h>
 #include <egocylindrical/laser_scan_sensor.h>
 
@@ -45,6 +46,10 @@ namespace egocylindrical
             else if(sensor_type == "depth")
             {
                 sensor = std::make_shared<DepthImageSensor>(sensor_nh, buffer);
+            }
+            else if(sensor_type == "labeled_depth")
+            {
+                sensor = std::make_shared<LabeledDepthImageSensor>(sensor_nh, buffer);
             }
             else
             {

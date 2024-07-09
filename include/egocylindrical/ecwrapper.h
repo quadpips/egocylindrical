@@ -1010,6 +1010,8 @@ namespace egocylindrical
 
             }
 
+            inline const uint8_t getOneLabel(const int & idx) const       { return labels_[idx]; } //__builtin_assume_aligned(points_, __BIGGEST_ALIGNMENT__)
+
             inline uint8_t* getLabels()                   { return (uint8_t*) labels_; } //__builtin_assume_aligned(points_, __BIGGEST_ALIGNMENT__)
             inline const uint8_t* getLabels() const       { return (const uint8_t*) labels_; } //__builtin_assume_aligned(points_, __BIGGEST_ALIGNMENT__)
                         

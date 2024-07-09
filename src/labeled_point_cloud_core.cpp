@@ -20,7 +20,7 @@ namespace egocylindrical
           
             const int num_cols = points.getCols();
             
-            pcl::PointCloud<pcl::PointXYZRGB> pcloud;
+            pcl::PointCloud<pcl::PointXYZRGBA> pcloud;
             
             sensor_msgs::PointCloud2::Ptr pcloud_msg = boost::make_shared<sensor_msgs::PointCloud2>();
             
@@ -29,7 +29,7 @@ namespace egocylindrical
             // ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZ): " << sizeof(pcl::PointXYZ));
             // ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZRGB): " << sizeof(pcl::PointXYZRGB));
             // ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZI): " << sizeof(pcl::PointXYZI));
-            pcloud_msg->data.resize(sizeof(pcl::PointXYZRGB) * num_pts);
+            pcloud_msg->data.resize(sizeof(pcl::PointXYZRGBA) * num_pts);
             
             pcloud_msg->width = num_pts;
             pcloud_msg->height = 1;
@@ -41,7 +41,7 @@ namespace egocylindrical
             
             float* data = (float*) pcloud_msg->data.data();
 
-            std::uint8_t r = 0, g = 0, b = 0;    // Example: Red color
+            std::uint8_t r = 0, g = 0, b = 0, a = 0;    // Example: Red color
 
             //#pragma omp parallel for num_threads(4)
             #pragma GCC ivdep
@@ -54,27 +54,26 @@ namespace egocylindrical
                 if (labels[j] == 0) // VOID
                 {
                     // ROS_DEBUG_STREAM_NAMED("labels", " label is void");
-                    r = 0; g = 0; b = 0;
+                    r = 0; g = 0; b = 0; a = 0;
                 } else if (labels[j] == 1) // NONPASS
                 {
                     // ROS_DEBUG_STREAM_NAMED("labels", " label is non-passable");
-                    r = 255; g = 0; b = 0;
+                    r = 255; g = 0; b = 0; a = 255;
                 }  else if (labels[j] == 2) // PASS
                 {
                     // ROS_DEBUG_STREAM_NAMED("labels", " label is passable");
-                    r = 255; g = 255; b = 0;
+                    r = 255; g = 255; b = 0; a = 255;
                 }  else if (labels[j] == 3) // STEP
                 {
                     // ROS_DEBUG_STREAM_NAMED("labels", " label is steppable");
-                    r = 0; g = 255; b = 0;
+                    r = 0; g = 255; b = 0; a = 255;
                 } else
                 {
                     ROS_DEBUG_STREAM_NAMED("labels", " label not recognized!");
                 }
 
-
-                std::uint32_t rgb = ((std::uint32_t)r << 16 | (std::uint32_t)g << 8 | (std::uint32_t)b);
-                float color_f = *reinterpret_cast<float*>(&rgb);
+                std::uint32_t rgba = ((std::uint32_t)a << 24 | (std::uint32_t)r << 16 | (std::uint32_t)g << 8 | (std::uint32_t)b);
+                float color_f = *reinterpret_cast<float*>(&rgba);
 
                 data[8*j] =   Pcyl_t.x;
                 data[8*j+1] = Pcyl_t.y;
@@ -91,27 +90,27 @@ namespace egocylindrical
                 if (labels[j] == 0) // VOID
                 {
                     // ROS_DEBUG_STREAM_NAMED("labels", " label is void");
-                    r = 0; g = 0; b = 0;
+                    r = 0; g = 0; b = 0; a = 0; 
                 } else if (labels[j] == 1) // NONPASS
                 {
                     // ROS_DEBUG_STREAM_NAMED("labels", " label is non-passable");
-                    r = 255; g = 0; b = 0;
+                    r = 255; g = 0; b = 0; a = 255;
                 }  else if (labels[j] == 2) // PASS
                 {
                     // ROS_DEBUG_STREAM_NAMED("labels", " label is passable");
-                    r = 255; g = 255; b = 0;
+                    r = 255; g = 255; b = 0; a = 255;
                 }  else if (labels[j] == 3) // STEP
                 {
                     // ROS_DEBUG_STREAM_NAMED("labels", " label is steppable");
-                    r = 0; g = 255; b = 0;
+                    r = 0; g = 255; b = 0; a = 255;
                 } else
                 {
                     ROS_DEBUG_STREAM_NAMED("labels", " label not recognized!");
                 }
 
 
-                std::uint32_t rgb = ((std::uint32_t)r << 16 | (std::uint32_t)g << 8 | (std::uint32_t)b);
-                float color_f = *reinterpret_cast<float*>(&rgb);
+                std::uint32_t rgba = ((std::uint32_t)a << 24 | (std::uint32_t)r << 16 | (std::uint32_t)g << 8 | (std::uint32_t)b);
+                float color_f = *reinterpret_cast<float*>(&rgba);
 
                 data[8*j] =   Pcyl_t.x;
                 data[8*j+1] = Pcyl_t.y;

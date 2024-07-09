@@ -35,7 +35,11 @@ namespace egocylindrical
             
             bool init();
             bool init(std::string fixed_frame_id);
-            
+
+            bool insert(ECWrapper& cylindrical_points, 
+                        const sensor_msgs::Image::ConstPtr& image_msg, 
+                        const sensor_msgs::CameraInfo::ConstPtr& cam_info);
+
             bool insert(ECWrapper& cylindrical_points, 
                         const sensor_msgs::Image::ConstPtr& image_msg, 
                         const sensor_msgs::CameraInfo::ConstPtr& cam_info,
