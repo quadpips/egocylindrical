@@ -64,17 +64,6 @@ namespace egocylindrical
       }
     }
     
-
-    
-//     float convertRange(float range)
-//     {
-//       return range;
-//     }
-//     
-//     float convertRange(uint16_t range)
-//     {
-//       return float(range)/1000;
-//     }
     
     void convertRange(float in, float& out)
     {
@@ -86,92 +75,6 @@ namespace egocylindrical
       out = 1000*in;
     }
     
-    // template <typename U>
-    // class RunningTally
-    // {
-    //   struct InflationInstance
-    //   {
-    //     int k;
-    //     U range;
-
-    //     InflationInstance(int k, U range):
-    //       k(k),
-    //       range(range)
-    //     {}
-
-    //     bool operator <(const InflationInstance& lhs, const InflationInstance& rhs) const
-    //     {
-    //       return lhs.range <= rhs.range && lhs.k >= rhs.k;
-    //     }
-    //   };
-
-    //   using V = std::vector<InflationInstance>;
-
-    //   v queue_;
-
-    // public:
-
-    //   void addEntry(InflationInstance ii)
-    //   {
-    //     queue_.push_back(ii);
-    //     std::push_heap(queue_.begin(), queue_.end());
-    //   }
-
-    //   void addEntry(int k, U range)
-    //   {
-    //     addEntry(InflationInstance(k, range));
-    //   }
-
-    //   void update()
-    //   {
-    //     for(auto& ii : queue_)
-    //     {
-    //       --ii.k;
-    //     }
-
-    //     while(queue_.front().k < 1)
-    //     {
-    //       std::pop_heap(queue_.begin(), queue_.end());
-    //       queue_.pop_back();
-    //     }
-    //   }
-
-    //   U currentRange()
-    //   {
-    //     return queue_.front().range;
-    //   }
-    // };
-
-    // Copied from https://stackoverflow.com/a/42054708
-    // template<typename T>
-    // class range_view {
-
-    // public:
-
-    //   range_view(T* data, std::size_t size)
-    //       : m_data ( data ),
-    //         c_data ( nullptr ),
-    //         m_size ( size ) { }
-
-    //   range_view(const T* data, std::size_t size)
-    //       : m_data ( nullptr ),
-    //         c_data ( data ),
-    //         m_size ( size ) { }
-
-    //   bool is_const() const { return c_data; }
-
-    //   const T* begin() const { return c_data ? c_data : m_data; }
-    //   const T* end() const { return (c_data ? c_data : m_data) + m_size; }
-
-    //   T* begin() { return m_data; }
-    //   T* end() { return m_data + m_size; }
-
-    // private:
-
-    //   T* m_data;
-    //   const T* c_data;
-    //   std::size_t m_size;
-    // };
 
     template<typename T>
     class range_view {
@@ -180,29 +83,21 @@ namespace egocylindrical
 
       range_view(T* data, std::size_t size)
           : m_data ( data ),
-            // c_data ( nullptr ),
             m_size ( size ) { }
-
-      // range_view(const T* data, std::size_t size)
-      //     : m_data ( nullptr ),
-      //       c_data ( data ),
-      //       m_size ( size ) { }
-
-      // bool is_const() const { return c_data; }
 
       const T* begin() const { return m_data; }
       const T* end() const { return m_data + m_size; }
 
-      // template<typename std::enable_if<!std::is_const<T>, >  // todo: replace 'T' with 'typename remove_reference<T>::type'
       T* begin() { return m_data; }
       T* end() { return m_data + m_size; }
 
     private:
 
       T* m_data;
-      // const T* c_data;
       std::size_t m_size;
     };
+
+    // end copied code
 
     template<typename T>
     range_view<T> get_range_view(T* data, std::size_t size)
@@ -210,9 +105,8 @@ namespace egocylindrical
       return range_view<T>(data, size);
     }
 
-    // end copied code
 
-    // Copied from https://stackoverflow.com/a/43313233
+    // Based from https://stackoverflow.com/a/43313233
     template<typename Iterable, typename Sep>
     class Joiner {
         const std::shared_ptr<Iterable> i_storage_;
@@ -225,14 +119,6 @@ namespace egocylindrical
         std::string str() const {std::stringstream ss; ss << *this; return ss.str();}
         template<typename I, typename S> friend std::ostream& operator<< (std::ostream& os, const Joiner<I,S>& j);
     };
-
-    // template<typename Iterable, typename Sep>
-    // class JoinerRval : public Joiner<Iterable, Sep>
-    // {
-    //     const Iterable storage_;
-
-    //     JoinerRval(const Iterable&& i, const Sep& s) : i_(i), s_(s) {}
-
 
     template<typename I, typename S>
     std::ostream& operator<< (std::ostream& os, const Joiner<I,S>& j) {
@@ -248,26 +134,11 @@ namespace egocylindrical
         return os;
     }
 
-    // template<typename I, typename S>
-    // inline Joiner<I,S> join(const I& i, const S& s) {return Joiner<I,S>(i, s);}
-
-    // template<typename T, typename S, typename C=range_view<T>>
-    // inline Joiner<C,S> join(T* const start, size_t size, const S& s) {return Joiner<C,S>(range_view<T>(start, size), s);}
-
     template<typename I, typename S>
-    inline Joiner<I,S> join(const I& i, const S& s) 
-    {
-      auto j = Joiner<I,S>(i, s);
-      return j;
-    }
+    inline Joiner<I,S> join(const I& i, const S& s) {return Joiner<I,S>(i, s);}
 
     template<typename T, typename S, typename C=range_view<T>>
-    inline Joiner<C,S> join(T* start, size_t size, const S& s)
-    {
-      // auto r = 
-      auto j = Joiner<C,S>(get_range_view(start, size), s);
-      return j;
-    }
+    inline Joiner<C,S> join(T* start, size_t size, const S& s) {return Joiner<C,S>(get_range_view(start, size), s);}
 
     // End copied code
 
