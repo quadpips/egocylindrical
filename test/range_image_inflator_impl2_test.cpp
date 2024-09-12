@@ -18,9 +18,29 @@ void test_inflation_indices()
       std::vector<float> ranges(width, 1000);
       std::vector<float> inflated(width);
 
+    //   ranges[0] = 1;
+    //   ranges[7] = 1.3;
+    //   ranges[13] = 0.7;
+    //   ranges[30] = 0.8;
+    //   ranges[31] = 0.9;
+    //   ranges[32] = 0.9;
+    //   ranges[33] = 0.9;
+    //   ranges[34] = 0.9;
+    //   ranges[35] = 0.9;
+    //   ranges[40] = 1.0;
+    //   ranges[45] = 1.3;
       ranges[0] = 1;
-      ranges[7] = 1.3;
-      ranges[13] = 0.7;
+      ranges[1] = 0.9;
+      ranges[2] = 2;
+      ranges[3] = 1.3;
+      ranges[4] = 3;
+      ranges[5] = 0.7;
+      ranges[6] = 0.9;
+      ranges[7] = 1.5;
+      ranges[8] = 0.9;
+      ranges[12] = 0.9;
+      ranges[13] = 2.0;
+      ranges[15] = 1;
 
     //   test_join(ranges);
 

@@ -2,9 +2,11 @@
 #define EGOCYLINDRICAL_RANGE_IMAGE_INFLATOR_IMPL2_H
 
 #include <cstdint>
+#include <iomanip>
 #include <egocylindrical/ecwrapper.h>
 // #include <queue>
 #include <sensor_msgs/Image.h>
+
 
 namespace egocylindrical
 {    
@@ -108,6 +110,15 @@ namespace egocylindrical
       return range_view<T>(data, size);
     }
 
+    struct JoinerFormat
+    {
+      int width;
+      int precision;
+
+      JoinerFormat(int width, int precision):
+        width(width),
+        precision(precision) {}
+    };
 
     // Based on https://stackoverflow.com/a/43313233
     template<typename Iterable, typename Sep>
@@ -115,10 +126,12 @@ namespace egocylindrical
         const std::shared_ptr<Iterable> i_storage_;
         const Iterable& i_;
         const Sep& s_;
+        const JoinerFormat fmt;
+
 
     public:
-        Joiner(const Iterable& i, const Sep& s) : i_(i), s_(s) {}
-        Joiner(const Iterable&& i, const Sep& s) : i_storage_(std::make_shared<Iterable>(i)), i_(*i_storage_), s_(s) {}
+        Joiner(const Iterable& i, const Sep& s, JoinerFormat fmt) : i_(i), s_(s), fmt(fmt) {}
+        Joiner(const Iterable&& i, const Sep& s, JoinerFormat fmt) : i_storage_(std::make_shared<Iterable>(i)), i_(*i_storage_), s_(s), fmt(fmt) {}
         std::string str() const {std::stringstream ss; ss << *this; return ss.str();}
         template<typename I, typename S> friend std::ostream& operator<< (std::ostream& os, const Joiner<I,S>& j);
     };
@@ -127,21 +140,33 @@ namespace egocylindrical
     std::ostream& operator<< (std::ostream& os, const Joiner<I,S>& j) {
         auto elem = j.i_.begin();
         if (elem != j.i_.end()) {
-            os << *elem;
-            ++elem;
-            while (elem != j.i_.end()) {
-                os << j.s_ << *elem;
-                ++elem;
+            if(j.fmt.width > 0)
+            {
+              os << std::setw(j.fmt.width) << *elem;
+              ++elem;
+              while (elem != j.i_.end()) {
+                  os << j.s_ << std::setw(j.fmt.width) << *elem;
+                  ++elem;
+              }
+            }
+            else
+            {
+              os << *elem;
+              ++elem;
+              while (elem != j.i_.end()) {
+                  os << j.s_ << *elem;
+                  ++elem;
+              }
             }
         }
         return os;
     }
 
     template<typename I, typename S>
-    inline Joiner<I,S> join(const I& i, const S& s) {return Joiner<I,S>(i, s);}
+    inline Joiner<I,S> join(const I& i, const S& s, int width=-1) {return Joiner<I,S>(i, s, JoinerFormat(width,-1));}
 
     template<typename T, typename S, typename C=range_view<T>>
-    inline Joiner<C,S> join(T* start, size_t size, const S& s) {return Joiner<C,S>(get_range_view(start, size), s);}
+    inline Joiner<C,S> join(T* start, size_t size, const S& s, int width=-1) {return Joiner<C,S>(get_range_view(start, size), s, JoinerFormat(width,-1));}
 
     // End copied code
 
@@ -197,6 +222,7 @@ namespace egocylindrical
 
       void update(int i, int k, T range, int& k_out, T& range_out)
       {
+        //TODO: modulo i by width to transparently handle wrap around
         auto pr = inflated[i];
         auto pk = K[i];
 
@@ -230,25 +256,33 @@ namespace egocylindrical
           update(i, k, range, k, range);
           --k;
         }
-
+        //NOTE: if k > 0, need to wrap around to the front until k==0
+        //Only then can the reverse pass commence. 
+        // for(size_t ii = width; ii > 0; --ii)
+        // {
+        //   auto i = ii - 1;
+        //   update(i, k, range, k, range);
+        //   --k;
+        // }
+        //Similarly, may need to wrap around to back
       }
 
       void printRanges()
       {
         // std::cout << "Ranges: " << ranges << "\n";
-        ROS_INFO_STREAM("Ranges: " << join(ranges, width, ','));
+        ROS_INFO_STREAM("Ranges:  " << join(ranges, width, ',', 4));
       }
 
       void printInflated()
       {
         // std::cout << "Inflated: " << inflated << "\n";
-        ROS_INFO_STREAM("Inflated: " << join(inflated, width, ','));
+        ROS_INFO_STREAM("Inflated:" << join(inflated, width, ',', 4));
       }
       
       void printK()
       {
         // std::cout << "K: " << K << "\n";
-        ROS_INFO_STREAM("K: " << join(K, ','));
+        ROS_INFO_STREAM("K:       " << join(K, ',', 4));
       }
     };
 
