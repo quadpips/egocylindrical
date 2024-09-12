@@ -511,12 +511,20 @@ target_link_libraries(range_image_inflator_node
    ${catkin_LIBRARIES}
    )
 
+#RANGE_IMAGE_INFLATOR2
+add_library(range_image_inflator_impl2 src/range_image_inflator_impl2.cpp)
+add_dependencies(range_image_inflator_impl2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(range_image_inflator_impl2
+   ${catkin_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
+
 ##RANGE_IMAGE_INFLATOR_NODE2
 add_executable(range_image_inflator_node2 src/range_image_inflator_node.cpp
-   src/range_image_inflator_generator.cpp
-   src/range_image_inflator_impl2.cpp)
+   src/range_image_inflator_generator.cpp)
 add_dependencies(range_image_inflator_node2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(range_image_inflator_node2
+   range_image_inflator_impl2
    ${catkin_LIBRARIES}
    )
 
@@ -583,6 +591,16 @@ target_link_libraries(unit_tests
    ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
    )
+
+
+
+add_executable(range_image_inflator_impl2_test test/range_image_inflator_impl2_test.cpp)
+target_link_libraries(range_image_inflator_impl2_test
+   range_image_inflator_impl2
+   ${catkin_LIBRARIES}
+   ${OpenCV_LIBRARIES}
+   )
+
 
 
    
