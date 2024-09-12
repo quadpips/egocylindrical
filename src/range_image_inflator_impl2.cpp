@@ -106,7 +106,7 @@ namespace egocylindrical
     }
 
 
-    // Based from https://stackoverflow.com/a/43313233
+    // Based on https://stackoverflow.com/a/43313233
     template<typename Iterable, typename Sep>
     class Joiner {
         const std::shared_ptr<Iterable> i_storage_;
@@ -222,7 +222,7 @@ namespace egocylindrical
         int k = 0;
         T range = std::numeric_limits<T>::max();
 
-        for(size_t i = 0; i < width; i++)
+        for(size_t i = 0; i < width; ++i)
         {
           update(i, k, range, k, range);
           --k;
@@ -332,35 +332,6 @@ namespace egocylindrical
       ranges[13] = 0.5;
 
       test_join(ranges);
-
-      // {
-      //   std::cout << "\nmanual on range_view:\n";
-      //   auto r = range_view<float>(ranges.data(), width);
-      //   for(auto v : r)
-      //   {
-      //     std::cout << v << "\n";
-      //   }
-      // }
-
-      // {
-      //   std::cout << "\nmanual on range_view w/ to_string:\n";
-      //   auto r = range_view<float>(ranges.data(), width);
-      //   for(auto v : r)
-      //   {
-      //     std::cout << std::to_string(v) << "\n";
-      //   }
-      // }
-
-      // {
-      //   std::cout << "\njoin on vector:\n";
-      //   std::cout << join(ranges, ',') << "\n";
-      // }
-
-      // {
-      //   std::cout << "\njoin on range_view:\n";
-      //   auto r = range_view<float>(ranges.data(), width);
-      //   std::cout << join(r, ',') << "\n";
-      // }
 
       auto iid = InflationIndices<float>(converter.getWidth(), converter.getHScale(), inflation_radius, ranges.data(), inflated.data());
       iid.fillK();
