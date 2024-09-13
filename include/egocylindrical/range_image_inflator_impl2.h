@@ -183,15 +183,17 @@ namespace egocylindrical
       //std::vector<T> R; //TODO: possible replace this with the actual inflated array?
       const T* const ranges;
       T* inflated;
+      int row;
 
     public:
 
-      InflationIndices(size_t width, float scale, T inflation_radius, const T* const ranges, T* inflated):
+      InflationIndices(size_t width, float scale, T inflation_radius, const T* const ranges, T* inflated, int row=-1):
         width(width),
         inflation_radius(inflation_radius),
         scale(scale),
         ranges(ranges),
-        inflated(inflated)
+        inflated(inflated),
+        row(row)
       {
         K.resize(width, 0);
         // R.resize(width, std::numeric_limits<U>::max());
@@ -231,8 +233,37 @@ namespace egocylindrical
           if(k < pk)
           {
             int _k;
-            T _range;
+            T _range; //The fact that these are discarded is a problem: it is only valid if proceeding through the array one step at a time, which is normally the case. When making 'future notes', however, we can't use this (simplified?) technique and need to actually store the outcome in 'inflated' and 'k', as is done for the other condition
             update(i+k, pk-k, pr, _k, _range);
+          }
+          inflated[i] = range;
+          K[i] = k;
+          k_out = k;
+          range_out = range;
+        }
+        else
+        {
+          k_out = pk;
+          range_out = pr;
+        }
+      }
+
+      void update(int i, int k, T range, int& k_out, T& range_out, bool details, int recursion_level=0)
+      {
+        //TODO: modulo i by width to transparently handle wrap around
+        auto pr = inflated[i];
+        auto pk = K[i];
+        
+        // std::cout << std::setw((recursion_level+1)*4) << "-" << "Index=" << i << "; (k=" << k << ", range=" << range << "); (pk=" << pk << ", prange=" << pr << ")\n";
+        std::cout << "i=" << i << "; (k=" << k << ", range=" << range << "); (pk=" << pk << ", prange=" << pr << ")\n";
+        // ROS_INFO_STREAM(std::setw((recursion_level+1)*4) << "-" << "Index=" << i << "; (k=" << k << ", range=" << range << "); (pk=" << pk << ", prange=" << pr << ")");
+        if(k > 0 && range <= pr)
+        {
+          if(k < pk)
+          {
+            int _k;
+            T _range;
+            update(i+k, pk-k, pr, _k, _range, details, recursion_level+1);
           }
           inflated[i] = range;
           K[i] = k;
@@ -269,20 +300,20 @@ namespace egocylindrical
 
       void printRanges()
       {
-        // std::cout << "Ranges: " << ranges << "\n";
-        ROS_INFO_STREAM("Ranges:  " << join(ranges, width, ',', 4));
+        std::cout << "Ranges:  " << join(ranges, width, ',', 4) << "\n";
+        // ROS_INFO_STREAM("Ranges:  " << join(ranges, width, ',', 4));
       }
 
       void printInflated()
       {
-        // std::cout << "Inflated: " << inflated << "\n";
-        ROS_INFO_STREAM("Inflated:" << join(inflated, width, ',', 4));
+        std::cout << "Inflated:" << join(inflated, width, ',', 4) << "\n";
+        // ROS_INFO_STREAM("Inflated:" << join(inflated, width, ',', 4));
       }
       
       void printK()
       {
-        // std::cout << "K: " << K << "\n";
-        ROS_INFO_STREAM("K:       " << join(K, ',', 4));
+        std::cout << "K:       " << join(K, ',', 4) << "\n";
+        // ROS_INFO_STREAM("K:       " << join(K, ',', 4));
       }
     };
 
@@ -299,22 +330,24 @@ namespace egocylindrical
       for(size_t i = 0; i < iid.width; i++)
       {
         // std::cout << "\ni=" << i << ", k=" << k << ", range=" << range << "\n";
-        ROS_INFO_STREAM("i=" << i << ", k=" << k << ", range=" << range);
-        iid.update(i, k, range, k, range);
+        std::cout << "\n";
+        // ROS_INFO_STREAM("i=" << i << ", k=" << k << ", range=" << range);
+        iid.update(i, k, range, k, range, true);
+        iid.printRanges();
         iid.printInflated();
         iid.printK();
         --k;
       }
-      for(size_t ii = iid.width; ii > 0; --ii)
-      {
-        auto i = ii - 1;
-        // std::cout << "\ni=" << i << ", k=" << k << ", range=" << range << "\n";
-        ROS_INFO_STREAM("i=" << i << ", k=" << k << ", range=" << range);
-        iid.update(i, k, range, k, range);
-        iid.printInflated();
-        iid.printK();
-        --k;
-      }
+      // for(size_t ii = iid.width; ii > 0; --ii)
+      // {
+      //   auto i = ii - 1;
+      //   // std::cout << "\ni=" << i << ", k=" << k << ", range=" << range << "\n";
+      //   ROS_INFO_STREAM("i=" << i << ", k=" << k << ", range=" << range);
+      //   iid.update(i, k, range, k, range);
+      //   iid.printInflated();
+      //   iid.printK();
+      //   --k;
+      // }
 
     }
 
@@ -434,7 +467,7 @@ namespace egocylindrical
       for(int j = 0; j < height; j++)
       {
         // inflateRow(ranges+j*width, width, scale, inflation_radius, inflated+j*width);
-        auto iid = InflationIndices<T>(width, scale, inflation_radius, ranges+j*width, inflated+j*width);
+        auto iid = InflationIndices<T>(width, scale, inflation_radius, ranges+j*width, inflated+j*width, j);
         iid.fillK();
         iid.fillInflated();
         iid.inflate();

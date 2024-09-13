@@ -29,18 +29,29 @@ void test_inflation_indices()
     //   ranges[35] = 0.9;
     //   ranges[40] = 1.0;
     //   ranges[45] = 1.3;
-      ranges[0] = 1;
-      ranges[1] = 0.9;
-      ranges[2] = 2;
-      ranges[3] = 1.3;
-      ranges[4] = 3;
-      ranges[5] = 0.7;
-      ranges[6] = 0.9;
-      ranges[7] = 1.5;
-      ranges[8] = 0.9;
-      ranges[12] = 0.9;
-      ranges[13] = 2.0;
-      ranges[15] = 1;
+
+    //   ranges[0] = 1;
+    //   ranges[1] = 0.9;
+    //   ranges[2] = 2;
+    //   ranges[3] = 1.3;
+    //   ranges[4] = 3;
+    //   ranges[5] = 0.7;
+    //   ranges[6] = 0.9;
+    //   ranges[7] = 1.5;
+    //   ranges[8] = 0.9;
+    //   ranges[12] = 0.9;
+    //   ranges[13] = 2.0;
+    //   ranges[15] = 1;
+
+      ranges[0] = 3;
+      ranges[3] = 2;
+      ranges[6] = 1.5;
+      ranges[7] = 1;
+      ranges[10] = 3;
+      ranges[11] = 0.7;
+      ranges[16] = 0.9;
+      ranges[22] = 1;
+      ranges[30] = 1;
 
     //   test_join(ranges);
 
@@ -54,7 +65,7 @@ void test_inflation_indices()
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "range_image_inflation_tester");
+//   ros::init(argc, argv, "range_image_inflation_tester");
   test_inflation_indices();
-  ros::spin();
+//   ros::spin();
 }
