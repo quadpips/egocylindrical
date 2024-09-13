@@ -222,6 +222,43 @@ namespace egocylindrical
         }
       }
 
+      void update_future(int i, int k, T r)
+      {
+        if(k<=0 || i >= width || i < 0) //Temporary, will address wraparound later
+        {
+          return;
+        }
+        //TODO: modulo i by width to transparently handle wrap around
+        auto pr = inflated[i];
+        auto pk = K[i];
+
+        if(r <= pr)
+        {
+          if(k < pk)
+          {
+            update_future(i+k, pk-k, pr);
+          }
+          inflated[i] = r;
+          K[i] = k;
+        }
+        else
+        {
+          if(pk < k) //Will this ever be true?
+          {
+            //ROS_WARN_STREAM("Did not expect this to occur");
+            std::cout << "Did not expect this to occur!\n\n\n";
+            update_future(i+pk, k-pk, r);
+          }
+        }
+      }
+
+      void update2(int i, int k, T range, int& k_out, T& range_out)
+      {
+        update_future(i, k, range);
+        k_out = K[i];
+        range_out = inflated[i];
+      }
+
       void update(int i, int k, T range, int& k_out, T& range_out)
       {
         //TODO: modulo i by width to transparently handle wrap around
@@ -284,7 +321,7 @@ namespace egocylindrical
 
         for(size_t i = 0; i < width; ++i)
         {
-          update(i, k, range, k, range);
+          update2(i, k, range, k, range);
           --k;
         }
         //NOTE: if k > 0, need to wrap around to the front until k==0
@@ -332,7 +369,8 @@ namespace egocylindrical
         // std::cout << "\ni=" << i << ", k=" << k << ", range=" << range << "\n";
         std::cout << "\n";
         // ROS_INFO_STREAM("i=" << i << ", k=" << k << ", range=" << range);
-        iid.update(i, k, range, k, range, true);
+        // iid.update(i, k, range, k, range, true);
+        iid.update2(i, k, range, k, range);
         iid.printRanges();
         iid.printInflated();
         iid.printK();
