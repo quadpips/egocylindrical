@@ -222,6 +222,7 @@ namespace egocylindrical
         }
       }
 
+    protected:
       void update_future(int i, int k, T r)
       {
         if(k<=0 || i >= width || i < 0) //Temporary, will address wraparound later
@@ -243,75 +244,19 @@ namespace egocylindrical
         }
         else
         {
-          if(pk < k) //Will this ever be true?
+          if(pk < k)
           {
-            //ROS_WARN_STREAM("Did not expect this to occur");
-            std::cout << "Did not expect this to occur!\n\n\n";
             update_future(i+pk, k-pk, r);
           }
         }
       }
 
-      void update2(int i, int k, T range, int& k_out, T& range_out)
+    public:
+      void update(int i, int k, T range, int& k_out, T& range_out)
       {
         update_future(i, k, range);
         k_out = K[i];
         range_out = inflated[i];
-      }
-
-      void update(int i, int k, T range, int& k_out, T& range_out)
-      {
-        //TODO: modulo i by width to transparently handle wrap around
-        auto pr = inflated[i];
-        auto pk = K[i];
-
-        if(k > 0 && range <= pr)
-        {
-          if(k < pk)
-          {
-            int _k;
-            T _range; //The fact that these are discarded is a problem: it is only valid if proceeding through the array one step at a time, which is normally the case. When making 'future notes', however, we can't use this (simplified?) technique and need to actually store the outcome in 'inflated' and 'k', as is done for the other condition
-            update(i+k, pk-k, pr, _k, _range);
-          }
-          inflated[i] = range;
-          K[i] = k;
-          k_out = k;
-          range_out = range;
-        }
-        else
-        {
-          k_out = pk;
-          range_out = pr;
-        }
-      }
-
-      void update(int i, int k, T range, int& k_out, T& range_out, bool details, int recursion_level=0)
-      {
-        //TODO: modulo i by width to transparently handle wrap around
-        auto pr = inflated[i];
-        auto pk = K[i];
-        
-        // std::cout << std::setw((recursion_level+1)*4) << "-" << "Index=" << i << "; (k=" << k << ", range=" << range << "); (pk=" << pk << ", prange=" << pr << ")\n";
-        std::cout << "i=" << i << "; (k=" << k << ", range=" << range << "); (pk=" << pk << ", prange=" << pr << ")\n";
-        // ROS_INFO_STREAM(std::setw((recursion_level+1)*4) << "-" << "Index=" << i << "; (k=" << k << ", range=" << range << "); (pk=" << pk << ", prange=" << pr << ")");
-        if(k > 0 && range <= pr)
-        {
-          if(k < pk)
-          {
-            int _k;
-            T _range;
-            update(i+k, pk-k, pr, _k, _range, details, recursion_level+1);
-          }
-          inflated[i] = range;
-          K[i] = k;
-          k_out = k;
-          range_out = range;
-        }
-        else
-        {
-          k_out = pk;
-          range_out = pr;
-        }
       }
 
       void inflate()
@@ -321,7 +266,7 @@ namespace egocylindrical
 
         for(size_t i = 0; i < width; ++i)
         {
-          update2(i, k, range, k, range);
+          update(i, k, range, k, range);
           --k;
         }
         //NOTE: if k > 0, need to wrap around to the front until k==0
@@ -370,7 +315,7 @@ namespace egocylindrical
         std::cout << "\n";
         // ROS_INFO_STREAM("i=" << i << ", k=" << k << ", range=" << range);
         // iid.update(i, k, range, k, range, true);
-        iid.update2(i, k, range, k, range);
+        iid.update(i, k, range, k, range);
         iid.printRanges();
         iid.printInflated();
         iid.printK();
