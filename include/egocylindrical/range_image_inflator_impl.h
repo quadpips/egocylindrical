@@ -8,8 +8,8 @@
 namespace egocylindrical
 {
 
-    void inflateRangeImage(const sensor_msgs::Image& range_msg, const utils::ECConverter& converter, float inflation_radius, float inflation_height, int num_threads, sensor_msgs::Image& new_msg, const float unknown_value);
-    void inflateRawRangeImage(const sensor_msgs::Image& range_msg, const utils::ECConverter& converter, float inflation_radius, float inflation_height, int num_threads, sensor_msgs::Image& new_msg, const uint16_t unknown_value);
+    void inflateRangeImage(const sensor_msgs::Image& range_msg, const utils::ECConverter& converter, float inflation_radius, float inflation_height, float vertical_offset, int num_threads, sensor_msgs::Image& new_msg, const float unknown_value);
+    void inflateRawRangeImage(const sensor_msgs::Image& range_msg, const utils::ECConverter& converter, float inflation_radius, float inflation_height, float vertical_offset, int num_threads, sensor_msgs::Image& new_msg, const uint16_t unknown_value);
 
 }
 

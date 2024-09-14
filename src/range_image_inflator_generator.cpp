@@ -57,7 +57,8 @@ namespace egocylindrical
     {
       Lock lock(config_mutex_);
       
-      ROS_INFO_STREAM("Updating Range Image Inflator config: num_threads=" << config.num_threads << ", inflation_radius=" << config.inflation_radius);
+      ROS_INFO_STREAM("Updating Range Image Inflator config: num_threads=" << config.num_threads << ", inflation_radius=" << 
+          config.inflation_radius << ", inflation_height=" << config.inflation_height << ", vertical_offset=" << config.vertical_offset);
       config_ = config;
     }
     
@@ -90,7 +91,7 @@ namespace egocylindrical
     }
     
     
-    sensor_msgs::Image::ConstPtr getInflatedRangeImageMsg(const EgoCylinderPoints::ConstPtr& ec_msg, const sensor_msgs::Image::ConstPtr& range_msg, float inflation_radius, float inflation_height, bool conservative, int num_threads, sensor_msgs::ImagePtr preallocated_msg)
+    sensor_msgs::Image::ConstPtr getInflatedRangeImageMsg(const EgoCylinderPoints::ConstPtr& ec_msg, const sensor_msgs::Image::ConstPtr& range_msg, float inflation_radius, float inflation_height, float vertical_offset, int num_threads, sensor_msgs::ImagePtr preallocated_msg)
     {
       sensor_msgs::ImagePtr new_msg_ptr = (preallocated_msg) ? preallocated_msg : boost::make_shared<sensor_msgs::Image>();
       
@@ -123,11 +124,11 @@ namespace egocylindrical
       
       if(range_msg->encoding == sensor_msgs::image_encodings::TYPE_32FC1)
       {
-        inflateRangeImage(*range_msg, converter, inflation_radius, inflation_height, num_threads, new_msg, utils::dNaN);
+        inflateRangeImage(*range_msg, converter, inflation_radius, inflation_height, vertical_offset, num_threads, new_msg, utils::dNaN);
       }
       else if(range_msg->encoding == sensor_msgs::image_encodings::TYPE_16UC1)
       {
-        inflateRawRangeImage(*range_msg, converter, inflation_radius, inflation_height, num_threads, new_msg, 0);
+        inflateRawRangeImage(*range_msg, converter, inflation_radius, inflation_height, vertical_offset, num_threads, new_msg, 0);
       }
       else
       {
@@ -151,14 +152,13 @@ namespace egocylindrical
           ros::WallTime start = ros::WallTime::now();
           
           utils::ECWrapper ec_pts(ec_msg);
-          bool conservative = false;
           
           ConfigType config;
           {
             Lock lock(config_mutex_);
             config = config_;
           }
-          sensor_msgs::Image::ConstPtr image_ptr = getInflatedRangeImageMsg(ec_msg, range_msg, config.inflation_radius, config.inflation_height/2, conservative, config.num_threads, preallocated_msg_);
+          sensor_msgs::Image::ConstPtr image_ptr = getInflatedRangeImageMsg(ec_msg, range_msg, config.inflation_radius, config.inflation_height/2, config.vertical_offset, config.num_threads, preallocated_msg_);
 
           ROS_DEBUG_STREAM_NAMED("timing","Inflating range image by {" << config.inflation_radius << "x" << config.inflation_height/2 << "} took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
           
