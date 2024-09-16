@@ -38,38 +38,6 @@ namespace egocylindrical
       return inflation_height * scale / range;
     }
     
-    
-    template<typename T>
-    void inflateRowRegion(T range, int start_ind, int end_ind, T* inflated)
-    {
-      #pragma GCC ivdep
-      for(int ind = start_ind; ind < end_ind; ind++)
-      {
-        T val = inflated[ind];
-        
-        //inflated[ind] = (!isknown(val) || range < val) ? range : val;
-        
-        //T mod_val = isknown(val) ? val : std::numeric_limits<T>::max();
-        T mod_val = (val==val) ? val : std::numeric_limits<T>::max();
-        inflated[ind] = (range < mod_val) ? range : mod_val;
-                
-//         if(!isknown(val) || range < val)
-//         {
-//           val = range;
-//         }
-        
-        
-//         if(inflated[ind]< range)
-//         {
-//         }
-//         else
-//         {
-//           inflated[ind] = range;
-//         }
-      }
-    }
-    
-    
     void convertRange(float in, float& out)
     {
       out = in;
