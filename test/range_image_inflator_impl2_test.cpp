@@ -55,7 +55,7 @@ void test_inflation_indices()
 
     //   test_join(ranges);
 
-      auto iid = InflationIndices<float>(converter.getWidth(), converter.getHScale(), inflation_radius, ranges.data(), inflated.data());
+      auto iid = InflationIndices<float,RowIndexer<float>,true>(converter.getWidth(), converter.getHScale(), inflation_radius, ranges.data(), inflated.data());
       iid.fillK();
       iid.fillInflated();
       // iid.inflate();

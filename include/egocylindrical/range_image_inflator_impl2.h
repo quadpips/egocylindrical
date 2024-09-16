@@ -138,7 +138,38 @@ namespace egocylindrical
 
     // End copied code
 
-    template <typename T>
+
+
+    template<typename T, typename I>
+    class IndexConverter
+    {
+      float scale;
+      T inflation_magnitude;
+
+    public:
+      IndexConverter(float scale, T inflation_magnitude): scale(scale), inflation_magnitude(inflation_magnitude){}
+      int operator() (T range) { return I::impl(range, scale, inflation_magnitude);}
+    };
+
+    template<typename T>
+    class RowIndexer
+    {
+    public:
+      static
+      int impl(T range, float scale, T inflation_radius) { return getNumRowInflationIndices(range, scale, inflation_radius); }
+    };
+
+    template<typename T>
+    class ColIndexer
+    {
+    public:
+      static
+      int impl(T range, float scale, T inflation_height) { return getNumColInflationIndices(range, scale, inflation_height); }
+    };
+
+
+
+    template <typename T, typename I, bool Wraparound>
     class InflationIndices
     {
     public:
@@ -147,11 +178,12 @@ namespace egocylindrical
       T inflation_radius;
       float scale;
 
-      std::vector<int> K;
-      //std::vector<T> R; //TODO: possible replace this with the actual inflated array?
+      std::vector<int> K, Kref; //Kref would be a good candidate for reusing an existing buffer
       const T* const ranges;
       T* inflated;
       int row;
+
+      IndexConverter<T,I> indexer;
 
     public:
 
@@ -161,9 +193,10 @@ namespace egocylindrical
         scale(scale),
         ranges(ranges),
         inflated(inflated),
-        row(row)
+        row(row),
+        indexer(scale, inflation_radius)
       {
-        K.resize(width, 0);
+        Kref.resize(width, 0);
         // R.resize(width, std::numeric_limits<U>::max());
       }
 
@@ -174,9 +207,10 @@ namespace egocylindrical
         {
           auto range = ranges[i];
 
-          auto k = getNumRowInflationIndices(range, scale, inflation_radius);
-          k = std::max(k, 0);
-          K[i] = isknown(range) ? k : 0;
+          auto k = indexer(range); //getNumRowInflationIndices(range, scale, inflation_radius);
+          auto k2 = std::max(k, 0);
+          auto k3 = isknown(range) ? k2 : 0;
+          Kref[i] = k3;
         }
       }
 
@@ -190,9 +224,24 @@ namespace egocylindrical
         }
       }
 
+      int getIndex(int i)
+      {
+        if(Wraparound)
+        {
+          return (i + width) % width;
+        }
+        else
+        {
+          return i;
+        }
+      }
+
     protected:
+      // TODO: Return bool indicating whether this update had any effects, will need something like that to know when to stop inflation when wraparound enabled
+      template<int dir>
       void update_future(int i, int k, T r)
       {
+        i = getIndex(i);
         if(k<=0 || i >= width || i < 0) //Temporary, will address wraparound later
         {
           return;
@@ -205,7 +254,41 @@ namespace egocylindrical
         {
           if(k < pk)
           {
-            update_future(i+k, pk-k, pr);
+            update_future<dir>(i + dir*k, pk-k, pr);
+          }
+          inflated[i] = r;
+          K[i] = k;
+        }
+        else
+        {
+          if(pk > 0 && pk < k)
+          {
+            update_future<dir>(i + dir*pk, k-pk, r);
+          }
+        }
+      }
+
+      template<int dir>
+      void update_future2(int i)
+      {
+        i = getIndex(i);
+        auto pi = getIndex(i-dir);
+        auto r = inflated[pi];
+        auto k = K[pi];
+
+        if(k<=0 || i >= width || i < 0) //Temporary, will address wraparound later
+        {
+          return;
+        }
+        //TODO: modulo i by width to transparently handle wrap around
+        auto pr = inflated[i];
+        auto pk = K[i];
+
+        if(r <= pr)
+        {
+          if(k < pk)
+          {
+            update_future2<dir>(i + dir*k, pk-k, pr);
           }
           inflated[i] = r;
           K[i] = k;
@@ -214,39 +297,84 @@ namespace egocylindrical
         {
           if(pk < k)
           {
-            update_future(i+pk, k-pk, r);
+            update_future2<dir>(i + dir*pk, k-pk, r);
           }
         }
       }
 
     public:
+      template<int dir>
       void update(int i, int k, T range, int& k_out, T& range_out)
       {
-        update_future(i, k, range);
+        update_future<dir>(i, k, range);
         k_out = K[i];
         range_out = inflated[i];
       }
 
+      void resetK()
+      {
+        K = Kref;
+      }
+
       void inflate()
       {
+        resetK();
         int k = 0;
         T range = std::numeric_limits<T>::max();
 
         for(size_t i = 0; i < width; ++i)
         {
-          update(i, k, range, k, range);
+          update<1>(i, k, range, k, range);
           --k;
         }
         //NOTE: if k > 0, need to wrap around to the front until k==0
         //Only then can the reverse pass commence. 
-        // for(size_t ii = width; ii > 0; --ii)
-        // {
-        //   auto i = ii - 1;
-        //   update(i, k, range, k, range);
-        //   --k;
-        // }
+        resetK(); //Reinitialize K with original entries
+        for(size_t ii = width; ii > 0; --ii)
+        {
+          auto i = ii - 1;
+          update<-1>(i, k, range, k, range);
+          --k;
+        }
         //Similarly, may need to wrap around to back
       }
+
+      // void inflate2()
+      // {
+      //   resetK();
+      //   const int start_ind = 0;
+      //   int ind = start_ind + 1
+      //   while(ind != start_ind)
+      //   {
+      //     update_future<1>(i);
+      //     ind = getIndex(ind + 1);
+      //   }
+      // }
+
+      // template<int dir>
+      // void inflationPass()
+      // {
+      //   const int start_ind = 0;
+      //   int i = start_ind + dir;
+
+      //   resetK();
+      //   while(i != start_ind)
+      //   {
+      //     i = getIndex(i);
+      //     update_future<1>(i);
+      //     i += dir;
+      //   }
+
+      //   while(true)
+      //   {
+      //     i = getIndex(i);
+      //     if(!update_future<1>(i))
+      //     {
+      //       break;
+      //     }
+      //     i += dir;
+      //   }
+      // }
 
       void printRanges()
       {
@@ -267,11 +395,13 @@ namespace egocylindrical
       }
     };
 
-    template <typename T>
-    void debugInflate(InflationIndices<T>& iid)
+    template <typename T, typename I, bool W>
+    void debugInflate(InflationIndices<T,I,W>& iid)
     {
       int k = 0;
       T range = std::numeric_limits<T>::max();
+
+      iid.resetK();
 
       iid.printRanges();
       iid.printInflated();
@@ -283,7 +413,7 @@ namespace egocylindrical
         std::cout << "\n";
         // ROS_INFO_STREAM("i=" << i << ", k=" << k << ", range=" << range);
         // iid.update(i, k, range, k, range, true);
-        iid.update(i, k, range, k, range);
+        iid.template update<1>(i, k, range, k, range);
         iid.printRanges();
         iid.printInflated();
         iid.printK();
@@ -301,6 +431,38 @@ namespace egocylindrical
       // }
 
     }
+
+
+    // void AlternativeLoop(int dir)
+    // {
+    //   auto p_iter = ... //this can probably be a const iterator since represents the values of the previously updated cell
+    //   auto iter = p_iter + 1;
+
+    //   while(iter != start_iter)
+    //   {
+    //     auto p = *p_iter;
+    //     auto pk = p.k;  //iterator holds pointers to k and r and returns references to the currently pointed indices of k and r
+    //     auto pr = p.r;
+
+    //     update(*iter)
+
+    //     iter += dir;
+    //   }
+
+    //   bool done = false;
+    //   while(!done)
+    //   {
+    //     auto p = *p_iter;
+    //     auto pk = p.k;  //iterator holds pointers to k and r and returns references to the currently pointed indices of k and r
+    //     auto pr = p.r;
+
+    //     update(*iter)
+
+    //     iter += dir;
+    //   }
+
+    // }
+
 
     template <typename T>
     void test_join(const std::vector<T>& ranges)
@@ -346,79 +508,13 @@ namespace egocylindrical
     }
     
 
-
-
-    
-    // template<typename T>
-    // void inflateRow(const T* ranges, int width, float scale, T inflation_radius, T* inflated)
-    // {
-    //   InflationIndices<T> inflater(width, scale, inflation_radius);
-    //   int cur_k=0;
-    //   T cur_range = inflater.R[0];
-
-
-    //   for(int i = 0; i < width; i++)
-    //   {
-    //     T range = ranges[i];
-    //     int k = inflater.K[i];
-
-    //     if(cur_k > 0)
-    //     {
-    //       if(!(cur_range > range))
-    //       {
-    //         range = cur_range;
-    //         k = cur_k;
-    //       }
-    //     }
-
-    //     inflater.update(i, k, range);
-
-        
-    //   }
-
-    //     else
-          
-
-    //       if(range < cur_range)
-    //       {
-            
-
-    //       }
-
-    //     }
-
-    //     K[i] = cur_k;
-
-    //       if(start_ind < 0)
-    //       {
-    //         inflateRowRegion(modified_range, start_ind+width, width, inflated);
-    //         inflateRowRegion(modified_range, 0, end_ind, inflated);
-    //       }
-    //       else if(end_ind >= width)
-    //       {
-    //         inflateRowRegion(modified_range, start_ind, width, inflated);
-    //         inflateRowRegion(modified_range, 0, end_ind-width, inflated);
-    //       }
-    //       else
-    //       {
-    //         inflateRowRegion(modified_range, start_ind, end_ind, inflated);
-    //       }
-    //     }
-    //   }
-    // }
-
-
-
-
-
-    
-    template<typename T>
-    void inflateHorizontally(const T* ranges, int height, int width, float scale, T inflation_radius, int num_threads, T* inflated)
+    template<typename T, typename I, bool W>
+    void inflateAxis(const T* ranges, int height, int width, float scale, T inflation_radius, int num_threads, T* inflated)
     {
       for(int j = 0; j < height; j++)
       {
         // inflateRow(ranges+j*width, width, scale, inflation_radius, inflated+j*width);
-        auto iid = InflationIndices<T>(width, scale, inflation_radius, ranges+j*width, inflated+j*width, j);
+        auto iid = InflationIndices<T,I,W>(width, scale, inflation_radius, ranges+j*width, inflated+j*width, j);
         iid.fillK();
         iid.fillInflated();
         iid.inflate();
@@ -432,6 +528,15 @@ namespace egocylindrical
       ROS_INFO_STREAM("Inflated");
     }
     
+    template<typename T>
+    void inflateRange(const T* ranges, int height, int width, T inflation_radius, int num_threads, T* inflated)
+    {
+      for(int i = 0; i < height*width; ++i)
+      {
+        inflated[i] = ranges[i] - inflation_radius;
+      }
+    }
+
 //     template<typename T>
 //     void getColInflationIndices(int height, float scale, T inflation_radius, T inflation_height, bool conservative, int row, T range, int& start_ind, int& end_ind)
 //     {
@@ -504,32 +609,69 @@ namespace egocylindrical
 //         }
 //       }
 //     }
-    
-//     template<typename T>
-//     void inflateVertically(int height, int width, float scale, T inflation_radius, T inflation_height, bool conservative, int num_threads, T* buffer, T* inflated)
-//     {
-//       for(int i = 0; i < width; i++)
-//       {
-//         inflateColumn(height, width, scale, inflation_radius, inflation_height, conservative, buffer+i, inflated+i);
-//       }
-//     }
+
+    // template<typename T>
+    // void inflateHorizontally(const T* ranges, int height, int width, float scale, T inflation_radius, int num_threads, T* inflated)
+    // {
+    //   inflateAxis<T,RowIndexer>(ranges, height, width, scale, inflation_radius, num_threads, inflated);
+    // }
+
+    //Based on https://stackoverflow.com/a/59132848
+    template<typename T>
+    void transpose(const T* in, int m, int n, T* out)
+    {
+      // cv::Mat mat(height, width, CV_32FC1, in);
+      
+      // cv::transpose(m)
+      for (int i = 1; i <= n; i++)
+      {
+          for (int j = 1; j <= m; j++)
+          {
+              out[(j - 1) * n + i - 1] = in[(i - 1) * m + j - 1];
+          }
+      }
+    }
+
+    // template<typename T>
+    // void inflateVertically(int height, int width, float scale, T inflation_radius, T inflation_height, bool conservative, int num_threads, T* buffer, T* inflated)
+    // {
+
+    // }
+
+    // template<typename T>
+    // void inflateVertically(int height, int width, float scale, T inflation_radius, T inflation_height, bool conservative, int num_threads, T* buffer, T* inflated)
+    // {
+    //   for(int i = 0; i < width; i++)
+    //   {
+    //     inflateColumn(height, width, scale, inflation_radius, inflation_height, conservative, buffer+i, inflated+i);
+    //   }
+    // }
     
     template<typename T>
-    void inflateRangeImage(const T* ranges, const utils::ECConverter& converter, T inflation_radius, T inflation_height, bool conservative, int num_threads, T* buffer, T* inflated)
+    void inflateRangeImage(const T* ranges, const utils::ECConverter& converter, T inflation_radius, T inflation_height, float vertical_offset, int num_threads, T* buffer, T* inflated)
     {
       int height = converter.getHeight();
       int width = converter.getWidth();
       
       float hscale = converter.getHScale();
-      // float vscale = converter.getVScale();
+      float vscale = converter.getVScale();
+
+      std::vector<T> buffer2(width*height);
+      std::vector<T> buffer3(width*height);
+      std::vector<T> buffer4(width*height);
       
       // inflateHorizontally(ranges, height, width, hscale, inflation_radius, num_threads, buffer);
-      inflateHorizontally(ranges, height, width, hscale, inflation_radius, num_threads, inflated);
+      // inflateHorizontally(ranges, height, width, hscale, inflation_radius, num_threads, inflated);
+      inflateAxis<T,RowIndexer<T>,true>(ranges, height, width, hscale, inflation_radius, num_threads, buffer);
+      transpose(buffer, height, width, buffer2.data());
+      inflateAxis<T,ColIndexer<T>,false>(buffer2.data(), width, height, vscale, inflation_height, num_threads, buffer3.data());
+      transpose(buffer3.data(), width, height, buffer4.data());
+      inflateRange<T>(buffer4.data(), height, width, inflation_radius, num_threads, inflated);
       // inflateVertically(height, width, vscale, inflation_radius, inflation_height, conservative, num_threads, buffer, inflated);
     }
     
     template<typename T>
-    void inflateRangeImage(const sensor_msgs::Image& range_msg, const utils::ECConverter& converter, float inflation_radius, float inflation_height, bool conservative, int num_threads, sensor_msgs::Image& new_msg, const T unknown_value)
+    void inflateRangeImage(const sensor_msgs::Image& range_msg, const utils::ECConverter& converter, float inflation_radius, float inflation_height, float vertical_offset, int num_threads, sensor_msgs::Image& new_msg, const T unknown_value)
     {
       T converted_inflation_radius;
       convertRange(inflation_radius, converted_inflation_radius);
@@ -544,7 +686,7 @@ namespace egocylindrical
       
       const T* ranges = (T*)range_msg.data.data();
       
-      inflateRangeImage<T>(ranges, converter, converted_inflation_radius, converted_inflation_height, conservative, num_threads, buffer.data(), inflated_ranges);
+      inflateRangeImage<T>(ranges, converter, converted_inflation_radius, converted_inflation_height, vertical_offset, num_threads, buffer.data(), inflated_ranges);
     }
 
 
