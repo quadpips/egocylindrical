@@ -268,40 +268,6 @@ namespace egocylindrical
         }
       }
 
-      template<int dir>
-      void update_future2(int i)
-      {
-        i = getIndex(i);
-        auto pi = getIndex(i-dir);
-        auto r = inflated[pi];
-        auto k = K[pi];
-
-        if(k<=0 || i >= width || i < 0) //Temporary, will address wraparound later
-        {
-          return;
-        }
-        //TODO: modulo i by width to transparently handle wrap around
-        auto pr = inflated[i];
-        auto pk = K[i];
-
-        if(r <= pr)
-        {
-          if(k < pk)
-          {
-            update_future2<dir>(i + dir*k, pk-k, pr);
-          }
-          inflated[i] = r;
-          K[i] = k;
-        }
-        else
-        {
-          if(pk < k)
-          {
-            update_future2<dir>(i + dir*pk, k-pk, r);
-          }
-        }
-      }
-
     public:
       template<int dir>
       void update(int i, int k, T range, int& k_out, T& range_out)
@@ -659,14 +625,49 @@ namespace egocylindrical
       std::vector<T> buffer2(width*height);
       std::vector<T> buffer3(width*height);
       std::vector<T> buffer4(width*height);
+
+      auto deltaT = [](const std::string& name, const ros::WallTime& start, const ros::WallTime& end)
+      {
+        std::stringstream s;
+        s << name << " time: " << (end-start).toSec()*1000 << "ms; ";
+        return s.str();
+      };
       
-      // inflateHorizontally(ranges, height, width, hscale, inflation_radius, num_threads, buffer);
-      // inflateHorizontally(ranges, height, width, hscale, inflation_radius, num_threads, inflated);
-      inflateAxis<T,RowIndexer<T>,true>(ranges, height, width, hscale, inflation_radius, num_threads, buffer);
-      transpose(buffer, height, width, buffer2.data());
-      inflateAxis<T,ColIndexer<T>,false>(buffer2.data(), width, height, vscale, inflation_height, num_threads, buffer3.data());
-      transpose(buffer3.data(), width, height, buffer4.data());
-      inflateRange<T>(buffer4.data(), height, width, inflation_radius, num_threads, inflated);
+      if(false)
+      {
+        inflateAxis<T,RowIndexer<T>,true>(ranges, height, width, hscale, inflation_radius, num_threads, buffer);
+        transpose(buffer, height, width, buffer2.data());
+        // inflateAxis<T,ColIndexer<T>,false>(buffer2.data(), width, height, vscale, inflation_height, num_threads, buffer3.data());
+        transpose(buffer2.data(), width, height, buffer4.data());
+        inflateRange<T>(buffer4.data(), height, width, inflation_radius, num_threads, inflated);
+      }
+      if(false)
+      {
+        transpose(ranges, width, height, buffer2.data());
+        inflateAxis<T,ColIndexer<T>,false>(buffer2.data(), width, height, vscale, inflation_height, num_threads, buffer3.data());
+        transpose(buffer3.data(), height, width, buffer4.data());
+        inflateRange<T>(buffer4.data(), height, width, inflation_radius, num_threads, inflated);
+      }
+      if(true)
+      {
+        ros::WallTime start = ros::WallTime::now();
+        inflateAxis<T,RowIndexer<T>,true>(ranges, height, width, hscale, inflation_radius, num_threads, buffer);
+        ros::WallTime rows_done = ros::WallTime::now();
+        transpose(buffer, width, height, buffer2.data());
+        ros::WallTime transpose1 = ros::WallTime::now();
+        inflateAxis<T,ColIndexer<T>,false>(buffer2.data(), width, height, vscale, inflation_height, num_threads, buffer3.data());
+        ros::WallTime cols_done= ros::WallTime::now();
+        transpose(buffer3.data(), height, width, buffer4.data());
+        ros::WallTime transpose2 = ros::WallTime::now();
+        inflateRange<T>(buffer4.data(), height, width, inflation_radius, num_threads, inflated);
+        ros::WallTime done = ros::WallTime::now();
+
+        ROS_INFO_STREAM_NAMED("timing", deltaT("row inflation", start, rows_done) << deltaT("transpose1", rows_done, transpose1) << deltaT("col inflation", transpose1, cols_done) <<
+            deltaT("transpose2", cols_done, transpose2) << deltaT("range", transpose2, done));
+
+      }
+
+
       // inflateVertically(height, width, vscale, inflation_radius, inflation_height, conservative, num_threads, buffer, inflated);
     }
     
