@@ -503,79 +503,6 @@ namespace egocylindrical
       }
     }
 
-//     template<typename T>
-//     void getColInflationIndices(int height, float scale, T inflation_radius, T inflation_height, bool conservative, int row, T range, int& start_ind, int& end_ind)
-//     {
-//       T row_factor = (row - height/2) * range;
-//       T height_factor = inflation_height * scale;
-      
-//       T top_front_ind = (row_factor - height_factor)/(range + inflation_radius);
-//       T top_back_ind = (row_factor - height_factor)/(range - inflation_radius);
-//       T bottom_front_ind = (row_factor + height_factor)/(range + inflation_radius);
-//       T bottom_back_ind = (row_factor + height_factor)/(range - inflation_radius);
-      
-//       //int top_ind = (row_factor < height_factor) ? top_front_ind : top_back_ind;
-      
-//       start_ind = std::min(top_front_ind, top_back_ind) + height/2;
-//       end_ind = std::max(bottom_front_ind, bottom_back_ind) + height/2;
-//     }
-    
-    
-//     template<typename T>
-//     void inflateColumn(int height, int width, float scale, T inflation_radius, T inflation_height, bool conservative, T* buffer, T* inflated)
-//     {
-//       for(int j = 0; j < height; j++)
-//       {
-//         T range = buffer[j*width];
-        
-//         if(!isknown(range))
-//         {
-//           continue;
-//         }
-        
-//         bool use_new = false;
-
-//         int inflation_size = getNumColInflationIndices(range, scale, inflation_height);  //Need to think this through, might not be same equation
-//         int old_start_ind = std::max(j - inflation_size, 0);
-//         int old_end_ind = std::min(j + inflation_size + 1, height);
-        
-//         int raw_start_ind, raw_end_ind;
-// //         getColInflationIndices(height, scale, inflation_radius, inflation_height, conservative, j, range, raw_start_ind, raw_end_ind);
-        
-//         int start_ind, end_ind;
-//         if(use_new)
-//         {
-//           start_ind = std::max(raw_start_ind, 0);
-//           end_ind = std::min(raw_end_ind+1, height);
-//         }
-//         else
-//         {
-//           start_ind = old_start_ind;
-//           end_ind = old_end_ind;
-//         }
-        
-//         //ROS_DEBUG_STREAM_THROTTLE_NAMED("vertical_inflation.index_changes", "Old start=" << old_start_ind << ", new start=" << start_ind << ", old end=" << old_end_ind << ", new end=" << end_ind);
-//         if(old_start_ind != start_ind || old_end_ind != end_ind)
-//         {
-//           //ROS_DEBUG_STREAM_THROTTLE_NAMED(1, "vertical_inflation.index_changes", "Old start=" << old_start_ind << ", new start=" << start_ind << ", old end=" << old_end_ind << ", new end=" << end_ind);
-//         }
-        
-//         if(range >  inflation_radius)
-//         {
-//           T modified_range = range - inflation_radius;
-        
-//           for(int k = start_ind; k < end_ind; k++)
-//           {
-//             T& val = inflated[k*width];
-//             if(!isknown(val) || modified_range < val)
-//             {
-//               val = modified_range;
-//             }
-//           }
-//         }
-//       }
-//     }
-
     // template<typename T>
     // void inflateHorizontally(const T* ranges, int height, int width, float scale, T inflation_radius, int num_threads, T* inflated)
     // {
@@ -604,14 +531,6 @@ namespace egocylindrical
 
     // }
 
-    // template<typename T>
-    // void inflateVertically(int height, int width, float scale, T inflation_radius, T inflation_height, bool conservative, int num_threads, T* buffer, T* inflated)
-    // {
-    //   for(int i = 0; i < width; i++)
-    //   {
-    //     inflateColumn(height, width, scale, inflation_radius, inflation_height, conservative, buffer+i, inflated+i);
-    //   }
-    // }
     
     template<typename T>
     void inflateRangeImage(const T* ranges, const utils::ECConverter& converter, T inflation_radius, T inflation_height, float vertical_offset, int num_threads, T* buffer, T* inflated)
@@ -633,22 +552,7 @@ namespace egocylindrical
         return s.str();
       };
       
-      if(false)
-      {
-        inflateAxis<T,RowIndexer<T>,true>(ranges, height, width, hscale, inflation_radius, num_threads, buffer);
-        transpose(buffer, height, width, buffer2.data());
-        // inflateAxis<T,ColIndexer<T>,false>(buffer2.data(), width, height, vscale, inflation_height, num_threads, buffer3.data());
-        transpose(buffer2.data(), width, height, buffer4.data());
-        inflateRange<T>(buffer4.data(), height, width, inflation_radius, num_threads, inflated);
-      }
-      if(false)
-      {
-        transpose(ranges, width, height, buffer2.data());
-        inflateAxis<T,ColIndexer<T>,false>(buffer2.data(), width, height, vscale, inflation_height, num_threads, buffer3.data());
-        transpose(buffer3.data(), height, width, buffer4.data());
-        inflateRange<T>(buffer4.data(), height, width, inflation_radius, num_threads, inflated);
-      }
-      if(true)
+      
       {
         ros::WallTime start = ros::WallTime::now();
         inflateAxis<T,RowIndexer<T>,true>(ranges, height, width, hscale, inflation_radius, num_threads, buffer);
