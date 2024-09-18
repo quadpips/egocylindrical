@@ -518,7 +518,7 @@ target_link_libraries(range_image_inflator_impl2
    ${catkin_LIBRARIES}
    ${OpenMP_CXX_FLAGS}
    )
-target_compile_options(range_image_inflator_impl2 PRIVATE -ftree-vectorize -fopt-info-loop-all=vec_range_image_inflator_impl2.txt -funsafe-math-optimizations -fno-math-errno -ffinite-math-only)
+#target_compile_options(range_image_inflator_impl2 PRIVATE -ftree-vectorize -fopt-info-loop-all -funsafe-math-optimizations -fno-math-errno -ffinite-math-only) #=vec_range_image_inflator_impl2.txt
 
 
 ##RANGE_IMAGE_INFLATOR_NODE2

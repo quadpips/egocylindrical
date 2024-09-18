@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <iomanip>
 #include <egocylindrical/ecwrapper.h>
+#include <egocylindrical/range_image_common.h>
 // #include <queue>
 #include <sensor_msgs/Image.h>
 
@@ -177,6 +178,7 @@ namespace egocylindrical
     public:
       using T_t = T;
       bool W = I::W;
+      using R = utils::RangeVals<T>;
 
       int width;
       T inflation_radius;
@@ -212,7 +214,7 @@ namespace egocylindrical
 
           auto k = indexer(range);
           auto k2 = std::max(k, 0);
-          auto k3 = isknown(range) ? k2 : 0;
+          auto k3 = R::is_valid(range) ? k2 : 0;
           Kref[i] = k3;
         }
       }
@@ -223,7 +225,7 @@ namespace egocylindrical
         for(int i = 0; i < width; ++i)
         {
           auto range = ranges[i];
-          inflated[i] = isknown(range) ? range : std::numeric_limits<T>::max();
+          inflated[i] = R::is_valid(range) ? range : std::numeric_limits<T>::max();
         }
       }
 
@@ -587,14 +589,13 @@ namespace egocylindrical
     }
     
     template<typename T>
-    void inflateRangeImage(const sensor_msgs::Image& range_msg, const utils::ECConverter& converter, float inflation_radius, float inflation_height, float vertical_offset, int num_threads, sensor_msgs::Image& new_msg, const T unknown_value)
+    void inflateRangeImage(const sensor_msgs::Image& range_msg, const utils::ECConverter& converter, float inflation_radius, float inflation_height, float vertical_offset, int num_threads, sensor_msgs::Image& new_msg, const T uv)
     {
-      T converted_inflation_radius;
-      convertRange(inflation_radius, converted_inflation_radius);
+      const auto scale = utils::RangeVals<T>::scale();
+      T converted_inflation_radius = inflation_radius * scale;      
+      T converted_inflation_height = inflation_height * scale;
       
-      T converted_inflation_height;
-      convertRange(inflation_height, converted_inflation_height);
-      
+      const T unknown_value = utils::RangeVals<T>::unknown;
       std::vector<T> buffer(converter.getCols(), unknown_value);
       
       T* inflated_ranges = (T*)new_msg.data.data();
