@@ -174,7 +174,7 @@ namespace egocylindrical
     {
     public:
 
-      size_t width;
+      int width;
       T inflation_radius;
       float scale;
 
@@ -187,7 +187,7 @@ namespace egocylindrical
 
     public:
 
-      InflationIndices(size_t width, float scale, T inflation_radius, const T* const ranges, T* inflated, int row=-1):
+      InflationIndices(int width, float scale, T inflation_radius, const T* const ranges, T* inflated, int row=-1):
         width(width),
         inflation_radius(inflation_radius),
         scale(scale),
@@ -203,7 +203,7 @@ namespace egocylindrical
       void fillK()
       {
         #pragma GCC ivdep
-        for(size_t i = 0; i < width; ++i)
+        for(int i = 0; i < width; ++i)
         {
           auto range = ranges[i];
 
@@ -217,7 +217,7 @@ namespace egocylindrical
       void fillInflated()
       {
         #pragma GCC ivdep
-        for(size_t i = 0; i < width; ++i)
+        for(int i = 0; i < width; ++i)
         {
           auto range = ranges[i];
           inflated[i] = isknown(range) ? range : std::numeric_limits<T>::max();
@@ -288,7 +288,7 @@ namespace egocylindrical
         int k = 0;
         T range = std::numeric_limits<T>::max();
 
-        for(size_t i = 0; i < width; ++i)
+        for(int i = 0; i < width; ++i)
         {
           update<1>(i, k, range, k, range);
           --k;
@@ -373,7 +373,7 @@ namespace egocylindrical
       iid.printInflated();
       iid.printK();
 
-      for(size_t i = 0; i < iid.width; i++)
+      for(int i = 0; i < iid.width; i++)
       {
         // std::cout << "\ni=" << i << ", k=" << k << ", range=" << range << "\n";
         std::cout << "\n";

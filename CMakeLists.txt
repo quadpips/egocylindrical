@@ -518,6 +518,8 @@ target_link_libraries(range_image_inflator_impl2
    ${catkin_LIBRARIES}
    ${OpenMP_CXX_FLAGS}
    )
+target_compile_options(range_image_inflator_impl2 PRIVATE -ftree-vectorize -fopt-info-loop-all=vec_range_image_inflator_impl2.txt -funsafe-math-optimizations -fno-math-errno -ffinite-math-only)
+
 
 ##RANGE_IMAGE_INFLATOR_NODE2
 add_executable(range_image_inflator_node2 src/range_image_inflator_node.cpp
@@ -526,8 +528,10 @@ add_executable(range_image_inflator_node2 src/range_image_inflator_node.cpp
 add_dependencies(range_image_inflator_node2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(range_image_inflator_node2
    # range_image_inflator_impl2
+   -lasan
    ${catkin_LIBRARIES}
    )
+target_compile_options(range_image_inflator_node2 PRIVATE -fno-omit-frame-pointer -fsanitize=address)#-ftree-vectorize -fopt-info-loop-all -funsafe-math-optimizations -fno-math-errno) #=vec_range_image_inflator_node2.txt
 
 #RANGE_IMAGE_INFLATOR_NODELET
 add_library(egocylindrical_range_image_inflator_nodelet MODULE src/range_image_inflator_nodelet.cpp)
