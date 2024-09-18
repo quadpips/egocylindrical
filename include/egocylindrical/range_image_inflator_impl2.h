@@ -322,42 +322,7 @@ namespace egocylindrical
 
       void inflate3();
 
-      // void inflate2()
-      // {
-      //   resetK();
-      //   const int start_ind = 0;
-      //   int ind = start_ind + 1
-      //   while(ind != start_ind)
-      //   {
-      //     update_future<1>(i);
-      //     ind = getIndex(ind + 1);
-      //   }
-      // }
 
-      // template<int dir>
-      // void inflationPass()
-      // {
-      //   const int start_ind = 0;
-      //   int i = start_ind + dir;
-
-      //   resetK();
-      //   while(i != start_ind)
-      //   {
-      //     i = getIndex(i);
-      //     update_future<1>(i);
-      //     i += dir;
-      //   }
-
-      //   while(true)
-      //   {
-      //     i = getIndex(i);
-      //     if(!update_future<1>(i))
-      //     {
-      //       break;
-      //     }
-      //     i += dir;
-      //   }
-      // }
 
       void printRanges()
       {
@@ -456,104 +421,6 @@ namespace egocylindrical
       debugInflateDir<debug,-1>(iid, "backward", bw_start, bw_condition);
     }
 
-    template <typename T, typename I>
-    void debugInflate(InflationIndices<T,I>& iid)
-    {
-      int k = 0;
-      T range = std::numeric_limits<T>::max();
-
-      iid.resetK();
-      iid.printIndices();
-      iid.printRanges();
-      iid.printInflated();
-      iid.printK();
-      int horizon = 0;
-
-      std::cout << "\nCommence forward pass:\n\n";
-      for(int i = 0; i < iid.width; i++)
-      {
-        // std::cout << "\ni=" << i << ", k=" << k << ", range=" << range << "\n";
-        std::cout << "\n";
-        std::cout << "index: " << i << "\n";
-        // ROS_INFO_STREAM("i=" << i << ", k=" << k << ", range=" << range);
-        // iid.update(i, k, range, k, range, true);
-        int h = iid.template update<1>(i, k, range, k, range);
-        horizon = std::max(horizon-1, h);
-        std::cout << "horizon: " << horizon << "\n";
-        // --horizon;
-        iid.printIndices();
-        iid.printRanges();
-        iid.printInflated();
-        iid.printK();
-        --k;
-      }
-
-      if(iid.W)
-      {
-        std::cout << "\nCommence forward wraparound pass:\n\n";
-        for(int i = 0; i < iid.width && horizon > 0; i++)
-        {
-          // std::cout << "\ni=" << i << ", k=" << k << ", range=" << range << "\n";
-          std::cout << "\n";
-          std::cout << "index: " << i << "\n";
-          // ROS_INFO_STREAM("i=" << i << ", k=" << k << ", range=" << range);
-          // iid.update(i, k, range, k, range, true);
-          int h = iid.template update<1>(i, k, range, k, range);
-          horizon = std::max(horizon-1, h);
-          std::cout << "horizon: " << horizon << "\n";
-          // --horizon;
-          iid.printIndices();
-          iid.printRanges();
-          iid.printInflated();
-          iid.printK();
-          --k;
-        }
-      }
-
-      iid.resetK();
-      std::cout << "\nCommence backwards pass:\n\n";
-      for(int ii = iid.width; ii > 0; --ii)
-      {
-        int i = ii - 1;
-        // std::cout << "\ni=" << i << ", k=" << k << ", range=" << range << "\n";
-        std::cout << "\n";
-        std::cout << "index: " << i << "\n";
-        // ROS_INFO_STREAM("i=" << i << ", k=" << k << ", range=" << range);
-        // iid.update(i, k, range, k, range, true);
-        int h = iid.template update<-1>(i, k, range, k, range);
-        horizon = std::max(horizon-1, h);
-        std::cout << "horizon: " << horizon << "\n";
-        // --horizon;
-        iid.printIndices();
-        iid.printRanges();
-        iid.printInflated();
-        iid.printK();
-        --k;
-      }
-
-      if(iid.W)
-      {
-        std::cout << "\nCommence backwards wraparound pass:\n\n";
-        for(int ii = iid.width; ii > 0 && horizon > 0; --ii)
-        {
-          int i = ii - 1;
-          // std::cout << "\ni=" << i << ", k=" << k << ", range=" << range << "\n";
-          std::cout << "\n";
-          std::cout << "index: " << i << "\n";
-          // ROS_INFO_STREAM("i=" << i << ", k=" << k << ", range=" << range);
-          // iid.update(i, k, range, k, range, true);
-          int h = iid.template update<-1>(i, k, range, k, range);
-          horizon = std::max(horizon-1, h);
-          std::cout << "horizon: " << horizon << "\n";
-          // --horizon;
-          iid.printIndices();
-          iid.printRanges();
-          iid.printInflated();
-          iid.printK();
-          --k;
-        }
-      }
-    }
 
     template<typename T, typename I>
     void InflationIndices<T,I>::inflate3()

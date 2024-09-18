@@ -87,7 +87,8 @@ void test_vertical_inflation_indices()
       iid.fillK();
       iid.fillInflated();
       // iid.inflate();
-      debugInflate(iid);
+      const bool debug = true;
+      debugInflateNew<debug>(iid);
 }
 
 
