@@ -157,6 +157,7 @@ namespace egocylindrical
     public:
       static
       int impl(T range, float scale, T inflation_radius) { return getNumRowInflationIndices(range, scale, inflation_radius); }
+      const static bool W = true;
     };
 
     template<typename T>
@@ -165,14 +166,17 @@ namespace egocylindrical
     public:
       static
       int impl(T range, float scale, T inflation_height) { return getNumColInflationIndices(range, scale, inflation_height); }
+      const static bool W = false;
     };
 
 
 
-    template <typename T, typename I, bool Wraparound>
+    template <typename T, typename I>
     class InflationIndices
     {
     public:
+      using T_t = T;
+      bool W = I::W;
 
       int width;
       T inflation_radius;
@@ -226,7 +230,7 @@ namespace egocylindrical
 
       int getIndex(int i)
       {
-        if(Wraparound)
+        if(W)
         {
           return (i + width) % width;
         }
@@ -361,8 +365,8 @@ namespace egocylindrical
       }
     };
 
-    template <typename T, typename I, bool W>
-    void debugInflate(InflationIndices<T,I,W>& iid)
+    template <typename T, typename I>
+    void debugInflate(InflationIndices<T,I>& iid)
     {
       int k = 0;
       T range = std::numeric_limits<T>::max();
@@ -474,13 +478,13 @@ namespace egocylindrical
     }
     
 
-    template<typename T, typename I, bool W>
+    template<typename T, typename I>
     void inflateAxis(const T* ranges, int height, int width, float scale, T inflation_radius, int num_threads, T* inflated)
     {
       for(int j = 0; j < height; j++)
       {
         // inflateRow(ranges+j*width, width, scale, inflation_radius, inflated+j*width);
-        auto iid = InflationIndices<T,I,W>(width, scale, inflation_radius, ranges+j*width, inflated+j*width, j);
+        auto iid = InflationIndices<T,I>(width, scale, inflation_radius, ranges+j*width, inflated+j*width, j);
         iid.fillK();
         iid.fillInflated();
         iid.inflate();
@@ -555,11 +559,11 @@ namespace egocylindrical
       
       {
         ros::WallTime start = ros::WallTime::now();
-        inflateAxis<T,RowIndexer<T>,true>(ranges, height, width, hscale, inflation_radius, num_threads, buffer);
+        inflateAxis<T,RowIndexer<T>>(ranges, height, width, hscale, inflation_radius, num_threads, buffer);
         ros::WallTime rows_done = ros::WallTime::now();
         transpose(buffer, width, height, buffer2.data());
         ros::WallTime transpose1 = ros::WallTime::now();
-        inflateAxis<T,ColIndexer<T>,false>(buffer2.data(), width, height, vscale, inflation_height, num_threads, buffer3.data());
+        inflateAxis<T,ColIndexer<T>>(buffer2.data(), width, height, vscale, inflation_height, num_threads, buffer3.data());
         ros::WallTime cols_done= ros::WallTime::now();
         transpose(buffer3.data(), height, width, buffer4.data());
         ros::WallTime transpose2 = ros::WallTime::now();
