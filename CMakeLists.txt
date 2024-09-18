@@ -528,10 +528,10 @@ add_executable(range_image_inflator_node2 src/range_image_inflator_node.cpp
 add_dependencies(range_image_inflator_node2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(range_image_inflator_node2
    # range_image_inflator_impl2
-   -lasan
+   # -lasan
    ${catkin_LIBRARIES}
    )
-target_compile_options(range_image_inflator_node2 PRIVATE -fno-omit-frame-pointer -fsanitize=address)#-ftree-vectorize -fopt-info-loop-all -funsafe-math-optimizations -fno-math-errno) #=vec_range_image_inflator_node2.txt
+#target_compile_options(range_image_inflator_node2 PRIVATE)#-ftree-vectorize -fopt-info-loop-all -funsafe-math-optimizations -fno-math-errno) #=vec_range_image_inflator_node2.txt
 
 #RANGE_IMAGE_INFLATOR_NODELET
 add_library(egocylindrical_range_image_inflator_nodelet MODULE src/range_image_inflator_nodelet.cpp)
