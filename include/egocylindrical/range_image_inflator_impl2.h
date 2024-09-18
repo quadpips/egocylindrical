@@ -201,7 +201,6 @@ namespace egocylindrical
         indexer(scale, inflation_radius)
       {
         Kref.resize(width, 0);
-        // R.resize(width, std::numeric_limits<U>::max());
       }
 
       void fillK()
@@ -211,7 +210,7 @@ namespace egocylindrical
         {
           auto range = ranges[i];
 
-          auto k = indexer(range); //getNumRowInflationIndices(range, scale, inflation_radius);
+          auto k = indexer(range);
           auto k2 = std::max(k, 0);
           auto k3 = isknown(range) ? k2 : 0;
           Kref[i] = k3;
@@ -363,19 +362,16 @@ namespace egocylindrical
       void printRanges()
       {
         std::cout << "Ranges:  " << join(ranges, width, ',', 4) << "\n";
-        // ROS_INFO_STREAM("Ranges:  " << join(ranges, width, ',', 4));
       }
 
       void printInflated()
       {
         std::cout << "Inflated:" << join(inflated, width, ',', 4) << "\n";
-        // ROS_INFO_STREAM("Inflated:" << join(inflated, width, ',', 4));
       }
       
       void printK()
       {
         std::cout << "K:       " << join(K, ',', 4) << "\n";
-        // ROS_INFO_STREAM("K:       " << join(K, ',', 4));
       }
 
       void printIndices()
@@ -386,12 +382,8 @@ namespace egocylindrical
           inds.push_back(i);
         }
         std::cout << "inds:    " << join(inds, ',', 4) << "\n";
-
       }
     };
-
-
-    // struct Loop
 
 
     template <bool debug, int dir, typename IID, typename C, typename T=typename IID::T_t>
@@ -401,19 +393,15 @@ namespace egocylindrical
       {
         if(debug)
         {
-          // std::cout << "\ni=" << i << ", k=" << k << ", range=" << range << "\n";
           std::cout << "\n";
           std::cout << "index: " << i << "\n";
-          // ROS_INFO_STREAM("i=" << i << ", k=" << k << ", range=" << range);
         }
-        // iid.update(i, k, range, k, range, true);
         int h = iid.template update<dir>(i, k, range, k, range);
         horizon = std::max(horizon-1, h);
 
         if(debug)
         {
           std::cout << "horizon: " << horizon << "\n";
-          // --horizon;
           iid.printIndices();
           iid.printRanges();
           iid.printInflated();
@@ -423,41 +411,10 @@ namespace egocylindrical
       }
     }
 
-    // template <typename IID, typename T=IID::T_t>
-    // void debugInflatePassReverse(IID& iid, int k, T range, int horizon, int& k_out, T& range_out, int& horizon_out)
-    // {
-      
-    //   std::cout << "\nCommence backwards pass:\n\n";
-    //   for(size_t ii = iid.width; ii > 0; --ii)
-    //   {
-    //     int i = ii - 1;
-    //     // std::cout << "\ni=" << i << ", k=" << k << ", range=" << range << "\n";
-    //     std::cout << "\n";
-    //     std::cout << "index: " << i << "\n";
-    //     // ROS_INFO_STREAM("i=" << i << ", k=" << k << ", range=" << range);
-    //     // iid.update(i, k, range, k, range, true);
-    //     int h = iid.template update<-1>(i, k, range, k, range);
-    //     horizon = std::max(horizon-1, h);
-    //     std::cout << "horizon: " << horizon << "\n";
-    //     // --horizon;
-    //     iid.printIndices();
-    //     iid.printRanges();
-    //     iid.printInflated();
-    //     iid.printK();
-    //     --k;
-    //   }
-    //   k_out = k;
-    //   range_out = range;
-    //   horizon_out = horizon;
-    // }
 
     template <bool debug, int dir, typename IID, typename C, typename T=typename IID::T_t>
     void debugInflateDir(IID& iid, std::string name, int start_ind, C condition)
     {
-      // if(debug)
-      // {
-      //   std::cout << "\n\nCommence " << name << " pass:\n";
-      // }
 
       int k = 0;
       T range = std::numeric_limits<T>::max();
@@ -596,17 +553,6 @@ namespace egocylindrical
           --k;
         }
       }
-      // for(size_t ii = iid.width; ii > 0; --ii)
-      // {
-      //   auto i = ii - 1;
-      //   // std::cout << "\ni=" << i << ", k=" << k << ", range=" << range << "\n";
-      //   ROS_INFO_STREAM("i=" << i << ", k=" << k << ", range=" << range);
-      //   iid.update(i, k, range, k, range);
-      //   iid.printInflated();
-      //   iid.printK();
-      //   --k;
-      // }
-
     }
 
     template<typename T, typename I>
@@ -653,7 +599,6 @@ namespace egocylindrical
         auto p = ranges.data();
         auto r = range_view<const T>(p, width);
 
-        // std::cout << "\nmanual on range_view: is_const=" << r.is_const() << "\n";
         std::cout << "\nmanual on range_view:\n";
         for(auto v : r)
         {
@@ -694,25 +639,16 @@ namespace egocylindrical
     {
       for(int j = 0; j < height; j++)
       {
-        // inflateRow(ranges+j*width, width, scale, inflation_radius, inflated+j*width);
         auto iid = InflationIndices<T,I>(width, scale, inflation_radius, ranges+j*width, inflated+j*width, j);
         iid.fillK();
         iid.fillInflated();
         iid.inflate3();
       }
-
-      
-      // ROS_INFO_STREAM("Inflated");
     }
     
     template<typename T>
     void inflateRange(const T* ranges, int height, int width, T inflation_radius, int num_threads, T* inflated)
     {
-      // for(int i = 0; i < height*width; ++i)
-      // {
-      //   inflated[i] = ranges[i] - inflation_radius;
-      // }
-
       for(int i = 0; i < height*width; ++i)
       {
         T v = ranges[i];
@@ -741,12 +677,6 @@ namespace egocylindrical
           }
       }
     }
-
-    // template<typename T>
-    // void inflateVertically(int height, int width, float scale, T inflation_radius, T inflation_height, bool conservative, int num_threads, T* buffer, T* inflated)
-    // {
-
-    // }
 
     
     template<typename T>
@@ -787,9 +717,6 @@ namespace egocylindrical
             deltaT("transpose2", cols_done, transpose2) << deltaT("range", transpose2, done));
 
       }
-
-
-      // inflateVertically(height, width, vscale, inflation_radius, inflation_height, conservative, num_threads, buffer, inflated);
     }
     
     template<typename T>
