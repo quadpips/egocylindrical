@@ -363,6 +363,17 @@ namespace egocylindrical
         std::cout << "K:       " << join(K, ',', 4) << "\n";
         // ROS_INFO_STREAM("K:       " << join(K, ',', 4));
       }
+
+      void printIndices()
+      {
+        std::vector<int> inds;
+        for(int i=0; i< width; ++i)
+        {
+          inds.push_back(i);
+        }
+        std::cout << "inds:    " << join(inds, ',', 4) << "\n";
+
+      }
     };
 
     template <typename T, typename I>
