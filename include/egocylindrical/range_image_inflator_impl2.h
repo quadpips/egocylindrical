@@ -297,35 +297,7 @@ namespace egocylindrical
         K = Kref;
       }
 
-      void inflate()
-      {
-        resetK();
-        int k = 0;
-        int horizon = 0;
-        T range = std::numeric_limits<T>::max();
-
-        for(int i = 0; i < width; ++i)
-        {
-          int h = update<1>(i, k, range, k, range);
-          --k;
-          horizon = std::max(horizon, h);
-          --horizon;
-        }
-        //NOTE: if k > 0, need to wrap around to the front until k==0
-        //Only then can the reverse pass commence. 
-        resetK(); //Reinitialize K with original entries
-        for(int ii = width; ii > 0; --ii)
-        {
-          auto i = ii - 1;
-          update<-1>(i, k, range, k, range);
-          --k;
-        }
-        //Similarly, may need to wrap around to back
-      }
-
-      void inflate3();
-
-
+      void inflate();
 
       void printRanges()
       {
@@ -426,7 +398,7 @@ namespace egocylindrical
 
 
     template<typename T, typename I>
-    void InflationIndices<T,I>::inflate3()
+    void InflationIndices<T,I>::inflate()
     {
       debugInflateNew<false>(*this);
     }
@@ -483,7 +455,7 @@ namespace egocylindrical
         auto iid = InflationIndices<T,I>(width, scale, inflation_radius, ranges+j*width, inflated+j*width, j);
         iid.fillK();
         iid.fillInflated();
-        iid.inflate3();
+        iid.inflate();
       }
     }
     
