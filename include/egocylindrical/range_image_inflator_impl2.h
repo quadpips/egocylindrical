@@ -430,35 +430,6 @@ namespace egocylindrical
     {
       debugInflateNew<false>(*this);
     }
-    // void AlternativeLoop(int dir)
-    // {
-    //   auto p_iter = ... //this can probably be a const iterator since represents the values of the previously updated cell
-    //   auto iter = p_iter + 1;
-
-    //   while(iter != start_iter)
-    //   {
-    //     auto p = *p_iter;
-    //     auto pk = p.k;  //iterator holds pointers to k and r and returns references to the currently pointed indices of k and r
-    //     auto pr = p.r;
-
-    //     update(*iter)
-
-    //     iter += dir;
-    //   }
-
-    //   bool done = false;
-    //   while(!done)
-    //   {
-    //     auto p = *p_iter;
-    //     auto pk = p.k;  //iterator holds pointers to k and r and returns references to the currently pointed indices of k and r
-    //     auto pr = p.r;
-
-    //     update(*iter)
-
-    //     iter += dir;
-    //   }
-
-    // }
 
 
     template <typename T>
@@ -553,6 +524,7 @@ namespace egocylindrical
     {
       if(in==out)
       {
+        ROS_WARN_ONCE("In-place transpose may have a performance penalty!");
         transpose(out, out+m*n, m);
         return;
       }
@@ -597,15 +569,11 @@ namespace egocylindrical
       const T* vp = (const T*) v.data();
       T* v1p = (T*) v1.data();
       T* v2p = (T*) v2.data();
-      
-      // std::vector<T> v3(v.size()*sizeof(uint8_t)/sizeof(T));
-      std::vector<T> v3(m*n);
 
       int size = m*n;
-
+      std::vector<T> v3(size);
 
       ROS_INFO_STREAM_NAMED("timing", "vp!=v1: " << compareArrays(vp,v1p,size) << "; vp!=v2: " << compareArrays(vp,v2p,size));
-
 
       ros::WallTime start = ros::WallTime::now();
       transpose(v1p, m, n, v1p);
@@ -614,13 +582,6 @@ namespace egocylindrical
       ros::WallTime t2 = ros::WallTime::now();
 
       int num_mismatches = compareArrays(v1p,v3.data(),size);
-      // for(size_t i = 0; i < m*n; ++i)
-      // {
-      //   if(v1p[i] != v3[i])
-      //   {
-      //     ++num_mismatches;
-      //   }
-      // }
 
       ROS_INFO_STREAM_NAMED("timing", "num_mismatches: " << num_mismatches << "; " << deltaT("in-place transpose", start, t1) << deltaT("out-of-place transpose", t1, t2));
     }
@@ -672,7 +633,7 @@ namespace egocylindrical
       std::fill(inflated_ranges, inflated_ranges+converter.getCols(), unknown_value);
       
       const T* ranges = (T*)range_msg.data.data();
-      timeTranspose<T>(range_msg.data, converter.getWidth(), converter.getHeight());
+      // timeTranspose<T>(range_msg.data, converter.getWidth(), converter.getHeight());
       
       inflateRangeImage<T>(ranges, converter, converted_inflation_radius, converted_inflation_height, vertical_offset, num_threads, buffer.data(), inflated_ranges);
     }
