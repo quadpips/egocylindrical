@@ -525,19 +525,36 @@ namespace egocylindrical
       }
     }
 
-    // template<typename T>
-    // void inflateHorizontally(const T* ranges, int height, int width, float scale, T inflation_radius, int num_threads, T* inflated)
-    // {
-    //   inflateAxis<T,RowIndexer>(ranges, height, width, scale, inflation_radius, num_threads, inflated);
-    // }
+
+    //Based on https://stackoverflow.com/a/9320349
+    template<class RandomIterator>
+    void transpose(RandomIterator first, RandomIterator last, int m)
+    {
+        const int mn1 = (last - first - 1);
+        const int n   = (last - first) / m;
+        std::vector<bool> visited(last - first);
+        RandomIterator cycle = first;
+        while (++cycle != last) {
+            if (visited[cycle - first])
+                continue;
+            int a = cycle - first;
+            do  {
+                a = a == mn1 ? mn1 : (n * a) % mn1;
+                std::swap(*(first + a), *cycle);
+                visited[a] = true;
+            } while ((first + a) != cycle);
+        }
+    }
 
     //Based on https://stackoverflow.com/a/59132848
     template<typename T>
     void transpose(const T* in, int m, int n, T* out)
     {
-      // cv::Mat mat(height, width, CV_32FC1, in);
-      
-      // cv::transpose(m)
+      if(in==out)
+      {
+        transpose(out, out+m*n, m);
+        return;
+      }
       for (int i = 1; i <= n; i++)
       {
           for (int j = 1; j <= m; j++)
@@ -545,6 +562,66 @@ namespace egocylindrical
               out[(j - 1) * n + i - 1] = in[(i - 1) * m + j - 1];
           }
       }
+    }
+
+    std::string deltaT(const std::string& name, const ros::WallTime& start, const ros::WallTime& end)
+    {
+      std::stringstream s;
+      s << name << " time: " << (end-start).toSec()*1000 << "ms; ";
+      return s.str();
+    }
+
+    template<typename T>
+    int compareArrays(const T* v0, const T* v1, int size)
+    {
+      int num_mismatches = 0;
+      for(size_t i = 0; i < size; ++i)
+      {
+        if(v0[i] == v1[i] || (v0[i]!=v0[i] && v1[i]!=v1[i]))
+        {
+        }
+        else
+        {
+          ++num_mismatches;
+        }
+      }
+      return num_mismatches;
+    }
+  
+    template<typename T>
+    void timeTranspose(const std::vector<uint8_t>& v, int m, int n)
+    {
+      std::vector<uint8_t> v1 = v;
+      std::vector<uint8_t> v2 = v;
+      const T* vp = (const T*) v.data();
+      T* v1p = (T*) v1.data();
+      T* v2p = (T*) v2.data();
+      
+      // std::vector<T> v3(v.size()*sizeof(uint8_t)/sizeof(T));
+      std::vector<T> v3(m*n);
+
+      int size = m*n;
+
+
+      ROS_INFO_STREAM_NAMED("timing", "vp!=v1: " << compareArrays(vp,v1p,size) << "; vp!=v2: " << compareArrays(vp,v2p,size));
+
+
+      ros::WallTime start = ros::WallTime::now();
+      transpose(v1p, m, n, v1p);
+      ros::WallTime t1 = ros::WallTime::now();
+      transpose(v2p, m, n, v3.data());
+      ros::WallTime t2 = ros::WallTime::now();
+
+      int num_mismatches = compareArrays(v1p,v3.data(),size);
+      // for(size_t i = 0; i < m*n; ++i)
+      // {
+      //   if(v1p[i] != v3[i])
+      //   {
+      //     ++num_mismatches;
+      //   }
+      // }
+
+      ROS_INFO_STREAM_NAMED("timing", "num_mismatches: " << num_mismatches << "; " << deltaT("in-place transpose", start, t1) << deltaT("out-of-place transpose", t1, t2));
     }
 
     
@@ -560,14 +637,6 @@ namespace egocylindrical
       std::vector<T> buffer2(width*height);
       std::vector<T> buffer3(width*height);
       std::vector<T> buffer4(width*height);
-
-      auto deltaT = [](const std::string& name, const ros::WallTime& start, const ros::WallTime& end)
-      {
-        std::stringstream s;
-        s << name << " time: " << (end-start).toSec()*1000 << "ms; ";
-        return s.str();
-      };
-      
       
       {
         ros::WallTime start = ros::WallTime::now();
@@ -602,6 +671,7 @@ namespace egocylindrical
       std::fill(inflated_ranges, inflated_ranges+converter.getCols(), unknown_value);
       
       const T* ranges = (T*)range_msg.data.data();
+      timeTranspose<T>(range_msg.data, converter.getWidth(), converter.getHeight());
       
       inflateRangeImage<T>(ranges, converter, converted_inflation_radius, converted_inflation_height, vertical_offset, num_threads, buffer.data(), inflated_ranges);
     }
