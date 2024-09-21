@@ -531,7 +531,7 @@ target_link_libraries(range_image_inflator_node2
    # -lasan
    ${catkin_LIBRARIES}
    )
-#target_compile_options(range_image_inflator_node2 PRIVATE)#-ftree-vectorize -fopt-info-loop-all -funsafe-math-optimizations -fno-math-errno) #=vec_range_image_inflator_node2.txt
+target_compile_options(range_image_inflator_node2 PRIVATE -ftree-vectorize -fopt-info-loop-all -funsafe-math-optimizations -fno-math-errno) # -funsafe-math-optimizations -fno-math-errno -ffinite-math-only) # -funsafe-math-optimizations -fno-math-errno -ffinite-math-only
 
 #RANGE_IMAGE_INFLATOR_NODELET
 add_library(egocylindrical_range_image_inflator_nodelet MODULE src/range_image_inflator_nodelet.cpp)
