@@ -211,13 +211,12 @@ namespace egocylindrical
         #pragma GCC ivdep
         for(int i = 0; i < l; ++i)
         {
-          // auto range = ranges[i];
+          auto range = ranges[i];
 
-          // auto k = indexer(range);
-          // auto k2 = std::max(k, 0);
-          // auto k3 = R::is_valid(range) ? k2 : 0;
-          // Kref[i] = k2;
-          Kref[i] = std::max(indexer(ranges[i]),0);
+          auto k = indexer(range);
+          auto k2 = std::max(k, 0);
+          auto k3 = R::is_valid(range) ? k2 : 0;
+          Kref[i] = k3;
         }
       }
 
