@@ -32,7 +32,8 @@ namespace egocylindrical
             std::string sensor_type;
             if(!sensor_nh.getParam("type", sensor_type))
             {
-                throw std::runtime_error("Type [" + sensor_type + "] is not defined for Sensor! [" + name + "]");
+                // throw std::runtime_error("Type [" + sensor_type + "] is not defined for Sensor! [" + name + "]");
+                throw std::runtime_error("Sensor [" + name + "] is missing a 'type' parameter entry");
             }
             
             //This isn't possible w/ C++11 apparently
@@ -117,15 +118,27 @@ namespace egocylindrical
             
             auto get_sensor_names3 = [](ros::NodeHandle nh)
             {
+                std::vector<std::string> sensor_names;
+
                 XmlRpc::XmlRpcValue my_list;
                 nh.getParam("observation_sources", my_list);
-                ROS_ASSERT(my_list.getType() == XmlRpc::XmlRpcValue::TypeArray);
+                if(my_list.getType() != XmlRpc::XmlRpcValue::TypeArray)
+                {
+                    ROS_ERROR_STREAM("Unable to find expected parameter [" << nh.getNamespace() << "/observation_sources]!");
+                    return sensor_names;
+                }
+                // ROS_ASSERT(my_list.getType() == XmlRpc::XmlRpcValue::TypeArray);
 
-                std::vector<std::string> sensor_names;
                 for (int32_t i = 0; i < my_list.size(); ++i) 
                 {
-                  ROS_ASSERT(my_list[i].getType() == XmlRpc::XmlRpcValue::TypeString);
-                  sensor_names.push_back(static_cast<std::string>(my_list[i]));
+                    if(my_list[i].getType() != XmlRpc::XmlRpcValue::TypeString)
+                    {
+                        ROS_ERROR_STREAM("observation_sources[" << i << "] needs to be a string!");
+                        continue;
+                    }
+
+                    //   ROS_ASSERT(my_list[i].getType() == XmlRpc::XmlRpcValue::TypeString);
+                    sensor_names.push_back(static_cast<std::string>(my_list[i]));
                 }
                 return sensor_names;
             };
@@ -152,8 +165,9 @@ namespace egocylindrical
             }
             else
             {
-                ROS_ERROR_STREAM("Did not find any sensors!");
-                return false;
+                ROS_WARN_STREAM("Did not find any sensors! Falling back to legacy behavior and assuming a single depth camera.");
+                SensorInterface::Ptr sensor = std::make_shared<DepthImageSensor>(pnh_, buffer_, true);
+                sensors_.push_back(sensor);
             }
             
             //init sensors
