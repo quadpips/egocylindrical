@@ -49,6 +49,7 @@ namespace egocylindrical
 
     utils::ECWrapper::Ptr ECWrapperBuffer::getOld()
     {
+        bool did_reset = false;
         {
             Lock lk(reset_mutex_);
             if(reset_requested_)
@@ -56,7 +57,13 @@ namespace egocylindrical
                 old_pts_ = nullptr;
                 reset_requested_ = false;
                 reset_cv_.notify_all();
+                did_reset = true;
             }
+        }
+
+        if(did_reset)
+        {
+            ROS_INFO_STREAM_NAMED("ecwrapper_buffer.reset", "Reset effectuated");
         }
 
         return old_pts_;
@@ -69,16 +76,35 @@ namespace egocylindrical
             reset_requested_ = true;
         }
 
+        if(block==0)
+        {
+            ROS_INFO_STREAM_NAMED("ecwrapper_buffer.reset", "Reset requested, no blocking");
+            return;
+        }
+        
+        bool v = false;
         if(block < 0)   //Wait indefinitely
         {
+            ROS_INFO_STREAM_NAMED("ecwrapper_buffer.reset", "Reset requested, block indefinitely");
             Lock lk(reset_mutex_);
             reset_cv_.wait(lk, [this]{return reset_requested_;});
+            // v = false;
         }
-        else if(block > 0)
+        else
         {
+            ROS_INFO_STREAM_NAMED("ecwrapper_buffer.reset", "Reset requested, block for at most " << block << "s");
             Lock lk(reset_mutex_);
             std::chrono::duration<float> fblock;
-            reset_cv_.wait_for(lk, std::chrono::duration_cast<std::chrono::milliseconds>(fblock), [this]{return reset_requested_;});
+            v = reset_cv_.wait_for(lk, std::chrono::duration_cast<std::chrono::milliseconds>(fblock), [this]{return reset_requested_;});
+        }
+
+        if(v)
+        {
+            ROS_INFO_STREAM_NAMED("ecwrapper_buffer.reset", "Reset still pending");
+        }
+        else
+        {
+            ROS_INFO_STREAM_NAMED("ecwrapper_buffer.reset", "Reset accomplished");
         }
     }
 
