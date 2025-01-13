@@ -2,9 +2,7 @@
   <arg name="depth_image" default="/camera/depth/image_raw"/>
   <arg name="depth_info" default="/camera/depth/camera_info"/>
   <arg name="scan_topic" default="/scan"/>
-  <arg name="fixed_frame_id" default="map"/>
-
-  <arg name="labels_image" default="/camera/steppability/labels"/>
+  <arg name="fixed_frame_id" default="odom"/>
   
   <arg name="viz_inflated" default="false"/>
   <arg name="range_images"  default="false"/>
@@ -30,8 +28,6 @@
 
   <arg name="laser_source" value="$(eval 'laser' if use_laser else '')"/>
 
-  <arg name="steppability_source" value="labeled_depth"/>
-
   <env name="ROSCONSOLE_CONFIG_FILE"
        value="$(find egocylindrical)/data/custom_rosconsole.conf"/>
 
@@ -40,19 +36,14 @@
     <node name="depth_to_egocylindrical_node" pkg="egocylindrical" type="egocylindrical_propagator_node" output="log" launch-prefix="$(arg prefix)">        
       <rosparam subst_value="True">
         sensors:
-          observation_sources: [depth, $(arg steppability_source) $(arg laser_source)]
+          observation_sources: [depth, $(arg laser_source)]
           depth:
-            type: depth
+            type: labeled_depth
             image_in: $(arg depth_image)
             info_in: $(arg depth_info)
 
             publish_update: true
             raytrace: true
-            
-          labeled_depth:
-            type: labeled_depth
-            labels_in: $(arg labels_image)
-            info_in: $(arg depth_info)
 
           laser:
             type: laser
@@ -82,6 +73,10 @@
       <remap from="egocylindrical_points" to="data"/>
     </node>
       
+    <node name="egocylindrical_to_labeled_pointcloud" pkg="egocylindrical" type="labeled_point_cloud_node" output="log" launch-prefix="$(arg projected_prefix)">
+      <remap from="egocylindrical_points" to="data"/>
+    </node>
+
     <group if="$(arg range_images)">
 
       <node name="egocylindrical_to_range_image" pkg="egocylindrical" type="range_image_node" output="log" launch-prefix="">
