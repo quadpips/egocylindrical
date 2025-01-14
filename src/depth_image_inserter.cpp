@@ -809,107 +809,111 @@ namespace egocylindrical
             }
         }
 
-        // inline
-        // void insertPoints(utils::ECWrapper& cylindrical_points, 
-        //                     const sensor_msgs::Image::ConstPtr& image_msg, 
-        //                     const sensor_msgs::Image::ConstPtr& normals_msg,
-        //                     const CleanCameraModel& cam_model, 
-        //                     const geometry_msgs::TransformStamped transform, 
-        //                     DIDiffRequest& request)
-        // {
-        //     const cv::Mat image = cv_bridge::toCvShare(image_msg)->image;
-        //     const cv::Mat normals = cv_bridge::toCvCopy(normals_msg, "32FC3")->image;
-
-        //     // insertPoints6(cylindrical_points, image, image_msg, cam_model, transform, request);
-
-        //     if(image.depth() == CV_32FC1)
-        //     {
-        //         insertPoints4<float>(cylindrical_points, image, normals, cam_model, transform); // labels, 
-        //     }
-        //     else if (image.depth() == CV_16UC1)
-        //     {
-        //         insertPoints4<uint16_t>(cylindrical_points, image, normals, cam_model, transform); // labels, 
-        //     }
-        // }
-
         inline
         void insertPoints(utils::ECWrapper& cylindrical_points, 
                             const sensor_msgs::Image::ConstPtr& image_msg, 
-                            // const sensor_msgs::Image::ConstPtr& normals_msg,
-                            const sensor_msgs::Image::ConstPtr& labels_msg, 
+                            const sensor_msgs::Image::ConstPtr& normals_msg,
                             const CleanCameraModel& cam_model, 
                             const geometry_msgs::TransformStamped transform, 
                             DIDiffRequest& request)
         {
             const cv::Mat image = cv_bridge::toCvShare(image_msg)->image;
-            // const cv::Mat labels = cv_bridge::toCvCopy(labels_msg, "8UC1")->image; // do not do!
-            cv_bridge::CvImageConstPtr cvImagePtr = cv_bridge::toCvCopy(labels_msg, "8UC1"); // , "8UC1"
-            const cv::Mat labels = cvImagePtr->image;
+            cv_bridge::CvImageConstPtr normalsPtr = cv_bridge::toCvCopy(normals_msg, "32FC3");
+            const cv::Mat normals = normalsPtr->image;
 
-            // const cv::Mat normals = cv_bridge::toCvCopy(normals_msg, "32FC3")->image;
+            ROS_INFO_STREAM_NAMED("timing", "in DepthImageInserter::insertPoints, normals.at(240, 360): " << 
+                                                                                normals.at<cv::Vec3f>(240, 360)[0] << ", " <<
+                                                                                normals.at<cv::Vec3f>(240, 360)[1] << ", " <<
+                                                                                normals.at<cv::Vec3f>(240, 360)[2]);
 
-            // ROS_INFO_STREAM_NAMED("labels", "labels: " << labels.data);
-
-            // uint8_t test_label_uint8_t = labels.at<uint8_t>(0, 100); // DOES NOT WORK 
-            // int test_label_int = labels.at<uint8_t>(0, 100); // WORKS
-            // int8_t test_label_int8_t = labels.at<int8_t>(0, 100); // DOES NOT WORK 
-            // int test_label_int2 = labels.at<int8_t>(0, 100); // WORKS
-
-            // uint16_t test_label_uint16_t = labels.at<uint16_t>(0, 100); // WORKS, returns 771
-            // uint8_t test_16_to_8_convert = static_cast<uint8_t>((test_label_uint16_t & 0xFF00) >> 8);
-
-            // int test_label_data_int = labels.data[100]; // WORKS
-            // int8_t test_label_data_int8_t = labels.data[100]; // DOES NOT WORK
-
-            // uint8_t * test_convert_uint8 = (uint8_t*) &test_label_data_int; // DOES NOT WORK
-            // int8_t * test_convert_int8 = (int8_t*) &test_label_data_int; // DOES NOT WORK
-
-            // short test_convert_short = labels.at<uint8_t>(0, 100); // WORKS
-            // float test_convert_float = labels.at<uint8_t>(0, 100); // WORKS
-
-            // uint8_t test_label_uint8_t_int = labels.at<int>(0, 100); // DOES NOT WORK 
-
-            // if (test_label_uint8_t == 3)
-            //     ROS_INFO_STREAM_NAMED("labels", "COMPARING IS FINE!!");    
-
-            // ROS_INFO_STREAM_NAMED("labels", "test_label_uint8_t: " << std::hex << (uint16_t) test_label_uint8_t);
-            // ROS_INFO_STREAM_NAMED("labels", "test_label_int: " << test_label_int);
-            // ROS_INFO_STREAM_NAMED("labels", "test_label_int8_t: " << test_label_int8_t);
-            // ROS_INFO_STREAM_NAMED("labels", "test_label_int2: " << test_label_int2);
-            // ROS_INFO_STREAM_NAMED("labels", "test_label_data: " << test_label_data_int);
-            // ROS_INFO_STREAM_NAMED("labels", "test_label_data_int8_t: " << test_label_data_int8_t);
-            // ROS_INFO_STREAM_NAMED("labels", "test_convert_uint8: " << *test_convert_uint8);
-            // ROS_INFO_STREAM_NAMED("labels", "test_convert_int8: " << *test_convert_int8);
-            // ROS_INFO_STREAM_NAMED("labels", "test_convert_short: " << test_convert_short);
-            // ROS_INFO_STREAM_NAMED("labels", "test_convert_float: " << test_convert_float);
-            // ROS_INFO_STREAM_NAMED("labels", "labels.at<uint8_t>(0, 100): " << labels.at<uint8_t>(0, 100));
-            // ROS_INFO_STREAM_NAMED("labels", "labels.at<int8_t>(0, 100): " << labels.at<int8_t>(0, 100));
-            // ROS_INFO_STREAM_NAMED("labels", "labels.at<uint16_t>(0, 100): " << labels.at<uint16_t>(0, 100)); // huge number 
-            // ROS_INFO_STREAM_NAMED("labels", "labels.at<int16_t>(0, 100): " << labels.at<int16_t>(0, 100)); // huge number            
-            // ROS_INFO_STREAM_NAMED("labels", "labels.at<uint32_t>(0, 100): " << labels.at<uint32_t>(0, 100)); // huge number 
-            // ROS_INFO_STREAM_NAMED("labels", "labels.at<int32_t>(0, 100): " << labels.at<int32_t>(0, 100)); // huge number
-            // ROS_INFO_STREAM_NAMED("labels", "labels.at<int>(0, 100): " << labels.at<int>(0, 100));
-            // ROS_INFO_STREAM_NAMED("labels", "test_label_uint8_t_int: " << test_label_uint8_t_int);
-            // ROS_INFO_STREAM_NAMED("labels", "test_label_uint16_t: " << test_label_uint16_t); 
-            // ROS_INFO_STREAM_NAMED("labels", "test_16_to_8_convert: " << test_16_to_8_convert); 
-
-            // int label = labels.at<uint8_t>(3, 3);
-            // ROS_INFO_STREAM_NAMED("timing", "in DepthImageInserter::insertPoints, label: " << label);
-            // ROS_INFO_STREAM_NAMED("timing", "in DepthImageInserter::insertPoints, current use: " << labels.at<uint8_t>(3, 3));
-
-
-
-            // insertPoints6(cylindrical_points, image, image_msg, cam_model, transform, request);
-
-            if(image.depth() == CV_32FC1)
+            if (image.depth() == CV_32FC1)
             {
-                insertLabelsAndPoints4<float>(cylindrical_points, image, labels, cam_model, transform); // normals,  
+                insertPoints4<float>(cylindrical_points, image, cam_model, transform); // normals,  
             }
             else if (image.depth() == CV_16UC1)
             {
-                insertLabelsAndPoints4<uint16_t>(cylindrical_points, image, labels, cam_model, transform); // normals, 
+                insertPoints4<uint16_t>(cylindrical_points, image, cam_model, transform); // normals,  
             }
         }
+
+        // inline
+        // void insertPoints(utils::ECWrapper& cylindrical_points, 
+        //                     const sensor_msgs::Image::ConstPtr& image_msg, 
+        //                     // const sensor_msgs::Image::ConstPtr& normals_msg,
+        //                     const sensor_msgs::Image::ConstPtr& labels_msg, 
+        //                     const CleanCameraModel& cam_model, 
+        //                     const geometry_msgs::TransformStamped transform, 
+        //                     DIDiffRequest& request)
+        // {
+        //     const cv::Mat image = cv_bridge::toCvShare(image_msg)->image;
+        //     // const cv::Mat labels = cv_bridge::toCvCopy(labels_msg, "8UC1")->image; // do not do!
+        //     cv_bridge::CvImageConstPtr cvImagePtr = cv_bridge::toCvCopy(labels_msg, "8UC1"); // , "8UC1"
+        //     const cv::Mat labels = cvImagePtr->image;
+
+        //     // const cv::Mat normals = cv_bridge::toCvCopy(normals_msg, "32FC3")->image;
+
+        //     // ROS_INFO_STREAM_NAMED("labels", "labels: " << labels.data);
+
+        //     // uint8_t test_label_uint8_t = labels.at<uint8_t>(0, 100); // DOES NOT WORK 
+        //     // int test_label_int = labels.at<uint8_t>(0, 100); // WORKS
+        //     // int8_t test_label_int8_t = labels.at<int8_t>(0, 100); // DOES NOT WORK 
+        //     // int test_label_int2 = labels.at<int8_t>(0, 100); // WORKS
+
+        //     // uint16_t test_label_uint16_t = labels.at<uint16_t>(0, 100); // WORKS, returns 771
+        //     // uint8_t test_16_to_8_convert = static_cast<uint8_t>((test_label_uint16_t & 0xFF00) >> 8);
+
+        //     // int test_label_data_int = labels.data[100]; // WORKS
+        //     // int8_t test_label_data_int8_t = labels.data[100]; // DOES NOT WORK
+
+        //     // uint8_t * test_convert_uint8 = (uint8_t*) &test_label_data_int; // DOES NOT WORK
+        //     // int8_t * test_convert_int8 = (int8_t*) &test_label_data_int; // DOES NOT WORK
+
+        //     // short test_convert_short = labels.at<uint8_t>(0, 100); // WORKS
+        //     // float test_convert_float = labels.at<uint8_t>(0, 100); // WORKS
+
+        //     // uint8_t test_label_uint8_t_int = labels.at<int>(0, 100); // DOES NOT WORK 
+
+        //     // if (test_label_uint8_t == 3)
+        //     //     ROS_INFO_STREAM_NAMED("labels", "COMPARING IS FINE!!");    
+
+        //     // ROS_INFO_STREAM_NAMED("labels", "test_label_uint8_t: " << std::hex << (uint16_t) test_label_uint8_t);
+        //     // ROS_INFO_STREAM_NAMED("labels", "test_label_int: " << test_label_int);
+        //     // ROS_INFO_STREAM_NAMED("labels", "test_label_int8_t: " << test_label_int8_t);
+        //     // ROS_INFO_STREAM_NAMED("labels", "test_label_int2: " << test_label_int2);
+        //     // ROS_INFO_STREAM_NAMED("labels", "test_label_data: " << test_label_data_int);
+        //     // ROS_INFO_STREAM_NAMED("labels", "test_label_data_int8_t: " << test_label_data_int8_t);
+        //     // ROS_INFO_STREAM_NAMED("labels", "test_convert_uint8: " << *test_convert_uint8);
+        //     // ROS_INFO_STREAM_NAMED("labels", "test_convert_int8: " << *test_convert_int8);
+        //     // ROS_INFO_STREAM_NAMED("labels", "test_convert_short: " << test_convert_short);
+        //     // ROS_INFO_STREAM_NAMED("labels", "test_convert_float: " << test_convert_float);
+        //     // ROS_INFO_STREAM_NAMED("labels", "labels.at<uint8_t>(0, 100): " << labels.at<uint8_t>(0, 100));
+        //     // ROS_INFO_STREAM_NAMED("labels", "labels.at<int8_t>(0, 100): " << labels.at<int8_t>(0, 100));
+        //     // ROS_INFO_STREAM_NAMED("labels", "labels.at<uint16_t>(0, 100): " << labels.at<uint16_t>(0, 100)); // huge number 
+        //     // ROS_INFO_STREAM_NAMED("labels", "labels.at<int16_t>(0, 100): " << labels.at<int16_t>(0, 100)); // huge number            
+        //     // ROS_INFO_STREAM_NAMED("labels", "labels.at<uint32_t>(0, 100): " << labels.at<uint32_t>(0, 100)); // huge number 
+        //     // ROS_INFO_STREAM_NAMED("labels", "labels.at<int32_t>(0, 100): " << labels.at<int32_t>(0, 100)); // huge number
+        //     // ROS_INFO_STREAM_NAMED("labels", "labels.at<int>(0, 100): " << labels.at<int>(0, 100));
+        //     // ROS_INFO_STREAM_NAMED("labels", "test_label_uint8_t_int: " << test_label_uint8_t_int);
+        //     // ROS_INFO_STREAM_NAMED("labels", "test_label_uint16_t: " << test_label_uint16_t); 
+        //     // ROS_INFO_STREAM_NAMED("labels", "test_16_to_8_convert: " << test_16_to_8_convert); 
+
+        //     // int label = labels.at<uint8_t>(3, 3);
+        //     // ROS_INFO_STREAM_NAMED("timing", "in DepthImageInserter::insertPoints, label: " << label);
+        //     // ROS_INFO_STREAM_NAMED("timing", "in DepthImageInserter::insertPoints, current use: " << labels.at<uint8_t>(3, 3));
+
+
+
+        //     // insertPoints6(cylindrical_points, image, image_msg, cam_model, transform, request);
+
+        //     if(image.depth() == CV_32FC1)
+        //     {
+        //         insertLabelsAndPoints4<float>(cylindrical_points, image, labels, cam_model, transform); // normals,  
+        //     }
+        //     else if (image.depth() == CV_16UC1)
+        //     {
+        //         insertLabelsAndPoints4<uint16_t>(cylindrical_points, image, labels, cam_model, transform); // normals, 
+        //     }
+        // }
 
         DepthImageInserter::DepthImageInserter(tf2_ros::Buffer& buffer, ros::NodeHandle pnh):
             buffer_(buffer),
@@ -993,76 +997,13 @@ namespace egocylindrical
             return true;
         }
 
-        // bool DepthImageInserter::insert(ECWrapper& cylindrical_points, 
-        //                                 const sensor_msgs::Image::ConstPtr& image_msg, 
-        //                                 const sensor_msgs::CameraInfo::ConstPtr& cam_info,
-        //                                 const sensor_msgs::Image::ConstPtr& normals_msg)                                        
-        // {
-        //     const std_msgs::Header& target_header = cylindrical_points.getHeader();
-        //     const std_msgs::Header& source_header = image_msg->header;
-
-        //     if(target_header == source_header)
-        //     {
-        //         ROS_INFO_ONCE("Target and source headers match, using remapping approach");
-        //         // ROS_DEBUG_STREAM_NAMED("labels", "we are remapping now!"); // not happening it appears
-        //         depth_remapper_.update(cylindrical_points, image_msg, cam_info);
-        //         return true;
-        //     }
-            
-        //     if( cam_model_.fromCameraInfo(cam_info) )
-        //     {
-        //         ROS_DEBUG("Camera info has changed!");
-        //         //If camera info changed, update any precomputed values
-        //         //cam_model_.init();
-        //     }
-        //     else
-        //     {
-        //         ROS_DEBUG("Camera info has not changed");
-        //     }
-            
-        //     //Get transform
-        //     geometry_msgs::TransformStamped transform;
-        //     try
-        //     {
-        //         transform = buffer_.lookupTransform(target_header.frame_id, target_header.stamp, source_header.frame_id, source_header.stamp, fixed_frame_id_);
-        //     }
-        //     catch (tf2::TransformException &ex) 
-        //     {
-        //         ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
-        //         return false;
-        //     }
-
-        //     DIDiffRequest request;
-        //     // request.params.neg_eps = -0.2;
-        //     // request.params.pos_eps = 0.2;
-        //     // request.params.fill_cloud = true;
-        //     // request.params.fill_im = true;
-        //     // request.params.fill_debug = true;
-
-        //     // sensor_msgs::PointCloud2::Ptr pcloud_msg = boost::make_shared<sensor_msgs::PointCloud2>();
-        //     insertPoints(cylindrical_points, image_msg, normals_msg, cam_model_, transform, request); // , 
-        //     // auto pcloud_msg = request.results.point_cloud;
-        //     // pcloud_msg->header = target_header; //image_msg->header;
-        //     // pub_diff_pc_.publish(pcloud_msg);
-
-        //     // auto depthim_msg = request.results.depth_image;
-        //     // // depthim_msg->header
-        //     // pub_diff_im_.publish(depthim_msg);
-
-        //     // debug_pub_.publish(request.results.debug);
-
-        //     return true;
-        // }
-
         bool DepthImageInserter::insert(ECWrapper& cylindrical_points, 
                                         const sensor_msgs::Image::ConstPtr& image_msg, 
-                                        const sensor_msgs::CameraInfo::ConstPtr& cam_info, 
-                                        // const sensor_msgs::Image::ConstPtr& normals_msg,
-                                        const sensor_msgs::Image::ConstPtr& labels_msg)                                        
+                                        const sensor_msgs::CameraInfo::ConstPtr& cam_info,
+                                        const sensor_msgs::Image::ConstPtr& normals_msg)                                        
         {
             const std_msgs::Header& target_header = cylindrical_points.getHeader();
             const std_msgs::Header& source_header = image_msg->header;
-            // const std_msgs::Header& source_labels_header = labels_msg->header;
 
             if(target_header == source_header)
             {
@@ -1103,7 +1044,7 @@ namespace egocylindrical
             // request.params.fill_debug = true;
 
             // sensor_msgs::PointCloud2::Ptr pcloud_msg = boost::make_shared<sensor_msgs::PointCloud2>();
-            insertPoints(cylindrical_points, image_msg, labels_msg, cam_model_, transform, request); // normals_msg,  
+            insertPoints(cylindrical_points, image_msg, normals_msg, cam_model_, transform, request); // , 
             // auto pcloud_msg = request.results.point_cloud;
             // pcloud_msg->header = target_header; //image_msg->header;
             // pub_diff_pc_.publish(pcloud_msg);
@@ -1116,6 +1057,69 @@ namespace egocylindrical
 
             return true;
         }
+
+        // bool DepthImageInserter::insert(ECWrapper& cylindrical_points, 
+        //                                 const sensor_msgs::Image::ConstPtr& image_msg, 
+        //                                 const sensor_msgs::CameraInfo::ConstPtr& cam_info, 
+        //                                 // const sensor_msgs::Image::ConstPtr& normals_msg,
+        //                                 const sensor_msgs::Image::ConstPtr& labels_msg)                                        
+        // {
+        //     const std_msgs::Header& target_header = cylindrical_points.getHeader();
+        //     const std_msgs::Header& source_header = image_msg->header;
+        //     // const std_msgs::Header& source_labels_header = labels_msg->header;
+
+        //     if(target_header == source_header)
+        //     {
+        //         ROS_INFO_ONCE("Target and source headers match, using remapping approach");
+        //         // ROS_DEBUG_STREAM_NAMED("labels", "we are remapping now!"); // not happening it appears
+        //         depth_remapper_.update(cylindrical_points, image_msg, cam_info);
+        //         return true;
+        //     }
+            
+        //     if( cam_model_.fromCameraInfo(cam_info) )
+        //     {
+        //         ROS_DEBUG("Camera info has changed!");
+        //         //If camera info changed, update any precomputed values
+        //         //cam_model_.init();
+        //     }
+        //     else
+        //     {
+        //         ROS_DEBUG("Camera info has not changed");
+        //     }
+            
+        //     //Get transform
+        //     geometry_msgs::TransformStamped transform;
+        //     try
+        //     {
+        //         transform = buffer_.lookupTransform(target_header.frame_id, target_header.stamp, source_header.frame_id, source_header.stamp, fixed_frame_id_);
+        //     }
+        //     catch (tf2::TransformException &ex) 
+        //     {
+        //         ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
+        //         return false;
+        //     }
+
+        //     DIDiffRequest request;
+        //     // request.params.neg_eps = -0.2;
+        //     // request.params.pos_eps = 0.2;
+        //     // request.params.fill_cloud = true;
+        //     // request.params.fill_im = true;
+        //     // request.params.fill_debug = true;
+
+        //     // sensor_msgs::PointCloud2::Ptr pcloud_msg = boost::make_shared<sensor_msgs::PointCloud2>();
+        //     insertPoints(cylindrical_points, image_msg, labels_msg, cam_model_, transform, request); // normals_msg,  
+        //     // auto pcloud_msg = request.results.point_cloud;
+        //     // pcloud_msg->header = target_header; //image_msg->header;
+        //     // pub_diff_pc_.publish(pcloud_msg);
+
+        //     // auto depthim_msg = request.results.depth_image;
+        //     // // depthim_msg->header
+        //     // pub_diff_im_.publish(depthim_msg);
+
+        //     // debug_pub_.publish(request.results.debug);
+
+        //     return true;
+        // }
 
 
     } //end namespace utils
