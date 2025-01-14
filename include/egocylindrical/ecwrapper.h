@@ -917,7 +917,7 @@ namespace egocylindrical
         private:
         public:         
             float* points_;
-            // float* normals_;
+            float* normals_;
             uint8_t* labels_;
             
             AlignedVector<float> ranges_;
@@ -959,7 +959,7 @@ namespace egocylindrical
                 header_ = const_msg_->header;
 
                 points_ = (float*) const_msg_->points.data.data() + (const_msg_->points.layout.data_offset) / sizeof(float);
-                // normals_ = (float*) const_msg_->normals.data.data() + (const_msg_->normals.layout.data_offset) / sizeof(float);
+                normals_ = (float*) const_msg_->normals.data.data() + (const_msg_->normals.layout.data_offset) / sizeof(float);
                 labels_ = (uint8_t*) const_msg_->labels.data.data() + (const_msg_->labels.layout.data_offset) / sizeof(uint8_t);
                                 
                 msg_locked_ = true;
@@ -1002,7 +1002,7 @@ namespace egocylindrical
             {
                 ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper copyContents");
                 std::copy(rhs.getPoints(), rhs.getPoints()+3*rhs.getNumPts(), lhs.getPoints());
-                // std::copy(rhs.getNormals(), rhs.getNormals() + 3*rhs.getNumPts(), lhs.getNormals());
+                std::copy(rhs.getNormals(), rhs.getNormals() + 3*rhs.getNumPts(), lhs.getNormals());
                 std::copy(rhs.getLabels(), rhs.getLabels()+rhs.getNumPts(), lhs.getLabels());
 
                 lhs.setHeader(rhs.getHeader());
@@ -1016,17 +1016,17 @@ namespace egocylindrical
             inline float* getPoints()                   { return (float*) points_; } //__builtin_assume_aligned(points_, __BIGGEST_ALIGNMENT__)
             inline const float* getPoints() const       { return (const float*) points_; } //__builtin_assume_aligned(points_, __BIGGEST_ALIGNMENT__)
             
-            // inline float* getNormals()                  { return (float*) normals_; } //__builtin_assume_aligned(normals_, __BIGGEST_ALIGNMENT__)
-            // inline const float* getNormals() const      { return (const float*) normals_; } //__builtin_assume_aligned(normals_, __BIGGEST_ALIGNMENT__)
+            inline float* getNormals()                  { return (float*) normals_; } //__builtin_assume_aligned(normals_, __BIGGEST_ALIGNMENT__)
+            inline const float* getNormals() const      { return (const float*) normals_; } //__builtin_assume_aligned(normals_, __BIGGEST_ALIGNMENT__)
 
-            // inline float* getNormalX()                        { return getNormals(); }
-            // inline const float* getNormalX()          const   { return (const float*) getNormals(); }
+            inline float* getNormalX()                        { return getNormals(); }
+            inline const float* getNormalX()          const   { return (const float*) getNormals(); }
             
-            // inline float* getNormalY()                        { return getNormals() + getNumPts(); }
-            // inline const float* getNormalY()          const   { return (const float*) getNormals() + getNumPts(); }
+            inline float* getNormalY()                        { return getNormals() + getNumPts(); }
+            inline const float* getNormalY()          const   { return (const float*) getNormals() + getNumPts(); }
             
-            // inline float* getNormalZ()                        { return getNormals() + 2*getNumPts(); }
-            // inline const float* getNormalZ()          const   { return (const float*) getNormals() + 2*getNumPts(); }
+            inline float* getNormalZ()                        { return getNormals() + 2*getNumPts(); }
+            inline const float* getNormalZ()          const   { return (const float*) getNormals() + 2*getNumPts(); }
 
             inline const uint8_t getOneLabel(const int & idx) const       { return labels_[idx]; } //__builtin_assume_aligned(points_, __BIGGEST_ALIGNMENT__)
 
@@ -1097,40 +1097,44 @@ namespace egocylindrical
             void init()
             {
                 ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper init()");
-                int max_alignment = alignof(std::max_align_t);
+
+                // POINTS
+
+                // int max_alignment = alignof(std::max_align_t);
                 
                 int biggest_alignment = __BIGGEST_ALIGNMENT__;
                 
                 size_t object_size = sizeof(float);
                 
-                size_t object_alignment = alignof(float);
+                // size_t object_alignment = alignof(float);
                 
                 size_t buffer_size = biggest_alignment - object_size;
                 size_t buffer_objects = buffer_size / object_size;
                 
                 // NOTE: width x height must be divisible by 8 for this approach to work. Otherwise, additional information will be necessary in order to properly place the x,y,z pointers
                 
-                ROS_DEBUG_STREAM("max_alignment: " << max_alignment << ", biggest_alignment: " << biggest_alignment << ", object_size: " << object_size << ", object_alignment: " << object_alignment << ", number buffer objects: " << buffer_objects);
+                // ROS_DEBUG_STREAM("max_alignment: " << max_alignment << ", biggest_alignment: " << biggest_alignment << ", object_size: " << object_size << ", object_alignment: " << object_alignment << ", number buffer objects: " << buffer_objects);
                 
                 ROS_DEBUG_STREAM("Allocating space for " << getNumPts() << " points (and labels).");
                 msg_->points.data.resize(3*getNumPts() + buffer_objects, dNaN);
                 
                 //Align data pointer (points)
                 {
-                    void* temp_points = (void*) msg_->points.data.data();
-                    
-                    size_t space_before = getNumPts()*3*sizeof(float);
-                    size_t space_after = space_before;
-                    
-                    std::align(biggest_alignment, sizeof(float), temp_points, space_after);
-                    points_ = (float*) temp_points;
-                    
-                    msg_->points.layout.data_offset = (space_before - space_after);
-                    
-                    ROS_DEBUG_STREAM_NAMED("labels", "Points space_after: " << space_after);
-                    ROS_DEBUG_STREAM("Aligned points_, adjusted pointer by " << (space_before - space_after) << " bytes");
+                  void* temp_points = (void*) msg_->points.data.data();
+                  
+                  size_t space_before = getNumPts()*3*sizeof(float);
+                  size_t space_after = space_before;
+                  
+                  std::align(biggest_alignment, sizeof(float), temp_points, space_after);
+                  points_ = (float*) temp_points;
+                  
+                  msg_->points.layout.data_offset = (space_before - space_after);
+                  
+                  ROS_DEBUG_STREAM_NAMED("labels", "Points space_after: " << space_after);
+                  ROS_DEBUG_STREAM("Aligned points_, adjusted pointer by " << (space_before - space_after) << " bytes");
                 }
                 
+                // LABELS
                 size_t labels_object_size = sizeof(uint8_t);
                 size_t labels_buffer_size = biggest_alignment - labels_object_size;
                 size_t labels_buffer_objects = labels_buffer_size / labels_object_size;
@@ -1153,27 +1157,28 @@ namespace egocylindrical
                     ROS_DEBUG_STREAM_NAMED("labels", "Aligned labels_, adjusted pointer by " << (space_before - space_after) << " bytes");
                 }
 
-                // size_t normals_object_size = sizeof(float);
-                // size_t normals_buffer_size = biggest_alignment - normals_object_size;
-                // size_t normals_buffer_objects = normals_buffer_size / normals_object_size;
+                // NORMALS                
+                size_t normals_object_size = sizeof(float);
+                size_t normals_buffer_size = biggest_alignment - normals_object_size;
+                size_t normals_buffer_objects = normals_buffer_size / normals_object_size;
                 
-                // msg_->normals.data.resize(getNumPts() + normals_buffer_objects, 0);
+                msg_->normals.data.resize(3*getNumPts() + normals_buffer_objects, dNaN);
 
-                // //Align data pointer (labels)
-                // {
-                //     void* temp_normals = (void*) msg_->normals.data.data();
-                    
-                //     size_t space_before = getNumPts()*sizeof(float);
-                //     size_t space_after = space_before;
-                    
-                //     std::align(biggest_alignment, sizeof(float), temp_normals, space_after);
-                //     normals_ = (float*) temp_normals;
-                    
-                //     msg_->normals.layout.data_offset = (space_before - space_after);
-
-                //     ROS_DEBUG_STREAM_NAMED("labels", "Normals space_after: " << space_after);
-                //     ROS_DEBUG_STREAM_NAMED("labels", "Aligned normals_, adjusted pointer by " << (space_before - space_after) << " bytes");
-                // }
+                //Align data pointer (labels)
+                {
+                  void* temp_normals = (void*) msg_->normals.data.data();
+                  
+                  size_t normals_space_before = getNumPts()*3*sizeof(float);
+                  size_t normals_space_after = normals_space_before;
+                  
+                  std::align(biggest_alignment, sizeof(float), temp_normals, normals_space_after);
+                  normals_ = (float*) temp_normals;
+                  
+                  msg_->normals.layout.data_offset = (normals_space_before - normals_space_after);
+                  
+                  ROS_DEBUG_STREAM_NAMED("labels", "Normals space_after: " << normals_space_after);
+                  ROS_DEBUG_STREAM("Aligned normals_, adjusted pointer by " << (normals_space_before - normals_space_after) << " bytes");
+                }
 
                 if(allocate_arrays_)
                 {
@@ -1206,7 +1211,7 @@ namespace egocylindrical
                         if(clear)
                         {
                             msg_->points.data.clear();
-                            // msg_->normals.data.clear();
+                            msg_->normals.data.clear();
                             msg_->labels.data.clear();
                         }
                             
@@ -1218,7 +1223,7 @@ namespace egocylindrical
                       if(clear)
                       {
                         std::fill(msg_->points.data.begin(), msg_->points.data.end(), dNaN);
-                        // std::fill(msg_->normals.data.begin(), msg_->normals.data.end(), dNaN);
+                        std::fill(msg_->normals.data.begin(), msg_->normals.data.end(), dNaN);
                         std::fill(msg_->labels.data.begin(), msg_->labels.data.end(), 0);
                       }
                     }
@@ -1238,7 +1243,7 @@ namespace egocylindrical
             {
                 msg_ = other.msg_;
                 points_ = other.points_;
-                // normals_ = other.normals_;
+                normals_ = other.normals_;
                 labels_ = other.labels_;
             }
             

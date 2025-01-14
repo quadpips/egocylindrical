@@ -143,153 +143,152 @@ namespace egocylindrical
             
         }
 
-        //whole image vectorization w/ inds
-        // template <typename T>
-        // void insertPoints4(utils::ECWrapper& cylindrical_points, 
-        //                     const cv::Mat & image, 
-        //                     const cv::Mat & normals,
-        //                     const CleanCameraModel& cam_model, 
-        //                     const geometry_msgs::TransformStamped transform)
-        // {
-        //     cv::Size image_size = cam_model.reducedResolution();
-        //     const int image_width = image_size.width;
-        //     const int image_height = image_size.height;
-        //     const int num_pixels = image_width * image_height;
+        // whole image vectorization w/ inds
+        template <typename T>
+        void insertPoints4(utils::ECWrapper& cylindrical_points, 
+                            const cv::Mat & image, 
+                            const cv::Mat & normals,
+                            const CleanCameraModel& cam_model, 
+                            const geometry_msgs::TransformStamped transform)
+        {
+            cv::Size image_size = cam_model.reducedResolution();
+            const int image_width = image_size.width;
+            const int image_height = image_size.height;
+            const int num_pixels = image_width * image_height;
             
-        //     const bool use_egocan = cylindrical_points.getParams().can_width>0;
+            const bool use_egocan = cylindrical_points.getParams().can_width>0;
             
-        //     const int max_ind = cylindrical_points.getCols();
-        //     float* __restrict__ x = cylindrical_points.getX(); // size: getNumPt()
-        //     float* __restrict__ y = cylindrical_points.getY(); // size: getNumPt()
-        //     float* __restrict__ z = cylindrical_points.getZ(); // size: getNumPt()
+            const int max_ind = cylindrical_points.getCols();
+            float* __restrict__ x = cylindrical_points.getX(); // size: getNumPt()
+            float* __restrict__ y = cylindrical_points.getY(); // size: getNumPt()
+            float* __restrict__ z = cylindrical_points.getZ(); // size: getNumPt()
 
-        //     float* __restrict__ norm_x = cylindrical_points.getNormalX(); // size: getNumPt()
-        //     float* __restrict__ norm_y = cylindrical_points.getNormalY(); // size: getNumPt()
-        //     float* __restrict__ norm_z = cylindrical_points.getNormalZ(); // size: getNumPt()
+            float* __restrict__ norm_x = cylindrical_points.getNormalX(); // size: getNumPt()
+            float* __restrict__ norm_y = cylindrical_points.getNormalY(); // size: getNumPt()
+            float* __restrict__ norm_z = cylindrical_points.getNormalZ(); // size: getNumPt()
             
-        //     PointTransformerObject point_transformer(transform);
+            PointTransformerObject point_transformer(transform);
             
-        //     const uint scale = DepthScale<T>::scale();
+            const uint scale = DepthScale<T>::scale();
             
-        //     AlignedVector<float> ranges(num_pixels, dNaN), // size: num_pixels
-        //                             nx(num_pixels, dNaN), // size: num_pixels
-        //                             ny(num_pixels, dNaN), // size: num_pixels
-        //                             nz(num_pixels, dNaN), // size: num_pixels
-        //                             n_norm_x(num_pixels, dNaN), // size: num_pixels
-        //                             n_norm_y(num_pixels, dNaN), // size: num_pixels
-        //                             n_norm_z(num_pixels, dNaN); // size: num_pixels
+            AlignedVector<float> ranges(num_pixels, dNaN), // size: num_pixels
+                                    nx(num_pixels, dNaN), // size: num_pixels
+                                    ny(num_pixels, dNaN), // size: num_pixels
+                                    nz(num_pixels, dNaN), // size: num_pixels
+                                    n_norm_x(num_pixels, dNaN), // size: num_pixels
+                                    n_norm_y(num_pixels, dNaN), // size: num_pixels
+                                    n_norm_z(num_pixels, dNaN); // size: num_pixels
 
-        //     AlignedVector<int32_t> inds(num_pixels);
+            AlignedVector<int32_t> inds(num_pixels);
             
-        //     ROS_INFO_STREAM_NAMED("timing", "getNumPts:" << cylindrical_points.getNumPts());
-        //     ROS_INFO_STREAM_NAMED("timing", "num_pixels:" << num_pixels);
+            ROS_INFO_STREAM_NAMED("timing", "getNumPts:" << cylindrical_points.getNumPts());
+            ROS_INFO_STREAM_NAMED("timing", "num_pixels:" << num_pixels);
 
-        //     const T* const __restrict__ imgptr = (T* const) image.data;
+            const T* const __restrict__ imgptr = (T* const) image.data;
 
-        //     const float row_factor = ((float) 1)/image_width;
+            const float row_factor = ((float) 1)/image_width;
             
-        //     #pragma GCC ivdep
-        //     for(int i = 0; i < num_pixels; ++i)
-        //     {
-        //         float raw_row = i*row_factor;
-        //         float row = std::floor(raw_row);
+            #pragma GCC ivdep
+            for(int i = 0; i < num_pixels; ++i)
+            {
+                float raw_row = i*row_factor;
+                float row = std::floor(raw_row);
 
-        //         float decimal = raw_row - row;
-        //         float col = decimal * image_width;
-        //         //auto res = std::div(i, image_width); int row = res.quot; int col = res.rem;
-        //         //int row = i / image_width;
-        //         //int col = i % image_width;
+                float decimal = raw_row - row;
+                float col = decimal * image_width;
+                //auto res = std::div(i, image_width); int row = res.quot; int col = res.rem;
+                //int row = i / image_width;
+                //int col = i % image_width;
 
                 
-        //         T depth = imgptr[i];
+                T depth = imgptr[i];
                 
-        //         cv::Point2d pt(col, row);
+                cv::Point2d pt(col, row);
 
-        //         //if(depth>0)  //Only insert actual points (works for both float and uint16)
-        //         {                        
-        //             cv::Point3f ray = cam_model.projectPixelTo3dRay(pt); // compute image ray
-        //             cv::Point3f world_pnt = ray * (((float) depth)/scale); // scale image ray by depth to get world point
-        //             cv::Point3f transformed_pnt = point_transformer.transform(world_pnt); // transform between prior timestep and current timestep (or something, not so sure)
+                //if(depth>0)  //Only insert actual points (works for both float and uint16)
+                {                        
+                    cv::Point3f ray = cam_model.projectPixelTo3dRay(pt); // compute image ray
+                    cv::Point3f world_pnt = ray * (((float) depth)/scale); // scale image ray by depth to get world point
+                    cv::Point3f transformed_pnt = point_transformer.transform(world_pnt); // transform between prior timestep and current timestep (or something, not so sure)
                     
-        //             cv::Point3f world_norm = cv::Point3f(normals.at<cv::Vec3f>(row, col)[0], 
-        //                                                     normals.at<cv::Vec3f>(row, col)[1], 
-        //                                                     normals.at<cv::Vec3f>(row, col)[2]);
-        //             cv::Point3f transformed_norm = point_transformer.rotate(world_norm);
+                    cv::Point3f world_norm = cv::Point3f(normals.at<cv::Vec3f>(row, col)[0], 
+                                                            normals.at<cv::Vec3f>(row, col)[1], 
+                                                            normals.at<cv::Vec3f>(row, col)[2]);
+                    cv::Point3f transformed_norm = point_transformer.rotate(world_norm);
 
-        //             nx[i] = transformed_pnt.x;
-        //             ny[i] = transformed_pnt.y;
-        //             nz[i] = transformed_pnt.z;
+                    nx[i] = transformed_pnt.x;
+                    ny[i] = transformed_pnt.y;
+                    nz[i] = transformed_pnt.z;
 
-        //             n_norm_x[i] = transformed_norm.x;
-        //             n_norm_y[i] = transformed_norm.y;
-        //             n_norm_z[i] = transformed_norm.z;
+                    n_norm_x[i] = transformed_norm.x;
+                    n_norm_y[i] = transformed_norm.y;
+                    n_norm_z[i] = transformed_norm.z;
 
-        //             int cyl_idx = cylindrical_points.worldToCylindricalIdx(transformed_pnt);
+                    int cyl_idx = cylindrical_points.worldToCylindricalIdx(transformed_pnt);
                     
-        //             float range_sq = worldToRangeSquared(transformed_pnt);
+                    float range_sq = worldToRangeSquared(transformed_pnt);
                     
-        //             //Only insert actual points (works for both float and uint16)
-        //             ranges[i] = (depth>0) ? range_sq : dNaN;    
-        //             inds[i] = cyl_idx;
-        //         }                
-        //     }
+                    //Only insert actual points (works for both float and uint16)
+                    ranges[i] = (depth>0) ? range_sq : dNaN;    
+                    inds[i] = cyl_idx;
+                }                
+            }
             
-        //     for(int i = 0; i < num_pixels; ++i)
-        //     {
-        //         if(ranges[i]>0)
-        //         {
-        //             cv::Point3f transformed_pnt(nx[i], ny[i], nz[i]);
-        //             cv::Point3f transformed_norm(n_norm_x[i], n_norm_y[i], n_norm_z[i]);
+            for(int i = 0; i < num_pixels; ++i)
+            {
+                if(ranges[i]>0)
+                {
+                    cv::Point3f transformed_pnt(nx[i], ny[i], nz[i]);
+                    cv::Point3f transformed_norm(n_norm_x[i], n_norm_y[i], n_norm_z[i]);
                     
-        //             int cyl_idx = inds[i];
+                    int cyl_idx = inds[i];
                             
-        //             if(cyl_idx >= 0  && cyl_idx < max_ind) // mapping onto columns of egocylinder
-        //             {
-        //                 float range_sq = ranges[i];
+                    if(cyl_idx >= 0  && cyl_idx < max_ind) // mapping onto columns of egocylinder
+                    {
+                        float range_sq = ranges[i];
                 
-        //                 cv::Point3f prev_point(x[cyl_idx], y[cyl_idx], z[cyl_idx]);
+                        cv::Point3f prev_point(x[cyl_idx], y[cyl_idx], z[cyl_idx]);
                         
-        //                 float prev_range_sq = worldToRangeSquared(prev_point);
+                        float prev_range_sq = worldToRangeSquared(prev_point);
 
-        //                 if(!(prev_range_sq <= range_sq)) //overwrite || 
-        //                 {   
-        //                     x[cyl_idx] = transformed_pnt.x;
-        //                     y[cyl_idx] = transformed_pnt.y;
-        //                     z[cyl_idx] = transformed_pnt.z;
+                        if(!(prev_range_sq <= range_sq)) //overwrite || 
+                        {   
+                            x[cyl_idx] = transformed_pnt.x;
+                            y[cyl_idx] = transformed_pnt.y;
+                            z[cyl_idx] = transformed_pnt.z;
 
-        //                     norm_x[cyl_idx] = transformed_norm.x;
-        //                     norm_y[cyl_idx] = transformed_norm.y;
-        //                     norm_z[cyl_idx] = transformed_norm.z;
-        //                 }
-        //             }
-        //             else if (use_egocan)
-        //             {
-        //                 cyl_idx = cylindrical_points.worldToCanIdx(transformed_pnt);
+                            norm_x[cyl_idx] = transformed_norm.x;
+                            norm_y[cyl_idx] = transformed_norm.y;
+                            norm_z[cyl_idx] = transformed_norm.z;
+                        }
+                    }
+                    else if (use_egocan)
+                    {
+                        cyl_idx = cylindrical_points.worldToCanIdx(transformed_pnt);
                     
-        //                 if(cyl_idx >=0 && cyl_idx < cylindrical_points.getNumPts()) // mapping onto top/bottom of egocan
-        //                 {
-        //                     float can_depth = worldToCanDepth(transformed_pnt);
+                        if(cyl_idx >=0 && cyl_idx < cylindrical_points.getNumPts()) // mapping onto top/bottom of egocan
+                        {
+                            float can_depth = worldToCanDepth(transformed_pnt);
                             
-        //                     cv::Point3f prev_point(x[cyl_idx], y[cyl_idx], z[cyl_idx]);
+                            cv::Point3f prev_point(x[cyl_idx], y[cyl_idx], z[cyl_idx]);
                             
-        //                     float prev_can_depth = worldToCanDepth(prev_point);
+                            float prev_can_depth = worldToCanDepth(prev_point);
                             
-        //                     if(!(prev_can_depth <= can_depth)) //overwrite || 
-        //                     {                               
-        //                         x[cyl_idx] = transformed_pnt.x;
-        //                         y[cyl_idx] = transformed_pnt.y;
-        //                         z[cyl_idx] = transformed_pnt.z;
+                            if(!(prev_can_depth <= can_depth)) //overwrite || 
+                            {                               
+                                x[cyl_idx] = transformed_pnt.x;
+                                y[cyl_idx] = transformed_pnt.y;
+                                z[cyl_idx] = transformed_pnt.z;
 
-        //                         norm_x[cyl_idx] = transformed_norm.x;
-        //                         norm_y[cyl_idx] = transformed_norm.y;
-        //                         norm_z[cyl_idx] = transformed_norm.z;
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-            
-        // }
+                                norm_x[cyl_idx] = transformed_norm.x;
+                                norm_y[cyl_idx] = transformed_norm.y;
+                                norm_z[cyl_idx] = transformed_norm.z;
+                            }
+                        }
+                    }
+                }
+            }
+        }
       
         // whole image vectorization w/ inds
         template <typename T>
@@ -821,18 +820,18 @@ namespace egocylindrical
             cv_bridge::CvImageConstPtr normalsPtr = cv_bridge::toCvCopy(normals_msg, "32FC3");
             const cv::Mat normals = normalsPtr->image;
 
-            ROS_INFO_STREAM_NAMED("timing", "in DepthImageInserter::insertPoints, normals.at(240, 360): " << 
-                                                                                normals.at<cv::Vec3f>(240, 360)[0] << ", " <<
-                                                                                normals.at<cv::Vec3f>(240, 360)[1] << ", " <<
-                                                                                normals.at<cv::Vec3f>(240, 360)[2]);
+            // ROS_INFO_STREAM_NAMED("timing", "in DepthImageInserter::insertPoints, normals.at(240, 360): " << 
+            //                                                                     normals.at<cv::Vec3f>(240, 360)[0] << ", " <<
+            //                                                                     normals.at<cv::Vec3f>(240, 360)[1] << ", " <<
+            //                                                                     normals.at<cv::Vec3f>(240, 360)[2]);
 
             if (image.depth() == CV_32FC1)
             {
-                insertPoints4<float>(cylindrical_points, image, cam_model, transform); // normals,  
+                insertPoints4<float>(cylindrical_points, image, normals, cam_model, transform); //   
             }
             else if (image.depth() == CV_16UC1)
             {
-                insertPoints4<uint16_t>(cylindrical_points, image, cam_model, transform); // normals,  
+                insertPoints4<uint16_t>(cylindrical_points, image, normals, cam_model, transform); //   
             }
         }
 
