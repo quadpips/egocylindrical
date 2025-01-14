@@ -28,6 +28,9 @@
 
   <arg name="laser_source" value="$(eval 'laser' if use_laser else '')"/>
 
+  <arg name="use_labels" default="false"/>
+  <arg name="labels_source" value="$(eval 'labels' if use_labels else '')"/>
+
   <env name="ROSCONSOLE_CONFIG_FILE"
        value="$(find egocylindrical)/data/custom_rosconsole.conf"/>
 
@@ -36,7 +39,7 @@
     <node name="depth_to_egocylindrical_node" pkg="egocylindrical" type="egocylindrical_propagator_node" output="log" launch-prefix="$(arg prefix)">        
       <rosparam subst_value="True">
         sensors:
-          observation_sources: [depth, $(arg laser_source)]
+          observation_sources: [depth, $(arg labels_source)]
           depth:
             type: labeled_depth
             image_in: $(arg depth_image)
@@ -45,12 +48,8 @@
             publish_update: true
             raytrace: true
 
-          laser:
-            type: laser
-            scan_in: $(arg scan_topic)
+          labels
             
-            publish_update: true
-            raytrace: false
       </rosparam>
       <param name="points_out" value="data"/>
       <param name="filtered_points" value="filtered_points"/>

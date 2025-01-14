@@ -47,9 +47,9 @@ namespace egocylindrical
             {
                 sensor = std::make_shared<DepthImageSensor>(sensor_nh, buffer);
             }
-            else if(sensor_type == "labeled_depth")
+            else if(sensor_type == "semantic_depth")
             {
-                sensor = std::make_shared<LabeledDepthImageSensor>(sensor_nh, buffer);
+                sensor = std::make_shared<SemanticDepthImageSensor>(sensor_nh, buffer);
             }
             else
             {

@@ -57,7 +57,6 @@ namespace egocylindrical
       image_transport::ImageTransport it_;
       image_transport::SubscriberFilter depth_sub_;
       message_filters::Subscriber<sensor_msgs::CameraInfo> depth_info_sub_;
-      image_transport::SubscriberFilter labels_sub_;
 
       using TimeFilter_t = TimeFilter<sensor_msgs::CameraInfo>;
       boost::shared_ptr<TimeFilter_t> time_filter_;

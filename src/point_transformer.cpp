@@ -29,15 +29,30 @@ namespace egocylindrical
             const int max_ind = new_points.getCols();
             const int num_pts = points.getNumPts();
             
+            // Points
             const float* x = (const float*)__builtin_assume_aligned(points.getX(), __BIGGEST_ALIGNMENT__);
             const float* y = (const float*)points.getY();
             const float* z = (const float*)points.getZ();
+
+            // Normals
+            const float* norm_x = (const float*)__builtin_assume_aligned(points.getNormalX(), __BIGGEST_ALIGNMENT__);
+            const float* norm_y = (const float*)points.getNormalY();
+            const float* norm_z = (const float*)points.getNormalZ();
+
+            // Labels
             const uint8_t* labels = (const uint8_t*)points.getLabels();
 
+            // New points
             float* x_n = (float*)__builtin_assume_aligned(transformed_points.getX(), __BIGGEST_ALIGNMENT__);
             float* y_n = (float*)transformed_points.getY();
             float* z_n = (float*)transformed_points.getZ();
             
+            // New normals
+            float* norm_x_n = (float*)__builtin_assume_aligned(transformed_points.getNormalX(), __BIGGEST_ALIGNMENT__);
+            float* norm_y_n = (float*)transformed_points.getNormalY();
+            float* norm_z_n = (float*)transformed_points.getNormalZ();
+
+            // New labels
             uint8_t* labels_n = (uint8_t*)transformed_points.getLabels();
 
             float* ranges = transformed_points.getRanges();
@@ -77,11 +92,16 @@ namespace egocylindrical
                     float y_p = y[p];
                     float z_p = z[p];
                     
-                    pto.transform(x_p, y_p, z_p, x_n[p], y_n[p], z_n[p]);           
+                    pto.transform(x_p, y_p, z_p, x_n[p], y_n[p], z_n[p]);  
+
+                    float nx_p = norm_x[p];
+                    float ny_p = norm_y[p];
+                    float nz_p = norm_z[p];
+
+                    pto.rotate(nx_p, ny_p, nz_p, norm_x_n[p], norm_y_n[p], norm_z_n[p]);         
                                     
                     float range_squared= worldToRangeSquared(x_n[p],z_n[p]);
                 
-                  
                     int idx = -1;
                     {
                       int tidx = new_points.worldToCylindricalIdx(x_n[p],y_n[p],z_n[p]);
@@ -93,7 +113,6 @@ namespace egocylindrical
                     }
                     
                     inds[p] = idx;
-                    
                     
                     ranges[p] = range_squared;
 

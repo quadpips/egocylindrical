@@ -1,5 +1,5 @@
-#ifndef EGOCYLINDRICAL_LABELED_DEPTH_IMAGE_SENSOR_H
-#define EGOCYLINDRICAL_LABELED_DEPTH_IMAGE_SENSOR_H
+#ifndef EGOCYLINDRICAL_SEMANTIC_DEPTH_IMAGE_SENSOR_H
+#define EGOCYLINDRICAL_SEMANTIC_DEPTH_IMAGE_SENSOR_H
 
 #include <egocylindrical/sensor.h>
 #include <egocylindrical/depth_image_sensor.h>
@@ -19,17 +19,19 @@ namespace egocylindrical
 {
   namespace utils
   {
-  class LabeledDepthImageMeasurement: public SensorMeasurement
+  class SemanticDepthImageMeasurement: public SensorMeasurement
   {
   public:
-    LabeledDepthImageMeasurement(SensorCharacteristics sc, 
+    SemanticDepthImageMeasurement(SensorCharacteristics sc, 
                                   const sensor_msgs::Image::ConstPtr& image, 
                                   const sensor_msgs::CameraInfo::ConstPtr& info, 
+                                  const sensor_msgs::Image::ConstPtr& normals,
                                   const sensor_msgs::Image::ConstPtr& labels, 
                                   DepthImageInserter* dii):
       SensorMeasurement(sc, info->header),
       image_(image),
       info_(info),
+      normals_(normals),
       labels_(labels),
       dii_(dii)
       {}
@@ -39,18 +41,19 @@ namespace egocylindrical
     virtual void insert(ECWrapper& cylindrical_points)
     {
       ros::WallTime temp = ros::WallTime::now();
-      dii_->insert(cylindrical_points, image_, info_, labels_); 
+      dii_->insert(cylindrical_points, image_, info_, normals_, labels_); 
       ROS_INFO_STREAM_NAMED("timing","Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
     }
 
   protected:
     const sensor_msgs::Image::ConstPtr image_;
+    const sensor_msgs::Image::ConstPtr normals_;
     const sensor_msgs::Image::ConstPtr labels_;
     const sensor_msgs::CameraInfo::ConstPtr info_;
     utils::DepthImageInserter* dii_;
   };
 
-  class LabeledDepthImageSensor : public SensorInterface
+  class SemanticDepthImageSensor : public SensorInterface
   {
     ros::NodeHandle pnh_;
     tf2_ros::Buffer& buffer_;
@@ -60,6 +63,7 @@ namespace egocylindrical
     image_transport::ImageTransport it_;
     image_transport::SubscriberFilter depth_sub_;
     message_filters::Subscriber<sensor_msgs::CameraInfo> depth_info_sub_;
+    image_transport::SubscriberFilter normals_sub_;
     image_transport::Subscriber labels_sub_;
 
     using TimeFilter_t = TimeFilter<sensor_msgs::CameraInfo>;
@@ -72,11 +76,11 @@ namespace egocylindrical
     bool new_labels = false;
     bool have_labels = false;
 
-    using MsgSynchronizer = message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::CameraInfo>; //  
+    using MsgSynchronizer = message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::CameraInfo, sensor_msgs::Image>; //  
     boost::shared_ptr<MsgSynchronizer> msg_sync_;
 
   public:
-    LabeledDepthImageSensor(ros::NodeHandle pnh, tf2_ros::Buffer& buffer):
+    SemanticDepthImageSensor(ros::NodeHandle pnh, tf2_ros::Buffer& buffer):
       pnh_(pnh),
       buffer_(buffer),
       dii_(buffer, pnh),
@@ -96,10 +100,12 @@ namespace egocylindrical
       //Load implementation parameters
       std::string depth_topic="/camera/depth/image_raw", 
                   info_topic= "/camera/depth/camera_info",
+                  normals_topic="/camera/normals",
                   labels_topic="/camera/steppability/labels";
       pnh_.getParam("image_in", depth_topic );
       pnh_.getParam("info_in", info_topic );
       pnh_.getParam("labels_in", labels_topic );
+      pnh_.getParam("normals_in", normals_topic );
       
       //Initialize helper classes
       dii_.init(fixed_frame_id);
@@ -107,10 +113,12 @@ namespace egocylindrical
       //Set up publishers/subscribers and any necessary filters
       depth_sub_.subscribe(it_, depth_topic, 3);
       depth_info_sub_.subscribe(pnh_, info_topic, 3);
+      normals_sub_.subscribe(it_, normals_topic, 3);
 
       ROS_INFO_STREAM_NAMED("update", "depth_topic: " << depth_topic);
       ROS_INFO_STREAM_NAMED("update", "info_topic: " << info_topic);
       ROS_INFO_STREAM_NAMED("update", "labels_topic: " << labels_topic);
+      ROS_INFO_STREAM_NAMED("update", "normals_topic: " << normals_topic);
 
       //Filter out images with duplicate time stamps
       time_filter_ = boost::make_shared<TimeFilter_t>(depth_info_sub_);
@@ -119,10 +127,10 @@ namespace egocylindrical
       info_tf_filter = boost::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, pnh_);
 
       // Synchronize Image and CameraInfo callbacks
-      msg_sync_ = boost::make_shared<MsgSynchronizer>(depth_sub_, *info_tf_filter, 2); //   
-      msg_sync_->registerCallback(boost::bind(&LabeledDepthImageSensor::update, this, _1, _2)); //  
+      msg_sync_ = boost::make_shared<MsgSynchronizer>(depth_sub_, *info_tf_filter, normals_sub_, 3); //   
+      msg_sync_->registerCallback(boost::bind(&SemanticDepthImageSensor::update, this, _1, _2, _3)); //  
 
-      labels_sub_ = it_.subscribe(labels_topic, 1, &LabeledDepthImageSensor::labels_cb, this);
+      labels_sub_ = it_.subscribe(labels_topic, 1, &SemanticDepthImageSensor::labels_cb, this);
     }
       
     protected:
@@ -135,7 +143,8 @@ namespace egocylindrical
       }
 
       void update(const sensor_msgs::Image::ConstPtr& image, 
-                  const sensor_msgs::CameraInfo::ConstPtr& info) // , 
+                  const sensor_msgs::CameraInfo::ConstPtr& info,
+                  const sensor_msgs::Image::ConstPtr& normals) // , 
       {
         // ROS_INFO_STREAM_NAMED("timing", "labels->image.at<uint8_t>(50, 50): " << labels->image.at<uint8_t>(50, 50));
 
@@ -147,7 +156,7 @@ namespace egocylindrical
             ROS_INFO_STREAM_NAMED("timing", "image timestamp: " << image->header.stamp);
             ROS_INFO_STREAM_NAMED("timing", "info timestamp: " << info->header.stamp);
             ROS_INFO_STREAM_NAMED("timing", "labels_ timestamp: " << labels_->header.stamp);            
-            m = boost::make_shared<LabeledDepthImageMeasurement>(sc_, image, info, labels_, &dii_); // labels, 
+            m = boost::make_shared<SemanticDepthImageMeasurement>(sc_, image, info, normals, labels_, &dii_); // labels, 
             new_labels = false;
           } else
           {
@@ -157,12 +166,12 @@ namespace egocylindrical
         }
         else
         {
-          ROS_ERROR("No callback defined for LabeledDepthImageSensor!");
+          ROS_ERROR("No callback defined for SemanticDepthImageSensor!");
         }
       }
       
     public:
-      using Ptr = std::shared_ptr<LabeledDepthImageSensor>;
+      using Ptr = std::shared_ptr<SemanticDepthImageSensor>;
 
     };
     

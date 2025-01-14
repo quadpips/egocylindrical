@@ -43,6 +43,12 @@ namespace egocylindrical
             bool insert(ECWrapper& cylindrical_points, 
                         const sensor_msgs::Image::ConstPtr& image_msg, 
                         const sensor_msgs::CameraInfo::ConstPtr& cam_info,
+                        const sensor_msgs::Image::ConstPtr& normals_msg);
+
+            bool insert(ECWrapper& cylindrical_points, 
+                        const sensor_msgs::Image::ConstPtr& image_msg, 
+                        const sensor_msgs::CameraInfo::ConstPtr& cam_info,
+                        const sensor_msgs::Image::ConstPtr& normals_msg,
                         const sensor_msgs::Image::ConstPtr& labels_msg);
 
         };
