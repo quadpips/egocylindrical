@@ -2,7 +2,7 @@
 // Created by root on 2/5/18.
 //
 
-#include <egocylindrical/labeled_point_cloud_generator.h>
+#include <egocylindrical/semantic_point_cloud_generator.h>
 #include <egocylindrical/ecwrapper.h>
 #include <egocylindrical/EgoCylinderPoints.h>
 #include <ros/ros.h>
@@ -14,18 +14,18 @@ namespace egocylindrical
 {
 
 
-    LabeledPointCloudGenerator::LabeledPointCloudGenerator(ros::NodeHandle& nh, ros::NodeHandle& pnh) :
+    SemanticPointCloudGenerator::SemanticPointCloudGenerator(ros::NodeHandle& nh, ros::NodeHandle& pnh) :
         nh_(nh),
         pnh_(pnh)
     {
         std::cout<<"Labeled PointCloud publishing Node Initialized"<<std::endl;
     }
     
-    bool LabeledPointCloudGenerator::init()
+    bool SemanticPointCloudGenerator::init()
     {
         ec_sub_.shutdown();
         
-        ros::SubscriberStatusCallback info_cb = boost::bind(&LabeledPointCloudGenerator::ssCB, this);
+        ros::SubscriberStatusCallback info_cb = boost::bind(&SemanticPointCloudGenerator::ssCB, this);
         {
             Lock lock(connect_mutex_);
             pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>("labeled_points", 2, info_cb, info_cb);
@@ -35,7 +35,7 @@ namespace egocylindrical
     }
 
 
-    void LabeledPointCloudGenerator::ssCB()
+    void SemanticPointCloudGenerator::ssCB()
     {
         //std::cout << (void*)ec_sub_ << ": " << pc_pub_.getNumSubscribers() << std::endl;
         Lock lock(connect_mutex_);
@@ -48,7 +48,7 @@ namespace egocylindrical
             else
             {
               ROS_INFO("Labeled PointCloud Generator Subscribing");
-              ec_sub_ = nh_.subscribe("egocylindrical_points", 2, &LabeledPointCloudGenerator::ecPointsCB, this);
+              ec_sub_ = nh_.subscribe("egocylindrical_points", 2, &SemanticPointCloudGenerator::ecPointsCB, this);
             }
       
         }
@@ -60,7 +60,7 @@ namespace egocylindrical
     }
     
     
-    void LabeledPointCloudGenerator::ecPointsCB(const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg)
+    void SemanticPointCloudGenerator::ecPointsCB(const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg)
     {
         ROS_DEBUG("Received EgoCylinderPoints msg");
 
@@ -70,7 +70,7 @@ namespace egocylindrical
           
           utils::ECWrapper ec_pts(ec_msg);
           
-          sensor_msgs::PointCloud2::ConstPtr msg = utils::generate_labeled_point_cloud(ec_pts);
+          sensor_msgs::PointCloud2::ConstPtr msg = utils::generate_semantic_point_cloud(ec_pts);
           
           ROS_DEBUG_STREAM("Generating labeled point cloud took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
           

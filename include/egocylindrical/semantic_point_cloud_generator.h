@@ -15,10 +15,10 @@ namespace egocylindrical
 
     namespace utils
     {
-        sensor_msgs::PointCloud2::ConstPtr generate_labeled_point_cloud(const utils::ECWrapper& points);
+        sensor_msgs::PointCloud2::ConstPtr generate_semantic_point_cloud(const utils::ECWrapper& points);
     }
 
-class LabeledPointCloudGenerator
+class SemanticPointCloudGenerator
 {   using Mutex = boost::mutex;
     using Lock = Mutex::scoped_lock;
     
@@ -30,7 +30,7 @@ class LabeledPointCloudGenerator
     
 public:
 
-    LabeledPointCloudGenerator(ros::NodeHandle& nh, ros::NodeHandle& pnh);
+    SemanticPointCloudGenerator(ros::NodeHandle& nh, ros::NodeHandle& pnh);
 
     bool init();
 

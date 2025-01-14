@@ -70,7 +70,7 @@
       <remap from="egocylindrical_points" to="data"/>
     </node>
       
-    <node name="egocylindrical_to_labeled_pointcloud" pkg="egocylindrical" type="labeled_point_cloud_node" output="log" launch-prefix="$(arg projected_prefix)">
+    <node name="egocylindrical_to_semantic_pointcloud" pkg="egocylindrical" type="semantic_point_cloud_node" output="log" launch-prefix="$(arg projected_prefix)">
       <remap from="egocylindrical_points" to="data"/>
     </node>
 

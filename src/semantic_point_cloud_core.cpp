@@ -14,7 +14,7 @@ namespace egocylindrical
     namespace utils
     {
         /* TODO: ensure that the right size 'ints' are used everywhere. On my current system, the size of int = minimum size of long int, so 32 bit system might fail */
-        sensor_msgs::PointCloud2::ConstPtr generate_labeled_point_cloud(const utils::ECWrapper& points)
+        sensor_msgs::PointCloud2::ConstPtr generate_semantic_point_cloud(const utils::ECWrapper& points)
         {
             const int num_pts = points.getNumPts();
           
