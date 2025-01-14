@@ -25,12 +25,12 @@ namespace egocylindrical
     TerrainImageMeasurement(SensorCharacteristics sc, 
                                   const sensor_msgs::Image::ConstPtr& image, 
                                   const sensor_msgs::CameraInfo::ConstPtr& info, 
-                                  const sensor_msgs::Image::ConstPtr& normals,
+                                  // const sensor_msgs::Image::ConstPtr& normals,
                                   DepthImageInserter* dii):
       SensorMeasurement(sc, info->header),
       image_(image),
       info_(info),
-      normals_(normals),
+      // normals_(normals),
       dii_(dii)
       {}
     
@@ -39,13 +39,13 @@ namespace egocylindrical
     virtual void insert(ECWrapper& cylindrical_points)
     {
       ros::WallTime temp = ros::WallTime::now();
-      dii_->insert(cylindrical_points, image_, info_, normals_); 
+      dii_->insert(cylindrical_points, image_, info_); // , normals_ 
       ROS_INFO_STREAM_NAMED("timing","Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
     }
 
   protected:
     const sensor_msgs::Image::ConstPtr image_;
-    const sensor_msgs::Image::ConstPtr normals_;
+    // const sensor_msgs::Image::ConstPtr normals_;
     const sensor_msgs::CameraInfo::ConstPtr info_;
     utils::DepthImageInserter* dii_;
   };
@@ -56,13 +56,13 @@ namespace egocylindrical
     SemanticDepthImageMeasurement(SensorCharacteristics sc, 
                                   const sensor_msgs::Image::ConstPtr& image, 
                                   const sensor_msgs::CameraInfo::ConstPtr& info, 
-                                  const sensor_msgs::Image::ConstPtr& normals,
+                                  // const sensor_msgs::Image::ConstPtr& normals,
                                   const sensor_msgs::Image::ConstPtr& labels, 
                                   DepthImageInserter* dii):
       SensorMeasurement(sc, info->header),
       image_(image),
       info_(info),
-      normals_(normals),
+      // normals_(normals),
       labels_(labels),
       dii_(dii)
       {}
@@ -72,15 +72,15 @@ namespace egocylindrical
     virtual void insert(ECWrapper& cylindrical_points)
     {
       ros::WallTime temp = ros::WallTime::now();
-      dii_->insert(cylindrical_points, image_, info_, normals_, labels_); 
+      dii_->insert(cylindrical_points, image_, info_, labels_); // , normals_ 
       ROS_INFO_STREAM_NAMED("timing","Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
     }
 
   protected:
     const sensor_msgs::Image::ConstPtr image_;
-    const sensor_msgs::Image::ConstPtr normals_;
-    const sensor_msgs::Image::ConstPtr labels_;
     const sensor_msgs::CameraInfo::ConstPtr info_;
+    // const sensor_msgs::Image::ConstPtr normals_;
+    const sensor_msgs::Image::ConstPtr labels_;
     utils::DepthImageInserter* dii_;
   };
 
@@ -187,11 +187,11 @@ namespace egocylindrical
             ROS_INFO_STREAM_NAMED("timing", "image timestamp: " << image->header.stamp);
             ROS_INFO_STREAM_NAMED("timing", "info timestamp: " << info->header.stamp);
             ROS_INFO_STREAM_NAMED("timing", "labels_ timestamp: " << labels_->header.stamp);            
-            m = boost::make_shared<SemanticDepthImageMeasurement>(sc_, image, info, normals, labels_, &dii_); // labels, 
+            m = boost::make_shared<SemanticDepthImageMeasurement>(sc_, image, info, labels_, &dii_); // normals,  
             new_labels = false;
           } else
           {
-            m = boost::make_shared<TerrainImageMeasurement>(sc_, image, info, normals, &dii_); // labels, 
+            m = boost::make_shared<TerrainImageMeasurement>(sc_, image, info, &dii_); //  normals,  
           }
           cb_(m);
         }

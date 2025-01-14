@@ -20,17 +20,17 @@ namespace utils
         float* x = cylindrical_history.getX();
         float* y = cylindrical_history.getY();
         float* z = cylindrical_history.getZ();
-        float* x_norms = cylindrical_history.getNormalX();
-        float* y_norms = cylindrical_history.getNormalY();
-        float* z_norms = cylindrical_history.getNormalZ();
+        // float* x_norms = cylindrical_history.getNormalX();
+        // float* y_norms = cylindrical_history.getNormalY();
+        // float* z_norms = cylindrical_history.getNormalZ();
         uint8_t* labels = cylindrical_history.getLabels();
 
         const float* n_x = new_points.getX();
         const float* n_y = new_points.getY();
         const float* n_z = new_points.getZ();
-        const float* n_x_norms = new_points.getNormalX();
-        const float* n_y_norms = new_points.getNormalY();
-        const float* n_z_norms = new_points.getNormalZ();
+        // const float* n_x_norms = new_points.getNormalX();
+        // const float* n_y_norms = new_points.getNormalY();
+        // const float* n_z_norms = new_points.getNormalZ();
         const uint8_t* n_labels = new_points.getLabels();
         
         const float* ranges = new_points.getRanges();
@@ -69,9 +69,9 @@ namespace utils
                     x[idx] = world_pnt.x;
                     y[idx] = world_pnt.y;
                     z[idx] = world_pnt.z;
-                    x_norms[idx] = n_x_norms[i];
-                    y_norms[idx] = n_y_norms[i];
-                    z_norms[idx] = n_z_norms[i];
+                    // x_norms[idx] = n_x_norms[i];
+                    // y_norms[idx] = n_y_norms[i];
+                    // z_norms[idx] = n_z_norms[i];
                     labels[idx] = n_labels[i]; // fine at lab, overwrite label as well
                     // ROS_DEBUG_STREAM_NAMED("labels", "labels[" << idx << "]:" << std::hex << (uint16_t) labels[idx]);                     
 
@@ -111,9 +111,9 @@ namespace utils
                             x[idx] = world_pnt.x;
                             y[idx] = world_pnt.y;
                             z[idx] = world_pnt.z;
-                            x_norms[idx] = n_x_norms[i];
-                            y_norms[idx] = n_y_norms[i];
-                            z_norms[idx] = n_z_norms[i];
+                            // x_norms[idx] = n_x_norms[i];
+                            // y_norms[idx] = n_y_norms[i];
+                            // z_norms[idx] = n_z_norms[i];
                             labels[idx] =  n_labels[i]; // overwrite label as well
                             // ROS_DEBUG_STREAM_NAMED("labels", "labels[" << idx << "]:" << std::hex << (uint16_t) labels[idx]);                     
 

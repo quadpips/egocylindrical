@@ -2,7 +2,7 @@
 
 #include <egocylindrical/parameter_getter.hpp>
 
-#include <egocylindrical/labeled_depth_image_sensor.h>
+#include <egocylindrical/semantic_depth_image_sensor.h>
 #include <egocylindrical/depth_image_sensor.h>
 #include <egocylindrical/laser_scan_sensor.h>
 
