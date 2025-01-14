@@ -19,6 +19,37 @@ namespace egocylindrical
 {
   namespace utils
   {
+  class TerrainImageMeasurement: public SensorMeasurement
+  {
+  public:
+    TerrainImageMeasurement(SensorCharacteristics sc, 
+                                  const sensor_msgs::Image::ConstPtr& image, 
+                                  const sensor_msgs::CameraInfo::ConstPtr& info, 
+                                  const sensor_msgs::Image::ConstPtr& normals,
+                                  DepthImageInserter* dii):
+      SensorMeasurement(sc, info->header),
+      image_(image),
+      info_(info),
+      normals_(normals),
+      dii_(dii)
+      {}
+    
+    //virtual std_msgs::Header getHeader() const {return info_->header;}
+    
+    virtual void insert(ECWrapper& cylindrical_points)
+    {
+      ros::WallTime temp = ros::WallTime::now();
+      dii_->insert(cylindrical_points, image_, info_, normals_); 
+      ROS_INFO_STREAM_NAMED("timing","Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
+    }
+
+  protected:
+    const sensor_msgs::Image::ConstPtr image_;
+    const sensor_msgs::Image::ConstPtr normals_;
+    const sensor_msgs::CameraInfo::ConstPtr info_;
+    utils::DepthImageInserter* dii_;
+  };
+
   class SemanticDepthImageMeasurement: public SensorMeasurement
   {
   public:
@@ -160,7 +191,7 @@ namespace egocylindrical
             new_labels = false;
           } else
           {
-            m = boost::make_shared<DepthImageMeasurement>(sc_, image, info, &dii_); // labels, 
+            m = boost::make_shared<TerrainImageMeasurement>(sc_, image, info, normals, &dii_); // labels, 
           }
           cb_(m);
         }

@@ -39,16 +39,14 @@
     <node name="depth_to_egocylindrical_node" pkg="egocylindrical" type="egocylindrical_propagator_node" output="log" launch-prefix="$(arg prefix)">        
       <rosparam subst_value="True">
         sensors:
-          observation_sources: [depth, $(arg labels_source)]
-          depth:
-            type: labeled_depth
+          observation_sources: [semantic_depth]
+          semantic_depth:
+            type: semantic_depth
             image_in: $(arg depth_image)
             info_in: $(arg depth_info)
 
             publish_update: true
             raytrace: true
-
-          labels
             
       </rosparam>
       <param name="points_out" value="data"/>
