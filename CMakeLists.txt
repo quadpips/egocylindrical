@@ -140,7 +140,7 @@ generate_dynamic_reconfigure_options(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES egocylindrical_propagator range_image_core can_image_core point_cloud_core projected_point_cloud_core semantic_point_cloud_core point_transformer depth_image_remapper range_image_converter depth_image_inserter laser_scan_inserter sensors ecwrapper_buffer
+  LIBRARIES egocylindrical_propagator range_image_core can_image_core point_cloud_core projected_point_cloud_core semantic_point_cloud_core normal_point_cloud_core point_transformer depth_image_remapper range_image_converter depth_image_inserter laser_scan_inserter sensors ecwrapper_buffer
   CATKIN_DEPENDS cv_bridge geometry_msgs image_geometry image_transport roscpp rospy sensor_msgs std_msgs tf tf2 tf2_ros tf2_sensor_msgs tf2_geometry_msgs 
 #  DEPENDS system_lib
 )
@@ -209,6 +209,17 @@ add_dependencies(semantic_point_cloud_core ${${PROJECT_NAME}_EXPORTED_TARGETS} $
 target_compile_options(semantic_point_cloud_core PRIVATE -ftree-vectorize -fno-trapping-math -fno-math-errno  -fopt-info-loop-optimized=vec_projected_point_cloud_core.txt ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
    )
 target_link_libraries(semantic_point_cloud_core
+   ${catkin_LIBRARIES}
+   #${OpenCV_LIBRARIES}
+   #${PCL_LIBRARIES}
+   #${OpenMP_CXX_FLAGS}
+   )
+
+add_library(normal_point_cloud_core src/normal_point_cloud_core.cpp)
+add_dependencies(normal_point_cloud_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_compile_options(normal_point_cloud_core PRIVATE -ftree-vectorize -fno-trapping-math -fno-math-errno  -fopt-info-loop-optimized=vec_projected_point_cloud_core.txt ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
+   )
+target_link_libraries(normal_point_cloud_core
    ${catkin_LIBRARIES}
    #${OpenCV_LIBRARIES}
    #${PCL_LIBRARIES}
@@ -411,17 +422,34 @@ target_link_libraries(projected_point_cloud_nodelet
    ${catkin_LIBRARIES}
    )
 
-#semantic_POINT_CLOUD_GENERATOR
+#SEMANTIC_POINT_CLOUD_GENERATOR
 add_library(semantic_point_cloud_generator src/semantic_point_cloud_generator.cpp)
 target_link_libraries(semantic_point_cloud_generator
    semantic_point_cloud_core
    ${catkin_LIBRARIES}
    )
 
-#semantic_POINT_CLOUD_NODE
+#SEMANTIC_POINT_CLOUD_NODE
 add_executable(semantic_point_cloud_node src/semantic_point_cloud_node.cpp)
 target_link_libraries(semantic_point_cloud_node
    semantic_point_cloud_generator
+   ${catkin_LIBRARIES}
+   ${OpenCV_LIBRARIES}
+   ${PCL_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
+
+#NORMAL_POINT_CLOUD_GENERATOR
+add_library(normal_point_cloud_generator src/normal_point_cloud_generator.cpp)
+target_link_libraries(normal_point_cloud_generator
+   normal_point_cloud_core
+   ${catkin_LIBRARIES}
+   )
+
+#NORMAL_POINT_CLOUD_NODE
+add_executable(normal_point_cloud_node src/normal_point_cloud_node.cpp)
+target_link_libraries(normal_point_cloud_node
+   normal_point_cloud_generator
    ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
    ${PCL_LIBRARIES}
