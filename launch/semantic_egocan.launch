@@ -4,10 +4,10 @@
   <arg name="scan_topic" default="/scan"/>
   <arg name="fixed_frame_id" default="odom"/>
   
-  <arg name="viz_inflated" default="false"/>
-  <arg name="range_images"  default="false"/>
-  <arg name="sanity_check" default="false"/>
-  <arg name="novel_points" default="false"/>
+  <arg name="viz_inflated" default="true"/>
+  <arg name="range_images"  default="true"/>
+  <arg name="sanity_check" default="true"/>
+  <arg name="novel_points" default="true"/>
   
   <arg name="debug" default="false"/>
   <arg name="profile" default="false"/>
