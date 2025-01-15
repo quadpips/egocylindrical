@@ -400,9 +400,15 @@ namespace egocylindrical
           }
           
           inline
+          int getNumCapPts() const
+          {
+            return 2*can_width*can_width;
+          }
+
+          inline
           int getNumPts() const
           {
-            return getCols() + 2*can_width*can_width;
+            return getCols() + getNumCapPts();
           }
           
           inline
@@ -580,6 +586,12 @@ namespace egocylindrical
           int getCols() const
           {
             return params_.getCols();
+          }
+
+          inline
+          int getNumCapPts() const
+          {
+            return params_.getNumCapPts();
           }
           
           inline

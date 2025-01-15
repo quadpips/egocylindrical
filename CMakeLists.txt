@@ -467,6 +467,23 @@ target_link_libraries(normal_point_cloud_node
    ${OpenMP_CXX_FLAGS}
    )
 
+#NORMAL_POINT_CLOUD_GENERATOR
+add_library(normal_point_cloud_floor_only_generator src/normal_point_cloud_floor_only_generator.cpp)
+target_link_libraries(normal_point_cloud_floor_only_generator
+   normal_point_cloud_floor_only_core
+   ${catkin_LIBRARIES}
+   )
+
+#NORMAL_POINT_CLOUD_NODE
+add_executable(normal_point_cloud_floor_only_node src/normal_point_cloud_floor_only_node.cpp)
+target_link_libraries(normal_point_cloud_floor_only_node
+   normal_point_cloud_floor_only_generator
+   ${catkin_LIBRARIES}
+   ${OpenCV_LIBRARIES}
+   ${PCL_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
+
 #RANGE_IMAGE_GENERATOR
 add_library(range_image_generator src/range_image_generator.cpp)
 target_link_libraries(range_image_generator
