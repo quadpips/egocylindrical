@@ -140,7 +140,7 @@ generate_dynamic_reconfigure_options(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES egocylindrical_propagator range_image_core can_image_core point_cloud_core projected_point_cloud_core semantic_point_cloud_core normal_point_cloud_core point_transformer depth_image_remapper range_image_converter depth_image_inserter laser_scan_inserter sensors ecwrapper_buffer
+  LIBRARIES egocylindrical_propagator range_image_core can_image_core point_cloud_core projected_point_cloud_core semantic_point_cloud_core normal_point_cloud_core normal_point_cloud_floor_only_core point_transformer depth_image_remapper range_image_converter depth_image_inserter laser_scan_inserter sensors ecwrapper_buffer
   CATKIN_DEPENDS cv_bridge geometry_msgs image_geometry image_transport roscpp rospy sensor_msgs std_msgs tf tf2 tf2_ros tf2_sensor_msgs tf2_geometry_msgs 
 #  DEPENDS system_lib
 )
@@ -220,6 +220,17 @@ add_dependencies(normal_point_cloud_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${c
 target_compile_options(normal_point_cloud_core PRIVATE -ftree-vectorize -fno-trapping-math -fno-math-errno  -fopt-info-loop-optimized=vec_projected_point_cloud_core.txt ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
    )
 target_link_libraries(normal_point_cloud_core
+   ${catkin_LIBRARIES}
+   #${OpenCV_LIBRARIES}
+   #${PCL_LIBRARIES}
+   #${OpenMP_CXX_FLAGS}
+   )
+
+add_library(normal_point_cloud_floor_only_core src/normal_point_cloud_floor_only_core.cpp)
+add_dependencies(normal_point_cloud_floor_only_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_compile_options(normal_point_cloud_floor_only_core PRIVATE -ftree-vectorize -fno-trapping-math -fno-math-errno  -fopt-info-loop-optimized=vec_projected_point_cloud_core.txt ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
+   )
+target_link_libraries(normal_point_cloud_floor_only_core
    ${catkin_LIBRARIES}
    #${OpenCV_LIBRARIES}
    #${PCL_LIBRARIES}
