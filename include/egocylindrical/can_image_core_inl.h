@@ -59,7 +59,9 @@ namespace egocylindrical
         
         
         template <typename T, uint scale>
-        sensor_msgs::ImagePtr generateCanImageMsg(const utils::ECWrapper& cylindrical_history, const std::string& encoding, const T unknown_val, int num_threads, sensor_msgs::ImagePtr& preallocated_msg)
+        sensor_msgs::ImagePtr generateCanImageMsg(const utils::ECWrapper& cylindrical_history, const std::string& encoding, 
+                                                  const T unknown_val, int num_threads, 
+                                                  sensor_msgs::ImagePtr& preallocated_msg)
         {
             int width = cylindrical_history.getCanWidth();  
             
@@ -91,13 +93,15 @@ namespace egocylindrical
         template <> 
         sensor_msgs::ImagePtr generateCanImageMsg<float>(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr& preallocated_msg)
         {
-          return generateCanImageMsg<float, 1>(cylindrical_history, sensor_msgs::image_encodings::TYPE_32FC1, dNaN, num_threads, preallocated_msg);
+          return generateCanImageMsg<float, 1>(cylindrical_history, sensor_msgs::image_encodings::TYPE_32FC1, 
+                                                dNaN, num_threads, preallocated_msg);
         }
         
         template <>
         sensor_msgs::ImagePtr generateCanImageMsg<uint16_t>(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr& preallocated_msg)
         {
-          return generateCanImageMsg<uint16_t, 1000>(cylindrical_history, sensor_msgs::image_encodings::TYPE_16UC1, 0, num_threads, preallocated_msg);
+          return generateCanImageMsg<uint16_t, 1000>(cylindrical_history, sensor_msgs::image_encodings::TYPE_16UC1, 
+                                                      0, num_threads, preallocated_msg);
         }
 
         
