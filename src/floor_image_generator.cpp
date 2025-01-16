@@ -23,12 +23,15 @@ namespace egocylindrical
         std::string floor_image_topic = "can_image"; // image_topic = "image", 
         std::string floor_labels_topic = "can_labels";
         std::string floor_labels_colored_topic = "can_labels_colored";
+        std::string floor_normals_topic = "can_normals";
         
         pnh_.getParam("use_raw", use_raw_ );
         
         // pnh_.getParam("image_topic", image_topic );
         pnh_.getParam("floor_image_topic", floor_image_topic );
         pnh_.getParam("floor_labels_topic", floor_labels_topic );
+        pnh_.getParam("floor_labels_colored_topic", floor_labels_colored_topic );
+        pnh_.getParam("floor_normals_topic", floor_normals_topic );
         
         reconfigure_server_ = std::make_shared<ReconfigureServer>(pnh_);
         reconfigure_server_->setCallback(boost::bind(&EgoCylinderFloorImageGenerator::configCB, this, _1, _2));
@@ -40,6 +43,7 @@ namespace egocylindrical
             floor_im_pub_ = it_.advertise(floor_image_topic, 2, image_cb, image_cb);
             labels_im_pub_ = it_.advertise(floor_labels_topic, 2, image_cb, image_cb); 
             labels_colored_im_pub_ = it_.advertise(floor_labels_colored_topic, 2, image_cb, image_cb);
+            normals_im_pub_ = it_.advertise(floor_normals_topic, 2, image_cb, image_cb);
         }
         
         return true;
@@ -101,9 +105,7 @@ namespace egocylindrical
             sensor_msgs::Image::ConstPtr image_ptr = use_raw_ ? utils::getRawFloorImageMsg(ec_pts, num_threads_, preallocated_can_msg_) : utils::getFloorImageMsg(ec_pts, num_threads_, preallocated_can_msg_);
             
             ROS_DEBUG_STREAM_NAMED("timing","Generating can image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
-            
-            ROS_DEBUG("publish egocylindrical image");
-            
+                        
             // LABELS
             start = ros::WallTime::now();
 
@@ -111,14 +113,28 @@ namespace egocylindrical
 
             ROS_DEBUG_STREAM_NAMED("timing","Generating can labels took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
 
-            ROS_DEBUG("publish egocylindrical labels");
+            // LABELS COLORED
+            start = ros::WallTime::now();
 
             sensor_msgs::Image::ConstPtr labels_colored_ptr = utils::getFloorLabelColoredImageMsg(ec_pts, num_threads_, preallocated_labels_colored_msg_);
-            labels_colored_im_pub_.publish(labels_colored_ptr);
 
+            ROS_DEBUG_STREAM_NAMED("timing","Generating can labels colored took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
 
+            // NORMALS
+            start = ros::WallTime::now();
+
+            sensor_msgs::Image::ConstPtr normals_ptr = utils::getFloorNormalImageMsg(ec_pts, num_threads_, preallocated_normals_msg_);
+
+            ROS_DEBUG_STREAM_NAMED("timing","Generating can normals took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+
+            ROS_DEBUG("publish egocylindrical image");
             floor_im_pub_.publish(image_ptr);
+            ROS_DEBUG("publish egocylindrical labels");
             labels_im_pub_.publish(labels_ptr);
+            ROS_DEBUG("publish egocylindrical labels colored");
+            labels_colored_im_pub_.publish(labels_colored_ptr);
+            ROS_DEBUG("publish egocylindrical normals");
+            normals_im_pub_.publish(normals_ptr);
             
             start = ros::WallTime::now();
             preallocated_can_msg_= boost::make_shared<sensor_msgs::Image>();
@@ -135,6 +151,10 @@ namespace egocylindrical
             preallocated_labels_colored_msg_->data.resize(labels_colored_ptr->data.size()); //We initialize the image to the same size as the most recently generated image
             ROS_DEBUG_STREAM_NAMED("timing","Preallocating can labels took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
         
+            start = ros::WallTime::now();
+            preallocated_normals_msg_= boost::make_shared<sensor_msgs::Image>();
+            preallocated_normals_msg_->data.resize(normals_ptr->data.size()); //We initialize the image to the same size as the most recently generated image
+            ROS_DEBUG_STREAM_NAMED("timing","Preallocating can normals took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
         }
     }
 }

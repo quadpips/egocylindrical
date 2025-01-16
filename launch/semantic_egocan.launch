@@ -87,6 +87,8 @@
       <param name="use_raw" value="False"/>
       <param name="floor_image_topic" value="floor_image"/>
       <param name="floor_labels_topic" value="floor_labels"/>
+      <param name="floor_labels_colored_topic" value="floor_labels_colored"/>
+      <param name="floor_normals_topic" value="floor_normals"/>
     </node>
 
     <group if="$(arg range_images)">

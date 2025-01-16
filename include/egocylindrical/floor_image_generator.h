@@ -28,7 +28,7 @@ namespace egocylindrical
     {
         ros::NodeHandle nh_, pnh_;
         image_transport::ImageTransport it_;
-        image_transport::Publisher floor_im_pub_, labels_im_pub_, labels_colored_im_pub_;
+        image_transport::Publisher floor_im_pub_, labels_im_pub_, labels_colored_im_pub_, normals_im_pub_;
         ros::Subscriber ec_sub_;
         bool use_raw_;
         
@@ -39,7 +39,7 @@ namespace egocylindrical
         //Mutex config_mutex_;
         int num_threads_;
         
-        sensor_msgs::Image::Ptr preallocated_can_msg_, preallocated_labels_msg_, preallocated_labels_colored_msg_;
+        sensor_msgs::Image::Ptr preallocated_can_msg_, preallocated_labels_msg_, preallocated_labels_colored_msg_, preallocated_normals_msg_;
         
         typedef egocylindrical::FloorImageGeneratorConfig ConfigType;
         ConfigType config_;
