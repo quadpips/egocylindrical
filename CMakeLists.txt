@@ -520,6 +520,7 @@ target_link_libraries(range_image_nodelet
 #FLOOR_IMAGE_GENERATOR
 add_library(floor_image_generator src/floor_image_generator.cpp)
 target_link_libraries(floor_image_generator
+   range_image_core
    floor_image_core
    ${catkin_LIBRARIES}
    ${OpenMP_CXX_FLAGS}

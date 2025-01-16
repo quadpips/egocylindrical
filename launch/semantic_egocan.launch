@@ -78,8 +78,14 @@
       <remap from="egocylindrical_points" to="data"/>
     </node>
 
-    <node name="egocylindrical_to_normal_pointcloud_floor_only" pkg="egocylindrical" type="normal_point_cloud_floor_only_node" output="log" launch-prefix="$(arg projected_prefix)">
+    <!-- <node name="egocylindrical_to_normal_pointcloud_floor_only" pkg="egocylindrical" type="normal_point_cloud_floor_only_node" output="log" launch-prefix="$(arg projected_prefix)">
       <remap from="egocylindrical_points" to="data"/>
+    </node> -->
+
+    <node name="egocylindrical_to_floor_image" pkg="egocylindrical" type="floor_image_node" output="log" launch-prefix="">
+      <remap from="egocylindrical_points" to="data"/>
+      <param name="use_raw" value="False"/>
+      <param name="can_image_topic" value="floor_image"/>
     </node>
 
     <group if="$(arg range_images)">

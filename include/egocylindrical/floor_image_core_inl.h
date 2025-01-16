@@ -60,8 +60,7 @@ namespace egocylindrical
         
         template <typename T, uint scale>
         sensor_msgs::ImagePtr generateCanImageMsg(const utils::ECWrapper& cylindrical_history, const std::string& encoding, 
-                                                  const T unknown_val, int num_threads, 
-                                                  sensor_msgs::ImagePtr& preallocated_msg)
+                                                  const T unknown_val, int num_threads, sensor_msgs::ImagePtr& preallocated_msg)
         {
             int width = cylindrical_history.getCanWidth();  
             

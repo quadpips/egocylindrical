@@ -28,7 +28,7 @@ namespace egocylindrical
     {
         ros::NodeHandle nh_, pnh_;
         image_transport::ImageTransport it_;
-        image_transport::Publisher can_im_pub_;
+        image_transport::Publisher im_pub_, can_im_pub_;
         ros::Subscriber ec_sub_;
         bool use_raw_;
         
@@ -45,7 +45,6 @@ namespace egocylindrical
         ConfigType config_;
         typedef dynamic_reconfigure::Server<ConfigType> ReconfigureServer;
         std::shared_ptr<ReconfigureServer> reconfigure_server_;
-
     public:
 
         EgoCylinderFloorImageGenerator(ros::NodeHandle& nh, ros::NodeHandle& pnh);

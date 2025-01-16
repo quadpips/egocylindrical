@@ -73,7 +73,7 @@ namespace egocylindrical
             
             int start_idx = (num_cols + num_cap_pts);
             #pragma GCC ivdep
-            for(int j = (num_cols + num_cap_pts); j < num_pts; ++j) //Vectorization requires -fno-trapping-math
+            for (int j = (num_cols + num_cap_pts); j < num_pts; ++j) //Vectorization requires -fno-trapping-math
             {   
                 cv::Point3f point(x[j],y[j],z[j]);
                 cv::Point3f Pcyl_t = points.projectWorldToCan(point); 
