@@ -6,10 +6,13 @@
 
 namespace egocylindrical
 {
-    
     namespace utils
     {
-        
+        sensor_msgs::ImagePtr getFloorLabelImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr preallocated_msg)
+        {
+            return generateFloorLabelImageMsg<uint8_t>(cylindrical_history, num_threads, preallocated_msg);
+        }
+
         sensor_msgs::ImagePtr getRawFloorImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr preallocated_msg)
         {
             return generateFloorImageMsg<uint16_t>(cylindrical_history, num_threads, preallocated_msg);

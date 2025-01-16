@@ -86,6 +86,7 @@
       <remap from="egocylindrical_points" to="data"/>
       <param name="use_raw" value="False"/>
       <param name="floor_image_topic" value="floor_image"/>
+      <param name="floor_labels_topic" value="floor_labels"/>
     </node>
 
     <group if="$(arg range_images)">

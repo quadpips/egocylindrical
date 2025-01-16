@@ -9,9 +9,6 @@
 
 namespace egocylindrical
 {
-
-
-
     EgoCylinderFloorImageGenerator::EgoCylinderFloorImageGenerator(ros::NodeHandle& nh, ros::NodeHandle& pnh) :
         nh_(nh),
         pnh_(pnh),
@@ -24,11 +21,13 @@ namespace egocylindrical
     {
         use_raw_ = false;
         std::string floor_image_topic = "can_image"; // image_topic = "image", 
+        std::string floor_labels_topic = "can_labels";
         
         pnh_.getParam("use_raw", use_raw_ );
         
         // pnh_.getParam("image_topic", image_topic );
         pnh_.getParam("floor_image_topic", floor_image_topic );
+        pnh_.getParam("floor_labels_topic", floor_labels_topic );
         
         reconfigure_server_ = std::make_shared<ReconfigureServer>(pnh_);
         reconfigure_server_->setCallback(boost::bind(&EgoCylinderFloorImageGenerator::configCB, this, _1, _2));
@@ -38,6 +37,8 @@ namespace egocylindrical
             Lock lock(connect_mutex_);
             // im_pub_ = it_.advertise(image_topic, 2, image_cb, image_cb);
             floor_im_pub_ = it_.advertise(floor_image_topic, 2, image_cb, image_cb);
+            labels_im_pub_ = it_.advertise(floor_labels_topic, 2, image_cb, image_cb); 
+            
         }
         
         return true;
@@ -91,41 +92,38 @@ namespace egocylindrical
         
         utils::ECWrapper ec_pts(ec_msg);
         
-        // if (gen_range_image)
-        // {
-        //   ros::WallTime start = ros::WallTime::now();
-                
-        //   sensor_msgs::Image::ConstPtr image_ptr = use_raw_ ? utils::getRawRangeImageMsg(ec_pts, num_threads_, preallocated_msg_) : utils::getRangeImageMsg(ec_pts, num_threads_, preallocated_msg_);
-
-        //   ROS_DEBUG_STREAM_NAMED("timing","Generating egocylindrical range image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
-
-        //   ROS_DEBUG("publish egocylindrical image");
-          
-        //   im_pub_.publish(image_ptr);
-        //   ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[range_image_generator] Sent [" << image_ptr->header.stamp << "] at [" << ros::WallTime::now() << "]");
-          
-        //   start = ros::WallTime::now();
-        //   preallocated_msg_= boost::make_shared<sensor_msgs::Image>();
-        //   preallocated_msg_->data.resize(image_ptr->data.size()); //We initialize the image to the same size as the most recently generated image
-        //   ROS_DEBUG_STREAM_NAMED("timing","Preallocating range image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
-        // }
-        
         if (gen_can_image)
         {
-          ros::WallTime start = ros::WallTime::now();
-          
-          sensor_msgs::Image::ConstPtr image_ptr = use_raw_ ? utils::getRawFloorImageMsg(ec_pts, num_threads_, preallocated_can_msg_) : utils::getFloorImageMsg(ec_pts, num_threads_, preallocated_can_msg_);
-          
-          ROS_DEBUG_STREAM_NAMED("timing","Generating can image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
-          
-          ROS_DEBUG("publish egocylindrical image");
-          
-          floor_im_pub_.publish(image_ptr);
-          
-          start = ros::WallTime::now();
-          preallocated_can_msg_= boost::make_shared<sensor_msgs::Image>();
-          preallocated_can_msg_->data.resize(image_ptr->data.size()); //We initialize the image to the same size as the most recently generated image
-          ROS_DEBUG_STREAM_NAMED("timing","Preallocating can image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+            // RANGE
+            ros::WallTime start = ros::WallTime::now();
+            
+            sensor_msgs::Image::ConstPtr image_ptr = use_raw_ ? utils::getRawFloorImageMsg(ec_pts, num_threads_, preallocated_can_msg_) : utils::getFloorImageMsg(ec_pts, num_threads_, preallocated_can_msg_);
+            
+            ROS_DEBUG_STREAM_NAMED("timing","Generating can image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+            
+            ROS_DEBUG("publish egocylindrical image");
+            
+            // LABELS
+            start = ros::WallTime::now();
+
+            sensor_msgs::Image::ConstPtr labels_ptr = utils::getFloorLabelImageMsg(ec_pts, num_threads_, preallocated_labels_msg_);
+
+            ROS_DEBUG_STREAM_NAMED("timing","Generating can labels took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+
+            ROS_DEBUG("publish egocylindrical labels");
+
+            floor_im_pub_.publish(image_ptr);
+            labels_im_pub_.publish(labels_ptr);
+            
+            start = ros::WallTime::now();
+            preallocated_can_msg_= boost::make_shared<sensor_msgs::Image>();
+            preallocated_can_msg_->data.resize(image_ptr->data.size()); //We initialize the image to the same size as the most recently generated image
+            ROS_DEBUG_STREAM_NAMED("timing","Preallocating can image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+
+            start = ros::WallTime::now();
+            preallocated_labels_msg_= boost::make_shared<sensor_msgs::Image>();
+            preallocated_labels_msg_->data.resize(labels_ptr->data.size()); //We initialize the image to the same size as the most recently generated image
+            ROS_DEBUG_STREAM_NAMED("timing","Preallocating can labels took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
         }
     }
 }
