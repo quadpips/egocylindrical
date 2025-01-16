@@ -8,6 +8,11 @@ namespace egocylindrical
 {
     namespace utils
     {
+        sensor_msgs::ImagePtr getFloorNormalColoredImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr preallocated_msg)
+        {
+            return generateFloorNormalColoredImageMsg(cylindrical_history, num_threads, preallocated_msg);
+        }
+
         sensor_msgs::ImagePtr getFloorNormalImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr preallocated_msg)
         {
             return generateFloorNormalImageMsg<float>(cylindrical_history, num_threads, preallocated_msg);

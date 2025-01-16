@@ -24,6 +24,7 @@ namespace egocylindrical
         std::string floor_labels_topic = "can_labels";
         std::string floor_labels_colored_topic = "can_labels_colored";
         std::string floor_normals_topic = "can_normals";
+        std::string floor_normals_colored_topic = "can_normals_colored";
         
         pnh_.getParam("use_raw", use_raw_ );
         
@@ -32,6 +33,7 @@ namespace egocylindrical
         pnh_.getParam("floor_labels_topic", floor_labels_topic );
         pnh_.getParam("floor_labels_colored_topic", floor_labels_colored_topic );
         pnh_.getParam("floor_normals_topic", floor_normals_topic );
+        pnh_.getParam("floor_normals_colored_topic", floor_normals_colored_topic );
         
         reconfigure_server_ = std::make_shared<ReconfigureServer>(pnh_);
         reconfigure_server_->setCallback(boost::bind(&EgoCylinderFloorImageGenerator::configCB, this, _1, _2));
@@ -44,6 +46,7 @@ namespace egocylindrical
             labels_im_pub_ = it_.advertise(floor_labels_topic, 2, image_cb, image_cb); 
             labels_colored_im_pub_ = it_.advertise(floor_labels_colored_topic, 2, image_cb, image_cb);
             normals_im_pub_ = it_.advertise(floor_normals_topic, 2, image_cb, image_cb);
+            normals_colored_im_pub_ = it_.advertise(floor_normals_colored_topic, 2, image_cb, image_cb);
         }
         
         return true;
@@ -127,6 +130,13 @@ namespace egocylindrical
 
             ROS_DEBUG_STREAM_NAMED("timing","Generating can normals took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
 
+            // NORMALS COLORED
+            start = ros::WallTime::now();
+
+            sensor_msgs::Image::ConstPtr normals_colored_ptr = utils::getFloorNormalColoredImageMsg(ec_pts, num_threads_, preallocated_normals_colored_msgs_);
+
+            ROS_DEBUG_STREAM_NAMED("timing","Generating can normals colored took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+
             ROS_DEBUG("publish egocylindrical image");
             floor_im_pub_.publish(image_ptr);
             ROS_DEBUG("publish egocylindrical labels");
@@ -135,6 +145,8 @@ namespace egocylindrical
             labels_colored_im_pub_.publish(labels_colored_ptr);
             ROS_DEBUG("publish egocylindrical normals");
             normals_im_pub_.publish(normals_ptr);
+            ROS_DEBUG("publish egocylindrical normals colored");
+            normals_colored_im_pub_.publish(normals_colored_ptr);
             
             start = ros::WallTime::now();
             preallocated_can_msg_= boost::make_shared<sensor_msgs::Image>();
@@ -149,12 +161,17 @@ namespace egocylindrical
             start = ros::WallTime::now();
             preallocated_labels_colored_msg_= boost::make_shared<sensor_msgs::Image>();
             preallocated_labels_colored_msg_->data.resize(labels_colored_ptr->data.size()); //We initialize the image to the same size as the most recently generated image
-            ROS_DEBUG_STREAM_NAMED("timing","Preallocating can labels took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+            ROS_DEBUG_STREAM_NAMED("timing","Preallocating can labels colored took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
         
             start = ros::WallTime::now();
             preallocated_normals_msg_= boost::make_shared<sensor_msgs::Image>();
             preallocated_normals_msg_->data.resize(normals_ptr->data.size()); //We initialize the image to the same size as the most recently generated image
             ROS_DEBUG_STREAM_NAMED("timing","Preallocating can normals took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+        
+            start = ros::WallTime::now();
+            preallocated_normals_colored_msgs_= boost::make_shared<sensor_msgs::Image>();
+            preallocated_normals_colored_msgs_->data.resize(normals_colored_ptr->data.size()); //We initialize the image to the same size as the most recently generated image
+            ROS_DEBUG_STREAM_NAMED("timing","Preallocating can normals colored took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
         }
     }
 }

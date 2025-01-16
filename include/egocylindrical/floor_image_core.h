@@ -12,6 +12,8 @@ namespace egocylindrical
     namespace utils
     {
         // normals
+        sensor_msgs::ImagePtr getFloorNormalColoredImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr preallocated_msg=nullptr);
+
         sensor_msgs::ImagePtr getFloorNormalImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr preallocated_msg=nullptr);
 
         // labels

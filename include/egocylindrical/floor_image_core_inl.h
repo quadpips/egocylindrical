@@ -21,6 +21,73 @@ namespace egocylindrical
           return toIEEE754(val).isNan();
         }
 
+/////////////////////////
+        // COLORED LABEL IMAGE //
+        /////////////////////////
+        void generateFloorNormalColoredImage(const utils::ECWrapper& cylindrical_history, uint32_t* data, const uint32_t unknown_val, int num_threads)
+        {            
+            ROS_DEBUG("Generating image of cylindrical memory");
+            
+            const float* const norm_x = cylindrical_history.getNormalX();
+            const float* const norm_y = cylindrical_history.getNormalY();
+            const float* const norm_z = cylindrical_history.getNormalZ();
+
+            const int num_cap_pts = cylindrical_history.getNumCapPts() / 2;
+            const int num_cols = cylindrical_history.getCols();
+            const int num_pnts = cylindrical_history.getNumPts();
+
+            int start_idx = (num_cols + num_cap_pts);
+            #pragma GCC ivdep
+            for(int j = start_idx; j < num_pnts; ++j)
+            {
+                int j_ = j - start_idx;
+                std::uint8_t r = 0, g = 0, b = 0, a = 0;    // Example: Red color
+                cv::Point3f normal(norm_x[j], norm_y[j], norm_z[j]);
+
+                a = (std::sqrt( normal.x * normal.x + normal.y * normal.y + normal.z * normal.z) > 0 ? 255 : 0);
+
+                r = uint8_t(std::abs(normal.x) * 255);
+                g = uint8_t(std::abs(normal.y) * 255);
+                b = uint8_t(std::abs(normal.z) * 255);
+
+                std::uint32_t rgba = ((std::uint32_t)a << 24 | (std::uint32_t)b << 16 | (std::uint32_t)g << 8 | (std::uint32_t)r);
+
+                data[j_] = rgba;
+            }
+        }
+        
+        sensor_msgs::ImagePtr generateFloorNormalColoredImageMsg(const utils::ECWrapper& cylindrical_history, const std::string& encoding, 
+                                                                const uint32_t unknown_val, int num_threads, sensor_msgs::ImagePtr& preallocated_msg)
+        {
+            int width = cylindrical_history.getCanWidth();  
+            
+            sensor_msgs::ImagePtr new_msg_ptr = (preallocated_msg) ? preallocated_msg : boost::make_shared<sensor_msgs::Image>();
+            
+            sensor_msgs::Image &new_msg = *new_msg_ptr;
+            new_msg.header = cylindrical_history.getHeader();
+            new_msg.height = width; // 2*width;
+            new_msg.width = width;
+            new_msg.encoding = encoding;
+            new_msg.is_bigendian = false;
+            new_msg.step = width * 4 * sizeof(uint8_t);
+            size_t size = new_msg.step * new_msg.height;
+                        
+            new_msg.data.resize(size);
+
+            uint32_t * data = (uint32_t*)new_msg.data.data();
+            
+            generateFloorNormalColoredImage(cylindrical_history, data, unknown_val, num_threads);
+            
+            return new_msg_ptr;
+        }
+        
+        sensor_msgs::ImagePtr generateFloorNormalColoredImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, 
+                                                                sensor_msgs::ImagePtr& preallocated_msg)
+        {
+          return generateFloorNormalColoredImageMsg(cylindrical_history, sensor_msgs::image_encodings::RGBA8, 
+                                                    0, num_threads, preallocated_msg);
+        }
+
         ///////////////////
         // NORMALS IMAGE //
         ///////////////////
