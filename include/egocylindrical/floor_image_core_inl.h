@@ -34,11 +34,13 @@ namespace egocylindrical
             
             const float* const y = cylindrical_history.getY();
 
-            int num_cols = cylindrical_history.getCols();
-            int num_pnts = cylindrical_history.getNumPts();
+            const int num_cap_pts = cylindrical_history.getNumCapPts() / 2;
+            const int num_cols = cylindrical_history.getCols();
+            const int num_pnts = cylindrical_history.getNumPts();
 
+            int start_idx = (num_cols + num_cap_pts);
             #pragma GCC ivdep
-            for(int j = num_cols; j < num_pnts; ++j)
+            for(int j = start_idx; j < num_pnts; ++j)
             {
                 T temp = unknown_val;
                 
@@ -53,7 +55,8 @@ namespace egocylindrical
                     temp = depth * scale;                    
                 }
 
-                r[j-num_cols] = temp;
+                int j_ = j - start_idx;
+                r[j_] = temp;
             }
         }
         
@@ -68,7 +71,7 @@ namespace egocylindrical
             
             sensor_msgs::Image &new_msg = *new_msg_ptr;
             new_msg.header = cylindrical_history.getHeader();
-            new_msg.height = 2*width;
+            new_msg.height = width; // 2*width;
             new_msg.width = width;
             new_msg.encoding = encoding;
             new_msg.is_bigendian = false;

@@ -4,10 +4,10 @@
   <arg name="scan_topic" default="/scan"/>
   <arg name="fixed_frame_id" default="odom"/>
   
-  <arg name="viz_inflated" default="true"/>
-  <arg name="range_images"  default="true"/>
-  <arg name="sanity_check" default="true"/>
-  <arg name="novel_points" default="true"/>
+  <arg name="viz_inflated" default="false"/>
+  <arg name="range_images"  default="false"/>
+  <arg name="sanity_check" default="false"/>
+  <arg name="novel_points" default="false"/>
   
   <arg name="debug" default="false"/>
   <arg name="profile" default="false"/>
@@ -85,7 +85,7 @@
     <node name="egocylindrical_to_floor_image" pkg="egocylindrical" type="floor_image_node" output="log" launch-prefix="">
       <remap from="egocylindrical_points" to="data"/>
       <param name="use_raw" value="False"/>
-      <param name="can_image_topic" value="floor_image"/>
+      <param name="floor_image_topic" value="floor_image"/>
     </node>
 
     <group if="$(arg range_images)">
