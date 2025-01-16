@@ -64,27 +64,27 @@ namespace egocylindrical
                 return p_out;
             }
 
-            template <typename T>
-            void rotate(T in_x, T in_y, T in_z, T& out_x, T& out_y, T& out_z) const
-            {
-                out_x = r0 * in_x + r1 * in_y + r2 * in_z;
-                out_y = r3 * in_x + r4 * in_y + r5 * in_z;
-                out_z = r6 * in_x + r7 * in_y + r8 * in_z;
-            }
+            // template <typename T>
+            // void rotate(T in_x, T in_y, T in_z, T& out_x, T& out_y, T& out_z) const
+            // {
+            //     out_x = r0 * in_x + r1 * in_y + r2 * in_z;
+            //     out_y = r3 * in_x + r4 * in_y + r5 * in_z;
+            //     out_z = r6 * in_x + r7 * in_y + r8 * in_z;
+            // }
 
-            template <typename P>
-            void rotate(const P& p_in, P& p_out) const
-            {
-                rotate(p_in.x, p_in.y, p_in.z, p_out.x, p_out.y, p_out.z);
-            }
+            // template <typename P>
+            // void rotate(const P& p_in, P& p_out) const
+            // {
+            //     rotate(p_in.x, p_in.y, p_in.z, p_out.x, p_out.y, p_out.z);
+            // }
 
-            template <typename P>
-            P rotate(const P& p_in) const
-            {
-                P p_out;
-                rotate(p_in, p_out);
-                return p_out;
-            }            
+            // template <typename P>
+            // P rotate(const P& p_in) const
+            // {
+            //     P p_out;
+            //     rotate(p_in, p_out);
+            //     return p_out;
+            // }            
         };
       
     } //end namespace utils

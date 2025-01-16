@@ -214,15 +214,22 @@ namespace egocylindrical
                     cv::Point3f world_norm = cv::Point3f(normals.at<cv::Vec3f>(row, col)[0], 
                                                             normals.at<cv::Vec3f>(row, col)[1], 
                                                             normals.at<cv::Vec3f>(row, col)[2]);
-                    cv::Point3f transformed_norm = point_transformer.rotate(world_norm);
+                    // cv::Point3f transformed_norm = point_transformer.rotate(world_norm);
+
+                    cv::Point3f world_pnt_plus_norm = world_pnt + world_norm;
+                    cv::Point3f transformed_pnt_plus_norm = point_transformer.transform(world_pnt_plus_norm); // transform between prior timestep and current timestep (or something, not so sure)
+
+                    cv::Point3f transformed_norm = transformed_pnt_plus_norm - transformed_pnt;
+                    cv::Point3f re_normalized_norm = transformed_norm / cv::norm(transformed_norm);
+
 
                     nx[i] = transformed_pnt.x;
                     ny[i] = transformed_pnt.y;
                     nz[i] = transformed_pnt.z;
 
-                    n_norm_x[i] = transformed_norm.x;
-                    n_norm_y[i] = transformed_norm.y;
-                    n_norm_z[i] = transformed_norm.z;
+                    n_norm_x[i] = re_normalized_norm.x;
+                    n_norm_y[i] = re_normalized_norm.y;
+                    n_norm_z[i] = re_normalized_norm.z;
 
                     int cyl_idx = cylindrical_points.worldToCylindricalIdx(transformed_pnt);
                     
@@ -376,15 +383,19 @@ namespace egocylindrical
                     cv::Point3f world_norm = cv::Point3f(normals.at<cv::Vec3f>(row, col)[0], 
                                                             normals.at<cv::Vec3f>(row, col)[1], 
                                                             normals.at<cv::Vec3f>(row, col)[2]);
-                    cv::Point3f transformed_norm = point_transformer.rotate(world_norm);
+                    cv::Point3f world_pnt_plus_norm = world_pnt + world_norm;
+                    cv::Point3f transformed_pnt_plus_norm = point_transformer.transform(world_pnt_plus_norm); // transform between prior timestep and current timestep (or something, not so sure)
+
+                    cv::Point3f transformed_norm = transformed_pnt_plus_norm - transformed_pnt;
+                    cv::Point3f re_normalized_norm = transformed_norm / cv::norm(transformed_norm);
 
                     nx[i] = transformed_pnt.x;
                     ny[i] = transformed_pnt.y;
                     nz[i] = transformed_pnt.z;
 
-                    n_norm_x[i] = transformed_norm.x;
-                    n_norm_y[i] = transformed_norm.y;
-                    n_norm_z[i] = transformed_norm.z;
+                    n_norm_x[i] = re_normalized_norm.x;
+                    n_norm_y[i] = re_normalized_norm.y;
+                    n_norm_z[i] = re_normalized_norm.z;
                     // ROS_INFO_STREAM_NAMED("timing", "nlabels size: " << nlabels.size());
                     // ROS_INFO_STREAM_NAMED("timing", "i: " << i);
 
