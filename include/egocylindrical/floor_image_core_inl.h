@@ -28,7 +28,7 @@ namespace egocylindrical
 //         }
         
         template <typename T,uint scale>
-        void generateCanImage(const utils::ECWrapper& cylindrical_history, T* r, const T unknown_val, int num_threads)
+        void generateFloorImage(const utils::ECWrapper& cylindrical_history, T* r, const T unknown_val, int num_threads)
         {            
             ROS_DEBUG("Generating image of cylindrical memory");
             
@@ -62,7 +62,7 @@ namespace egocylindrical
         
         
         template <typename T, uint scale>
-        sensor_msgs::ImagePtr generateCanImageMsg(const utils::ECWrapper& cylindrical_history, const std::string& encoding, 
+        sensor_msgs::ImagePtr generateFloorImageMsg(const utils::ECWrapper& cylindrical_history, const std::string& encoding, 
                                                   const T unknown_val, int num_threads, sensor_msgs::ImagePtr& preallocated_msg)
         {
             int width = cylindrical_history.getCanWidth();  
@@ -82,27 +82,27 @@ namespace egocylindrical
 
             T* data = (T*)new_msg.data.data();
             
-            generateCanImage<T, scale>(cylindrical_history, data, unknown_val, num_threads);
+            generateFloorImage<T, scale>(cylindrical_history, data, unknown_val, num_threads);
             
             return new_msg_ptr;
         }
         
         
         template <typename T>
-        sensor_msgs::ImagePtr generateCanImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr& preallocated_msg);
+        sensor_msgs::ImagePtr generateFloorImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr& preallocated_msg);
 
         
         template <> 
-        sensor_msgs::ImagePtr generateCanImageMsg<float>(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr& preallocated_msg)
+        sensor_msgs::ImagePtr generateFloorImageMsg<float>(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr& preallocated_msg)
         {
-          return generateCanImageMsg<float, 1>(cylindrical_history, sensor_msgs::image_encodings::TYPE_32FC1, 
+          return generateFloorImageMsg<float, 1>(cylindrical_history, sensor_msgs::image_encodings::TYPE_32FC1, 
                                                 dNaN, num_threads, preallocated_msg);
         }
         
         template <>
-        sensor_msgs::ImagePtr generateCanImageMsg<uint16_t>(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr& preallocated_msg)
+        sensor_msgs::ImagePtr generateFloorImageMsg<uint16_t>(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr& preallocated_msg)
         {
-          return generateCanImageMsg<uint16_t, 1000>(cylindrical_history, sensor_msgs::image_encodings::TYPE_16UC1, 
+          return generateFloorImageMsg<uint16_t, 1000>(cylindrical_history, sensor_msgs::image_encodings::TYPE_16UC1, 
                                                       0, num_threads, preallocated_msg);
         }
 
