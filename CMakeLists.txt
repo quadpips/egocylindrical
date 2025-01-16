@@ -127,6 +127,7 @@ generate_dynamic_reconfigure_options(
   cfg/RangeImageGenerator.cfg
   cfg/Filter.cfg
   cfg/RangeImageInflatorGenerator.cfg
+  cfg/FloorImageGenerator.cfg
   )
 
 ###################################
@@ -140,7 +141,7 @@ generate_dynamic_reconfigure_options(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES egocylindrical_propagator range_image_core can_image_core point_cloud_core projected_point_cloud_core semantic_point_cloud_core normal_point_cloud_core normal_point_cloud_floor_only_core point_transformer depth_image_remapper range_image_converter depth_image_inserter laser_scan_inserter sensors ecwrapper_buffer
+  LIBRARIES egocylindrical_propagator range_image_core can_image_core floor_image_core point_cloud_core projected_point_cloud_core semantic_point_cloud_core normal_point_cloud_core normal_point_cloud_floor_only_core point_transformer depth_image_remapper range_image_converter depth_image_inserter laser_scan_inserter sensors ecwrapper_buffer
   CATKIN_DEPENDS cv_bridge geometry_msgs image_geometry image_transport roscpp rospy sensor_msgs std_msgs tf tf2 tf2_ros tf2_sensor_msgs tf2_geometry_msgs 
 #  DEPENDS system_lib
 )
@@ -174,6 +175,15 @@ add_dependencies(can_image_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXP
 target_compile_options(can_image_core PRIVATE -ftree-vectorize -fopt-info-loop-optimized=vec_can_image_core.txt -funsafe-math-optimizations -fno-math-errno -ffinite-math-only #-ffinite-math-only and -fno-trapping-math.
    )
 target_link_libraries(can_image_core
+   ${catkin_LIBRARIES}
+   ${OpenCV_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
+add_library(floor_image_core src/floor_image_core.cpp)
+add_dependencies(floor_image_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_compile_options(floor_image_core PRIVATE -ftree-vectorize -fopt-info-loop-optimized=vec_floor_image_core.txt -funsafe-math-optimizations -fno-math-errno -ffinite-math-only #-ffinite-math-only and -fno-trapping-math.
+   )
+target_link_libraries(floor_image_core
    ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
    ${OpenMP_CXX_FLAGS}
@@ -507,7 +517,29 @@ target_link_libraries(range_image_nodelet
    ${catkin_LIBRARIES}
    )
    
-   
+#FLOOR_IMAGE_GENERATOR
+add_library(floor_image_generator src/floor_image_generator.cpp)
+target_link_libraries(floor_image_generator
+   floor_image_core
+   ${catkin_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
+
+#FLOOR_IMAGE_NODE
+add_executable(floor_image_node src/floor_image_node.cpp)
+target_link_libraries(floor_image_node
+   floor_image_generator
+   ${catkin_LIBRARIES}
+   )
+  
+#FLOOR_IMAGE_NODELET
+add_library(floor_image_nodelet MODULE src/floor_image_nodelet.cpp)
+target_link_libraries(floor_image_nodelet
+   floor_image_generator
+   ${catkin_LIBRARIES}
+   )
+
+
 # 
 # add_library(dedicated_egocylindrical_propagator_nodelet src/dedicated_egocylindrical_propagator.cpp src/dedicated_egocylindrical_propagator_nodelet.cpp) #src/range_image_core.cpp
 # 
