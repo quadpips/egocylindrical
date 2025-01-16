@@ -22,6 +22,7 @@ namespace egocylindrical
         use_raw_ = false;
         std::string floor_image_topic = "can_image"; // image_topic = "image", 
         std::string floor_labels_topic = "can_labels";
+        std::string floor_labels_colored_topic = "can_labels_colored";
         
         pnh_.getParam("use_raw", use_raw_ );
         
@@ -38,7 +39,7 @@ namespace egocylindrical
             // im_pub_ = it_.advertise(image_topic, 2, image_cb, image_cb);
             floor_im_pub_ = it_.advertise(floor_image_topic, 2, image_cb, image_cb);
             labels_im_pub_ = it_.advertise(floor_labels_topic, 2, image_cb, image_cb); 
-            
+            labels_colored_im_pub_ = it_.advertise(floor_labels_colored_topic, 2, image_cb, image_cb);
         }
         
         return true;
@@ -112,6 +113,10 @@ namespace egocylindrical
 
             ROS_DEBUG("publish egocylindrical labels");
 
+            sensor_msgs::Image::ConstPtr labels_colored_ptr = utils::getFloorLabelColoredImageMsg(ec_pts, num_threads_, preallocated_labels_colored_msg_);
+            labels_colored_im_pub_.publish(labels_colored_ptr);
+
+
             floor_im_pub_.publish(image_ptr);
             labels_im_pub_.publish(labels_ptr);
             
@@ -124,6 +129,12 @@ namespace egocylindrical
             preallocated_labels_msg_= boost::make_shared<sensor_msgs::Image>();
             preallocated_labels_msg_->data.resize(labels_ptr->data.size()); //We initialize the image to the same size as the most recently generated image
             ROS_DEBUG_STREAM_NAMED("timing","Preallocating can labels took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+        
+            start = ros::WallTime::now();
+            preallocated_labels_colored_msg_= boost::make_shared<sensor_msgs::Image>();
+            preallocated_labels_colored_msg_->data.resize(labels_colored_ptr->data.size()); //We initialize the image to the same size as the most recently generated image
+            ROS_DEBUG_STREAM_NAMED("timing","Preallocating can labels took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+        
         }
     }
 }
