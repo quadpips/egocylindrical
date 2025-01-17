@@ -95,23 +95,25 @@ namespace egocylindrical
 
                     pto.transform(x_p, y_p, z_p, x_n[p], y_n[p], z_n[p]);  
 
-                    cv::Point3f transformed_pnt(x_n[p], y_n[p], z_n[p]);
+                    // cv::Point3f transformed_pnt(x_n[p], y_n[p], z_n[p]);
 
                     float nx_p = norm_x[p];
                     float ny_p = norm_y[p];
                     float nz_p = norm_z[p];
                     cv::Point3f world_norm(nx_p, ny_p, nz_p);
 
-                    cv::Point3f world_pnt_plus_norm = world_pnt + world_norm;
-                    cv::Point3f transformed_pnt_plus_norm = pto.transform(world_pnt_plus_norm); // transform between prior timestep and current timestep (or something, not so sure)
+                    pto.rotate(nx_p, ny_p, nz_p, norm_x_n[p], norm_y_n[p], norm_z_n[p]);
 
-                    cv::Point3f transformed_norm = transformed_pnt_plus_norm - transformed_pnt;
-                    cv::Point3f re_normalized_norm = transformed_norm / cv::norm(transformed_norm);
+                    // cv::Point3f world_pnt_plus_norm = world_pnt + world_norm;
+                    // cv::Point3f transformed_pnt_plus_norm = pto.transform(world_pnt_plus_norm); // transform between prior timestep and current timestep (or something, not so sure)
+
+                    // cv::Point3f transformed_norm = transformed_pnt_plus_norm - transformed_pnt;
+                    // cv::Point3f re_normalized_norm = transformed_norm / cv::norm(transformed_norm);
 
                     // pto.rotate(nx_p, ny_p, nz_p, norm_x_n[p], norm_y_n[p], norm_z_n[p]);   
-                    norm_x_n[p] = re_normalized_norm.x;
-                    norm_y_n[p] = re_normalized_norm.y;
-                    norm_z_n[p] = re_normalized_norm.z;      
+                    // norm_x_n[p] = re_normalized_norm.x;
+                    // norm_y_n[p] = re_normalized_norm.y;
+                    // norm_z_n[p] = re_normalized_norm.z;      
                                     
                     float range_squared= worldToRangeSquared(x_n[p],z_n[p]);
                 

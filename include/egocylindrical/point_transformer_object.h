@@ -11,8 +11,12 @@ namespace egocylindrical
 
         class PointTransformerObject
         {
-            float r0,r1,r2,r3,r4,r5,r6,r7,r8,t0,t1,t2;
-            
+            float r0,r1,r2,r3,r4,r5,r6,r7,r8;
+            float t0,t1,t2;
+
+            float r0_inv,r1_inv,r2_inv,r3_inv,r4_inv,r5_inv,r6_inv,r7_inv,r8_inv;
+            float t0_inv,t1_inv,t2_inv;
+
             public:
             PointTransformerObject()
             {}
@@ -64,27 +68,27 @@ namespace egocylindrical
                 return p_out;
             }
 
-            // template <typename T>
-            // void rotate(T in_x, T in_y, T in_z, T& out_x, T& out_y, T& out_z) const
-            // {
-            //     out_x = r0 * in_x + r1 * in_y + r2 * in_z;
-            //     out_y = r3 * in_x + r4 * in_y + r5 * in_z;
-            //     out_z = r6 * in_x + r7 * in_y + r8 * in_z;
-            // }
+            template <typename T>
+            void rotate(T in_x, T in_y, T in_z, T& out_x, T& out_y, T& out_z) const
+            {
+                out_x = r0 * in_x + r1 * in_y + r2 * in_z;
+                out_y = r3 * in_x + r4 * in_y + r5 * in_z;
+                out_z = r6 * in_x + r7 * in_y + r8 * in_z;
+            }
 
-            // template <typename P>
-            // void rotate(const P& p_in, P& p_out) const
-            // {
-            //     rotate(p_in.x, p_in.y, p_in.z, p_out.x, p_out.y, p_out.z);
-            // }
+            template <typename P>
+            void rotate(const P& p_in, P& p_out) const
+            {
+                rotate(p_in.x, p_in.y, p_in.z, p_out.x, p_out.y, p_out.z);
+            }
 
-            // template <typename P>
-            // P rotate(const P& p_in) const
-            // {
-            //     P p_out;
-            //     rotate(p_in, p_out);
-            //     return p_out;
-            // }            
+            template <typename P>
+            P rotate(const P& p_in) const
+            {
+                P p_out;
+                rotate(p_in, p_out);
+                return p_out;
+            }            
         };
       
     } //end namespace utils
