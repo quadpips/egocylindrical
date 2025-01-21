@@ -21,7 +21,7 @@ namespace egocylindrical
           return toIEEE754(val).isNan();
         }
 
-/////////////////////////
+        /////////////////////////
         // COLORED LABEL IMAGE //
         /////////////////////////
         void generateFloorNormalColoredImage(const utils::ECWrapper& cylindrical_history, uint32_t* data, const uint32_t unknown_val, int num_threads)
