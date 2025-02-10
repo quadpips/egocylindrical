@@ -556,11 +556,20 @@ namespace egocylindrical
           inline
           void worldToCanXIdx(const cv::Point3_<S>& point, T& x_idx) const
           {
+            // ROS_DEBUG_STREAM_NAMED("labels", "[worldToCanXIdx])");
+            // ROS_DEBUG_STREAM_NAMED("labels", "  point: " << point);
+            // ROS_DEBUG_STREAM_NAMED("labels", "  params_.vfov: " << params_.vfov);
+            // ROS_DEBUG_STREAM_NAMED("labels", "  params_.v_offset: " << params_.v_offset);
+            // ROS_DEBUG_STREAM_NAMED("labels", "  params_.can_width: " << params_.can_width);
+
             if(point.y >=0 )
             {
               S absy = point.y;
+              // ROS_DEBUG_STREAM_NAMED("labels", "  absy: " << absy);
               S h_b = params_.vfov/2-params_.v_offset;
+              // ROS_DEBUG_STREAM_NAMED("labels", "  h_b: " << h_b);
               x_idx = point.x*h_b/absy * (params_.can_width/2) + params_.can_width/2;
+              // ROS_DEBUG_STREAM_NAMED("labels", "  x_idx: " << x_idx);
             }
             else
             {

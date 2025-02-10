@@ -161,17 +161,17 @@ namespace egocylindrical
       msg_sync_ = boost::make_shared<MsgSynchronizer>(depth_sub_, *info_tf_filter, normals_sub_, 3); //   
       msg_sync_->registerCallback(boost::bind(&SemanticDepthImageSensor::update, this, _1, _2, _3)); //  
 
-      labels_sub_ = it_.subscribe(labels_topic, 1, &SemanticDepthImageSensor::labels_cb, this);
+      // labels_sub_ = it_.subscribe(labels_topic, 1, &SemanticDepthImageSensor::labels_cb, this);
     }
       
     protected:
-      void labels_cb(const sensor_msgs::Image::ConstPtr& labels)
-      {
-        labels_ = labels;
-        new_labels = true;
-        have_labels = true;
-        // ROS_INFO_STREAM_NAMED("timing", "in solo callback, label: " << label);
-      }
+      // void labels_cb(const sensor_msgs::Image::ConstPtr& labels)
+      // {
+      //   labels_ = labels;
+      //   new_labels = true;
+      //   have_labels = true;
+      //   // ROS_INFO_STREAM_NAMED("timing", "in solo callback, label: " << label);
+      // }
 
       void update(const sensor_msgs::Image::ConstPtr& image, 
                   const sensor_msgs::CameraInfo::ConstPtr& info,
@@ -183,20 +183,20 @@ namespace egocylindrical
         ROS_INFO_STREAM_NAMED("timing", "info timestamp: " << info->header.stamp);
         ROS_INFO_STREAM_NAMED("timing", "normals timestamp: " << normals->header.stamp);  
 
-        if (cb_ && have_labels) //  // want first update to be a depth+labels one
+        if (cb_) //  && have_labels // want first update to be a depth+labels one
         {
           boost::shared_ptr<SensorMeasurement> m;
-          if (new_labels)
-          {
-            ROS_INFO_STREAM_NAMED("timing", "image timestamp: " << image->header.stamp);
-            ROS_INFO_STREAM_NAMED("timing", "info timestamp: " << info->header.stamp);
-            ROS_INFO_STREAM_NAMED("timing", "labels_ timestamp: " << labels_->header.stamp);            
-            m = boost::make_shared<SemanticDepthImageMeasurement>(sc_, image, info, normals, labels_, &dii_); // normals,  
-            new_labels = false;
-          } else
-          {
-            m = boost::make_shared<TerrainImageMeasurement>(sc_, image, info, normals, &dii_); //    
-          }
+          // if (new_labels)
+          // {
+          //   ROS_INFO_STREAM_NAMED("timing", "image timestamp: " << image->header.stamp);
+          //   ROS_INFO_STREAM_NAMED("timing", "info timestamp: " << info->header.stamp);
+          //   ROS_INFO_STREAM_NAMED("timing", "labels_ timestamp: " << labels_->header.stamp);            
+          //   m = boost::make_shared<SemanticDepthImageMeasurement>(sc_, image, info, normals, labels_, &dii_); // normals,  
+          //   new_labels = false;
+          // } else
+          // {
+          m = boost::make_shared<TerrainImageMeasurement>(sc_, image, info, normals, &dii_); //    
+          // }
 
           cb_(m);
         }
