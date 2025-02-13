@@ -26,6 +26,8 @@
   <arg name="hybrid" default="false"/>
   <arg name="use_laser" default="false"/>
 
+  <arg name="stabilized" default="true"/>
+
   <arg name="laser_source" value="$(eval 'laser' if use_laser else '')"/>
 
   <arg name="use_labels" default="false"/>
@@ -36,7 +38,7 @@
 
   <group ns="egocylinder">
 
-    <node name="depth_to_egocylindrical_node" pkg="egocylindrical" type="egocylindrical_propagator_node" output="log" launch-prefix="$(arg prefix)">        
+    <node name="depth_to_egocylindrical_node" pkg="egocylindrical" type="egocylindrical_propagator_node" launch-prefix="$(arg prefix)"> <!-- output="log" -->        
       <rosparam subst_value="True">
         sensors:
           observation_sources: [semantic_depth]
@@ -54,27 +56,27 @@
       <param name="fixed_frame_id" value="$(arg fixed_frame_id)"/>
       
       <param name="orientation_fixed_frame_id" value="map" if="$(arg hybrid)"/> <!-- TODO: Make it use the most recent available transform so as not to have hard dependency on global pose-->
-      <param name="orientation_fixed_frame_id" value="base" unless="$(arg hybrid)"/>
+      <param name="orientation_fixed_frame_id" value="$(eval 'base_aligned' if stabilized else 'base')" unless="$(arg hybrid)"/>
       <param name="origin_fixed_frame_id" value="camera_depth_optical_frame"/>
 
       <param name="width" value="256"/>
       <param name="height" value="120"/>
     </node>
 
-    <node name="egocylindrical_to_pointcloud" pkg="egocylindrical" type="point_cloud_node" output="log">
+    <node name="egocylindrical_to_pointcloud" pkg="egocylindrical" type="point_cloud_node"> <!--  output="log" -->
       <remap from="egocylindrical_points" to="data"/>
       <remap from="cylindrical" to="points"/>
     </node>
     
-    <node name="egocylindrical_to_projected_pointcloud" pkg="egocylindrical" type="projected_point_cloud_node" output="log" launch-prefix="$(arg projected_prefix)">
+    <node name="egocylindrical_to_projected_pointcloud" pkg="egocylindrical" type="projected_point_cloud_node" launch-prefix="$(arg projected_prefix)"> <!-- output="log" -->
       <remap from="egocylindrical_points" to="data"/>
     </node>
       
-    <node name="egocylindrical_to_semantic_pointcloud" pkg="egocylindrical" type="semantic_point_cloud_node" output="log" launch-prefix="$(arg projected_prefix)">
+    <node name="egocylindrical_to_semantic_pointcloud" pkg="egocylindrical" type="semantic_point_cloud_node" launch-prefix="$(arg projected_prefix)"> <!-- output="log" -->
       <remap from="egocylindrical_points" to="data"/>
     </node>
 
-    <node name="egocylindrical_to_normal_pointcloud" pkg="egocylindrical" type="normal_point_cloud_node" output="log" launch-prefix="$(arg projected_prefix)">
+    <node name="egocylindrical_to_normal_pointcloud" pkg="egocylindrical" type="normal_point_cloud_node" launch-prefix="$(arg projected_prefix)"> <!-- output="log" -->
       <remap from="egocylindrical_points" to="data"/>
     </node>
 
@@ -82,7 +84,7 @@
       <remap from="egocylindrical_points" to="data"/>
     </node> -->
 
-    <node name="egocylindrical_to_floor_image" pkg="egocylindrical" type="floor_image_node" output="log" launch-prefix="">
+    <node name="egocylindrical_to_floor_image" pkg="egocylindrical" type="floor_image_node" launch-prefix=""> <!-- output="log" -->
       <remap from="egocylindrical_points" to="data"/>
       <param name="use_raw" value="False"/>
       <param name="floor_image_topic" value="floor_image"/>
