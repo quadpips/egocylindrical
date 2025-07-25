@@ -3,7 +3,9 @@
 
 
 
-#include <ros/ros.h>
+// #include <ros/ros.h>
+// #include "rclcpp/rclcpp.hpp"
+
 #include <opencv2/core.hpp>
 //#include <opencv2/highgui.hpp>
 //#include <opencv2/imgproc.hpp>
@@ -15,13 +17,14 @@
 //#include <omp.h>
 //#include <sensor_msgs/PointCloud2.h>
 
-#include <egocylindrical/EgoCylinderPoints.h>
+#include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
 //#include <egocylindrical/EgoCylinderInfo.h>
 
 //#include <eigen_stl_containers/eigen_stl_containers.h>
 
 #include <boost/align/aligned_alloc.hpp>
 #include <boost/align/aligned_allocator.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <cstddef>
 #include <cstdalign>
@@ -156,13 +159,13 @@ namespace egocylindrical
         }
         
         //typedef ::egocylindrical::EgoCylinderPoints_<Eigen::aligned_allocator<void, 32> > AlignedEgoCylinderPoints;
-        typedef ::egocylindrical::EgoCylinderPoints_<boost::alignment::aligned_allocator<void, 32> > AlignedEgoCylinderPoints;
+        // typedef ::egocylindrical::EgoCylinderPoints_<boost::alignment::aligned_allocator<void, 32> > AlignedEgoCylinderPoints;
         
         // NOTE: I'm not sure that using this typedef renamed version was such a good idea after all...
         //typedef AlignedEgoCylinderPoints ECMsg;
-        typedef EgoCylinderPoints ECMsg;
-        typedef boost::shared_ptr<ECMsg> ECMsgPtr;
-        typedef boost::shared_ptr<ECMsg const> ECMsgConstPtr;
+        typedef egocylindrical_msgs::msg::EgoCylinderPoints ECMsg;
+        typedef std::shared_ptr<ECMsg> ECMsgPtr;
+        typedef std::shared_ptr<ECMsg const> ECMsgConstPtr;
         
         template <typename T>
         using AlignedVector = std::vector<T, boost::alignment::aligned_allocator<T, __BIGGEST_ALIGNMENT__> >;
@@ -211,7 +214,7 @@ namespace egocylindrical
             //header_ = msg->header;
             //vfov_ = msg->fov_v;
             
-            const std::vector<std_msgs::MultiArrayDimension>& dims = msg.points.layout.dim;
+            const std::vector<std_msgs::msg::MultiArrayDimension>& dims = msg.points.layout.dim;
             height = dims[1].size;
             width = dims[2].size;
             can_width = dims[3].size;
@@ -344,35 +347,35 @@ namespace egocylindrical
           {
             msg.fov_v = params_.vfov;
             
-            std::vector<std_msgs::MultiArrayDimension>& dims = msg.points.layout.dim;
+            std::vector<std_msgs::msg::MultiArrayDimension>& dims = msg.points.layout.dim;
             dims.resize(6);
             
-            std_msgs::MultiArrayDimension& dim0 = dims[0];
+            std_msgs::msg::MultiArrayDimension& dim0 = dims[0];
             dim0.label = "components";
             dim0.size = 3;
             dim0.stride = 3*params_.getCols(); 
             
-            std_msgs::MultiArrayDimension& dim1 = dims[1];
+            std_msgs::msg::MultiArrayDimension& dim1 = dims[1];
             dim1.label = "rows";
             dim1.size = params_.height;
             dim1.stride = params_.getCols();                
             
-            std_msgs::MultiArrayDimension& dim2 = dims[2];
+            std_msgs::msg::MultiArrayDimension& dim2 = dims[2];
             dim2.label = "point";
             dim2.size = params_.width;
             dim2.stride = params_.width;   
             
-            std_msgs::MultiArrayDimension& dim3 = dims[3];
+            std_msgs::msg::MultiArrayDimension& dim3 = dims[3];
             dim3.label = "can";
             dim3.size = params_.can_width;
             dim3.stride = params_.can_width; 
             
-            std_msgs::MultiArrayDimension& dim4 = dims[4];
+            std_msgs::msg::MultiArrayDimension& dim4 = dims[4];
             dim4.label = "v_offset";
             dim4.size = toUint(params_.v_offset);
             dim4.stride = 0;  //Not used
             
-            std_msgs::MultiArrayDimension& dim5 = dims[5];
+            std_msgs::msg::MultiArrayDimension& dim5 = dims[5];
             dim5.label = "cyl_radius";
             dim5.size = toUint(params_.cyl_radius);
             dim5.stride = 0;  //Not used
@@ -781,7 +784,7 @@ namespace egocylindrical
 
             bool allocate_arrays_;
             
-            std_msgs::Header header_;
+            std_msgs::msg::Header header_;
             ECMsgPtr msg_; // The idea is to store everything in the message's allocated storage to prevent copies
             
             ECMsgConstPtr const_msg_;
@@ -800,7 +803,7 @@ namespace egocylindrical
             ECWrapper(const ECParams& params, bool allocate_arrays = false):
                 allocate_arrays_(allocate_arrays)
             {
-                msg_ = boost::make_shared<ECMsg>();
+                msg_ = std::make_shared<ECMsg>();
                 
                 msg_locked_ = false;
                 
@@ -809,7 +812,7 @@ namespace egocylindrical
             
             ECWrapper(const ECMsgConstPtr& ec_points) 
             {
-                ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper(ec_points)");
+                // ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper(ec_points)");
                 fromCameraInfo(ec_points);
                 const_msg_ = ec_points;
                 header_ = const_msg_->header;
@@ -823,7 +826,7 @@ namespace egocylindrical
             
             ECWrapper copy() const
             {
-                ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper(copy)");
+                // ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper(copy)");
                 ECWrapper lh(getParams(), allocate_arrays_);
                 // std::copy(getPoints(), getPoints()+3*getNumPts(), lh.getPoints());
                 // lh.setHeader(getHeader());
@@ -835,7 +838,7 @@ namespace egocylindrical
             {
                 if(&rhs != this) 
                 {
-                    ROS_ASSERT_MSG(!isLocked(), "Error! Cannot use assignment operator on a 'locked' ECWrapper instance!");
+                    // ROS_ASSERT_MSG(!isLocked(), "Error! Cannot use assignment operator on a 'locked' ECWrapper instance!");
 
                     allocate_arrays_ = rhs.allocate_arrays_;
                     init(rhs);
@@ -850,13 +853,13 @@ namespace egocylindrical
             ECWrapper(const ECWrapper& rhs):
                 ECWrapper(rhs.getParams(), rhs.allocate_arrays_)
             {
-                ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper copy constructor");
+                // ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper copy constructor");
                 copyContents(*this, rhs);
             }
 
             static void copyContents(ECWrapper& lhs, const ECWrapper& rhs)
             {
-                ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper copyContents");
+                // ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper copyContents");
                 std::copy(rhs.getPoints(), rhs.getPoints()+3*rhs.getNumPts(), lhs.getPoints());
                 std::copy(rhs.getNormals(), rhs.getNormals() + 3*rhs.getNumPts(), lhs.getNormals());
                 std::copy(rhs.getLabels(), rhs.getLabels()+rhs.getNumPts(), lhs.getLabels());
@@ -907,14 +910,14 @@ namespace egocylindrical
             inline bool isLocked()              const   { return msg_locked_; }
 
             inline
-            void setHeader(std_msgs::Header header)
+            void setHeader(std_msgs::msg::Header header)
             {
                 header_ = header;
                 msg_->header = header;
             }
             
             inline
-            std_msgs::Header getHeader() const
+            std_msgs::msg::Header getHeader() const
             {
                 return header_; 
             }
@@ -934,16 +937,16 @@ namespace egocylindrical
                   return (ECMsgConstPtr) msg_;
                 }
 
-                ROS_WARN("Getting PointsMsg from const but non-locked ECWrapper requires making a copy");
+                // ROS_WARN("Getting PointsMsg from const but non-locked ECWrapper requires making a copy");
 
-                ECMsgPtr msg = boost::make_shared<ECMsg>(*msg_);
+                ECMsgPtr msg = std::make_shared<ECMsg>(*msg_);
                 return (ECMsgConstPtr) msg;
             }
             
             inline
             ECMsgConstPtr getEgoCylinderInfoMsg() const
             {
-              ECMsgPtr info = boost::make_shared<ECMsg>();
+              ECMsgPtr info = std::make_shared<ECMsg>();
               fillMsgInfo(*info);
               info->header = (const_msg_) ? const_msg_->header : msg_->header;
               return (ECMsgConstPtr) info;
@@ -952,7 +955,7 @@ namespace egocylindrical
             inline
             void init()
             {
-                ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper init()");
+                // ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper init()");
 
                 // POINTS
 
@@ -971,7 +974,7 @@ namespace egocylindrical
                 
                 // ROS_DEBUG_STREAM("max_alignment: " << max_alignment << ", biggest_alignment: " << biggest_alignment << ", object_size: " << object_size << ", object_alignment: " << object_alignment << ", number buffer objects: " << buffer_objects);
                 
-                ROS_DEBUG_STREAM("Allocating space for " << getNumPts() << " points (and labels).");
+                // ROS_DEBUG_STREAM("Allocating space for " << getNumPts() << " points (and labels).");
                 msg_->points.data.resize(3*getNumPts() + buffer_objects, dNaN);
                 
                 //Align data pointer (points)
@@ -986,8 +989,8 @@ namespace egocylindrical
                   
                   msg_->points.layout.data_offset = (space_before - space_after);
                   
-                  ROS_DEBUG_STREAM_NAMED("labels", "Points space_after: " << space_after);
-                  ROS_DEBUG_STREAM("Aligned points_, adjusted pointer by " << (space_before - space_after) << " bytes");
+                  // ROS_DEBUG_STREAM_NAMED("labels", "Points space_after: " << space_after);
+                  // ROS_DEBUG_STREAM("Aligned points_, adjusted pointer by " << (space_before - space_after) << " bytes");
                 }
                 
                 // LABELS
@@ -1009,8 +1012,8 @@ namespace egocylindrical
                     
                     msg_->labels.layout.data_offset = (space_before - space_after);
 
-                    ROS_DEBUG_STREAM_NAMED("labels", "Labels space_after: " << space_after);
-                    ROS_DEBUG_STREAM_NAMED("labels", "Aligned labels_, adjusted pointer by " << (space_before - space_after) << " bytes");
+                    // ROS_DEBUG_STREAM_NAMED("labels", "Labels space_after: " << space_after);
+                    // ROS_DEBUG_STREAM_NAMED("labels", "Aligned labels_, adjusted pointer by " << (space_before - space_after) << " bytes");
                 }
 
                 // NORMALS                
@@ -1032,8 +1035,8 @@ namespace egocylindrical
                   
                   msg_->normals.layout.data_offset = (normals_space_before - normals_space_after);
                   
-                  ROS_DEBUG_STREAM_NAMED("labels", "Normals space_after: " << normals_space_after);
-                  ROS_DEBUG_STREAM("Aligned normals_, adjusted pointer by " << (normals_space_before - normals_space_after) << " bytes");
+                  // ROS_DEBUG_STREAM_NAMED("labels", "Normals space_after: " << normals_space_after);
+                  // ROS_DEBUG_STREAM("Aligned normals_, adjusted pointer by " << (normals_space_before - normals_space_after) << " bytes");
                 }
 
                 if(allocate_arrays_)
@@ -1053,16 +1056,16 @@ namespace egocylindrical
             inline
             bool init(const ECParams& params, bool clear=false)
             {
-                ROS_DEBUG_STREAM("Current parameters: [" << params_ << "]; New parameters: [" << params << "]");
-                if(msg_->points.data.size()==0)
+                // ROS_DEBUG_STREAM("Current parameters: [" << params_ << "]; New parameters: [" << params << "]");
+                if (msg_->points.data.size()==0)
                 {
-                  ROS_DEBUG_STREAM("No space for points!");
+                  // ROS_DEBUG_STREAM("No space for points!");
                 }
                 if(!msg_locked_)
                 {
                     if(params != (const ECParams)params_)
                     {
-                        ROS_DEBUG_STREAM("Params have changed, update!");
+                        // ROS_DEBUG_STREAM("Params have changed, update!");
                         fromParams(params);
                         if(clear)
                         {
@@ -1075,7 +1078,7 @@ namespace egocylindrical
                     }
                     else
                     {
-                      ROS_DEBUG_STREAM("Params have not changed!");
+                      // ROS_DEBUG_STREAM("Params have not changed!");
                       if(clear)
                       {
                         std::fill(msg_->points.data.begin(), msg_->points.data.end(), dNaN);
@@ -1083,9 +1086,9 @@ namespace egocylindrical
                         std::fill(msg_->labels.data.begin(), msg_->labels.data.end(), 0);
                       }
                     }
-                    if(msg_->points.data.size()==0)
+                    if (msg_->points.data.size()==0)
                     {
-                      ROS_WARN_STREAM("Still no space for points!");
+                      // ROS_WARN_STREAM("Still no space for points!");
                     }
                     return true;
                 }

@@ -15,6 +15,7 @@ set(dependencies
       geometry_msgs
       image_geometry
       image_transport
+      egocylindrical_msgs
       # nodelet
       pcl_ros
       rclcpp
@@ -54,29 +55,6 @@ if(0) #if on arm...
 else()
     set(PLATFORM_FLAGS "")
 endif()
-
-##############################
-## Declare custom messageas ##
-##############################
-
-rosidl_generate_interfaces(${PROJECT_NAME}
-   "msg/EgoCylinderPoints.msg"
-   DEPENDENCIES 
-        builtin_interfaces
-        std_msgs 
-)
-
-# Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   EgoCylinderPoints.msg
-# )
-
-# Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -139,8 +117,10 @@ include_directories(
 ## 
 add_library(range_image_core 
             src/range_image_core.cpp)
-ament_target_dependencies(range_image_core 
-                           ${${PROJECT_NAME}_EXPORTED_TARGETS})
+ament_target_dependencies(range_image_core 	
+                           ${dependencies}
+                           ${${PROJECT_NAME}_EXPORTED_TARGETS}
+)
 target_compile_options(range_image_core PRIVATE -ftree-vectorize -fopt-info-loop-optimized=vec_range_image_core.txt -funsafe-math-optimizations -fno-math-errno -ffinite-math-only #-ffinite-math-only and -fno-trapping-math.
    )
 target_link_libraries(range_image_core
@@ -153,28 +133,32 @@ target_link_libraries(range_image_core
 ## Install ##
 #############
 
+
 install(
-  TARGETS 
-      DESTINATION lib/${PROJECT_NAME}
+  TARGETS range_image_core
+  EXPORT export_${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include/${PROJECT_NAME}
 )
 
-# Install message and service files
-install(DIRECTORY msg/
-  DESTINATION share/${PROJECT_NAME}
-)
-install(DIRECTORY srv/
-  DESTINATION share/${PROJECT_NAME}
-)
 
-install(DIRECTORY include/ 
-  DESTINATION include/${PROJECT_NAME}
-)
+# install(
+#   TARGETS 
+#       DESTINATION lib/${PROJECT_NAME}
+# )
 
-install(DIRECTORY cfg launch
-  DESTINATION share/${PROJECT_NAME}/
-)
 
-ament_export_dependencies(${dependencies})  
-ament_export_include_directories("include/${PROJECT_NAME}")
+# install(DIRECTORY include/ 
+#   DESTINATION include/${PROJECT_NAME}
+# )
+
+# install(DIRECTORY cfg launch
+#   DESTINATION share/${PROJECT_NAME}/
+# )
+
+# ament_export_dependencies(${dependencies})  
+# ament_export_include_directories("include/${PROJECT_NAME}")
 # ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_package()
