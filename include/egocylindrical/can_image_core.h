@@ -3,7 +3,7 @@
 
 #include <egocylindrical/ecwrapper.h>
 
-#include <sensor_msgs/Image.h>
+#include <sensor_msgs/msg/image.hpp>
 
 
 namespace egocylindrical
@@ -11,9 +11,9 @@ namespace egocylindrical
     
     namespace utils
     {
-        sensor_msgs::ImagePtr getRawCanImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr preallocated_msg=nullptr);
+        sensor_msgs::msg::Image::SharedPtr getRawCanImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::msg::Image::SharedPtr preallocated_msg=nullptr);
 
-        sensor_msgs::ImagePtr getCanImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr preallocated_msg=nullptr);
+        sensor_msgs::msg::Image::SharedPtr getCanImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::msg::Image::SharedPtr preallocated_msg=nullptr);
         
     }
 }

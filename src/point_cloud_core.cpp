@@ -16,14 +16,14 @@ namespace egocylindrical
     namespace utils
     {
         /* TODO: ensure that the right size 'ints' are used everywhere. On my current system, the size of int = minimum size of long int, so 32 bit system might fail */
-        sensor_msgs::PointCloud2::Ptr generate_point_cloud(const utils::ECWrapper& points)
+        sensor_msgs::msg::PointCloud2::Ptr generate_point_cloud(const utils::ECWrapper& points)
         {
             const int num_cols = points.getNumPts();
             
             pcl::PointCloud<pcl::PointXYZ> pcloud;
             
             
-            sensor_msgs::PointCloud2::Ptr pcloud_msg = boost::make_shared<sensor_msgs::PointCloud2>();
+            sensor_msgs::msg::PointCloud2::Ptr pcloud_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
             
             pcl::toROSMsg(pcloud, *pcloud_msg);
             

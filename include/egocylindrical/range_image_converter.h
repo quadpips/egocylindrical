@@ -34,9 +34,9 @@ namespace egocylindrical
         
         bool use_egocan_;
         
-        typedef message_filters::TimeSynchronizer<sensor_msgs::Image, egocylindrical::EgoCylinderPoints> synchronizer;
+        typedef message_filters::TimeSynchronizer<sensor_msgs::msg::Image, egocylindrical::EgoCylinderPoints> synchronizer;
         boost::shared_ptr<synchronizer> timeSynchronizer;
-        typedef message_filters::TimeSynchronizer<sensor_msgs::Image, egocylindrical::EgoCylinderPoints, sensor_msgs::Image> can_synchronizer;
+        typedef message_filters::TimeSynchronizer<sensor_msgs::msg::Image, egocylindrical::EgoCylinderPoints, sensor_msgs::msg::Image> can_synchronizer;
         boost::shared_ptr<can_synchronizer> timeSynchronizerWithCan;
         
         ros::Publisher ec_pub_;
@@ -55,7 +55,7 @@ namespace egocylindrical
 
     private:
         
-        void imageCB(const sensor_msgs::Image::ConstPtr& image, const egocylindrical::EgoCylinderPoints::ConstPtr& info, const sensor_msgs::Image::ConstPtr& can_image);
+        void imageCB(const sensor_msgs::msg::Image::ConstPtr& image, const egocylindrical::EgoCylinderPoints::ConstPtr& info, const sensor_msgs::msg::Image::ConstPtr& can_image);
 
     };
 

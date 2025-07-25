@@ -3,7 +3,9 @@
 
 #include <egocylindrical/ecwrapper.h>
 
-#include <ros/ros.h>
+// #include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
+
 #include <cv_bridge/cv_bridge.h>
 #include <omp.h>
 
@@ -30,7 +32,7 @@ namespace egocylindrical
         template <typename T,uint scale>
         void generateCanImage(const utils::ECWrapper& cylindrical_history, T* r, const T unknown_val, int num_threads)
         {            
-            ROS_DEBUG("Generating image of cylindrical memory");
+            // ROS_DEBUG("Generating image of cylindrical memory");
             
             const float* const y = cylindrical_history.getY();
 
@@ -59,15 +61,15 @@ namespace egocylindrical
         
         
         template <typename T, uint scale>
-        sensor_msgs::ImagePtr generateCanImageMsg(const utils::ECWrapper& cylindrical_history, const std::string& encoding, 
+        sensor_msgs::msg::Image::SharedPtr generateCanImageMsg(const utils::ECWrapper& cylindrical_history, const std::string& encoding, 
                                                   const T unknown_val, int num_threads, 
-                                                  sensor_msgs::ImagePtr& preallocated_msg)
+                                                  sensor_msgs::msg::Image::SharedPtr& preallocated_msg)
         {
             int width = cylindrical_history.getCanWidth();  
             
-            sensor_msgs::ImagePtr new_msg_ptr = (preallocated_msg) ? preallocated_msg : boost::make_shared<sensor_msgs::Image>();
+            sensor_msgs::msg::Image::SharedPtr new_msg_ptr = (preallocated_msg) ? preallocated_msg : std::make_shared<sensor_msgs::msg::Image>();
             
-            sensor_msgs::Image &new_msg = *new_msg_ptr;
+            sensor_msgs::msg::Image &new_msg = *new_msg_ptr;
             new_msg.header = cylindrical_history.getHeader();
             new_msg.height = 2*width;
             new_msg.width = width;
@@ -87,18 +89,18 @@ namespace egocylindrical
         
         
         template <typename T>
-        sensor_msgs::ImagePtr generateCanImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr& preallocated_msg);
+        sensor_msgs::msg::Image::SharedPtr generateCanImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::msg::Image::SharedPtr& preallocated_msg);
 
         
         template <> 
-        sensor_msgs::ImagePtr generateCanImageMsg<float>(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr& preallocated_msg)
+        sensor_msgs::msg::Image::SharedPtr generateCanImageMsg<float>(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::msg::Image::SharedPtr& preallocated_msg)
         {
           return generateCanImageMsg<float, 1>(cylindrical_history, sensor_msgs::image_encodings::TYPE_32FC1, 
                                                 dNaN, num_threads, preallocated_msg);
         }
         
         template <>
-        sensor_msgs::ImagePtr generateCanImageMsg<uint16_t>(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr& preallocated_msg)
+        sensor_msgs::msg::Image::SharedPtr generateCanImageMsg<uint16_t>(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::msg::Image::SharedPtr& preallocated_msg)
         {
           return generateCanImageMsg<uint16_t, 1000>(cylindrical_history, sensor_msgs::image_encodings::TYPE_16UC1, 
                                                       0, num_threads, preallocated_msg);

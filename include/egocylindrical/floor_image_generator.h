@@ -39,7 +39,7 @@ namespace egocylindrical
         //Mutex config_mutex_;
         int num_threads_;
         
-        sensor_msgs::Image::Ptr preallocated_can_msg_, preallocated_labels_msg_, preallocated_labels_colored_msg_, preallocated_normals_msg_, preallocated_normals_colored_msgs_;
+        sensor_msgs::msg::Image::SharedPtr preallocated_can_msg_, preallocated_labels_msg_, preallocated_labels_colored_msg_, preallocated_normals_msg_, preallocated_normals_colored_msgs_;
         
         typedef egocylindrical::FloorImageGeneratorConfig ConfigType;
         ConfigType config_;

@@ -57,7 +57,7 @@ namespace egocylindrical
         reconfigure_server_->setCallback(boost::bind(&DepthImageFilter::configCB, this, _1, _2));
       
         ros::SubscriberStatusCallback info_cb = boost::bind(&DepthImageFilter::ssCB, this);
-        im_pub_ = nh_.advertise<sensor_msgs::Image>("image_out", 2, info_cb, info_cb);
+        im_pub_ = nh_.advertise<sensor_msgs::msg::Image>("image_out", 2, info_cb, info_cb);
         
         im_sub_.registerCallback(boost::bind(&DepthImageFilter::imageCB, this, _1));
 
@@ -91,7 +91,7 @@ namespace egocylindrical
     }
 
     //NOTE: Once the parameters have been moved to their own message, this should subscribe to the parameters instead
-    void imageCB(const sensor_msgs::Image::ConstPtr& image_msg)
+    void imageCB(const sensor_msgs::msg::Image::ConstPtr& image_msg)
     {
         ROS_INFO("Received image msg");
         

@@ -56,14 +56,14 @@ namespace egocylindrical
             }
         }
         
-        sensor_msgs::ImagePtr generateFloorNormalColoredImageMsg(const utils::ECWrapper& cylindrical_history, const std::string& encoding, 
-                                                                const uint32_t unknown_val, int num_threads, sensor_msgs::ImagePtr& preallocated_msg)
+        sensor_msgs::msg::Image::SharedPtr generateFloorNormalColoredImageMsg(const utils::ECWrapper& cylindrical_history, const std::string& encoding, 
+                                                                const uint32_t unknown_val, int num_threads, sensor_msgs::msg::Image::SharedPtr& preallocated_msg)
         {
             int width = cylindrical_history.getCanWidth();  
             
-            sensor_msgs::ImagePtr new_msg_ptr = (preallocated_msg) ? preallocated_msg : boost::make_shared<sensor_msgs::Image>();
+            sensor_msgs::msg::Image::SharedPtr new_msg_ptr = (preallocated_msg) ? preallocated_msg : std::make_shared<sensor_msgs::msg::Image>();
             
-            sensor_msgs::Image &new_msg = *new_msg_ptr;
+            sensor_msgs::msg::Image &new_msg = *new_msg_ptr;
             new_msg.header = cylindrical_history.getHeader();
             new_msg.height = width; // 2*width;
             new_msg.width = width;
@@ -81,8 +81,8 @@ namespace egocylindrical
             return new_msg_ptr;
         }
         
-        sensor_msgs::ImagePtr generateFloorNormalColoredImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, 
-                                                                sensor_msgs::ImagePtr& preallocated_msg)
+        sensor_msgs::msg::Image::SharedPtr generateFloorNormalColoredImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, 
+                                                                sensor_msgs::msg::Image::SharedPtr& preallocated_msg)
         {
           return generateFloorNormalColoredImageMsg(cylindrical_history, sensor_msgs::image_encodings::RGBA8, 
                                                     0, num_threads, preallocated_msg);
@@ -116,14 +116,14 @@ namespace egocylindrical
         }
         
         template <typename T>
-        sensor_msgs::ImagePtr generateFloorNormalImageMsg(const utils::ECWrapper& cylindrical_history, const std::string& encoding, 
-                                                            const T unknown_val, int num_threads, sensor_msgs::ImagePtr& preallocated_msg)
+        sensor_msgs::msg::Image::SharedPtr generateFloorNormalImageMsg(const utils::ECWrapper& cylindrical_history, const std::string& encoding, 
+                                                            const T unknown_val, int num_threads, sensor_msgs::msg::Image::SharedPtr& preallocated_msg)
         {
             int width = cylindrical_history.getCanWidth();  
             
-            sensor_msgs::ImagePtr new_msg_ptr = (preallocated_msg) ? preallocated_msg : boost::make_shared<sensor_msgs::Image>();
+            sensor_msgs::msg::Image::SharedPtr new_msg_ptr = (preallocated_msg) ? preallocated_msg : std::make_shared<sensor_msgs::msg::Image>();
             
-            sensor_msgs::Image &new_msg = *new_msg_ptr;
+            sensor_msgs::msg::Image &new_msg = *new_msg_ptr;
             new_msg.header = cylindrical_history.getHeader();
             new_msg.height = width; // 2*width;
             new_msg.width = width;
@@ -143,10 +143,10 @@ namespace egocylindrical
         
         
         template <typename T>
-        sensor_msgs::ImagePtr generateFloorNormalImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr& preallocated_msg);
+        sensor_msgs::msg::Image::SharedPtr generateFloorNormalImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::msg::Image::SharedPtr& preallocated_msg);
 
         template <>
-        sensor_msgs::ImagePtr generateFloorNormalImageMsg<float>(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr& preallocated_msg)
+        sensor_msgs::msg::Image::SharedPtr generateFloorNormalImageMsg<float>(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::msg::Image::SharedPtr& preallocated_msg)
         {
           return generateFloorNormalImageMsg<float>(cylindrical_history, sensor_msgs::image_encodings::TYPE_32FC3, 
                                                       0, num_threads, preallocated_msg);
@@ -199,14 +199,14 @@ namespace egocylindrical
             }
         }
         
-        sensor_msgs::ImagePtr generateFloorLabelColoredImageMsg(const utils::ECWrapper& cylindrical_history, const std::string& encoding, 
-                                                                const uint32_t unknown_val, int num_threads, sensor_msgs::ImagePtr& preallocated_msg)
+        sensor_msgs::msg::Image::SharedPtr generateFloorLabelColoredImageMsg(const utils::ECWrapper& cylindrical_history, const std::string& encoding, 
+                                                                const uint32_t unknown_val, int num_threads, sensor_msgs::msg::Image::SharedPtr& preallocated_msg)
         {
             int width = cylindrical_history.getCanWidth();  
             
-            sensor_msgs::ImagePtr new_msg_ptr = (preallocated_msg) ? preallocated_msg : boost::make_shared<sensor_msgs::Image>();
+            sensor_msgs::msg::Image::SharedPtr new_msg_ptr = (preallocated_msg) ? preallocated_msg : std::make_shared<sensor_msgs::msg::Image>();
             
-            sensor_msgs::Image &new_msg = *new_msg_ptr;
+            sensor_msgs::msg::Image &new_msg = *new_msg_ptr;
             new_msg.header = cylindrical_history.getHeader();
             new_msg.height = width; // 2*width;
             new_msg.width = width;
@@ -224,8 +224,8 @@ namespace egocylindrical
             return new_msg_ptr;
         }
         
-        sensor_msgs::ImagePtr generateFloorLabelColoredImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, 
-                                                                sensor_msgs::ImagePtr& preallocated_msg)
+        sensor_msgs::msg::Image::SharedPtr generateFloorLabelColoredImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, 
+                                                                sensor_msgs::msg::Image::SharedPtr& preallocated_msg)
         {
           return generateFloorLabelColoredImageMsg(cylindrical_history, sensor_msgs::image_encodings::RGBA8, 
                                                     0, num_threads, preallocated_msg);
@@ -255,14 +255,14 @@ namespace egocylindrical
         }
         
         template <typename T>
-        sensor_msgs::ImagePtr generateFloorLabelImageMsg(const utils::ECWrapper& cylindrical_history, const std::string& encoding, 
-                                                            const T unknown_val, int num_threads, sensor_msgs::ImagePtr& preallocated_msg)
+        sensor_msgs::msg::Image::SharedPtr generateFloorLabelImageMsg(const utils::ECWrapper& cylindrical_history, const std::string& encoding, 
+                                                            const T unknown_val, int num_threads, sensor_msgs::msg::Image::SharedPtr& preallocated_msg)
         {
             int width = cylindrical_history.getCanWidth();  
             
-            sensor_msgs::ImagePtr new_msg_ptr = (preallocated_msg) ? preallocated_msg : boost::make_shared<sensor_msgs::Image>();
+            sensor_msgs::msg::Image::SharedPtr new_msg_ptr = (preallocated_msg) ? preallocated_msg : std::make_shared<sensor_msgs::msg::Image>();
             
-            sensor_msgs::Image &new_msg = *new_msg_ptr;
+            sensor_msgs::msg::Image &new_msg = *new_msg_ptr;
             new_msg.header = cylindrical_history.getHeader();
             new_msg.height = width; // 2*width;
             new_msg.width = width;
@@ -282,10 +282,10 @@ namespace egocylindrical
         
         
         template <typename T>
-        sensor_msgs::ImagePtr generateFloorLabelImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr& preallocated_msg);
+        sensor_msgs::msg::Image::SharedPtr generateFloorLabelImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::msg::Image::SharedPtr& preallocated_msg);
 
         template <>
-        sensor_msgs::ImagePtr generateFloorLabelImageMsg<uint8_t>(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr& preallocated_msg)
+        sensor_msgs::msg::Image::SharedPtr generateFloorLabelImageMsg<uint8_t>(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::msg::Image::SharedPtr& preallocated_msg)
         {
           return generateFloorLabelImageMsg<uint8_t>(cylindrical_history, sensor_msgs::image_encodings::TYPE_8UC1, 
                                                       0, num_threads, preallocated_msg);
@@ -330,14 +330,14 @@ namespace egocylindrical
         
         
         template <typename T, uint scale>
-        sensor_msgs::ImagePtr generateFloorImageMsg(const utils::ECWrapper& cylindrical_history, const std::string& encoding, 
-                                                  const T unknown_val, int num_threads, sensor_msgs::ImagePtr& preallocated_msg)
+        sensor_msgs::msg::Image::SharedPtr generateFloorImageMsg(const utils::ECWrapper& cylindrical_history, const std::string& encoding, 
+                                                  const T unknown_val, int num_threads, sensor_msgs::msg::Image::SharedPtr& preallocated_msg)
         {
             int width = cylindrical_history.getCanWidth();  
             
-            sensor_msgs::ImagePtr new_msg_ptr = (preallocated_msg) ? preallocated_msg : boost::make_shared<sensor_msgs::Image>();
+            sensor_msgs::msg::Image::SharedPtr new_msg_ptr = (preallocated_msg) ? preallocated_msg : std::make_shared<sensor_msgs::msg::Image>();
             
-            sensor_msgs::Image &new_msg = *new_msg_ptr;
+            sensor_msgs::msg::Image &new_msg = *new_msg_ptr;
             new_msg.header = cylindrical_history.getHeader();
             new_msg.height = width; // 2*width;
             new_msg.width = width;
@@ -357,18 +357,18 @@ namespace egocylindrical
         
         
         template <typename T>
-        sensor_msgs::ImagePtr generateFloorImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr& preallocated_msg);
+        sensor_msgs::msg::Image::SharedPtr generateFloorImageMsg(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::msg::Image::SharedPtr& preallocated_msg);
 
         
         template <> 
-        sensor_msgs::ImagePtr generateFloorImageMsg<float>(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr& preallocated_msg)
+        sensor_msgs::msg::Image::SharedPtr generateFloorImageMsg<float>(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::msg::Image::SharedPtr& preallocated_msg)
         {
           return generateFloorImageMsg<float, 1>(cylindrical_history, sensor_msgs::image_encodings::TYPE_32FC1, 
                                                 dNaN, num_threads, preallocated_msg);
         }
         
         template <>
-        sensor_msgs::ImagePtr generateFloorImageMsg<uint16_t>(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::ImagePtr& preallocated_msg)
+        sensor_msgs::msg::Image::SharedPtr generateFloorImageMsg<uint16_t>(const utils::ECWrapper& cylindrical_history, int num_threads, sensor_msgs::msg::Image::SharedPtr& preallocated_msg)
         {
           return generateFloorImageMsg<uint16_t, 1000>(cylindrical_history, sensor_msgs::image_encodings::TYPE_16UC1, 
                                                       0, num_threads, preallocated_msg);

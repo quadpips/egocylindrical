@@ -34,14 +34,14 @@ namespace egocylindrical
         
         if(use_egocan_)
         {
-          timeSynchronizerWithCan = boost::make_shared<can_synchronizer>(im_sub_, ec_sub_, can_im_sub_, 20);
+          timeSynchronizerWithCan = std::make_shared<can_synchronizer>(im_sub_, ec_sub_, can_im_sub_, 20);
           timeSynchronizerWithCan->registerCallback(boost::bind(&RangeImageConverter::imageCB, this, _1, _2, _3));
           
         }
         else
         {
           // Synchronize Image and CameraInfo callbacks
-          timeSynchronizer = boost::make_shared<synchronizer>(im_sub_, ec_sub_, 20);
+          timeSynchronizer = std::make_shared<synchronizer>(im_sub_, ec_sub_, 20);
           timeSynchronizer->registerCallback(boost::bind(&RangeImageConverter::imageCB, this, _1, _2, nullptr));
         }
         
@@ -89,7 +89,7 @@ namespace egocylindrical
         }
     }
 
-    void RangeImageConverter::imageCB(const sensor_msgs::Image::ConstPtr& image, const egocylindrical::EgoCylinderPoints::ConstPtr& info, const sensor_msgs::Image::ConstPtr& can_image)
+    void RangeImageConverter::imageCB(const sensor_msgs::msg::Image::ConstPtr& image, const egocylindrical::EgoCylinderPoints::ConstPtr& info, const sensor_msgs::msg::Image::ConstPtr& can_image)
     {
         ROS_DEBUG("Received range msg");
         

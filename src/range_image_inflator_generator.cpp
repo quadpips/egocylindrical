@@ -41,7 +41,7 @@ namespace egocylindrical
         reconfigure_server_->setCallback(boost::bind(&RangeImageInflatorGenerator::configCB, this, _1, _2));
         
         // Synchronize Image and CameraInfo callbacks
-        timeSynchronizer_ = boost::make_shared<synchronizer>(im_sub_, ec_sub_, 2);
+        timeSynchronizer_ = std::make_shared<synchronizer>(im_sub_, ec_sub_, 2);
         timeSynchronizer_->registerCallback(boost::bind(&RangeImageInflatorGenerator::imgCB, this, _1, _2));
         
         image_transport::SubscriberStatusCallback image_cb = boost::bind(&RangeImageInflatorGenerator::ssCB, this);
@@ -315,7 +315,7 @@ namespace egocylindrical
     }
     
     template<typename T>
-    void inflateRangeImage(const sensor_msgs::Image& range_msg, const utils::ECConverter& converter, float inflation_radius, float inflation_height, bool conservative, int num_threads, sensor_msgs::Image& new_msg, const T unknown_value)
+    void inflateRangeImage(const sensor_msgs::msg::Image& range_msg, const utils::ECConverter& converter, float inflation_radius, float inflation_height, bool conservative, int num_threads, sensor_msgs::msg::Image& new_msg, const T unknown_value)
     {
       T converted_inflation_radius;
       convertRange(inflation_radius, converted_inflation_radius);
@@ -334,11 +334,11 @@ namespace egocylindrical
     }
     
     
-    sensor_msgs::Image::ConstPtr getInflatedRangeImageMsg(const EgoCylinderPoints::ConstPtr& ec_msg, const sensor_msgs::Image::ConstPtr& range_msg, float inflation_radius, float inflation_height, bool conservative, int num_threads, sensor_msgs::ImagePtr preallocated_msg)
+    sensor_msgs::msg::Image::ConstPtr getInflatedRangeImageMsg(const EgoCylinderPoints::ConstPtr& ec_msg, const sensor_msgs::msg::Image::ConstPtr& range_msg, float inflation_radius, float inflation_height, bool conservative, int num_threads, sensor_msgs::msg::Image::SharedPtr preallocated_msg)
     {
-      sensor_msgs::ImagePtr new_msg_ptr = (preallocated_msg) ? preallocated_msg : boost::make_shared<sensor_msgs::Image>();
+      sensor_msgs::msg::Image::SharedPtr new_msg_ptr = (preallocated_msg) ? preallocated_msg : std::make_shared<sensor_msgs::msg::Image>();
       
-      sensor_msgs::Image &new_msg = *new_msg_ptr;
+      sensor_msgs::msg::Image &new_msg = *new_msg_ptr;
       new_msg.header = range_msg->header;
       new_msg.height = range_msg->height;
       new_msg.width = range_msg->width;
@@ -384,7 +384,7 @@ namespace egocylindrical
     }
 
     
-    void RangeImageInflatorGenerator::imgCB(const sensor_msgs::Image::ConstPtr& range_msg, const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg)
+    void RangeImageInflatorGenerator::imgCB(const sensor_msgs::msg::Image::ConstPtr& range_msg, const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg)
     {
         ROS_DEBUG("Received EgoCylinderPoints msg");
         
@@ -402,7 +402,7 @@ namespace egocylindrical
             Lock lock(config_mutex_);
             config = config_;
           }
-          sensor_msgs::Image::ConstPtr image_ptr = getInflatedRangeImageMsg(ec_msg, range_msg, config.inflation_radius, config.inflation_height/2, conservative, config.num_threads, preallocated_msg_);
+          sensor_msgs::msg::Image::ConstPtr image_ptr = getInflatedRangeImageMsg(ec_msg, range_msg, config.inflation_radius, config.inflation_height/2, conservative, config.num_threads, preallocated_msg_);
 
           ROS_DEBUG_STREAM_NAMED("timing","Inflating range image by {" << config.inflation_radius << "x" << config.inflation_height/2 << "} took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
           
@@ -412,7 +412,7 @@ namespace egocylindrical
           im_pub_.publish(image_ptr);
           
           start = ros::WallTime::now();
-          preallocated_msg_= boost::make_shared<sensor_msgs::Image>();
+          preallocated_msg_= std::make_shared<sensor_msgs::msg::Image>();
           preallocated_msg_->data.resize(image_ptr->data.size()); //We initialize the image to the same size as the most recently generated image
           ROS_DEBUG_STREAM_NAMED("timing","Preallocating image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
           

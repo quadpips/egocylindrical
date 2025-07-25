@@ -15,7 +15,7 @@ namespace egocylindrical
     class LaserScanMeasurement: public SensorMeasurement
     {
     public:
-      LaserScanMeasurement(SensorCharacteristics sc, const sensor_msgs::LaserScan::ConstPtr& scan, LaserScanInserter& lsi):
+      LaserScanMeasurement(SensorCharacteristics sc, const sensor_msgs::msg::LaserScan::ConstPtr& scan, LaserScanInserter& lsi):
         SensorMeasurement(sc, scan->header),
         scan_(scan),
         lsi_(lsi)
@@ -30,7 +30,7 @@ namespace egocylindrical
 
       
     protected:
-      const sensor_msgs::LaserScan::ConstPtr scan_;
+      const sensor_msgs::msg::LaserScan::ConstPtr scan_;
       utils::LaserScanInserter& lsi_;
     };
     
@@ -41,12 +41,12 @@ namespace egocylindrical
       
       LaserScanInserter lsi_;
       
-      message_filters::Subscriber<sensor_msgs::LaserScan> scan_sub_;
+      message_filters::Subscriber<sensor_msgs::msg::LaserScan> scan_sub_;
       
-      using TimeFilter_t = TimeFilter<sensor_msgs::LaserScan>;
+      using TimeFilter_t = TimeFilter<sensor_msgs::msg::LaserScan>;
       boost::shared_ptr<TimeFilter_t> time_filter_;
       
-      using TfFilter = tf2_ros::MessageFilter<sensor_msgs::LaserScan>;
+      using TfFilter = tf2_ros::MessageFilter<sensor_msgs::msg::LaserScan>;
       boost::shared_ptr<TfFilter> scan_tf_filter;
       
     public:
@@ -77,20 +77,20 @@ namespace egocylindrical
         scan_sub_.subscribe(pnh_, scan_topic, 3);
         
         //Filter out images with duplicate time stamps
-        time_filter_ = boost::make_shared<TimeFilter_t>(scan_sub_);
+        time_filter_ = std::make_shared<TimeFilter_t>(scan_sub_);
 
         // Ensure that the scan is transformable
-        scan_tf_filter = boost::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, pnh_);
+        scan_tf_filter = std::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, pnh_);
 
         scan_tf_filter->registerCallback(boost::bind(&LaserScanSensor::update, this, _1));
       }
       
     protected:
-      void update(const sensor_msgs::LaserScan::ConstPtr& scan)
+      void update(const sensor_msgs::msg::LaserScan::ConstPtr& scan)
       {
         if(cb_)
         {
-          auto m = boost::make_shared<LaserScanMeasurement>(sc_, scan, lsi_);
+          auto m = std::make_shared<LaserScanMeasurement>(sc_, scan, lsi_);
           cb_(m);
         }
         else

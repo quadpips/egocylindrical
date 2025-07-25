@@ -36,14 +36,14 @@ namespace egocylindrical
         /*
         if(use_egocan_)
         {
-          timeSynchronizerWithCan = boost::make_shared<can_synchronizer>(im_sub_, ec_sub_, can_im_sub_, 20);
+          timeSynchronizerWithCan = std::make_shared<can_synchronizer>(im_sub_, ec_sub_, can_im_sub_, 20);
           timeSynchronizerWithCan->registerCallback(boost::bind(&RangeImageDilator::imageCB, this, _1, _2, _3));
 
         }
         else
         {
           // Synchronize Image and CameraInfo callbacks
-          timeSynchronizer = boost::make_shared<synchronizer>(im_sub_, ec_sub_, 20);
+          timeSynchronizer = std::make_shared<synchronizer>(im_sub_, ec_sub_, 20);
           timeSynchronizer->registerCallback(boost::bind(&RangeImageDilator::imageCB, this, _1, _2, nullptr));
         }
         */
@@ -51,7 +51,7 @@ namespace egocylindrical
         ros::SubscriberStatusCallback info_cb = boost::bind(&RangeImageDilator::ssCB, this);
         {
             Lock lock(connect_mutex_);
-            im_pub_ = nh_.advertise<sensor_msgs::Image>("image_out", 2, info_cb, info_cb);
+            im_pub_ = nh_.advertise<sensor_msgs::msg::Image>("image_out", 2, info_cb, info_cb);
         }
 
         return true;
@@ -95,7 +95,7 @@ namespace egocylindrical
         }
     }
 
-    void RangeImageDilator::imageCB(const sensor_msgs::Image::ConstPtr& image, const egocylindrical::EgoCylinderPoints::ConstPtr& info, const sensor_msgs::Image::ConstPtr& can_image)
+    void RangeImageDilator::imageCB(const sensor_msgs::msg::Image::ConstPtr& image, const egocylindrical::EgoCylinderPoints::ConstPtr& info, const sensor_msgs::msg::Image::ConstPtr& can_image)
     {
         ROS_DEBUG("Received range msg");
 

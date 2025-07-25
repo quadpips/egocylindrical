@@ -89,12 +89,12 @@ namespace egocylindrical
     }
 
 
-    void DedicatedEgoCylindricalPropagator::addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info)
+    void DedicatedEgoCylindricalPropagator::addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstPtr& image, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info)
     {
         if(pc_pub_.getNumSubscribers()>0)
         {
           ReadLock lock(config_mutex_);
-          sensor_msgs::PointCloud2::Ptr pcloud_msg;
+          sensor_msgs::msg::PointCloud2::Ptr pcloud_msg;
           depth_remapper_.update(cylindrical_points, image, cam_info, pcloud_msg, config_.filter_y_min, config_.filter_y_max);
           pc_pub_.publish(pcloud_msg);
         }
@@ -105,7 +105,7 @@ namespace egocylindrical
     }
 
 
-    void DedicatedEgoCylindricalPropagator::update(const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info)
+    void DedicatedEgoCylindricalPropagator::update(const sensor_msgs::msg::Image::ConstPtr& image, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info)
     {
         if(old_pts_ && old_pts_->getHeader().stamp >= cam_info->header.stamp)
         {
@@ -149,7 +149,7 @@ namespace egocylindrical
             
             if(im_pub_.getNumSubscribers() > 0)
             {
-                sensor_msgs::Image::ConstPtr image_ptr = use_raw_ ? utils::getRawRangeImageMsg(*new_pts_, 1) : utils::getRangeImageMsg(*new_pts_, 1);
+                sensor_msgs::msg::Image::ConstPtr image_ptr = use_raw_ ? utils::getRawRangeImageMsg(*new_pts_, 1) : utils::getRangeImageMsg(*new_pts_, 1);
                 im_pub_.publish(image_ptr);
             }
           }
@@ -225,10 +225,10 @@ namespace egocylindrical
         
         // Setup publishers
         ros::SubscriberStatusCallback image_cb = boost::bind(&DedicatedEgoCylindricalPropagator::connectCB, this);        
-        im_pub_ = nh_.advertise<sensor_msgs::Image>(points_topic, 1, image_cb, image_cb);
+        im_pub_ = nh_.advertise<sensor_msgs::msg::Image>(points_topic, 1, image_cb, image_cb);
         
         //ros::SubscriberStatusCallback pc_cb = boost::bind(&DedicatedEgoCylindricalPropagator::connectCB, this);        
-        pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>(filtered_pc_topic, 3);
+        pc_pub_ = nh_.advertise<sensor_msgs::msg::PointCloud2>(filtered_pc_topic, 3);
         
         
         // Setup subscribers
@@ -236,10 +236,10 @@ namespace egocylindrical
         depthInfoSub.subscribe(nh_, info_topic, 3);
         
         // Ensure that CameraInfo is transformable
-        info_tf_filter = boost::make_shared<tf_filter>(depthInfoSub, buffer_, "odom", 2,nh_);
+        info_tf_filter = std::make_shared<tf_filter>(depthInfoSub, buffer_, "odom", 2,nh_);
         
         // Synchronize Image and CameraInfo callbacks
-        timeSynchronizer = boost::make_shared<synchronizer>(depthSub, *info_tf_filter, 2);
+        timeSynchronizer = std::make_shared<synchronizer>(depthSub, *info_tf_filter, 2);
         timeSynchronizer->registerCallback(boost::bind(&DedicatedEgoCylindricalPropagator::update, this, _1, _2));
         
         return true;

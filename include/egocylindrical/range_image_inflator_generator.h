@@ -42,7 +42,7 @@ namespace egocylindrical
         image_transport::SubscriberFilter im_sub_;
         message_filters::Subscriber<EgoCylinderPoints> ec_sub_;
         
-        typedef message_filters::TimeSynchronizer<sensor_msgs::Image, egocylindrical::EgoCylinderPoints> synchronizer;
+        typedef message_filters::TimeSynchronizer<sensor_msgs::msg::Image, egocylindrical::EgoCylinderPoints> synchronizer;
         boost::shared_ptr<synchronizer> timeSynchronizer_;
         
         
@@ -51,7 +51,7 @@ namespace egocylindrical
         Mutex config_mutex_, connect_mutex_;
         //int num_threads_;
         
-        sensor_msgs::Image::Ptr preallocated_msg_;
+        sensor_msgs::msg::Image::SharedPtr preallocated_msg_;
         
         typedef egocylindrical::RangeImageInflatorGeneratorConfig ConfigType;
         ConfigType config_;
@@ -72,7 +72,7 @@ namespace egocylindrical
 
     private:
         
-        void imgCB(const sensor_msgs::Image::ConstPtr& range_msg, const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg);
+        void imgCB(const sensor_msgs::msg::Image::ConstPtr& range_msg, const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg);
       
     };
 

@@ -802,7 +802,7 @@ namespace egocylindrical
 
         inline
         void insertPoints(utils::ECWrapper& cylindrical_points, 
-                            const sensor_msgs::Image::ConstPtr& image_msg, 
+                            const sensor_msgs::msg::Image::ConstPtr& image_msg, 
                             const CleanCameraModel& cam_model, 
                             const geometry_msgs::TransformStamped transform, 
                             DIDiffRequest& request)
@@ -823,8 +823,8 @@ namespace egocylindrical
 
         inline
         void insertPoints(utils::ECWrapper& cylindrical_points, 
-                            const sensor_msgs::Image::ConstPtr& image_msg, 
-                            const sensor_msgs::Image::ConstPtr& normals_msg,
+                            const sensor_msgs::msg::Image::ConstPtr& image_msg, 
+                            const sensor_msgs::msg::Image::ConstPtr& normals_msg,
                             const CleanCameraModel& cam_model, 
                             const geometry_msgs::TransformStamped transform, 
                             DIDiffRequest& request)
@@ -850,9 +850,9 @@ namespace egocylindrical
 
         inline
         void insertPoints(utils::ECWrapper& cylindrical_points, 
-                            const sensor_msgs::Image::ConstPtr& image_msg, 
-                            const sensor_msgs::Image::ConstPtr& normals_msg,
-                            const sensor_msgs::Image::ConstPtr& labels_msg, 
+                            const sensor_msgs::msg::Image::ConstPtr& image_msg, 
+                            const sensor_msgs::msg::Image::ConstPtr& normals_msg,
+                            const sensor_msgs::msg::Image::ConstPtr& labels_msg, 
                             const CleanCameraModel& cam_model, 
                             const geometry_msgs::TransformStamped transform, 
                             DIDiffRequest& request)
@@ -941,15 +941,15 @@ namespace egocylindrical
         bool DepthImageInserter::init(std::string fixed_frame_id)
         {
             fixed_frame_id_ = fixed_frame_id;
-            pub_diff_pc_ = pnh_.advertise<sensor_msgs::PointCloud2>("diff_points",2);
-            pub_diff_im_ = pnh_.advertise<sensor_msgs::Image>("diff_im", 2);
+            pub_diff_pc_ = pnh_.advertise<sensor_msgs::msg::PointCloud2>("diff_points",2);
+            pub_diff_im_ = pnh_.advertise<sensor_msgs::msg::Image>("diff_im", 2);
             debug_pub_.init(pnh_);
             return true;
         }
 
         bool DepthImageInserter::insert(ECWrapper& cylindrical_points, 
-                                        const sensor_msgs::Image::ConstPtr& image_msg, 
-                                        const sensor_msgs::CameraInfo::ConstPtr& cam_info)                                        
+                                        const sensor_msgs::msg::Image::ConstPtr& image_msg, 
+                                        const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info)                                        
         {
             const std_msgs::Header& target_header = cylindrical_points.getHeader();
             const std_msgs::Header& source_header = image_msg->header;
@@ -992,7 +992,7 @@ namespace egocylindrical
             // request.params.fill_im = true;
             // request.params.fill_debug = true;
 
-            // sensor_msgs::PointCloud2::Ptr pcloud_msg = boost::make_shared<sensor_msgs::PointCloud2>();
+            // sensor_msgs::msg::PointCloud2::Ptr pcloud_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
             insertPoints(cylindrical_points, image_msg, cam_model_, transform, request); // , 
             // auto pcloud_msg = request.results.point_cloud;
             // pcloud_msg->header = target_header; //image_msg->header;
@@ -1008,9 +1008,9 @@ namespace egocylindrical
         }
 
         bool DepthImageInserter::insert(ECWrapper& cylindrical_points, 
-                                        const sensor_msgs::Image::ConstPtr& image_msg, 
-                                        const sensor_msgs::CameraInfo::ConstPtr& cam_info,
-                                        const sensor_msgs::Image::ConstPtr& normals_msg)                                        
+                                        const sensor_msgs::msg::Image::ConstPtr& image_msg, 
+                                        const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info,
+                                        const sensor_msgs::msg::Image::ConstPtr& normals_msg)                                        
         {
             const std_msgs::Header& target_header = cylindrical_points.getHeader();
             const std_msgs::Header& source_header = image_msg->header;
@@ -1053,7 +1053,7 @@ namespace egocylindrical
             // request.params.fill_im = true;
             // request.params.fill_debug = true;
 
-            // sensor_msgs::PointCloud2::Ptr pcloud_msg = boost::make_shared<sensor_msgs::PointCloud2>();
+            // sensor_msgs::msg::PointCloud2::Ptr pcloud_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
             insertPoints(cylindrical_points, image_msg, normals_msg, cam_model_, transform, request); // , 
             // auto pcloud_msg = request.results.point_cloud;
             // pcloud_msg->header = target_header; //image_msg->header;
@@ -1069,10 +1069,10 @@ namespace egocylindrical
         }
 
         bool DepthImageInserter::insert(ECWrapper& cylindrical_points, 
-                                        const sensor_msgs::Image::ConstPtr& image_msg, 
-                                        const sensor_msgs::CameraInfo::ConstPtr& cam_info, 
-                                        const sensor_msgs::Image::ConstPtr& normals_msg,
-                                        const sensor_msgs::Image::ConstPtr& labels_msg)                                        
+                                        const sensor_msgs::msg::Image::ConstPtr& image_msg, 
+                                        const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info, 
+                                        const sensor_msgs::msg::Image::ConstPtr& normals_msg,
+                                        const sensor_msgs::msg::Image::ConstPtr& labels_msg)                                        
         {
             const std_msgs::Header& target_header = cylindrical_points.getHeader();
             const std_msgs::Header& source_header = image_msg->header;

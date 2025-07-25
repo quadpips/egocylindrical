@@ -65,12 +65,12 @@ private:
     
     image_transport::ImageTransport it_;
     image_transport::SubscriberFilter depthSub;
-    message_filters::Subscriber<sensor_msgs::CameraInfo> depthInfoSub;
+    message_filters::Subscriber<sensor_msgs::msg::CameraInfo> depthInfoSub;
     
-    typedef tf2_ros::MessageFilter<sensor_msgs::CameraInfo> tf_filter;
+    typedef tf2_ros::MessageFilter<sensor_msgs::msg::CameraInfo> tf_filter;
     boost::shared_ptr<tf_filter> info_tf_filter;
     
-    typedef message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::CameraInfo> synchronizer;
+    typedef message_filters::TimeSynchronizer<sensor_msgs::msg::Image, sensor_msgs::msg::CameraInfo> synchronizer;
     boost::shared_ptr<synchronizer> timeSynchronizer;
     
     ros::Publisher im_pub_, pc_pub_;
@@ -82,7 +82,7 @@ private:
     void propagateHistoryInplace(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::Header new_header);
     
     void propagateHistory(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::Header new_header);
-    void addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info);
+    void addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstPtr& image, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info);
     
     void connectCB();
     
@@ -94,9 +94,9 @@ public:
     DedicatedEgoCylindricalPropagator(ros::NodeHandle& nh, ros::NodeHandle& pnh);
     ~DedicatedEgoCylindricalPropagator();
     
-    void update(const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info);
-    sensor_msgs::PointCloud2  getPropagatedPointCloud();
-    sensor_msgs::Image::ConstPtr getRawRangeImage();
+    void update(const sensor_msgs::msg::Image::ConstPtr& image, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info);
+    sensor_msgs::msg::PointCloud2  getPropagatedPointCloud();
+    sensor_msgs::msg::Image::ConstPtr getRawRangeImage();
 
     bool init();
 

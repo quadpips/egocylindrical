@@ -70,13 +70,13 @@ namespace egocylindrical
             new_msg.width = cylindrical_history.getWidth();
             new_msg.encoding = encoding;
             new_msg.is_bigendian = false; //image->is_bigendian;
-            new_msg.step = cylindrical_history.getWidth() * sizeof(T); //sensor_msgs::msg::Image_encodings::bitDepth(encoding); // cylindrical_history.elemSize(); // Ideally, replace this with some other way of getting size
+            new_msg.step = cylindrical_history.getWidth() * sizeof(T); //sensor_msgs::image_encodings::bitDepth(encoding); // cylindrical_history.elemSize(); // Ideally, replace this with some other way of getting size
             size_t size = new_msg.step * cylindrical_history.getHeight();
             
             //ros::WallTime start = ros::WallTime::now();
             
             new_msg.data.resize(size);
-            //cv_bridge::CvImage(image->header, sensor_msgs::msg::Image_encodings::TYPE_32FC1, new_im_).toImageMsg();
+            //cv_bridge::CvImage(image->header, sensor_msgs::image_encodings::TYPE_32FC1, new_im_).toImageMsg();
             
             
            // ROS_INFO_STREAM_NAMED("timing","Allocating image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");

@@ -26,7 +26,7 @@ namespace egocylindrical
 namespace utils
 {
 
-sensor_msgs::Image::Ptr dilateImage(const sensor_msgs::Image::ConstPtr& image_in);
+sensor_msgs::msg::Image::SharedPtr dilateImage(const sensor_msgs::msg::Image::ConstPtr& image_in);
 }
 }
 

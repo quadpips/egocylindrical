@@ -13,7 +13,7 @@ namespace egocylindrical
           
             LaserScan2Points(){}
             
-            virtual void setScan(const sensor_msgs::LaserScan::ConstPtr& scan_msg)=0;
+            virtual void setScan(const sensor_msgs::msg::LaserScan::ConstPtr& scan_msg)=0;
             
             virtual cv::Point3f getPoint(int ind) const = 0;
             
@@ -27,7 +27,7 @@ namespace egocylindrical
         };
         
         
-        void getUnitVector(const sensor_msgs::LaserScan& scan_msg, int index, float& vx, float& vy)
+        void getUnitVector(const sensor_msgs::msg::LaserScan& scan_msg, int index, float& vx, float& vy)
         {
             getUnitVector(scan_msg.angle_min, scan_msg.angle_max, scan_msg.angle_increment, scan_msg.ranges.size(), index, vx, vy);
         }
@@ -37,7 +37,7 @@ namespace egocylindrical
         {
         public:
           
-            virtual void setScan(const sensor_msgs::LaserScan::ConstPtr& scan_msg)
+            virtual void setScan(const sensor_msgs::msg::LaserScan::ConstPtr& scan_msg)
             {
                 scan_msg_ = scan_msg;
             }
@@ -55,7 +55,7 @@ namespace egocylindrical
             }
           
         protected:            
-            sensor_msgs::LaserScan::ConstPtr scan_msg_;
+            sensor_msgs::msg::LaserScan::ConstPtr scan_msg_;
           
         };
         
@@ -85,7 +85,7 @@ namespace egocylindrical
         }
         
         
-        void insertPoints(ECWrapper& cylindrical_points, const sensor_msgs::LaserScan::ConstPtr &scan_msg, const geometry_msgs::TransformStamped& transform, bool clearing)
+        void insertPoints(ECWrapper& cylindrical_points, const sensor_msgs::msg::LaserScan::ConstPtr &scan_msg, const geometry_msgs::TransformStamped& transform, bool clearing)
         {
             BasicLaserScan2Points converter;
             converter.setScan(scan_msg);
@@ -174,7 +174,7 @@ namespace egocylindrical
         }
         
             
-        bool LaserScanInserter::insert(ECWrapper& cylindrical_points, const sensor_msgs::LaserScan::ConstPtr& scan_msg)
+        bool LaserScanInserter::insert(ECWrapper& cylindrical_points, const sensor_msgs::msg::LaserScan::ConstPtr& scan_msg)
         {
             const std_msgs::Header& target_header = cylindrical_points.getHeader();
             const std_msgs::Header& source_header = scan_msg->header;

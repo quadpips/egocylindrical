@@ -112,9 +112,7 @@ include_directories(
 ## Libraries ##
 ###############
 
-###
 # RANGE_IMAGE_CORE
-## 
 add_library(range_image_core 
             src/range_image_core.cpp)
 ament_target_dependencies(range_image_core 	
@@ -128,6 +126,19 @@ target_link_libraries(range_image_core
    ${OpenMP_CXX_FLAGS}
    )
 
+# CAN_IMAGE_CORE
+add_library(can_image_core 
+            src/can_image_core.cpp)
+ament_target_dependencies(can_image_core 
+                  ${dependencies}
+                  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+)
+target_compile_options(can_image_core PRIVATE -ftree-vectorize -fopt-info-loop-optimized=vec_can_image_core.txt -funsafe-math-optimizations -fno-math-errno -ffinite-math-only #-ffinite-math-only and -fno-trapping-math.
+   )
+target_link_libraries(can_image_core
+   ${OpenCV_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
 
 #############
 ## Install ##
@@ -135,7 +146,7 @@ target_link_libraries(range_image_core
 
 
 install(
-  TARGETS range_image_core
+  TARGETS range_image_core can_image_core
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib

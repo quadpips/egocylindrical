@@ -29,7 +29,7 @@ namespace egocylindrical
         ros::SubscriberStatusCallback info_cb = boost::bind(&EgoCylinderPointCloudGenerator::ssCB, this);
         {
             Lock lock(connect_mutex_);
-            pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>("cylindrical", 2, info_cb, info_cb);
+            pc_pub_ = nh_.advertise<sensor_msgs::msg::PointCloud2>("cylindrical", 2, info_cb, info_cb);
         }
         
         return true;
@@ -71,7 +71,7 @@ namespace egocylindrical
           
           utils::ECWrapper ec_pts(ec_msg);
           
-          sensor_msgs::PointCloud2::ConstPtr msg = utils::generate_point_cloud(ec_pts);
+          sensor_msgs::msg::PointCloud2::ConstPtr msg = utils::generate_point_cloud(ec_pts);
           
           ROS_DEBUG_STREAM("Generating point cloud took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
           

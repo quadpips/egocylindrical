@@ -60,7 +60,7 @@ cv::Mat dilateImage(const cv::Mat image_in)
 }
 
 
-sensor_msgs::Image::Ptr dilateImage(const sensor_msgs::Image::ConstPtr& image_msg_in)
+sensor_msgs::msg::Image::SharedPtr dilateImage(const sensor_msgs::msg::Image::ConstPtr& image_msg_in)
 {
 //     if(image_msg_in->encoding != sensor_msgs::image_encodings::TYPE_16UC1)
 //     {
@@ -117,7 +117,7 @@ sensor_msgs::Image::Ptr dilateImage(const sensor_msgs::Image::ConstPtr& image_ms
     cv_image_out.encoding = cv_image_in->encoding;
     cv_image_out.image = image_out;
 
-    sensor_msgs::Image::Ptr image_msg_out = cv_image_out.toImageMsg();
+    sensor_msgs::msg::Image::SharedPtr image_msg_out = cv_image_out.toImageMsg();
     return image_msg_out;
 }
 

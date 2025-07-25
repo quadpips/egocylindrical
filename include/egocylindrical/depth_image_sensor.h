@@ -22,8 +22,8 @@ namespace egocylindrical
     {
     public:
       DepthImageMeasurement(SensorCharacteristics sc, 
-                            const sensor_msgs::Image::ConstPtr& image, 
-                            const sensor_msgs::CameraInfo::ConstPtr& info, 
+                            const sensor_msgs::msg::Image::ConstPtr& image, 
+                            const sensor_msgs::msg::CameraInfo::ConstPtr& info, 
                             DepthImageInserter* dii):
         SensorMeasurement(sc, info->header),
         image_(image),
@@ -42,8 +42,8 @@ namespace egocylindrical
 
       
     protected:
-      const sensor_msgs::Image::ConstPtr image_;
-      const sensor_msgs::CameraInfo::ConstPtr info_;
+      const sensor_msgs::msg::Image::ConstPtr image_;
+      const sensor_msgs::msg::CameraInfo::ConstPtr info_;
       utils::DepthImageInserter* dii_;
     };
 
@@ -56,15 +56,15 @@ namespace egocylindrical
       
       image_transport::ImageTransport it_;
       image_transport::SubscriberFilter depth_sub_;
-      message_filters::Subscriber<sensor_msgs::CameraInfo> depth_info_sub_;
+      message_filters::Subscriber<sensor_msgs::msg::CameraInfo> depth_info_sub_;
 
-      using TimeFilter_t = TimeFilter<sensor_msgs::CameraInfo>;
+      using TimeFilter_t = TimeFilter<sensor_msgs::msg::CameraInfo>;
       boost::shared_ptr<TimeFilter_t> time_filter_;
       
-      using TfFilter = tf2_ros::MessageFilter<sensor_msgs::CameraInfo>;
+      using TfFilter = tf2_ros::MessageFilter<sensor_msgs::msg::CameraInfo>;
       boost::shared_ptr<TfFilter> info_tf_filter;
 
-      using MsgSynchronizer = message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::CameraInfo>;
+      using MsgSynchronizer = message_filters::TimeSynchronizer<sensor_msgs::msg::Image, sensor_msgs::msg::CameraInfo>;
       boost::shared_ptr<MsgSynchronizer> msg_sync_;
       
     public:
@@ -99,26 +99,26 @@ namespace egocylindrical
         depth_info_sub_.subscribe(pnh_, info_topic, 3);
 
         //Filter out images with duplicate time stamps
-        time_filter_ = boost::make_shared<TimeFilter_t>(depth_info_sub_);
+        time_filter_ = std::make_shared<TimeFilter_t>(depth_info_sub_);
         
         // Ensure that the message is transformable
-        info_tf_filter = boost::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, pnh_);
+        info_tf_filter = std::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, pnh_);
 
         // Synchronize Image and CameraInfo callbacks
-        msg_sync_ = boost::make_shared<MsgSynchronizer>(depth_sub_, *info_tf_filter, 2); //   
+        msg_sync_ = std::make_shared<MsgSynchronizer>(depth_sub_, *info_tf_filter, 2); //   
         msg_sync_->registerCallback(boost::bind(&DepthImageSensor::update, this, _1, _2)); //  
       }
       
     protected:
-      void update(const sensor_msgs::Image::ConstPtr& image, 
-                  const sensor_msgs::CameraInfo::ConstPtr& info) // , 
+      void update(const sensor_msgs::msg::Image::ConstPtr& image, 
+                  const sensor_msgs::msg::CameraInfo::ConstPtr& info) // , 
       {
         ROS_INFO_STREAM_NAMED("timing", "image timestamp: " << image->header.stamp);
         ROS_INFO_STREAM_NAMED("timing", "info timestamp: " << info->header.stamp);
 
         if(cb_)
         {
-          auto m = boost::make_shared<DepthImageMeasurement>(sc_, image, info, &dii_);  
+          auto m = std::make_shared<DepthImageMeasurement>(sc_, image, info, &dii_);  
           cb_(m);
         }
         else

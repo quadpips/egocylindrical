@@ -101,7 +101,7 @@ namespace egocylindrical
         {
           ros::WallTime start = ros::WallTime::now();
                 
-          sensor_msgs::Image::ConstPtr image_ptr = use_raw_ ? utils::getRawRangeImageMsg(ec_pts, num_threads_, preallocated_msg_) : utils::getRangeImageMsg(ec_pts, num_threads_, preallocated_msg_);
+          sensor_msgs::msg::Image::ConstPtr image_ptr = use_raw_ ? utils::getRawRangeImageMsg(ec_pts, num_threads_, preallocated_msg_) : utils::getRangeImageMsg(ec_pts, num_threads_, preallocated_msg_);
 
           ROS_DEBUG_STREAM_NAMED("timing","Generating egocylindrical range image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
 
@@ -111,7 +111,7 @@ namespace egocylindrical
           ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[range_image_generator] Sent [" << image_ptr->header.stamp << "] at [" << ros::WallTime::now() << "]");
           
           start = ros::WallTime::now();
-          preallocated_msg_= boost::make_shared<sensor_msgs::Image>();
+          preallocated_msg_= std::make_shared<sensor_msgs::msg::Image>();
           preallocated_msg_->data.resize(image_ptr->data.size()); //We initialize the image to the same size as the most recently generated image
           ROS_DEBUG_STREAM_NAMED("timing","Preallocating range image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
         }
@@ -120,7 +120,7 @@ namespace egocylindrical
         {
           ros::WallTime start = ros::WallTime::now();
           
-          sensor_msgs::Image::ConstPtr image_ptr = use_raw_ ? utils::getRawCanImageMsg(ec_pts, num_threads_, preallocated_msg_) : utils::getCanImageMsg(ec_pts, num_threads_, preallocated_msg_);
+          sensor_msgs::msg::Image::ConstPtr image_ptr = use_raw_ ? utils::getRawCanImageMsg(ec_pts, num_threads_, preallocated_msg_) : utils::getCanImageMsg(ec_pts, num_threads_, preallocated_msg_);
           
           ROS_DEBUG_STREAM_NAMED("timing","Generating can image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
           
@@ -129,7 +129,7 @@ namespace egocylindrical
           can_im_pub_.publish(image_ptr);
           
           start = ros::WallTime::now();
-          preallocated_can_msg_= boost::make_shared<sensor_msgs::Image>();
+          preallocated_can_msg_= std::make_shared<sensor_msgs::msg::Image>();
           preallocated_can_msg_->data.resize(image_ptr->data.size()); //We initialize the image to the same size as the most recently generated image
           ROS_DEBUG_STREAM_NAMED("timing","Preallocating can image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
         }

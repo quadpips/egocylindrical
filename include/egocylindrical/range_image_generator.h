@@ -39,7 +39,7 @@ namespace egocylindrical
         //Mutex config_mutex_;
         int num_threads_;
         
-        sensor_msgs::Image::Ptr preallocated_msg_, preallocated_can_msg_;
+        sensor_msgs::msg::Image::SharedPtr preallocated_msg_, preallocated_can_msg_;
         
         typedef egocylindrical::RangeImageGeneratorConfig ConfigType;
         ConfigType config_;
