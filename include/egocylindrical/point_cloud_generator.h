@@ -3,7 +3,7 @@
 //
 
 #include <egocylindrical/ecwrapper.h>
-#include <egocylindrical/EgoCylinderPoints.h>
+#include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <sensor_msgs/msg/point_cloud2.hpp>
@@ -40,7 +40,7 @@ private:
     
     void ssCB();
 
-    void ecPointsCB(const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg);
+    void ecPointsCB(const egocylindrical_msgs::msg::EgoCylinderPoints::ConstPtr& ec_msg);
 
 };
 

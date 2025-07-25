@@ -6,7 +6,7 @@
 #include <egocylindrical/range_to_points.h>
 
 // The below are redundant
-#include <egocylindrical/EgoCylinderPoints.h>
+#include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
 #include <image_transport/image_transport.h>
 #include <rclcpp/rclcpp.hpp>
 #include <egocylindrical/ecwrapper.h>
@@ -48,7 +48,7 @@ namespace egocylindrical
         ros::SubscriberStatusCallback info_cb = boost::bind(&RangeImageConverter::ssCB, this);
         {
             Lock lock(connect_mutex_);
-            ec_pub_ = nh_.advertise<egocylindrical::EgoCylinderPoints>("data_out", 2, info_cb, info_cb);
+            ec_pub_ = nh_.advertise<egocylindrical_msgs::msg::EgoCylinderPoints>("data_out", 2, info_cb, info_cb);
         }
         
         return true;
@@ -73,7 +73,7 @@ namespace egocylindrical
                   can_im_sub_.subscribe(it_, "can_image_in", 2);
                 ec_sub_.subscribe(nh_, "info_in", 2);
                 
-                ROS_INFO("RangeImage Converter Subscribing");
+                // ROS_INFO("RangeImage Converter Subscribing");
 
             }
       
@@ -84,12 +84,12 @@ namespace egocylindrical
             if(use_egocan_)
               can_im_sub_.unsubscribe();
             ec_sub_.unsubscribe();
-            ROS_INFO("RangeImage Converter Unsubscribing");
+            // ROS_INFO("RangeImage Converter Unsubscribing");
 
         }
     }
 
-    void RangeImageConverter::imageCB(const sensor_msgs::msg::Image::ConstPtr& image, const egocylindrical::EgoCylinderPoints::ConstPtr& info, const sensor_msgs::msg::Image::ConstPtr& can_image)
+    void RangeImageConverter::imageCB(const sensor_msgs::msg::Image::ConstPtr& image, const egocylindrical_msgs::msg::EgoCylinderPoints::ConstPtr& info, const sensor_msgs::msg::Image::ConstPtr& can_image)
     {
         // ROS_DEBUG("Received range msg");
         
@@ -97,7 +97,7 @@ namespace egocylindrical
         if(ec_pub_.getNumSubscribers() > 0)
         {
 
-          ros::WallTime start = ros::WallTime::now();
+          // ros::WallTime// start = ros::WallTime::now();
           
           utils::ECWrapperPtr ec_pts = utils::range_image_to_wrapper(info, image, can_image);
           

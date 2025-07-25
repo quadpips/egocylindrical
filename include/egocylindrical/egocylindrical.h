@@ -15,7 +15,7 @@
 #include <tf2_ros/transform_listener.h>
 
 
-#include <dynamic_reconfigure/server.h>
+// #include <dynamic_reconfigure/server.h>
 #include <egocylindrical/PropagatorConfig.h>
 
 #include <boost/thread/shared_mutex.hpp>
@@ -76,7 +76,7 @@ private:
     bool should_reset_;
 
 
-    void propagateHistory(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::Header new_header);
+    void propagateHistory(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::msg::Header new_header);
     
     void connectCB();
     

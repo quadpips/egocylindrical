@@ -12,7 +12,7 @@
 #include <omp.h>
 //#include <pcl_conversions/pcl_conversions.h>
 //#include <sensor_msgs/msg/point_cloud2.hpp>
-#include <sensor_msgs/image_encodings.h>
+#include <sensor_msgs/image_encodings.hpp>
 
 
 namespace egocylindrical

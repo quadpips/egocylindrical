@@ -73,7 +73,7 @@ namespace egocylindrical
             new_msg.step = cylindrical_history.getWidth() * sizeof(T); //sensor_msgs::image_encodings::bitDepth(encoding); // cylindrical_history.elemSize(); // Ideally, replace this with some other way of getting size
             size_t size = new_msg.step * cylindrical_history.getHeight();
             
-            //ros::WallTime start = ros::WallTime::now();
+            //// ros::WallTime// start = ros::WallTime::now();
             
             new_msg.data.resize(size);
             //cv_bridge::CvImage(image->header, sensor_msgs::image_encodings::TYPE_32FC1, new_im_).toImageMsg();

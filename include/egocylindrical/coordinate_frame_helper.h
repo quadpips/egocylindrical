@@ -3,7 +3,7 @@
 
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_broadcaster.h>
-#include <ros/node_handle.h>
+// #include <ros/node_handle.h>
 #include <ros/console.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
@@ -32,7 +32,7 @@ namespace egocylindrical
             CoordinateFrameDefinition cfd_;
             std::string tf_prefix_;
             //ros::Time last_update_;
-            std_msgs::Header target_header_;
+            std_msgs::msg::Header target_header_;
             bool new_cfd_;
             ros::Subscriber pose_sub_;
             
@@ -75,13 +75,13 @@ namespace egocylindrical
                 }
                 else
                 {
-                    ROS_WARN_STREAM("Did not find all necessary coordinate frame parameters! Values are: origin_fixed_frame_id=" << cfd.origin_fixed_frame_id << ", orientation_fixed_frame_id=" << cfd.orientation_fixed_frame_id << ", fixed_frame_id=" << fixed_frame_id_ << ". Defaulting to locking egocan to camera frame.");
+                    // ROS_WARN_STREAM("Did not find all necessary coordinate frame parameters! Values are: origin_fixed_frame_id=" << cfd.origin_fixed_frame_id << ", orientation_fixed_frame_id=" << cfd.orientation_fixed_frame_id << ", fixed_frame_id=" << fixed_frame_id_ << ". Defaulting to locking egocan to camera frame.");
                 }
 
                 return status;
             }
             
-            bool updateTransforms(std_msgs::Header sensor_header)
+            bool updateTransforms(std_msgs::msg::Header sensor_header)
             {
                 Lock lock(cfd_mutex_);
 
@@ -137,7 +137,7 @@ namespace egocylindrical
                 return;
             }
             
-            std_msgs::Header getTargetHeader()
+            std_msgs::msg::Header getTargetHeader()
             {
                 return target_header_;
             }
@@ -172,14 +172,14 @@ namespace egocylindrical
               
 //                 if(cfd_.orientation_fixed_frame_id==cfd_.origin_fixed_frame_id)
 //                 {
-//                     ROS_WARN_STREAM("[updateECSTransform] Not publishing redundant transform! " << stamp);
+//                     // ROS_WARN_STREAM("[updateECSTransform] Not publishing redundant transform! " << stamp);
 //                     return true;
 //                 }
 
                 //If we've already computed it, don't do it again
                 if(stamp == ecs_.header.stamp && stamp != ros::Time())
                 {
-                    ROS_WARN_STREAM("[updateECSTransform] Not publishing redundant transform! " << stamp);
+                    // ROS_WARN_STREAM("[updateECSTransform] Not publishing redundant transform! " << stamp);
                     return true;
                 }
                                               
@@ -193,7 +193,7 @@ namespace egocylindrical
                 }
                 catch (tf2::TransformException &ex) 
                 {
-                    ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
+                    // ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
                     return false;
                 }
                 
@@ -212,7 +212,7 @@ namespace egocylindrical
 
                 if(stamp == ecc_.header.stamp && stamp != ros::Time())
                 {
-                    ROS_WARN_STREAM("[updateECCTransform] Not publishing redundant transform! " << stamp);
+                    // ROS_WARN_STREAM("[updateECCTransform] Not publishing redundant transform! " << stamp);
                     return true;
                 }
                 
@@ -248,7 +248,7 @@ namespace egocylindrical
                     }
                     catch (tf2::TransformException &ex) 
                     {
-                        ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
+                        // ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
                         return false;
                     }
                     
@@ -282,7 +282,7 @@ namespace egocylindrical
                 {                    
                     if(stamp == offset_transform_.header.stamp && stamp != ros::Time())
                     {
-                        ROS_WARN_STREAM("[updateOffsetTransform] Not publishing redundant transform! " << stamp);
+                        // ROS_WARN_STREAM("[updateOffsetTransform] Not publishing redundant transform! " << stamp);
                         return true;
                     }
                     offset_transform_.header.stamp = stamp;

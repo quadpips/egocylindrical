@@ -183,7 +183,7 @@ namespace egocylindrical
                 y_.resize(num_pixels_);
                 //z_.resize(num_pixels_);
                 
-                ROS_INFO("Camera parameters changed");
+                // ROS_INFO("Camera parameters changed");
                 
                 reinit=true;
             }
@@ -191,7 +191,7 @@ namespace egocylindrical
             ECParams new_params = cylindrical_points.getParams();
             if(!(ec_params_ == new_params))
             {
-                ROS_INFO("Egocylindrical parameters changed");
+                // ROS_INFO("Egocylindrical parameters changed");
                 
                 ec_params_ = new_params;
                 
@@ -201,7 +201,7 @@ namespace egocylindrical
             if(reinit)
             {
                 
-                ROS_INFO("Generating depth to cylindrical image mapping");
+                // ROS_INFO("Generating depth to cylindrical image mapping");
                 initializeDepthMapping(cylindrical_points, image_msg, cam_model_, inds_.data(), x_.data(), y_.data(), z_.data());
             }
         }
@@ -219,9 +219,9 @@ namespace egocylindrical
         {
             // ROS_DEBUG("Updating cylindrical points with depth image");
             
-            ros::WallTime start = ros::WallTime::now();
+            // ros::WallTime// start = ros::WallTime::now();
             updateMapping( cylindrical_points, image_msg, cam_info);
-            ros::WallTime mid = ros::WallTime::now();
+            // ros::WallTimemid = ros::WallTime::now();
             
             if(fill_cloud)
             {
@@ -229,7 +229,7 @@ namespace egocylindrical
             else
             {
                 utils::remapDepthImage<false>(cylindrical_points, image_msg, inds_.data(), x_.data(), y_.data(), z_.data(), num_pixels_, pcloud_msg, thresh_min, thresh_max);            }
-            ros::WallTime end = ros::WallTime::now();
+            // ros::WallTimeend = ros::WallTime::now();
             
             // ROS_DEBUG_STREAM_NAMED("timing", "Updating camera model took " <<  (mid - start).toSec() * 1e3 << "ms");
             // ROS_DEBUG_STREAM_NAMED("timing", "Remapping depth image took " <<  (end - mid).toSec() * 1e3 << "ms");

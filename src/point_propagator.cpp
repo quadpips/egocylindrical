@@ -7,8 +7,6 @@ namespace egocylindrical
 
 namespace utils
 {
-
-
     PointPropagator::PointPropagator(tf2_ros::Buffer& buffer):
       buffer_(buffer)
       {}
@@ -20,11 +18,11 @@ namespace utils
       return true;
     }
     
-    void PointPropagator::transform(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, const std_msgs::Header& new_header, int num_threads)
+    void PointPropagator::transform(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, const std_msgs::msg::Header& new_header, int num_threads)
     {
-      ros::WallTime start = ros::WallTime::now();
+      // ros::WallTime // start = ros::WallTime::now();
       
-      std_msgs::Header old_header = old_pnts.getHeader();
+      std_msgs::msg::Header old_header = old_pnts.getHeader();
       
       new_pnts.setHeader(new_header);
       
@@ -36,12 +34,12 @@ namespace utils
       // ROS_DEBUG_STREAM_NAMED("timing", "Finding transform took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
               
       
-      start = ros::WallTime::now();
+      // start = ros::WallTime::now();
       // NOTE: If there is a benefit to transforming points in place when possible, add that logic here
       utils::transformPoints(old_pnts, *transformed_pts_, new_pnts, trans, num_threads);
       // ROS_DEBUG_STREAM_NAMED("timing", "Transforming points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
       
-      start = ros::WallTime::now();
+      // start = ros::WallTime::now();
       utils::addPoints(new_pnts, *transformed_pts_, false);
       // ROS_DEBUG_STREAM_NAMED("timing", "Inserting transformed points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
     }

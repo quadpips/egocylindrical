@@ -104,27 +104,27 @@ namespace egocylindrical
         {
             auto getDilatedPoints = [&request](const utils::ECWrapper& cyl_points)    //  utils::ECWrapperPtr
             {
-                ros::WallTime range_start = ros::WallTime::now();
+                // ros::WallTimerange_// start = ros::WallTime::now();
                 sensor_msgs::msg::Image::SharedPtr range_image_ptr = utils::getRawRangeImageMsg(cyl_points, 1);
                 request.results.debug.range_image = range_image_ptr;
 
-                ros::WallTime pc_start = ros::WallTime::now();
+                // ros::WallTimepc_// start = ros::WallTime::now();
                 sensor_msgs::msg::PointCloud2::SharedPtr point_cloud_ptr = utils::generate_point_cloud(cyl_points);
                 request.results.debug.point_cloud = point_cloud_ptr;
 
-                ros::WallTime dilate_start = ros::WallTime::now();
+                // ros::WallTimedilate_// start = ros::WallTime::now();
                 sensor_msgs::msg::Image::SharedPtr dilated_image_ptr = dilateImage(range_image_ptr);
                 request.results.debug.dilated_range_image = dilated_image_ptr;
 
-                ros::WallTime wrapper_start = ros::WallTime::now();
+                // ros::WallTimewrapper_// start = ros::WallTime::now();
                 ECMsgConstPtr info = cyl_points.getEgoCylinderInfoMsg();
                 utils::ECWrapperPtr ec_pts = utils::range_image_to_wrapper(info, dilated_image_ptr, nullptr);
 
-                ros::WallTime dilated_pc_start = ros::WallTime::now();
+                // ros::WallTimedilated_pc_// start = ros::WallTime::now();
                 sensor_msgs::msg::PointCloud2::SharedPtr dilated_point_cloud_ptr = utils::generate_point_cloud(*ec_pts);
                 request.results.debug.dilated_point_cloud = dilated_point_cloud_ptr;
 
-                ros::WallTime end_time = ros::WallTime::now();
+                // ros::WallTimeend_time = ros::WallTime::now();
 
                 if(request.params.fill_debug)
                 {
@@ -243,7 +243,7 @@ namespace egocylindrical
             ROS_INFO_STREAM("Num range image pixel filled: " << num_filled);
 
             int pc_counter = 0;
-            ros::WallTime reprojection_start = ros::WallTime::now();
+            // ros::WallTimereprojection_// start = ros::WallTime::now();
             for(int i = 0; i < image_height; ++i)
             {
                 for(int j = 0; j < image_width; ++j)

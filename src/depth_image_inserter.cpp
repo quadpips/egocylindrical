@@ -7,7 +7,7 @@
 
 #include <egocylindrical/depth_image_difference.h>
 
-#include <ros/node_handle.h>
+// #include <ros/node_handle.h>
 #include <tf2_ros/buffer.h>
 #include <image_geometry/pinhole_camera_model.h>
 #include <cv_bridge/cv_bridge.h>
@@ -951,8 +951,8 @@ namespace egocylindrical
                                         const sensor_msgs::msg::Image::ConstPtr& image_msg, 
                                         const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info)                                        
         {
-            const std_msgs::Header& target_header = cylindrical_points.getHeader();
-            const std_msgs::Header& source_header = image_msg->header;
+            const std_msgs::msg::Header& target_header = cylindrical_points.getHeader();
+            const std_msgs::msg::Header& source_header = image_msg->header;
 
             if(target_header == source_header)
             {
@@ -981,7 +981,7 @@ namespace egocylindrical
             }
             catch (tf2::TransformException &ex) 
             {
-                ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
+                // ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
                 return false;
             }
 
@@ -1012,8 +1012,8 @@ namespace egocylindrical
                                         const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info,
                                         const sensor_msgs::msg::Image::ConstPtr& normals_msg)                                        
         {
-            const std_msgs::Header& target_header = cylindrical_points.getHeader();
-            const std_msgs::Header& source_header = image_msg->header;
+            const std_msgs::msg::Header& target_header = cylindrical_points.getHeader();
+            const std_msgs::msg::Header& source_header = image_msg->header;
 
             if(target_header == source_header)
             {
@@ -1042,7 +1042,7 @@ namespace egocylindrical
             }
             catch (tf2::TransformException &ex) 
             {
-                ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
+                // ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
                 return false;
             }
 
@@ -1074,8 +1074,8 @@ namespace egocylindrical
                                         const sensor_msgs::msg::Image::ConstPtr& normals_msg,
                                         const sensor_msgs::msg::Image::ConstPtr& labels_msg)                                        
         {
-            const std_msgs::Header& target_header = cylindrical_points.getHeader();
-            const std_msgs::Header& source_header = image_msg->header;
+            const std_msgs::msg::Header& target_header = cylindrical_points.getHeader();
+            const std_msgs::msg::Header& source_header = image_msg->header;
 
             if(target_header == source_header)
             {
@@ -1105,7 +1105,7 @@ namespace egocylindrical
             }
             catch (tf2::TransformException &ex) 
             {
-                ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
+                // ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
                 return false;
             }
 

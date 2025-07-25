@@ -3,7 +3,7 @@
 
 #include <egocylindrical/ecwrapper.h>
 
-#include <ros/console.h>
+// #include <ros/console.h>
 #include <opencv2/core.hpp>
 
 namespace egocylindrical
@@ -132,7 +132,7 @@ namespace utils
                     }
                     else
                     {
-                        ROS_WARN_STREAM("Invalid index [" << idx << "] for point (" << world_pnt.x << "," << world_pnt.y << "," << world_pnt.z << ")");
+                        // ROS_WARN_STREAM("Invalid index [" << idx << "] for point (" << world_pnt.x << "," << world_pnt.y << "," << world_pnt.z << ")");
                     }
                   
                 }

@@ -41,7 +41,7 @@ namespace utils
       
       bool init(std::string fixed_frame_id);
       
-      void transform(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, const std_msgs::Header& new_header, int num_threads);
+      void transform(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, const std_msgs::msg::Header& new_header, int num_threads);
       
     protected:
       std::string fixed_frame_id_;

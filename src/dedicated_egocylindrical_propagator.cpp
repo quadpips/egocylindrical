@@ -35,11 +35,11 @@ namespace egocylindrical
     }
     
 
-    void DedicatedEgoCylindricalPropagator::propagateHistoryInplace(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::Header new_header)
+    void DedicatedEgoCylindricalPropagator::propagateHistoryInplace(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::msg::Header new_header)
     {
-      ros::WallTime start = ros::WallTime::now();
+      // ros::WallTime// start = ros::WallTime::now();
       
-      std_msgs::Header old_header = old_pnts.getHeader();
+      std_msgs::msg::Header old_header = old_pnts.getHeader();
       
       new_pnts.setHeader(new_header);
       
@@ -51,22 +51,22 @@ namespace egocylindrical
       // ROS_DEBUG_STREAM_NAMED("timing", "Finding transform took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
       
       
-      start = ros::WallTime::now();    
+      // start = ros::WallTime::now();    
       utils::transformPoints(old_pnts, new_pnts, trans, config_.num_threads);
       // ROS_DEBUG_STREAM_NAMED("timing", "Transforming points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
       
-      start = ros::WallTime::now();
+      // start = ros::WallTime::now();
       utils::addPoints(new_pnts, old_pnts, false);
       // ROS_DEBUG_STREAM_NAMED("timing", "Inserting transformed points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
       
     }
 
 
-    void DedicatedEgoCylindricalPropagator::propagateHistory(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::Header new_header)
+    void DedicatedEgoCylindricalPropagator::propagateHistory(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::msg::Header new_header)
     {
-        ros::WallTime start = ros::WallTime::now();
+        // ros::WallTime// start = ros::WallTime::now();
         
-        std_msgs::Header old_header = old_pnts.getHeader();
+        std_msgs::msg::Header old_header = old_pnts.getHeader();
         
         new_pnts.setHeader(new_header);
         
@@ -78,11 +78,11 @@ namespace egocylindrical
         // ROS_DEBUG_STREAM_NAMED("timing", "Finding transform took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
                 
         
-        start = ros::WallTime::now();    
+        // start = ros::WallTime::now();    
         utils::transformPoints(old_pnts, *transformed_pts_, new_pnts, trans, config_.num_threads);
         // ROS_DEBUG_STREAM_NAMED("timing", "Transforming points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
         
-        start = ros::WallTime::now();
+        // start = ros::WallTime::now();
         utils::addPoints(new_pnts, *transformed_pts_, false);
         // ROS_DEBUG_STREAM_NAMED("timing", "Inserting transformed points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
 
@@ -111,7 +111,7 @@ namespace egocylindrical
         {
           old_pts_ = nullptr;
         }
-        ros::WallTime start = ros::WallTime::now();
+        // ros::WallTime// start = ros::WallTime::now();
         
         //new_pts_ = utils::getECWrapper(cylinder_height_,cylinder_width_,vfov_);
         // NOTE: It may be better to only create the necessary wrappers once and just 'swap' the msg_ pointers
@@ -123,7 +123,7 @@ namespace egocylindrical
             {
                 if(old_pts_)
                 {
-                    ros::WallTime start = ros::WallTime::now();
+                    // ros::WallTime// start = ros::WallTime::now();
                     
                     DedicatedEgoCylindricalPropagator::propagateHistoryInplace(*old_pts_, *new_pts_, image->header);
                     //ROS_INFO_STREAM("Propagation took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
@@ -136,13 +136,13 @@ namespace egocylindrical
             }
             catch (tf2::TransformException &ex) 
             {
-                ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
+                // ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
                 return;
             }
             
             
             {
-                ros::WallTime temp = ros::WallTime::now();
+                // ros::WallTimetemp = ros::WallTime::now();
                 DedicatedEgoCylindricalPropagator::addDepthImage(*new_pts_, image, cam_info);
                 // ROS_DEBUG_STREAM("Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
             }
@@ -155,7 +155,7 @@ namespace egocylindrical
           }
           
           {
-            ros::WallTime start = ros::WallTime::now();
+            // ros::WallTime// start = ros::WallTime::now();
             
             //Lock mutex
             ReadLock lock(config_mutex_);

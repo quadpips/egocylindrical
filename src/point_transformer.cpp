@@ -154,7 +154,7 @@ namespace egocylindrical
             }
             else
             {
-                ROS_INFO("In place");
+                // ROS_INFO("In place");
                 transformed_points.useStorageFrom(points);
                 transform_impl(points, transformed_points, new_points, rotationArray, translationArray);
             }

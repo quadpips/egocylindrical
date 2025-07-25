@@ -2,7 +2,7 @@
 #define EGOCYLINDER_PARAMETER_GETTER_H
 
 #include <string>
-#include <ros/node_handle.h>
+// #include <ros/node_handle.h>
 #include <ros/console.h>
 
 namespace egocylindrical

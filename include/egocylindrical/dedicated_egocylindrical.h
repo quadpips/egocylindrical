@@ -27,7 +27,7 @@
 #include <message_filters/synchronizer.h>
 #include <message_filters/time_synchronizer.h>
 
-#include <dynamic_reconfigure/server.h>
+// #include <dynamic_reconfigure/server.h>
 #include <egocylindrical/PropagatorConfig.h>
 
 #include <boost/thread/shared_mutex.hpp>
@@ -79,9 +79,9 @@ private:
     typedef dynamic_reconfigure::Server<egocylindrical::PropagatorConfig> ReconfigureServer;
     std::shared_ptr<ReconfigureServer> reconfigure_server_;
 
-    void propagateHistoryInplace(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::Header new_header);
+    void propagateHistoryInplace(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::msg::Header new_header);
     
-    void propagateHistory(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::Header new_header);
+    void propagateHistory(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::msg::Header new_header);
     void addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstPtr& image, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info);
     
     void connectCB();

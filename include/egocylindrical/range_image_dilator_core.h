@@ -3,7 +3,7 @@
 
 
 //#include <egocylindrical/ecwrapper.h>
-// #include <egocylindrical/EgoCylinderPoints.h>
+// #include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
 // #include <image_transport/image_transport.h>
 // #include <image_transport/subscriber_filter.h>
 // #include <message_filters/subscriber.h>
@@ -11,7 +11,7 @@
 // #include <message_filters/synchronizer.h>
 // #include <message_filters/time_synchronizer.h>
 //
-// #include <dynamic_reconfigure/server.h>
+// // #include <dynamic_reconfigure/server.h>
 
 // #include <rclcpp/rclcpp.hpp>
 // #include <boost/thread/mutex.hpp>

@@ -3,7 +3,7 @@
 
 
 //#include <egocylindrical/ecwrapper.h>
-#include <egocylindrical/EgoCylinderPoints.h>
+#include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
 #include <image_transport/image_transport.h>
 #include <image_transport/subscriber_filter.h>
 #include <message_filters/subscriber.h>
@@ -11,7 +11,7 @@
 #include <message_filters/synchronizer.h>
 #include <message_filters/time_synchronizer.h>
 
-#include <dynamic_reconfigure/server.h>
+// #include <dynamic_reconfigure/server.h>
 
 #include <rclcpp/rclcpp.hpp>
 #include <boost/thread/mutex.hpp>
@@ -26,7 +26,8 @@ namespace egocylindrical
         using Mutex = boost::mutex;
         using Lock = Mutex::scoped_lock;
 
-        ros::NodeHandle nh_, pnh_;
+        // ros::NodeHandle nh_, pnh_;
+        rclcpp::Node::SharedPtr node_;
         image_transport::ImageTransport it_;
 
         image_transport::SubscriberFilter im_sub_, can_im_sub_;
@@ -34,18 +35,19 @@ namespace egocylindrical
 
         bool use_egocan_;
 
-        typedef message_filters::TimeSynchronizer<sensor_msgs::msg::Image, egocylindrical::EgoCylinderPoints> synchronizer;
+        typedef message_filters::TimeSynchronizer<sensor_msgs::msg::Image, egocylindrical_msgs::msg::EgoCylinderPoints> synchronizer;
         boost::shared_ptr<synchronizer> timeSynchronizer;
-        typedef message_filters::TimeSynchronizer<sensor_msgs::msg::Image, egocylindrical::EgoCylinderPoints, sensor_msgs::msg::Image> can_synchronizer;
+        typedef message_filters::TimeSynchronizer<sensor_msgs::msg::Image, egocylindrical_msgs::msg::EgoCylinderPoints, sensor_msgs::msg::Image> can_synchronizer;
         boost::shared_ptr<can_synchronizer> timeSynchronizerWithCan;
 
-        ros::Publisher im_pub_;
+        // ros::Publisher im_pub_;
+        rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr im_pub_;
 
         Mutex connect_mutex_;
 
     public:
 
-        RangeImageDilator(ros::NodeHandle& nh, ros::NodeHandle& pnh);
+        RangeImageDilator(const rclcpp::Node::SharedPtr& node); // ros::NodeHandle& nh, ros::NodeHandle& pnh
 
         bool init();
 
@@ -55,7 +57,7 @@ namespace egocylindrical
 
     private:
 
-        void imageCB(const sensor_msgs::msg::Image::ConstPtr& image, const egocylindrical::EgoCylinderPoints::ConstPtr& info, const sensor_msgs::msg::Image::ConstPtr& can_image);
+        void imageCB(const sensor_msgs::msg::Image::ConstPtr& image, const egocylindrical_msgs::msg::EgoCylinderPoints::ConstPtr& info, const sensor_msgs::msg::Image::ConstPtr& can_image);
 
     };
 

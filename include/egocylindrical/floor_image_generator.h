@@ -3,12 +3,12 @@
 
 
 //#include <egocylindrical/ecwrapper.h>
-#include <egocylindrical/EgoCylinderPoints.h>
+#include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
 #include <egocylindrical/FloorImageGeneratorConfig.h>
 #include <image_transport/image_transport.h>
 #include <rclcpp/rclcpp.hpp>
 
-#include <dynamic_reconfigure/server.h>
+// #include <dynamic_reconfigure/server.h>
 
 //#include <boost/thread/shared_mutex.hpp>
 //#include <boost/thread/locks.hpp>
@@ -59,7 +59,7 @@ namespace egocylindrical
 
     private:
         
-        void ecPointsCB(const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg);
+        void ecPointsCB(const egocylindrical_msgs::msg::EgoCylinderPoints::ConstPtr& ec_msg);
 
     };
 

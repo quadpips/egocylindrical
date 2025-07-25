@@ -158,8 +158,8 @@ namespace egocylindrical
           return Pcyl_t;
         }
         
-        //typedef ::egocylindrical::EgoCylinderPoints_<Eigen::aligned_allocator<void, 32> > AlignedEgoCylinderPoints;
-        // typedef ::egocylindrical::EgoCylinderPoints_<boost::alignment::aligned_allocator<void, 32> > AlignedEgoCylinderPoints;
+        //typedef ::egocylindrical_msgs::msg::EgoCylinderPoints_<Eigen::aligned_allocator<void, 32> > AlignedEgoCylinderPoints;
+        // typedef ::egocylindrical_msgs::msg::EgoCylinderPoints_<boost::alignment::aligned_allocator<void, 32> > AlignedEgoCylinderPoints;
         
         // NOTE: I'm not sure that using this typedef renamed version was such a good idea after all...
         //typedef AlignedEgoCylinderPoints ECMsg;
@@ -1088,7 +1088,7 @@ namespace egocylindrical
                     }
                     if (msg_->points.data.size()==0)
                     {
-                      // ROS_WARN_STREAM("Still no space for points!");
+                      // // ROS_WARN_STREAM("Still no space for points!");
                     }
                     return true;
                 }

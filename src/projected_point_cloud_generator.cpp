@@ -4,7 +4,7 @@
 
 #include <egocylindrical/projected_point_cloud_generator.h>
 #include <egocylindrical/ecwrapper.h>
-#include <egocylindrical/EgoCylinderPoints.h>
+#include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <sensor_msgs/msg/point_cloud2.hpp>
@@ -47,7 +47,7 @@ namespace egocylindrical
             }
             else
             {
-              ROS_INFO("Projected PointCloud Generator Subscribing");
+              // ROS_INFO("Projected PointCloud Generator Subscribing");
               ec_sub_ = nh_.subscribe("egocylindrical_points", 2, &ProjectedPointCloudGenerator::ecPointsCB, this);
             }
       
@@ -55,18 +55,18 @@ namespace egocylindrical
         else
         {
             ec_sub_.shutdown();
-            ROS_INFO("Projected PointCloud Generator Unsubscribing");
+            // ROS_INFO("Projected PointCloud Generator Unsubscribing");
         }
     }
     
     
-    void ProjectedPointCloudGenerator::ecPointsCB(const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg)
+    void ProjectedPointCloudGenerator::ecPointsCB(const egocylindrical_msgs::msg::EgoCylinderPoints::ConstPtr& ec_msg)
     {
         // ROS_DEBUG("Received EgoCylinderPoints msg");
 
         if(pc_pub_.getNumSubscribers()>0)
         {
-          ros::WallTime start = ros::WallTime::now();
+          // ros::WallTime// start = ros::WallTime::now();
           
           utils::ECWrapper ec_pts(ec_msg);
           

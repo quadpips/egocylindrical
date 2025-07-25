@@ -4,7 +4,7 @@
 
 //These includes are likely redundant, but included for completeness
 #include <string>
-#include <ros/node_handle.h>
+// #include <ros/node_handle.h>
 #include <ros/console.h>
 
 namespace egocylindrical

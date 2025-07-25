@@ -1,7 +1,7 @@
 #include <egocylindrical/range_image_dilator_core.h>
 #include <egocylindrical/range_image_common.h>
 
-#include <sensor_msgs/image_encodings.h>
+#include <sensor_msgs/image_encodings.hpp>
 
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/imgproc.hpp>

@@ -197,6 +197,23 @@ target_link_libraries(point_transformer
    ${OpenMP_CXX_FLAGS}
    )
 
+add_library(point_propagator src/point_propagator.cpp)
+target_compile_definitions(point_propagator PRIVATE ${PLATFORM_FLAGS})
+target_link_libraries(point_propagator
+   point_transformer
+   ${catkin_LIBRARIES}
+   )
+
+add_library(depth_image_remapper src/depth_image_remapper.cpp)
+ament_target_dependencies(depth_image_remapper ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+target_compile_options(depth_image_remapper PRIVATE -ftree-vectorize  -fopt-info-vec-all=vec_depth_image_remapper.txt -funsafe-math-optimizations -fno-math-errno ${OpenMP_CXX_FLAGS}#-finite-math-only and -fno-trapping-math. -ffinite-math-only 
+   )
+target_compile_definitions(depth_image_remapper PRIVATE ${PLATFORM_FLAGS})
+target_link_libraries(depth_image_remapper
+   ${OpenCV_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
+
 #############
 ## Install ##
 #############
@@ -205,7 +222,12 @@ target_link_libraries(point_transformer
 install(
   TARGETS range_image_core can_image_core floor_image_core point_cloud_core 
             projected_point_cloud_core semantic_point_cloud_core normal_point_cloud_core
-            normal_point_cloud_floor_only_core point_transformer
+            normal_point_cloud_floor_only_core point_transformer point_propagator
+            depth_image_remapper
+            # range_image_dilator 
+            # range_image_converter
+            # depth_image_difference depth_image_inserter laser_scan_inserter
+            # sensors ecwrapper_buffer egocylindrical_propagator
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib

@@ -3,7 +3,7 @@
 
 #include <egocylindrical/ecwrapper.h>
 
-#include <ros/node_handle.h>
+// #include <ros/node_handle.h>
 #include <tf2_ros/buffer.h>
 
 #include <sensor_msgs/msg/laser_scan.hpp>
@@ -17,7 +17,7 @@ namespace egocylindrical
         class LaserScanInserter
         {
             tf2_ros::Buffer& buffer_;
-            ros::NodeHandle pnh_;
+            // ros::NodeHandle pnh_;
             std::string fixed_frame_id_;
           
         public:

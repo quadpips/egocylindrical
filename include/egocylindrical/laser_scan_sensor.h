@@ -23,7 +23,7 @@ namespace egocylindrical
       
       virtual void insert(ECWrapper& cylindrical_points)
       {
-        ros::WallTime temp = ros::WallTime::now();
+        // ros::WallTimetemp = ros::WallTime::now();
         lsi_.insert(cylindrical_points, scan_);
         ROS_INFO_STREAM_NAMED("timing","Adding laser scan took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
       }

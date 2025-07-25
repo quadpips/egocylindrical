@@ -55,15 +55,15 @@ namespace egocylindrical
         // ROS_DEBUG_STREAM_NAMED("msg_timestamps","Current stamp: " << new_stamp);
         // ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[egocylinder] Received [" << new_stamp << "] at [" << ros::WallTime::now() << "]");
 
-        ros::WallTime start = ros::WallTime::now();
+        // ros::WallTime// start = ros::WallTime::now();
         
         if(!cfh_.updateTransforms(measurement_header))
         {
-            ROS_WARN_STREAM("Failed to update transforms!");
+            // ROS_WARN_STREAM("Failed to update transforms!");
             return;
         }
 
-        std_msgs::Header target_header = cfh_.getTargetHeader();
+        std_msgs::msg::Header target_header = cfh_.getTargetHeader();
         
         {
             if(old_pts_)
@@ -77,7 +77,7 @@ namespace egocylindrical
                     }
                     catch (tf2::TransformException &ex)
                     {
-                        ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
+                        // ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
                         return; //TODO: After a configurable timeout, reset
                     }
                 }
@@ -99,13 +99,13 @@ namespace egocylindrical
 
         if(propagated_ec_pub_.getNumSubscribers())
         {
-            ros::WallTime t1 = ros::WallTime::now();
+            // ros::WallTimet1 = ros::WallTime::now();
             utils::ECWrapper ec_copy = *new_pts_;
-            ros::WallTime t2 = ros::WallTime::now();
+            // ros::WallTimet2 = ros::WallTime::now();
             utils::ECMsgConstPtr msg = ec_copy.getEgoCylinderPointsMsg();
-            ros::WallTime t3 = ros::WallTime::now();
+            // ros::WallTimet3 = ros::WallTime::now();
             propagated_ec_pub_.publish(msg);
-            ros::WallTime t4 = ros::WallTime::now();
+            // ros::WallTimet4 = ros::WallTime::now();
             // ROS_DEBUG_STREAM_NAMED("timing", "Time to copy propagated points: " <<  (t2 - t1).toSec() * 1e3 << "ms");
             // ROS_DEBUG_STREAM_NAMED("timing", "Time to get message: " <<  (t3 - t2).toSec() * 1e3 << "ms");
             // ROS_DEBUG_STREAM_NAMED("timing", "Time to publish: " <<  (t4 - t3).toSec() * 1e3 << "ms");
@@ -201,13 +201,13 @@ namespace egocylindrical
 
         // Setup publishers
         ros::SubscriberStatusCallback image_cb = boost::bind(&EgoCylindricalPropagator::connectCB, this);        
-        ec_pub_ = nh_.advertise<egocylindrical::EgoCylinderPoints>(points_topic, 1, image_cb, image_cb);
+        ec_pub_ = nh_.advertise<egocylindrical_msgs::msg::EgoCylinderPoints>(points_topic, 1, image_cb, image_cb);
         
         //ros::SubscriberStatusCallback pc_cb = boost::bind(&EgoCylindricalPropagator::connectCB, this);
         pc_pub_ = nh_.advertise<sensor_msgs::msg::PointCloud2>(filtered_pc_topic, 3);
-        info_pub_ = nh_.advertise<egocylindrical::EgoCylinderPoints>(egocylinder_info_topic, 1);
+        info_pub_ = nh_.advertise<egocylindrical_msgs::msg::EgoCylinderPoints>(egocylinder_info_topic, 1);
 
-        propagated_ec_pub_ = nh_.advertise<egocylindrical::EgoCylinderPoints>(propagated_points_topic, 3);
+        propagated_ec_pub_ = nh_.advertise<egocylindrical_msgs::msg::EgoCylinderPoints>(propagated_points_topic, 3);
 
         auto seq_cb = [this](utils::SensorMeasurement::Ptr measurement)
         {

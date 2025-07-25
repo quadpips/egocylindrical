@@ -31,11 +31,11 @@ namespace egocylindrical
         dii_(dii)
         {}
       
-      //virtual std_msgs::Header getHeader() const {return info_->header;}
+      //virtual std_msgs::msg::Header getHeader() const {return info_->header;}
       
       virtual void insert(ECWrapper& cylindrical_points)
       {
-        ros::WallTime temp = ros::WallTime::now();
+        // ros::WallTimetemp = ros::WallTime::now();
         dii_->insert(cylindrical_points, image_, info_); 
         ROS_INFO_STREAM_NAMED("timing","Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
       }

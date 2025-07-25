@@ -7,7 +7,7 @@
 // #include <egocylindrical/range_to_points.h>
 
 // The below are redundant
-#include <egocylindrical/EgoCylinderPoints.h>
+#include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
 #include <image_transport/image_transport.h>
 #include <rclcpp/rclcpp.hpp>
 #include <egocylindrical/ecwrapper.h>
@@ -16,21 +16,21 @@
 namespace egocylindrical
 {
 
-    RangeImageDilator::RangeImageDilator(ros::NodeHandle& nh, ros::NodeHandle& pnh) :
-        nh_(nh),
-        pnh_(pnh),
-        it_(nh_)
+    RangeImageDilator::RangeImageDilator(const rclcpp::Node::SharedPtr& node) // ros::NodeHandle& nh, ros::NodeHandle& pnh
+        : node_(node), // pnh_(pnh),
+        // nh_(nh),
+        // pnh_(pnh),
+        it_(node_)
     {
         std::cout<<"Egocylindrical Range Image Dilator Node Initialized"<<std::endl;
-
-
     }
 
     // TODO: Is there any real need for the 'info' topic?
     bool RangeImageDilator::init()
     {
         use_egocan_ = false;
-        pnh_.getParam("egocan_enabled", use_egocan_);
+        // pnh_.getParam("egocan_enabled", use_egocan_);
+        use_egocan_ = node_->get_parameter("egocan_enabled").as_bool();
         
         im_sub_.registerCallback(boost::bind(&RangeImageDilator::imageCB, this, _1, nullptr, nullptr));
         /*
@@ -90,19 +90,19 @@ namespace egocylindrical
                 can_im_sub_.unsubscribe();
             }
             ec_sub_.unsubscribe();
-            ROS_INFO("RangeImage Dilator Unsubscribing");
+            // ROS_INFO("RangeImage Dilator Unsubscribing");
 
         }
     }
 
-    void RangeImageDilator::imageCB(const sensor_msgs::msg::Image::ConstPtr& image, const egocylindrical::EgoCylinderPoints::ConstPtr& info, const sensor_msgs::msg::Image::ConstPtr& can_image)
+    void RangeImageDilator::imageCB(const sensor_msgs::msg::Image::ConstPtr& image, const egocylindrical_msgs::msg::EgoCylinderPoints::ConstPtr& info, const sensor_msgs::msg::Image::ConstPtr& can_image)
     {
         // ROS_DEBUG("Received range msg");
 
         // This may be redundant now
         if(im_pub_.getNumSubscribers() > 0)
         {
-            ros::WallTime start = ros::WallTime::now();
+            // ros::WallTime// start = ros::WallTime::now();
 
             auto dilated_img_ptr = utils::dilateImage(image);
 

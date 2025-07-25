@@ -3,7 +3,7 @@
 
 
 //#include <egocylindrical/ecwrapper.h>
-#include <egocylindrical/EgoCylinderPoints.h>
+#include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
 #include <egocylindrical/RangeImageInflatorGeneratorConfig.h>
 #include <image_transport/image_transport.h>
 #include <rclcpp/rclcpp.hpp>
@@ -14,7 +14,7 @@
 #include <message_filters/synchronizer.h>
 #include <message_filters/time_synchronizer.h>
 
-#include <dynamic_reconfigure/server.h>
+// #include <dynamic_reconfigure/server.h>
 
 // #include <boost/thread/shared_mutex.hpp>
 // #include <boost/thread/locks.hpp>
@@ -42,7 +42,7 @@ namespace egocylindrical
         image_transport::SubscriberFilter im_sub_;
         message_filters::Subscriber<EgoCylinderPoints> ec_sub_;
         
-        typedef message_filters::TimeSynchronizer<sensor_msgs::msg::Image, egocylindrical::EgoCylinderPoints> synchronizer;
+        typedef message_filters::TimeSynchronizer<sensor_msgs::msg::Image, egocylindrical_msgs::msg::EgoCylinderPoints> synchronizer;
         boost::shared_ptr<synchronizer> timeSynchronizer_;
         
         Mutex connect_mutex_, config_mutex_;
@@ -68,7 +68,7 @@ namespace egocylindrical
 
     private:
         
-        void imgCB(const sensor_msgs::msg::Image::ConstPtr& range_msg, const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg);
+        void imgCB(const sensor_msgs::msg::Image::ConstPtr& range_msg, const egocylindrical_msgs::msg::EgoCylinderPoints::ConstPtr& ec_msg);
       
     };
 

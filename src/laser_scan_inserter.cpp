@@ -120,7 +120,7 @@ namespace egocylindrical
                   if(use_egocan)
                   {
                     //Something went wrong
-                    ROS_WARN_STREAM("Invalid index [" << idx << "] for point (" << transformed_point.x << "," << transformed_point.y << "," << transformed_point.z << ")");
+                    // ROS_WARN_STREAM("Invalid index [" << idx << "] for point (" << transformed_point.x << "," << transformed_point.y << "," << transformed_point.z << ")");
                   }
                   else
                   {
@@ -176,8 +176,8 @@ namespace egocylindrical
             
         bool LaserScanInserter::insert(ECWrapper& cylindrical_points, const sensor_msgs::msg::LaserScan::ConstPtr& scan_msg)
         {
-            const std_msgs::Header& target_header = cylindrical_points.getHeader();
-            const std_msgs::Header& source_header = scan_msg->header;
+            const std_msgs::msg::Header& target_header = cylindrical_points.getHeader();
+            const std_msgs::msg::Header& source_header = scan_msg->header;
             
             //Get transform
             geometry_msgs::msg::TransformStamped transform;
@@ -187,7 +187,7 @@ namespace egocylindrical
             }
             catch (tf2::TransformException &ex) 
             {
-                ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
+                // ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
                 return false;
             }
             

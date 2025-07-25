@@ -7,7 +7,7 @@
 
 #include <cv_bridge/cv_bridge.h>
 
-#include <dynamic_reconfigure/server.h>
+// #include <dynamic_reconfigure/server.h>
 #include <egocylindrical/FilterConfig.h>
 
 #include <message_filters/synchronizer.h>
@@ -79,28 +79,28 @@ namespace egocylindrical
             else
             {
                 im_sub_.subscribe(it_, "image_in", 2);
-                ROS_INFO("Depth Image Filter Subscribing");
+                // ROS_INFO("Depth Image Filter Subscribing");
             }
       
         }
         else
         {
             im_sub_.unsubscribe();
-            ROS_INFO("RangeImage Converter Unsubscribing");
+            // ROS_INFO("RangeImage Converter Unsubscribing");
         }
     }
 
     //NOTE: Once the parameters have been moved to their own message, this should subscribe to the parameters instead
     void imageCB(const sensor_msgs::msg::Image::ConstPtr& image_msg)
     {
-        ROS_INFO("Received image msg");
+        // ROS_INFO("Received image msg");
         
         // This may be redundant now
         if(im_pub_.getNumSubscribers() > 0)
         {
           try
           {
-            ros::WallTime start = ros::WallTime::now();
+            // ros::WallTime// start = ros::WallTime::now();
             cv_bridge::CvImage::ConstPtr cv_in = cv_bridge::toCvCopy(image_msg);
             
             //cv_bridge::CvImage cv_out;

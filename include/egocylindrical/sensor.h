@@ -77,16 +77,16 @@ namespace egocylindrical
     class SensorMeasurement : public SensorCharacteristics
     {
     public:
-      SensorMeasurement(SensorCharacteristics sc, std_msgs::Header header): 
+      SensorMeasurement(SensorCharacteristics sc, std_msgs::msg::Header header): 
         SensorCharacteristics(sc),
         header(header) 
         {}
 
       virtual void insert(ECWrapper& cylindrical_points) = 0;
-      std_msgs::Header getHeader() const {return header;}
+      std_msgs::msg::Header getHeader() const {return header;}
       
     public:
-       std_msgs::Header header;
+       std_msgs::msg::Header header;
        
        using Ptr = boost::shared_ptr<SensorMeasurement>;
        using ConstPtr = boost::shared_ptr<const SensorMeasurement>;

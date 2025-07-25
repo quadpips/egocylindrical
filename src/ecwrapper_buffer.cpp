@@ -192,7 +192,7 @@ namespace egocylindrical
         
             while(!next_pts_buffer_.empty())
             {
-                ros::WallTime t1 = ros::WallTime::now();
+                // ros::WallTimet1 = ros::WallTime::now();
                 auto v = next_pts_buffer_.front();
                 next_pts_buffer_.pop();
 
@@ -215,7 +215,7 @@ namespace egocylindrical
                     // ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.makprepareNexteNewOld", "No old ECWrapper to reuse, create new one");
                 }
 
-                ros::WallTime t2 = ros::WallTime::now();
+                // ros::WallTimet2 = ros::WallTime::now();
                 // ROS_DEBUG_STREAM_NAMED("timing", "Allocating wrapper took " << (t2-t1).toSec()*1000 << "ms");
 
                 new_pts_buffer_.push(v);

@@ -7,11 +7,11 @@
 #include <algorithm>
 
 // The below are redundant
-#include <egocylindrical/EgoCylinderPoints.h>
+#include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
 #include <image_transport/image_transport.h>
 #include <rclcpp/rclcpp.hpp>
 #include <egocylindrical/ecwrapper.h>
-#include <sensor_msgs/image_encodings.h>
+#include <sensor_msgs/image_encodings.hpp>
 
 namespace egocylindrical
 {
@@ -72,7 +72,7 @@ namespace egocylindrical
                 im_sub_.subscribe(it_, "can_image", 2);
                 ec_sub_.subscribe(nh_, "egocylindrical_points", 2);
                 
-                ROS_INFO("RangeImage Inflator Subscribing");
+                // ROS_INFO("RangeImage Inflator Subscribing");
             }  
         }
         else
@@ -80,7 +80,7 @@ namespace egocylindrical
             im_sub_.unsubscribe();
             ec_sub_.unsubscribe();
             
-            ROS_INFO("RangeImage Inflator Unsubscribing");
+            // ROS_INFO("RangeImage Inflator Unsubscribing");
         }
     }
     
@@ -271,7 +271,7 @@ namespace egocylindrical
       
       size_t size = new_msg.step * new_msg.height;
       
-      //ros::WallTime start = ros::WallTime::now();
+      //// ros::WallTime// start = ros::WallTime::now();
       
       new_msg.data.resize(size);
       //cv_bridge::CvImage(image->header, sensor_msgs::image_encodings::TYPE_32FC1, new_im_).toImageMsg();
@@ -307,7 +307,7 @@ namespace egocylindrical
     }
 
     
-    void CanImageInflatorGenerator::imgCB(const sensor_msgs::msg::Image::ConstPtr& range_msg, const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg)
+    void CanImageInflatorGenerator::imgCB(const sensor_msgs::msg::Image::ConstPtr& range_msg, const egocylindrical_msgs::msg::EgoCylinderPoints::ConstPtr& ec_msg)
     {
         // ROS_DEBUG("Received EgoCylinderPoints msg");
         
@@ -315,7 +315,7 @@ namespace egocylindrical
         if(im_pub_.getNumSubscribers() > 0)
         {
 
-          ros::WallTime start = ros::WallTime::now();
+          // ros::WallTime// start = ros::WallTime::now();
           
           utils::ECWrapper ec_pts(ec_msg);
                 
@@ -333,7 +333,7 @@ namespace egocylindrical
           
           im_pub_.publish(image_ptr);
           
-          start = ros::WallTime::now();
+          // start = ros::WallTime::now();
           preallocated_msg_= std::make_shared<sensor_msgs::msg::Image>();
           preallocated_msg_->data.resize(image_ptr->data.size()); //We initialize the image to the same size as the most recently generated image
           // ROS_DEBUG_STREAM_NAMED("timing","Preallocating image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
