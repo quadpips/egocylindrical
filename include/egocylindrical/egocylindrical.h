@@ -10,7 +10,7 @@
 
 
 #include <rclcpp/rclcpp.hpp>
-#include <pcl_ros/point_cloud.hpp>
+#include <pcl_conversions/pcl_conversions.h>
 
 #include <tf2_ros/transform_listener.h>
 

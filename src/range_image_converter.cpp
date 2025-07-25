@@ -91,7 +91,7 @@ namespace egocylindrical
 
     void RangeImageConverter::imageCB(const sensor_msgs::msg::Image::ConstPtr& image, const egocylindrical::EgoCylinderPoints::ConstPtr& info, const sensor_msgs::msg::Image::ConstPtr& can_image)
     {
-        ROS_DEBUG("Received range msg");
+        // ROS_DEBUG("Received range msg");
         
         // This may be redundant now
         if(ec_pub_.getNumSubscribers() > 0)
@@ -105,10 +105,10 @@ namespace egocylindrical
           
                 
 
-          ROS_DEBUG_STREAM("Converting egocylindrical image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+          // ROS_DEBUG_STREAM("Converting egocylindrical image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
           
 
-          ROS_DEBUG("publish generated egocylindrical data");
+          // ROS_DEBUG("publish generated egocylindrical data");
           
           ec_pub_.publish(ec_msg);
         }

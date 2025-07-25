@@ -4,7 +4,7 @@
 #include <opencv2/core.hpp>
 
 #include <omp.h>
-#include <pcl_ros/point_cloud.hpp>
+#include <pcl_conversions/pcl_conversions.h>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
 
@@ -26,9 +26,9 @@ namespace egocylindrical
             
             pcl::toROSMsg(pcloud, *pcloud_msg);
             
-            // ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZ): " << sizeof(pcl::PointXYZ));
-            // ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZRGB): " << sizeof(pcl::PointXYZRGB));
-            // ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZI): " << sizeof(pcl::PointXYZI));
+            // // ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZ): " << sizeof(pcl::PointXYZ));
+            // // ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZRGB): " << sizeof(pcl::PointXYZRGB));
+            // // ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZI): " << sizeof(pcl::PointXYZI));
             pcloud_msg->data.resize(sizeof(pcl::PointXYZRGBA) * num_pts);
             
             pcloud_msg->width = num_pts;
@@ -53,23 +53,23 @@ namespace egocylindrical
 
                 if (labels[j] == 0) // VOID
                 {
-                    // ROS_DEBUG_STREAM_NAMED("labels", " label is void");
+                    // // ROS_DEBUG_STREAM_NAMED("labels", " label is void");
                     r = 0; g = 0; b = 0; a = 0;
                 } else if (labels[j] == 1) // NONPASS
                 {
-                    // ROS_DEBUG_STREAM_NAMED("labels", " label is non-passable");
+                    // // ROS_DEBUG_STREAM_NAMED("labels", " label is non-passable");
                     r = 255; g = 0; b = 0; a = 255;
                 }  else if (labels[j] == 2) // PASS
                 {
-                    // ROS_DEBUG_STREAM_NAMED("labels", " label is passable");
+                    // // ROS_DEBUG_STREAM_NAMED("labels", " label is passable");
                     r = 255; g = 255; b = 0; a = 255;
                 }  else if (labels[j] == 3) // STEP
                 {
-                    // ROS_DEBUG_STREAM_NAMED("labels", " label is steppable");
+                    // // ROS_DEBUG_STREAM_NAMED("labels", " label is steppable");
                     r = 0; g = 255; b = 0; a = 255;
                 } else
                 {
-                    ROS_DEBUG_STREAM_NAMED("labels", " label not recognized!");
+                    // ROS_DEBUG_STREAM_NAMED("labels", " label not recognized!");
                 }
 
                 std::uint32_t rgba = ((std::uint32_t)a << 24 | (std::uint32_t)r << 16 | (std::uint32_t)g << 8 | (std::uint32_t)b);
@@ -89,23 +89,23 @@ namespace egocylindrical
 
                 if (labels[j] == 0) // VOID
                 {
-                    // ROS_DEBUG_STREAM_NAMED("labels", " label is void");
+                    // // ROS_DEBUG_STREAM_NAMED("labels", " label is void");
                     r = 0; g = 0; b = 0; a = 0; 
                 } else if (labels[j] == 1) // NONPASS
                 {
-                    // ROS_DEBUG_STREAM_NAMED("labels", " label is non-passable");
+                    // // ROS_DEBUG_STREAM_NAMED("labels", " label is non-passable");
                     r = 255; g = 0; b = 0; a = 255;
                 }  else if (labels[j] == 2) // PASS
                 {
-                    // ROS_DEBUG_STREAM_NAMED("labels", " label is passable");
+                    // // ROS_DEBUG_STREAM_NAMED("labels", " label is passable");
                     r = 255; g = 255; b = 0; a = 255;
                 }  else if (labels[j] == 3) // STEP
                 {
-                    // ROS_DEBUG_STREAM_NAMED("labels", " label is steppable");
+                    // // ROS_DEBUG_STREAM_NAMED("labels", " label is steppable");
                     r = 0; g = 255; b = 0; a = 255;
                 } else
                 {
-                    ROS_DEBUG_STREAM_NAMED("labels", " label not recognized!");
+                    // ROS_DEBUG_STREAM_NAMED("labels", " label not recognized!");
                 }
 
 

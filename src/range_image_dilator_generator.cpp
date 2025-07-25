@@ -97,7 +97,7 @@ namespace egocylindrical
 
     void RangeImageDilator::imageCB(const sensor_msgs::msg::Image::ConstPtr& image, const egocylindrical::EgoCylinderPoints::ConstPtr& info, const sensor_msgs::msg::Image::ConstPtr& can_image)
     {
-        ROS_DEBUG("Received range msg");
+        // ROS_DEBUG("Received range msg");
 
         // This may be redundant now
         if(im_pub_.getNumSubscribers() > 0)
@@ -106,10 +106,10 @@ namespace egocylindrical
 
             auto dilated_img_ptr = utils::dilateImage(image);
 
-            ROS_DEBUG_STREAM("Dilating egocylindrical image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+            // ROS_DEBUG_STREAM("Dilating egocylindrical image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
 
 
-            ROS_DEBUG("publish egocylindrical image");
+            // ROS_DEBUG("publish egocylindrical image");
 
             im_pub_.publish(dilated_img_ptr);
         }

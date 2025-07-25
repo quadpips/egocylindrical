@@ -161,13 +161,51 @@ target_compile_options(point_cloud_core PRIVATE -ftree-vectorize -fopt-info-loop
    )
 target_link_libraries(point_cloud_core)
 
+# PROJECTED_POINT_CLOUD_CORE
+add_library(projected_point_cloud_core src/projected_point_cloud_core.cpp)
+ament_target_dependencies(projected_point_cloud_core ${dependencies} ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_compile_options(projected_point_cloud_core PRIVATE -ftree-vectorize -fno-trapping-math -fno-math-errno  -fopt-info-loop-optimized=vec_projected_point_cloud_core.txt ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
+   )
+target_link_libraries(projected_point_cloud_core)
+
+
+add_library(semantic_point_cloud_core src/semantic_point_cloud_core.cpp)
+ament_target_dependencies(semantic_point_cloud_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+target_compile_options(semantic_point_cloud_core PRIVATE -ftree-vectorize -fno-trapping-math -fno-math-errno  -fopt-info-loop-optimized=vec_projected_point_cloud_core.txt ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
+   )
+target_link_libraries(semantic_point_cloud_core)
+
+add_library(normal_point_cloud_core src/normal_point_cloud_core.cpp)
+ament_target_dependencies(normal_point_cloud_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+target_compile_options(normal_point_cloud_core PRIVATE -ftree-vectorize -fno-trapping-math -fno-math-errno  -fopt-info-loop-optimized=vec_projected_point_cloud_core.txt ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
+   )
+target_link_libraries(normal_point_cloud_core)
+
+add_library(normal_point_cloud_floor_only_core src/normal_point_cloud_floor_only_core.cpp)
+ament_target_dependencies(normal_point_cloud_floor_only_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+target_compile_options(normal_point_cloud_floor_only_core PRIVATE -ftree-vectorize -fno-trapping-math -fno-math-errno  -fopt-info-loop-optimized=vec_projected_point_cloud_core.txt ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
+   )
+target_link_libraries(normal_point_cloud_floor_only_core)
+
+add_library(point_transformer src/point_transformer.cpp)
+ament_target_dependencies(point_transformer ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+target_compile_options(point_transformer PRIVATE -ftree-vectorize -fopt-info-loop-optimized=vec_point_transformer.txt -funsafe-math-optimizations -fno-math-errno ${OpenMP_CXX_FLAGS} #-finite-math-only and -fno-trapping-math. -ffinite-math-only 
+   )
+target_compile_definitions(point_transformer PRIVATE ${PLATFORM_FLAGS})
+target_link_libraries(point_transformer
+   ${OpenCV_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
+
 #############
 ## Install ##
 #############
 
 
 install(
-  TARGETS range_image_core can_image_core floor_image_core point_cloud_core
+  TARGETS range_image_core can_image_core floor_image_core point_cloud_core 
+            projected_point_cloud_core semantic_point_cloud_core normal_point_cloud_core
+            normal_point_cloud_floor_only_core point_transformer
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib

@@ -26,7 +26,7 @@ namespace egocylindrical
         void insertPoints4(utils::ECWrapper& cylindrical_points, 
                             const cv::Mat & image, 
                             const CleanCameraModel& cam_model, 
-                            const geometry_msgs::TransformStamped transform)
+                            const geometry_msgs::msg::TransformStamped transform)
         {
             cv::Size image_size = cam_model.reducedResolution();
             const int image_width = image_size.width;
@@ -149,7 +149,7 @@ namespace egocylindrical
                             const cv::Mat & image, 
                             const cv::Mat & normals,
                             const CleanCameraModel& cam_model, 
-                            const geometry_msgs::TransformStamped transform)
+                            const geometry_msgs::msg::TransformStamped transform)
         {
             cv::Size image_size = cam_model.reducedResolution();
             const int image_width = image_size.width;
@@ -304,7 +304,7 @@ namespace egocylindrical
                                     const cv::Mat & normals,
                                     const cv::Mat & step_labels, 
                                     const CleanCameraModel& cam_model, 
-                                    const geometry_msgs::TransformStamped & transform)
+                                    const geometry_msgs::msg::TransformStamped & transform)
         {
             cv::Size image_size = cam_model.reducedResolution();
             const int image_width = image_size.width;
@@ -407,9 +407,9 @@ namespace egocylindrical
                        
                     // if (i == 100)
                     // {
-                    //     // ROS_DEBUG_STREAM_NAMED("labels", "label:" << label);
-                    //     ROS_DEBUG_STREAM_NAMED("labels", "nlabels[" << i << "]:" << std::hex << (uint16_t) nlabels[i]);                     
-                    //     // ROS_DEBUG_STREAM_NAMED("labels", "nlabels[" << i << "]:" << nlabels[i]);
+                    //     // // ROS_DEBUG_STREAM_NAMED("labels", "label:" << label);
+                    //     // ROS_DEBUG_STREAM_NAMED("labels", "nlabels[" << i << "]:" << std::hex << (uint16_t) nlabels[i]);                     
+                    //     // // ROS_DEBUG_STREAM_NAMED("labels", "nlabels[" << i << "]:" << nlabels[i]);
                     // }
 
                     int cyl_idx = cylindrical_points.worldToCylindricalIdx(transformed_pnt);
@@ -433,7 +433,7 @@ namespace egocylindrical
                             
                     if (i == 100)
                     {
-                        ROS_DEBUG_STREAM_NAMED("labels", "at i = 100:" << cyl_idx);                     
+                        // ROS_DEBUG_STREAM_NAMED("labels", "at i = 100:" << cyl_idx);                     
                     }
 
 
@@ -458,9 +458,9 @@ namespace egocylindrical
                             labels[cyl_idx] = nlabels[i]; // setting i for i does not feel right to me.
                             if (i == 100)
                             {
-                                // ROS_DEBUG_STREAM_NAMED("labels", "nlabels[" << i << "]:" << nlabels[i]);
-                                ROS_DEBUG_STREAM_NAMED("labels", "labels[" << cyl_idx << "]:" << std::hex << (uint16_t) labels[cyl_idx]);                     
-                                // ROS_DEBUG_STREAM_NAMED("labels", "labels[" << cyl_idx << "]:" << labels[cyl_idx]);
+                                // // ROS_DEBUG_STREAM_NAMED("labels", "nlabels[" << i << "]:" << nlabels[i]);
+                                // ROS_DEBUG_STREAM_NAMED("labels", "labels[" << cyl_idx << "]:" << std::hex << (uint16_t) labels[cyl_idx]);                     
+                                // // ROS_DEBUG_STREAM_NAMED("labels", "labels[" << cyl_idx << "]:" << labels[cyl_idx]);
                             } 
                         }
                     }
@@ -489,11 +489,11 @@ namespace egocylindrical
                                 labels[cyl_idx] = nlabels[i]; // setting i for i does not feel right to me.
                                 if (i == 100)
                                 {
-                                    // ROS_DEBUG_STREAM_NAMED("labels", "nlabels[" << i << "]:" << nlabels[i]);
-                                    ROS_DEBUG_STREAM_NAMED("labels", "labels[" << cyl_idx << "]:" << std::hex << (uint16_t) labels[cyl_idx]);                     
-                                    // ROS_DEBUG_STREAM_NAMED("labels", "labels[" << cyl_idx << "]:" << labels[cyl_idx]);
+                                    // // ROS_DEBUG_STREAM_NAMED("labels", "nlabels[" << i << "]:" << nlabels[i]);
+                                    // ROS_DEBUG_STREAM_NAMED("labels", "labels[" << cyl_idx << "]:" << std::hex << (uint16_t) labels[cyl_idx]);                     
+                                    // // ROS_DEBUG_STREAM_NAMED("labels", "labels[" << cyl_idx << "]:" << labels[cyl_idx]);
                                 }                                
-                                // ROS_DEBUG_STREAM_NAMED("labels", "labels[cyl_idx]: " << labels[cyl_idx]);
+                                // // ROS_DEBUG_STREAM_NAMED("labels", "labels[cyl_idx]: " << labels[cyl_idx]);
 
                             }
                         }
@@ -504,7 +504,7 @@ namespace egocylindrical
 
         //whole image vectorization
         template <typename T>
-        void insertPoints3(utils::ECWrapper& cylindrical_points, const cv::Mat image, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform)
+        void insertPoints3(utils::ECWrapper& cylindrical_points, const cv::Mat image, const CleanCameraModel& cam_model, const geometry_msgs::msg::TransformStamped transform)
         {
             cv::Size image_size = cam_model.reducedResolution();
             const int image_width = image_size.width;
@@ -612,7 +612,7 @@ namespace egocylindrical
         
         //row-wise vectorization
         template <typename T>
-        void insertPoints2(utils::ECWrapper& cylindrical_points, const cv::Mat image, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform)
+        void insertPoints2(utils::ECWrapper& cylindrical_points, const cv::Mat image, const CleanCameraModel& cam_model, const geometry_msgs::msg::TransformStamped transform)
         {
             cv::Size image_size = cam_model.reducedResolution();
             const int image_width = image_size.width;
@@ -724,7 +724,7 @@ namespace egocylindrical
         void insertPoints(utils::ECWrapper& cylindrical_points, 
                             const cv::Mat image, 
                             const CleanCameraModel& cam_model, 
-                            const geometry_msgs::TransformStamped transform)
+                            const geometry_msgs::msg::TransformStamped transform)
         {
             cv::Size image_size = cam_model.reducedResolution();
             int image_width = image_size.width;
@@ -804,7 +804,7 @@ namespace egocylindrical
         void insertPoints(utils::ECWrapper& cylindrical_points, 
                             const sensor_msgs::msg::Image::ConstPtr& image_msg, 
                             const CleanCameraModel& cam_model, 
-                            const geometry_msgs::TransformStamped transform, 
+                            const geometry_msgs::msg::TransformStamped transform, 
                             DIDiffRequest& request)
         {
             const cv::Mat image = cv_bridge::toCvShare(image_msg)->image;
@@ -826,7 +826,7 @@ namespace egocylindrical
                             const sensor_msgs::msg::Image::ConstPtr& image_msg, 
                             const sensor_msgs::msg::Image::ConstPtr& normals_msg,
                             const CleanCameraModel& cam_model, 
-                            const geometry_msgs::TransformStamped transform, 
+                            const geometry_msgs::msg::TransformStamped transform, 
                             DIDiffRequest& request)
         {
             const cv::Mat image = cv_bridge::toCvShare(image_msg)->image;
@@ -854,7 +854,7 @@ namespace egocylindrical
                             const sensor_msgs::msg::Image::ConstPtr& normals_msg,
                             const sensor_msgs::msg::Image::ConstPtr& labels_msg, 
                             const CleanCameraModel& cam_model, 
-                            const geometry_msgs::TransformStamped transform, 
+                            const geometry_msgs::msg::TransformStamped transform, 
                             DIDiffRequest& request)
         {
             const cv::Mat image = cv_bridge::toCvShare(image_msg)->image;
@@ -957,24 +957,24 @@ namespace egocylindrical
             if(target_header == source_header)
             {
                 ROS_INFO_ONCE("Target and source headers match, using remapping approach");
-                // ROS_DEBUG_STREAM_NAMED("labels", "we are remapping now!"); // not happening it appears
+                // // ROS_DEBUG_STREAM_NAMED("labels", "we are remapping now!"); // not happening it appears
                 depth_remapper_.update(cylindrical_points, image_msg, cam_info);
                 return true;
             }
             
             if( cam_model_.fromCameraInfo(cam_info) )
             {
-                ROS_DEBUG("Camera info has changed!");
+                // ROS_DEBUG("Camera info has changed!");
                 //If camera info changed, update any precomputed values
                 //cam_model_.init();
             }
             else
             {
-                ROS_DEBUG("Camera info has not changed");
+                // ROS_DEBUG("Camera info has not changed");
             }
             
             //Get transform
-            geometry_msgs::TransformStamped transform;
+            geometry_msgs::msg::TransformStamped transform;
             try
             {
                 transform = buffer_.lookupTransform(target_header.frame_id, target_header.stamp, source_header.frame_id, source_header.stamp, fixed_frame_id_);
@@ -1018,24 +1018,24 @@ namespace egocylindrical
             if(target_header == source_header)
             {
                 ROS_INFO_ONCE("Target and source headers match, using remapping approach");
-                // ROS_DEBUG_STREAM_NAMED("labels", "we are remapping now!"); // not happening it appears
+                // // ROS_DEBUG_STREAM_NAMED("labels", "we are remapping now!"); // not happening it appears
                 depth_remapper_.update(cylindrical_points, image_msg, cam_info);
                 return true;
             }
             
             if( cam_model_.fromCameraInfo(cam_info) )
             {
-                ROS_DEBUG("Camera info has changed!");
+                // ROS_DEBUG("Camera info has changed!");
                 //If camera info changed, update any precomputed values
                 //cam_model_.init();
             }
             else
             {
-                ROS_DEBUG("Camera info has not changed");
+                // ROS_DEBUG("Camera info has not changed");
             }
             
             //Get transform
-            geometry_msgs::TransformStamped transform;
+            geometry_msgs::msg::TransformStamped transform;
             try
             {
                 transform = buffer_.lookupTransform(target_header.frame_id, target_header.stamp, source_header.frame_id, source_header.stamp, fixed_frame_id_);
@@ -1080,24 +1080,24 @@ namespace egocylindrical
             if(target_header == source_header)
             {
                 ROS_INFO_ONCE("Target and source headers match, using remapping approach");
-                // ROS_DEBUG_STREAM_NAMED("labels", "we are remapping now!"); // not happening it appears
+                // // ROS_DEBUG_STREAM_NAMED("labels", "we are remapping now!"); // not happening it appears
                 depth_remapper_.update(cylindrical_points, image_msg, cam_info);
                 return true;
             }
             
             if( cam_model_.fromCameraInfo(cam_info) )
             {
-                ROS_DEBUG("Camera info has changed!");
+                // ROS_DEBUG("Camera info has changed!");
                 //If camera info changed, update any precomputed values
                 //cam_model_.init();
             }
             else
             {
-                ROS_DEBUG("Camera info has not changed");
+                // ROS_DEBUG("Camera info has not changed");
             }
             
             //Get transform
-            geometry_msgs::TransformStamped transform;
+            geometry_msgs::msg::TransformStamped transform;
             try
             {
                 transform = buffer_.lookupTransform(target_header.frame_id, target_header.stamp, 

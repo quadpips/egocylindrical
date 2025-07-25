@@ -38,10 +38,10 @@ namespace utils
         
         const bool use_egocan = (new_points.getParams().can_width > 0);
 
-        ROS_DEBUG("Relocated the propagated image");
+        // ROS_DEBUG("Relocated the propagated image");
 
-        ROS_DEBUG_STREAM_NAMED("labels", "new_points.getNumPts(): " << new_points.getNumPts());
-        ROS_DEBUG_STREAM_NAMED("labels", "cylindrical_history.getNumPts(): " << cylindrical_history.getNumPts());
+        // ROS_DEBUG_STREAM_NAMED("labels", "new_points.getNumPts(): " << new_points.getNumPts());
+        // ROS_DEBUG_STREAM_NAMED("labels", "cylindrical_history.getNumPts(): " << cylindrical_history.getNumPts());
 
         //#pragma omp parallel for
         for(int i = 0; i < new_points.getNumPts(); ++i)
@@ -74,7 +74,7 @@ namespace utils
                     y_norms[idx] = world_norm.y;
                     z_norms[idx] = world_norm.z;
                     labels[idx] = n_labels[i]; // fine at lab, overwrite label as well
-                    // ROS_DEBUG_STREAM_NAMED("labels", "labels[" << idx << "]:" << std::hex << (uint16_t) labels[idx]);                     
+                    // // ROS_DEBUG_STREAM_NAMED("labels", "labels[" << idx << "]:" << std::hex << (uint16_t) labels[idx]);                     
 
                     // if (n_labels[i] == n_labels[i])
                     // {
@@ -117,7 +117,7 @@ namespace utils
                             y_norms[idx] = world_norm.y;
                             z_norms[idx] = world_norm.z;
                             labels[idx] =  n_labels[i]; // overwrite label as well
-                            // ROS_DEBUG_STREAM_NAMED("labels", "labels[" << idx << "]:" << std::hex << (uint16_t) labels[idx]);                     
+                            // // ROS_DEBUG_STREAM_NAMED("labels", "labels[" << idx << "]:" << std::hex << (uint16_t) labels[idx]);                     
 
                             // if (n_labels[i] == n_labels[i])
                             // {

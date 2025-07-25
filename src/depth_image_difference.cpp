@@ -6,7 +6,7 @@
 #include <egocylindrical/point_transformer_object.h>
 
 #include <cv_bridge/cv_bridge.h> //redundant
-#include <pcl_ros/point_cloud.hpp>
+#include <pcl_conversions/pcl_conversions.h>
 
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
@@ -50,11 +50,11 @@ namespace egocylindrical
     {
         
 
-        geometry_msgs::TransformStamped getInverse(const geometry_msgs::TransformStamped& transform_msg)
+        geometry_msgs::msg::TransformStamped getInverse(const geometry_msgs::msg::TransformStamped& transform_msg)
         {
             tf2::Transform transform;
             transformMsgToTF2(transform_msg.transform, transform);
-            geometry_msgs::TransformStamped inverted_transform_msg;
+            geometry_msgs::msg::TransformStamped inverted_transform_msg;
             tf2::transformTF2ToMsg(transform.inverse(), inverted_transform_msg.transform);
             inverted_transform_msg.header.stamp = transform_msg.header.stamp;
             inverted_transform_msg.header.frame_id = transform_msg.child_frame_id;
@@ -100,7 +100,7 @@ namespace egocylindrical
 
         //immediate insert
         template <typename T>
-        void insertPoints6_impl(const utils::ECWrapper& original_cylindrical_points, const cv::Mat& image, const sensor_msgs::msg::Image::ConstPtr& image_msg_ptr, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request)
+        void insertPoints6_impl(const utils::ECWrapper& original_cylindrical_points, const cv::Mat& image, const sensor_msgs::msg::Image::ConstPtr& image_msg_ptr, const CleanCameraModel& cam_model, const geometry_msgs::msg::TransformStamped transform, DIDiffRequest& request)
         {
             auto getDilatedPoints = [&request](const utils::ECWrapper& cyl_points)    //  utils::ECWrapperPtr
             {
@@ -145,11 +145,11 @@ namespace egocylindrical
                 }
 
 
-                ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Generating range image took " <<  (pc_start - range_start).toSec() * 1e3 << "ms");
-                ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Generating point cloud took " <<  (dilate_start - pc_start).toSec() * 1e3 << "ms");
-                ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Dilating range image took " <<  (wrapper_start - dilate_start).toSec() * 1e3 << "ms");
-                ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Converting dilated range image to wrapper took " <<  (dilated_pc_start - wrapper_start).toSec() * 1e3 << "ms");
-                ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Converting dilated wrapper to point cloud took " <<  (end_time - dilated_pc_start).toSec() * 1e3 << "ms");
+                // ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Generating range image took " <<  (pc_start - range_start).toSec() * 1e3 << "ms");
+                // ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Generating point cloud took " <<  (dilate_start - pc_start).toSec() * 1e3 << "ms");
+                // ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Dilating range image took " <<  (wrapper_start - dilate_start).toSec() * 1e3 << "ms");
+                // ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Converting dilated range image to wrapper took " <<  (dilated_pc_start - wrapper_start).toSec() * 1e3 << "ms");
+                // ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Converting dilated wrapper to point cloud took " <<  (end_time - dilated_pc_start).toSec() * 1e3 << "ms");
                 ROS_INFO_STREAM_NAMED("depth_diff.timing", "Total dilation process took " <<  (end_time - range_start).toSec() * 1e3 << "ms");
 
                 return ec_pts;
@@ -298,7 +298,7 @@ namespace egocylindrical
 
                             if(num_filled > 0 && prev_range_f != prev_range_f)
                             {
-                                ROS_DEBUG_STREAM_NAMED("weird_nans", "depth im coords with unexpected NaN: " << pt);
+                                // ROS_DEBUG_STREAM_NAMED("weird_nans", "depth im coords with unexpected NaN: " << pt);
                             }
 
                             cv::Point3f prev_point(x[cyl_idx], y[cyl_idx], z[cyl_idx]);
@@ -474,7 +474,7 @@ namespace egocylindrical
         }
 
 
-        void insertPoints6(const utils::ECWrapper& cylindrical_points, const cv::Mat& image, const sensor_msgs::msg::Image::ConstPtr& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, DIDiffRequest& request)
+        void insertPoints6(const utils::ECWrapper& cylindrical_points, const cv::Mat& image, const sensor_msgs::msg::Image::ConstPtr& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::msg::TransformStamped transform, DIDiffRequest& request)
         {
             if(image.depth() == CV_32FC1)
             {
@@ -484,14 +484,14 @@ namespace egocylindrical
             {
                 insertPoints6_impl<uint16_t>(cylindrical_points, image, image_msg, cam_model, transform, request);
             }
-            ROS_DEBUG_STREAM("Finished inserting points and stuff");
+            // ROS_DEBUG_STREAM("Finished inserting points and stuff");
         }
 
         // template <uint16_t>
-        // void insertPoints6(utils::ECWrapper& cylindrical_points, const cv::Mat image, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, float neg_eps, float pos_eps,  sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg);
+        // void insertPoints6(utils::ECWrapper& cylindrical_points, const cv::Mat image, const CleanCameraModel& cam_model, const geometry_msgs::msg::TransformStamped transform, float neg_eps, float pos_eps,  sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg);
 
         // template <typename float>
-        // void insertPoints6(utils::ECWrapper& cylindrical_points, const cv::Mat image, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, float neg_eps, float pos_eps,  sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg);
+        // void insertPoints6(utils::ECWrapper& cylindrical_points, const cv::Mat image, const CleanCameraModel& cam_model, const geometry_msgs::msg::TransformStamped transform, float neg_eps, float pos_eps,  sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg);
 
     } //end namespace utils
 } //end namespace egocylindrical

@@ -42,7 +42,7 @@
       auto timestamp = mt::TimeStamp<M>::value(*evt.getMessage());
       if (timestamp <= last_msg_time_)
       {
-        ROS_DEBUG_STREAM_NAMED(message_filters::SimpleFilter<M>::getName(), "Dropping message with timestamp: " << timestamp << ", not newer than last message: " << last_msg_time_);
+        // ROS_DEBUG_STREAM_NAMED(message_filters::SimpleFilter<M>::getName(), "Dropping message with timestamp: " << timestamp << ", not newer than last message: " << last_msg_time_);
         return;
       }
       else

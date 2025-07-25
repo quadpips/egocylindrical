@@ -4,7 +4,7 @@
 #include <opencv2/core.hpp>
 
 #include <omp.h>
-#include <pcl_ros/point_cloud.hpp>
+#include <pcl_conversions/pcl_conversions.h>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
 

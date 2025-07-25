@@ -117,7 +117,7 @@ namespace egocylindrical
               cv::bilateralFilter(cv_in->image, cv_out->image, config_.diameter, config_.sigmaColor, config_.sigmaSpace);
             }
 
-            ROS_DEBUG_STREAM("Filtering depth image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+            // ROS_DEBUG_STREAM("Filtering depth image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
                       
             im_pub_.publish(cv_out->toImageMsg());
             

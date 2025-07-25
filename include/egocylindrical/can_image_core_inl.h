@@ -32,7 +32,7 @@ namespace egocylindrical
         template <typename T,uint scale>
         void generateCanImage(const utils::ECWrapper& cylindrical_history, T* r, const T unknown_val, int num_threads)
         {            
-            // ROS_DEBUG("Generating image of cylindrical memory");
+            // // ROS_DEBUG("Generating image of cylindrical memory");
             
             const float* const y = cylindrical_history.getY();
 

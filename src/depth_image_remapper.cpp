@@ -6,7 +6,7 @@
 #include <image_geometry/pinhole_camera_model.h>
 #include <cv_bridge/cv_bridge.h>
 
-#include <pcl_ros/point_cloud.hpp>
+#include <pcl_conversions/pcl_conversions.h>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
 namespace egocylindrical
@@ -217,7 +217,7 @@ namespace egocylindrical
         inline
         void DepthImageRemapper::update( ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstPtr& image_msg, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info, sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg, float thresh_min, float thresh_max, bool fill_cloud)
         {
-            ROS_DEBUG("Updating cylindrical points with depth image");
+            // ROS_DEBUG("Updating cylindrical points with depth image");
             
             ros::WallTime start = ros::WallTime::now();
             updateMapping( cylindrical_points, image_msg, cam_info);
@@ -231,8 +231,8 @@ namespace egocylindrical
                 utils::remapDepthImage<false>(cylindrical_points, image_msg, inds_.data(), x_.data(), y_.data(), z_.data(), num_pixels_, pcloud_msg, thresh_min, thresh_max);            }
             ros::WallTime end = ros::WallTime::now();
             
-            ROS_DEBUG_STREAM_NAMED("timing", "Updating camera model took " <<  (mid - start).toSec() * 1e3 << "ms");
-            ROS_DEBUG_STREAM_NAMED("timing", "Remapping depth image took " <<  (end - mid).toSec() * 1e3 << "ms");
+            // ROS_DEBUG_STREAM_NAMED("timing", "Updating camera model took " <<  (mid - start).toSec() * 1e3 << "ms");
+            // ROS_DEBUG_STREAM_NAMED("timing", "Remapping depth image took " <<  (end - mid).toSec() * 1e3 << "ms");
             
         }
         

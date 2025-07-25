@@ -9,7 +9,7 @@
 #include <egocylindrical/depth_image_core.h>
 #include <egocylindrical/range_image_core.h>
 
-//#include <tf/LinearMath/Matrix3x3.h>
+//#include <tf2/LinearMath/Quaternion.h>
 //#include <cv_bridge/cv_bridge.h>
 #include <rclcpp/rclcpp.hpp>
 //#include <opencv2/core.hpp>
@@ -28,9 +28,9 @@ namespace egocylindrical
     namespace utils
     {
       
-      void transformPoints(utils::ECWrapper& points, const utils::ECWrapper& new_points, const geometry_msgs::TransformStamped& trans, int num_threads);
+      void transformPoints(utils::ECWrapper& points, const utils::ECWrapper& new_points, const geometry_msgs::msg::TransformStamped& trans, int num_threads);
       
-      //void transformPoints(const utils::ECWrapper& points, utils::ECWrapper& transformed_points, const utils::ECWrapper& new_points, const geometry_msgs::TransformStamped& trans, int num_threads=1);
+      //void transformPoints(const utils::ECWrapper& points, utils::ECWrapper& transformed_points, const utils::ECWrapper& new_points, const geometry_msgs::msg::TransformStamped& trans, int num_threads=1);
       
     }
     
@@ -43,21 +43,21 @@ namespace egocylindrical
       
       new_pnts.setHeader(new_header);
       
-      ROS_DEBUG("Getting Transformation details");
-      geometry_msgs::TransformStamped trans = buffer_.lookupTransform(new_header.frame_id, new_header.stamp,
+      // ROS_DEBUG("Getting Transformation details");
+      geometry_msgs::msg::TransformStamped trans = buffer_.lookupTransform(new_header.frame_id, new_header.stamp,
                                                                       old_header.frame_id, old_header.stamp,
                                                                       "odom");
       
-      ROS_DEBUG_STREAM_NAMED("timing", "Finding transform took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+      // ROS_DEBUG_STREAM_NAMED("timing", "Finding transform took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
       
       
       start = ros::WallTime::now();    
       utils::transformPoints(old_pnts, new_pnts, trans, config_.num_threads);
-      ROS_DEBUG_STREAM_NAMED("timing", "Transforming points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+      // ROS_DEBUG_STREAM_NAMED("timing", "Transforming points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
       
       start = ros::WallTime::now();
       utils::addPoints(new_pnts, old_pnts, false);
-      ROS_DEBUG_STREAM_NAMED("timing", "Inserting transformed points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+      // ROS_DEBUG_STREAM_NAMED("timing", "Inserting transformed points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
       
     }
 
@@ -70,21 +70,21 @@ namespace egocylindrical
         
         new_pnts.setHeader(new_header);
         
-        ROS_DEBUG("Getting Transformation details");
-                geometry_msgs::TransformStamped trans = buffer_.lookupTransform(new_header.frame_id, new_header.stamp,
+        // ROS_DEBUG("Getting Transformation details");
+                geometry_msgs::msg::TransformStamped trans = buffer_.lookupTransform(new_header.frame_id, new_header.stamp,
                                 old_header.frame_id, old_header.stamp,
                                 "odom");
         
-        ROS_DEBUG_STREAM_NAMED("timing", "Finding transform took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+        // ROS_DEBUG_STREAM_NAMED("timing", "Finding transform took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
                 
         
         start = ros::WallTime::now();    
         utils::transformPoints(old_pnts, *transformed_pts_, new_pnts, trans, config_.num_threads);
-        ROS_DEBUG_STREAM_NAMED("timing", "Transforming points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+        // ROS_DEBUG_STREAM_NAMED("timing", "Transforming points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
         
         start = ros::WallTime::now();
         utils::addPoints(new_pnts, *transformed_pts_, false);
-        ROS_DEBUG_STREAM_NAMED("timing", "Inserting transformed points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+        // ROS_DEBUG_STREAM_NAMED("timing", "Inserting transformed points took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
 
     }
 
@@ -144,7 +144,7 @@ namespace egocylindrical
             {
                 ros::WallTime temp = ros::WallTime::now();
                 DedicatedEgoCylindricalPropagator::addDepthImage(*new_pts_, image, cam_info);
-                ROS_DEBUG_STREAM("Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
+                // ROS_DEBUG_STREAM("Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
             }
             
             if(im_pub_.getNumSubscribers() > 0)
@@ -170,7 +170,7 @@ namespace egocylindrical
               next_pts_->init(config_.height, config_.width, config_.vfov, true);
             }
             
-            ROS_DEBUG_STREAM_NAMED("timing", "Reinitting data structure took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+            // ROS_DEBUG_STREAM_NAMED("timing", "Reinitting data structure took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
           }
           
         
@@ -178,7 +178,7 @@ namespace egocylindrical
         
         std::swap(new_pts_, old_pts_);  
         
-        ROS_DEBUG_STREAM_NAMED("timing", "Total time: " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+        // ROS_DEBUG_STREAM_NAMED("timing", "Total time: " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
         
     }
     

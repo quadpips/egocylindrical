@@ -13,7 +13,7 @@
 //#include <cv_bridge/cv_bridge.h>
 //#include <image_geometry/pinhole_camera_model.h>
 //#include <tf2_ros/transform_listener.h>
-//#include <tf/LinearMath/Matrix3x3.h>
+//#include <tf2/LinearMath/Quaternion.h>
 //#include <omp.h>
 //#include <sensor_msgs/msg/point_cloud2.hpp>
 
@@ -559,20 +559,20 @@ namespace egocylindrical
           inline
           void worldToCanXIdx(const cv::Point3_<S>& point, T& x_idx) const
           {
-            // ROS_DEBUG_STREAM_NAMED("labels", "[worldToCanXIdx])");
-            // ROS_DEBUG_STREAM_NAMED("labels", "  point: " << point);
-            // ROS_DEBUG_STREAM_NAMED("labels", "  params_.vfov: " << params_.vfov);
-            // ROS_DEBUG_STREAM_NAMED("labels", "  params_.v_offset: " << params_.v_offset);
-            // ROS_DEBUG_STREAM_NAMED("labels", "  params_.can_width: " << params_.can_width);
+            // // ROS_DEBUG_STREAM_NAMED("labels", "[worldToCanXIdx])");
+            // // ROS_DEBUG_STREAM_NAMED("labels", "  point: " << point);
+            // // ROS_DEBUG_STREAM_NAMED("labels", "  params_.vfov: " << params_.vfov);
+            // // ROS_DEBUG_STREAM_NAMED("labels", "  params_.v_offset: " << params_.v_offset);
+            // // ROS_DEBUG_STREAM_NAMED("labels", "  params_.can_width: " << params_.can_width);
 
             if(point.y >=0 )
             {
               S absy = point.y;
-              // ROS_DEBUG_STREAM_NAMED("labels", "  absy: " << absy);
+              // // ROS_DEBUG_STREAM_NAMED("labels", "  absy: " << absy);
               S h_b = params_.vfov/2-params_.v_offset;
-              // ROS_DEBUG_STREAM_NAMED("labels", "  h_b: " << h_b);
+              // // ROS_DEBUG_STREAM_NAMED("labels", "  h_b: " << h_b);
               x_idx = point.x*h_b/absy * (params_.can_width/2) + params_.can_width/2;
-              // ROS_DEBUG_STREAM_NAMED("labels", "  x_idx: " << x_idx);
+              // // ROS_DEBUG_STREAM_NAMED("labels", "  x_idx: " << x_idx);
             }
             else
             {
@@ -812,7 +812,7 @@ namespace egocylindrical
             
             ECWrapper(const ECMsgConstPtr& ec_points) 
             {
-                // ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper(ec_points)");
+                // // ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper(ec_points)");
                 fromCameraInfo(ec_points);
                 const_msg_ = ec_points;
                 header_ = const_msg_->header;
@@ -826,7 +826,7 @@ namespace egocylindrical
             
             ECWrapper copy() const
             {
-                // ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper(copy)");
+                // // ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper(copy)");
                 ECWrapper lh(getParams(), allocate_arrays_);
                 // std::copy(getPoints(), getPoints()+3*getNumPts(), lh.getPoints());
                 // lh.setHeader(getHeader());
@@ -853,13 +853,13 @@ namespace egocylindrical
             ECWrapper(const ECWrapper& rhs):
                 ECWrapper(rhs.getParams(), rhs.allocate_arrays_)
             {
-                // ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper copy constructor");
+                // // ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper copy constructor");
                 copyContents(*this, rhs);
             }
 
             static void copyContents(ECWrapper& lhs, const ECWrapper& rhs)
             {
-                // ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper copyContents");
+                // // ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper copyContents");
                 std::copy(rhs.getPoints(), rhs.getPoints()+3*rhs.getNumPts(), lhs.getPoints());
                 std::copy(rhs.getNormals(), rhs.getNormals() + 3*rhs.getNumPts(), lhs.getNormals());
                 std::copy(rhs.getLabels(), rhs.getLabels()+rhs.getNumPts(), lhs.getLabels());
@@ -955,7 +955,7 @@ namespace egocylindrical
             inline
             void init()
             {
-                // ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper init()");
+                // // ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper init()");
 
                 // POINTS
 
@@ -972,9 +972,9 @@ namespace egocylindrical
                 
                 // NOTE: width x height must be divisible by 8 for this approach to work. Otherwise, additional information will be necessary in order to properly place the x,y,z pointers
                 
-                // ROS_DEBUG_STREAM("max_alignment: " << max_alignment << ", biggest_alignment: " << biggest_alignment << ", object_size: " << object_size << ", object_alignment: " << object_alignment << ", number buffer objects: " << buffer_objects);
+                // // ROS_DEBUG_STREAM("max_alignment: " << max_alignment << ", biggest_alignment: " << biggest_alignment << ", object_size: " << object_size << ", object_alignment: " << object_alignment << ", number buffer objects: " << buffer_objects);
                 
-                // ROS_DEBUG_STREAM("Allocating space for " << getNumPts() << " points (and labels).");
+                // // ROS_DEBUG_STREAM("Allocating space for " << getNumPts() << " points (and labels).");
                 msg_->points.data.resize(3*getNumPts() + buffer_objects, dNaN);
                 
                 //Align data pointer (points)
@@ -989,8 +989,8 @@ namespace egocylindrical
                   
                   msg_->points.layout.data_offset = (space_before - space_after);
                   
-                  // ROS_DEBUG_STREAM_NAMED("labels", "Points space_after: " << space_after);
-                  // ROS_DEBUG_STREAM("Aligned points_, adjusted pointer by " << (space_before - space_after) << " bytes");
+                  // // ROS_DEBUG_STREAM_NAMED("labels", "Points space_after: " << space_after);
+                  // // ROS_DEBUG_STREAM("Aligned points_, adjusted pointer by " << (space_before - space_after) << " bytes");
                 }
                 
                 // LABELS
@@ -1012,8 +1012,8 @@ namespace egocylindrical
                     
                     msg_->labels.layout.data_offset = (space_before - space_after);
 
-                    // ROS_DEBUG_STREAM_NAMED("labels", "Labels space_after: " << space_after);
-                    // ROS_DEBUG_STREAM_NAMED("labels", "Aligned labels_, adjusted pointer by " << (space_before - space_after) << " bytes");
+                    // // ROS_DEBUG_STREAM_NAMED("labels", "Labels space_after: " << space_after);
+                    // // ROS_DEBUG_STREAM_NAMED("labels", "Aligned labels_, adjusted pointer by " << (space_before - space_after) << " bytes");
                 }
 
                 // NORMALS                
@@ -1035,8 +1035,8 @@ namespace egocylindrical
                   
                   msg_->normals.layout.data_offset = (normals_space_before - normals_space_after);
                   
-                  // ROS_DEBUG_STREAM_NAMED("labels", "Normals space_after: " << normals_space_after);
-                  // ROS_DEBUG_STREAM("Aligned normals_, adjusted pointer by " << (normals_space_before - normals_space_after) << " bytes");
+                  // // ROS_DEBUG_STREAM_NAMED("labels", "Normals space_after: " << normals_space_after);
+                  // // ROS_DEBUG_STREAM("Aligned normals_, adjusted pointer by " << (normals_space_before - normals_space_after) << " bytes");
                 }
 
                 if(allocate_arrays_)
@@ -1056,16 +1056,16 @@ namespace egocylindrical
             inline
             bool init(const ECParams& params, bool clear=false)
             {
-                // ROS_DEBUG_STREAM("Current parameters: [" << params_ << "]; New parameters: [" << params << "]");
+                // // ROS_DEBUG_STREAM("Current parameters: [" << params_ << "]; New parameters: [" << params << "]");
                 if (msg_->points.data.size()==0)
                 {
-                  // ROS_DEBUG_STREAM("No space for points!");
+                  // // ROS_DEBUG_STREAM("No space for points!");
                 }
                 if(!msg_locked_)
                 {
                     if(params != (const ECParams)params_)
                     {
-                        // ROS_DEBUG_STREAM("Params have changed, update!");
+                        // // ROS_DEBUG_STREAM("Params have changed, update!");
                         fromParams(params);
                         if(clear)
                         {
@@ -1078,7 +1078,7 @@ namespace egocylindrical
                     }
                     else
                     {
-                      // ROS_DEBUG_STREAM("Params have not changed!");
+                      // // ROS_DEBUG_STREAM("Params have not changed!");
                       if(clear)
                       {
                         std::fill(msg_->points.data.begin(), msg_->points.data.end(), dNaN);

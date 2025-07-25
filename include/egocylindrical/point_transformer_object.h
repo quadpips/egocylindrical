@@ -2,7 +2,9 @@
 #define EGOCYLINDRICAL_POINT_TRANSFORMER_OBJECT_H
 
 #include <geometry_msgs/msg/transform_stamped.hpp>
-#include <tf/LinearMath/Matrix3x3.h>
+
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/LinearMath/Matrix3x3.h>
 
 namespace egocylindrical
 {
@@ -21,16 +23,15 @@ namespace egocylindrical
             PointTransformerObject()
             {}
             
-            PointTransformerObject(const geometry_msgs::TransformStamped& trans)
+            PointTransformerObject(const geometry_msgs::msg::TransformStamped& trans)
             {
-                tf::Quaternion rotationQuaternion(trans.transform.rotation.x,
+                tf2::Quaternion rotationQuaternion(trans.transform.rotation.x,
                                                   trans.transform.rotation.y,
                                                   trans.transform.rotation.z,
                                                   trans.transform.rotation.w);
-                        
-                        
-                tf::Matrix3x3 tempRotationMatrix = tf::Matrix3x3(rotationQuaternion);
-                
+
+                tf2::Matrix3x3 tempRotationMatrix = tf2::Matrix3x3(rotationQuaternion);
+
                 r0 = (float) tempRotationMatrix[0].getX();
                 r1 = (float) tempRotationMatrix[0].getY();
                 r2 = (float) tempRotationMatrix[0].getZ();

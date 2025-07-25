@@ -10,7 +10,7 @@
 //#include <cv_bridge/cv_bridge.h>
 //#include <image_geometry/pinhole_camera_model.h>
 //#include <tf2_ros/transform_listener.h>
-#include <tf/LinearMath/Matrix3x3.h>
+#include <tf2/LinearMath/Quaternion.h>
 #include <omp.h>
 
 #include <geometry_msgs/msg/transform_stamped.hpp>
@@ -79,7 +79,7 @@ namespace egocylindrical
                 {
                     if(omp_in_parallel())
                     {
-                        ROS_DEBUG_STREAM("Parallel region with " << omp_get_num_threads() << " threads");
+                        // ROS_DEBUG_STREAM("Parallel region with " << omp_get_num_threads() << " threads");
                     }
                 }
                 
@@ -141,13 +141,13 @@ namespace egocylindrical
         
         
         // TODO: This functionality could be moved into a tf2_ros implementation, though it wouldn't be able to populate the 'inds'
-        void transformPoints(const utils::ECWrapper& points, utils::ECWrapper& transformed_points, const utils::ECWrapper& new_points, const geometry_msgs::TransformStamped& trans, int num_threads)
+        void transformPoints(const utils::ECWrapper& points, utils::ECWrapper& transformed_points, const utils::ECWrapper& new_points, const geometry_msgs::msg::TransformStamped& trans, int num_threads)
         {
               PointTransformerObject pto(trans);
             
           //  if(points.isLocked())
           //  {
-                ROS_DEBUG("Init transformed ECWrapper");
+                // ROS_DEBUG("Init transformed ECWrapper");
                 transformed_points.init(points);    //This ensures that 'transformed_points' is big enough
                 transform_impl(points, transformed_points, new_points, pto, num_threads);
         /*

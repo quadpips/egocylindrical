@@ -85,7 +85,7 @@ namespace egocylindrical
         }
         
         
-        void insertPoints(ECWrapper& cylindrical_points, const sensor_msgs::msg::LaserScan::ConstPtr &scan_msg, const geometry_msgs::TransformStamped& transform, bool clearing)
+        void insertPoints(ECWrapper& cylindrical_points, const sensor_msgs::msg::LaserScan::ConstPtr &scan_msg, const geometry_msgs::msg::TransformStamped& transform, bool clearing)
         {
             BasicLaserScan2Points converter;
             converter.setScan(scan_msg);
@@ -180,7 +180,7 @@ namespace egocylindrical
             const std_msgs::Header& source_header = scan_msg->header;
             
             //Get transform
-            geometry_msgs::TransformStamped transform;
+            geometry_msgs::msg::TransformStamped transform;
             try
             {
                 transform = buffer_.lookupTransform(target_header.frame_id, target_header.stamp, source_header.frame_id, source_header.stamp, fixed_frame_id_);

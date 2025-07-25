@@ -28,7 +28,7 @@ namespace egocylindrical
             ros::NodeHandle pnh_;
             tf2_ros::TransformBroadcaster tf_br_;
             std::string target_frame_id_;
-            geometry_msgs::TransformStamped offset_transform_, ecs_, ecc_;
+            geometry_msgs::msg::TransformStamped offset_transform_, ecs_, ecc_;
             CoordinateFrameDefinition cfd_;
             std::string tf_prefix_;
             //ros::Time last_update_;
@@ -197,7 +197,7 @@ namespace egocylindrical
                     return false;
                 }
                 
-                ROS_DEBUG_STREAM("[updateECSTransform] Updated transform! " << stamp);
+                // ROS_DEBUG_STREAM("[updateECSTransform] Updated transform! " << stamp);
 
                 ecs_.header.stamp += nano_second;
                 buffer_.setTransform(ecs_, "coordinate_frame_helper", false);
@@ -216,7 +216,7 @@ namespace egocylindrical
                     return true;
                 }
                 
-                //geometry_msgs::TransformStamped ecc;
+                //geometry_msgs::msg::TransformStamped ecc;
                 ecc_.header.stamp = stamp;
                 ecc_.header.frame_id = getECFrameId();
                 ecc_.child_frame_id = getECCFrameId();
@@ -226,7 +226,7 @@ namespace egocylindrical
                 q.z=-0.500;
                 q.w=0.500;
 
-                ROS_DEBUG_STREAM("[updateECCTransform] Updated transform! " << stamp);
+                // ROS_DEBUG_STREAM("[updateECCTransform] Updated transform! " << stamp);
                 ecc_.header.stamp += nano_second;
                 buffer_.setTransform(ecc_, "coordinate_frame_helper", false);
                 ecc_.header.stamp -= nano_second;
@@ -288,7 +288,7 @@ namespace egocylindrical
                     offset_transform_.header.stamp = stamp;
                 }
 
-                ROS_DEBUG_STREAM("[updateOffsetTransform] Updated transform! " << stamp);
+                // ROS_DEBUG_STREAM("[updateOffsetTransform] Updated transform! " << stamp);
                 offset_transform_.header.stamp += nano_second;
                 buffer_.setTransform(offset_transform_, "coordinate_frame_helper", false);
                 offset_transform_.header.stamp -= nano_second;

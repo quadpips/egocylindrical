@@ -62,7 +62,7 @@ namespace egocylindrical
     
     void NormalPointCloudFloorOnlyGenerator::ecPointsCB(const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg)
     {
-        ROS_DEBUG("Received EgoCylinderPoints msg");
+        // ROS_DEBUG("Received EgoCylinderPoints msg");
 
         if(pc_pub_.getNumSubscribers()>0)
         {
@@ -72,10 +72,10 @@ namespace egocylindrical
           
           sensor_msgs::msg::PointCloud2::ConstPtr msg = utils::generate_normal_point_cloud_floor_only(ec_pts);
           
-          ROS_DEBUG_STREAM("Generating labeled point cloud took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+          // ROS_DEBUG_STREAM("Generating labeled point cloud took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
           
 
-          ROS_DEBUG("publish egocylindrical labeled pointcloud");
+          // ROS_DEBUG("publish egocylindrical labeled pointcloud");
           
           pc_pub_.publish(msg);
         }

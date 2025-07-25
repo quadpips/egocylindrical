@@ -46,14 +46,14 @@ namespace egocylindrical
                 
         if(old_pts_)
         {
-            ROS_DEBUG_STREAM_NAMED("msg_timestamps","Previous stamp " << old_pts_->getHeader().stamp);
+            // ROS_DEBUG_STREAM_NAMED("msg_timestamps","Previous stamp " << old_pts_->getHeader().stamp);
         }
 
         //TODO: Warn of out-of-order images
         //TODO: If clock jumps back in time, reset egocylinder
         ROS_INFO_STREAM_NAMED("update", "Measurement source: " << measurement.name);
-        ROS_DEBUG_STREAM_NAMED("msg_timestamps","Current stamp: " << new_stamp);
-        ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[egocylinder] Received [" << new_stamp << "] at [" << ros::WallTime::now() << "]");
+        // ROS_DEBUG_STREAM_NAMED("msg_timestamps","Current stamp: " << new_stamp);
+        // ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[egocylinder] Received [" << new_stamp << "] at [" << ros::WallTime::now() << "]");
 
         ros::WallTime start = ros::WallTime::now();
         
@@ -106,10 +106,10 @@ namespace egocylindrical
             ros::WallTime t3 = ros::WallTime::now();
             propagated_ec_pub_.publish(msg);
             ros::WallTime t4 = ros::WallTime::now();
-            ROS_DEBUG_STREAM_NAMED("timing", "Time to copy propagated points: " <<  (t2 - t1).toSec() * 1e3 << "ms");
-            ROS_DEBUG_STREAM_NAMED("timing", "Time to get message: " <<  (t3 - t2).toSec() * 1e3 << "ms");
-            ROS_DEBUG_STREAM_NAMED("timing", "Time to publish: " <<  (t4 - t3).toSec() * 1e3 << "ms");
-            ROS_DEBUG_STREAM_NAMED("timing", "Total time to copy & publish propagated points: " <<  (t4 - t1).toSec() * 1e3 << "ms");
+            // ROS_DEBUG_STREAM_NAMED("timing", "Time to copy propagated points: " <<  (t2 - t1).toSec() * 1e3 << "ms");
+            // ROS_DEBUG_STREAM_NAMED("timing", "Time to get message: " <<  (t3 - t2).toSec() * 1e3 << "ms");
+            // ROS_DEBUG_STREAM_NAMED("timing", "Time to publish: " <<  (t4 - t3).toSec() * 1e3 << "ms");
+            // ROS_DEBUG_STREAM_NAMED("timing", "Total time to copy & publish propagated points: " <<  (t4 - t1).toSec() * 1e3 << "ms");
         }
 
         {
@@ -127,7 +127,7 @@ namespace egocylindrical
                 utils::ECMsgConstPtr msg = new_pts_->getEgoCylinderPointsMsg();
 
                 ec_pub_.publish(msg);
-                ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[egocylinder] Sent [" << msg->header.stamp << "] at [" << ros::WallTime::now() << "]");
+                // ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[egocylinder] Sent [" << msg->header.stamp << "] at [" << ros::WallTime::now() << "]");
                 published(new_pts_);
                 }
 
@@ -141,7 +141,7 @@ namespace egocylindrical
 
         wrapper_buffer_.update();
         
-        ROS_DEBUG_STREAM_NAMED("timing", "Total time: " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+        // ROS_DEBUG_STREAM_NAMED("timing", "Total time: " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
     }
     
     void EgoCylindricalPropagator::connectCB()

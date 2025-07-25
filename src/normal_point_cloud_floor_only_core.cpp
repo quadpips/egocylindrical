@@ -4,7 +4,7 @@
 #include <opencv2/core.hpp>
 
 #include <omp.h>
-#include <pcl_ros/point_cloud.hpp>
+#include <pcl_conversions/pcl_conversions.h>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
 
@@ -28,9 +28,9 @@ namespace egocylindrical
             
             pcl::toROSMsg(pcloud, *pcloud_msg);
             
-            // ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZ): " << sizeof(pcl::PointXYZ));
-            // ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZRGB): " << sizeof(pcl::PointXYZRGB));
-            // ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZI): " << sizeof(pcl::PointXYZI));
+            // // ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZ): " << sizeof(pcl::PointXYZ));
+            // // ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZRGB): " << sizeof(pcl::PointXYZRGB));
+            // // ROS_DEBUG_STREAM_NAMED("labels", "sizeof(pcl::PointXYZI): " << sizeof(pcl::PointXYZI));
             pcloud_msg->data.resize(sizeof(pcl::PointXYZRGBA) * num_cap_pts);
             
             pcloud_msg->width = num_cap_pts;
