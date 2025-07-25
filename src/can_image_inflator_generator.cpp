@@ -8,7 +8,7 @@
 
 // The below are redundant
 #include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
-#include <image_transport/image_transport.h>
+#include <image_transport/image_transport.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <egocylindrical/ecwrapper.h>
 #include <sensor_msgs/image_encodings.hpp>
@@ -34,13 +34,13 @@ namespace egocylindrical
         pnh_.getParam("image_topic", image_topic );
         
         reconfigure_server_ = std::make_shared<ReconfigureServer>(pnh_);
-        reconfigure_server_->setCallback(boost::bind(&CanImageInflatorGenerator::configCB, this, _1, _2));
+        reconfigure_server_->setCallback(std::bind(&CanImageInflatorGenerator::configCB, this, _1, _2));
 
         // Synchronize Image and CameraInfo callbacks
         timeSynchronizer_ = std::make_shared<synchronizer>(im_sub_, ec_sub_, 2);
-        timeSynchronizer_->registerCallback(boost::bind(&CanImageInflatorGenerator::imgCB, this, _1, _2));
+        timeSynchronizer_->registerCallback(std::bind(&CanImageInflatorGenerator::imgCB, this, _1, _2));
         
-        image_transport::SubscriberStatusCallback image_cb = boost::bind(&CanImageInflatorGenerator::ssCB, this);
+        image_transport::SubscriberStatusCallback image_cb = std::bind(&CanImageInflatorGenerator::ssCB, this);
         {
             Lock lock(connect_mutex_);
             im_pub_ = it_.advertise(image_topic, 2, image_cb, image_cb);
@@ -52,7 +52,7 @@ namespace egocylindrical
     {
         Lock lock(config_mutex_);
         
-        ROS_INFO_STREAM("Updating Can Image Inflator config: num_threads=" << config.num_threads << ", inflation_radius=" << config.inflation_radius);
+        // ROS_INFO_STREAM("Updating Can Image Inflator config: num_threads=" << config.num_threads << ", inflation_radius=" << config.inflation_radius);
         config_ = config;
     }
     

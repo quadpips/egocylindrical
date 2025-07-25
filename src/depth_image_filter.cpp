@@ -1,6 +1,6 @@
 
 
-#include <image_transport/image_transport.h>
+#include <image_transport/image_transport.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <image_transport/subscriber_filter.h>
 #include <message_filters/subscriber.h>
@@ -54,12 +54,12 @@ namespace egocylindrical
 
       
         reconfigure_server_ = std::make_shared<ReconfigureServer>(pnh_);
-        reconfigure_server_->setCallback(boost::bind(&DepthImageFilter::configCB, this, _1, _2));
+        reconfigure_server_->setCallback(std::bind(&DepthImageFilter::configCB, this, _1, _2));
       
-        ros::SubscriberStatusCallback info_cb = boost::bind(&DepthImageFilter::ssCB, this);
+        ros::SubscriberStatusCallback info_cb = std::bind(&DepthImageFilter::ssCB, this);
         im_pub_ = nh_.advertise<sensor_msgs::msg::Image>("image_out", 2, info_cb, info_cb);
         
-        im_sub_.registerCallback(boost::bind(&DepthImageFilter::imageCB, this, _1));
+        im_sub_.registerCallback(std::bind(&DepthImageFilter::imageCB, this, _1));
 
         return true;
     }
@@ -136,7 +136,7 @@ namespace egocylindrical
       //Atomic operation, so no need for mutex this time
       //WriteLock lock(config_mutex_);
       
-      ROS_INFO_STREAM("Updating Depth Image Filter config:");
+      // ROS_INFO_STREAM("Updating Depth Image Filter config:");
       {
         Lock(mutex_);
         config_ = config;

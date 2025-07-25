@@ -7,7 +7,7 @@
 
 // The below are redundant
 #include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
-#include <image_transport/image_transport.h>
+#include <image_transport/image_transport.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <egocylindrical/ecwrapper.h>
 
@@ -35,17 +35,17 @@ namespace egocylindrical
         if(use_egocan_)
         {
           timeSynchronizerWithCan = std::make_shared<can_synchronizer>(im_sub_, ec_sub_, can_im_sub_, 20);
-          timeSynchronizerWithCan->registerCallback(boost::bind(&RangeImageConverter::imageCB, this, _1, _2, _3));
+          timeSynchronizerWithCan->registerCallback(std::bind(&RangeImageConverter::imageCB, this, _1, _2, _3));
           
         }
         else
         {
           // Synchronize Image and CameraInfo callbacks
           timeSynchronizer = std::make_shared<synchronizer>(im_sub_, ec_sub_, 20);
-          timeSynchronizer->registerCallback(boost::bind(&RangeImageConverter::imageCB, this, _1, _2, nullptr));
+          timeSynchronizer->registerCallback(std::bind(&RangeImageConverter::imageCB, this, _1, _2, nullptr));
         }
         
-        ros::SubscriberStatusCallback info_cb = boost::bind(&RangeImageConverter::ssCB, this);
+        ros::SubscriberStatusCallback info_cb = std::bind(&RangeImageConverter::ssCB, this);
         {
             Lock lock(connect_mutex_);
             ec_pub_ = nh_.advertise<egocylindrical_msgs::msg::EgoCylinderPoints>("data_out", 2, info_cb, info_cb);

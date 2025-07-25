@@ -25,7 +25,7 @@ namespace egocylindrical
     {
         ec_sub_.shutdown();
         
-        ros::SubscriberStatusCallback info_cb = boost::bind(&ProjectedPointCloudGenerator::ssCB, this);
+        ros::SubscriberStatusCallback info_cb = std::bind(&ProjectedPointCloudGenerator::ssCB, this);
         {
             Lock lock(connect_mutex_);
             pc_pub_ = nh_.advertise<sensor_msgs::msg::PointCloud2>("projected_points", 2, info_cb, info_cb);

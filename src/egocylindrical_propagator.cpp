@@ -164,7 +164,7 @@ namespace egocylindrical
     {
         WriteLock lock(config_mutex_);
      
-        ROS_INFO_STREAM("Updating propagator config: height=" << config.height << ", width=" << config.width << ", vfov=" << config.vfov << ", can_width=" << config.can_width
+        // ROS_INFO_STREAM("Updating propagator config: height=" << config.height << ", width=" << config.width << ", vfov=" << config.vfov << ", can_width=" << config.can_width
         << ", v_offset=" << config.v_offset << ", cyl_radius=" << config.cyl_radius);
         config_ = config;
     }
@@ -172,7 +172,7 @@ namespace egocylindrical
     
     bool EgoCylindricalPropagator::init()
     {
-        reconfigure_server_->setCallback(boost::bind(&EgoCylindricalPropagator::configCB, this, _1, _2));
+        reconfigure_server_->setCallback(std::bind(&EgoCylindricalPropagator::configCB, this, _1, _2));
         
         // Get topic names
         std::string points_topic="egocylindrical_points", 
@@ -200,10 +200,10 @@ namespace egocylindrical
         reset_sub_ = nh_.subscribe<std_msgs::Empty>("reset", 1, [this](const std_msgs::Empty::ConstPtr&) { wrapper_buffer_.reset(2); });
 
         // Setup publishers
-        ros::SubscriberStatusCallback image_cb = boost::bind(&EgoCylindricalPropagator::connectCB, this);        
+        ros::SubscriberStatusCallback image_cb = std::bind(&EgoCylindricalPropagator::connectCB, this);        
         ec_pub_ = nh_.advertise<egocylindrical_msgs::msg::EgoCylinderPoints>(points_topic, 1, image_cb, image_cb);
         
-        //ros::SubscriberStatusCallback pc_cb = boost::bind(&EgoCylindricalPropagator::connectCB, this);
+        //ros::SubscriberStatusCallback pc_cb = std::bind(&EgoCylindricalPropagator::connectCB, this);
         pc_pub_ = nh_.advertise<sensor_msgs::msg::PointCloud2>(filtered_pc_topic, 3);
         info_pub_ = nh_.advertise<egocylindrical_msgs::msg::EgoCylinderPoints>(egocylinder_info_topic, 1);
 

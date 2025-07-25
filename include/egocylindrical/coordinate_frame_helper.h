@@ -69,7 +69,7 @@ namespace egocylindrical
                 
                 if(status)
                 {
-                    ROS_INFO_STREAM("Found all necessary coordinate frame parameters!");
+                    // ROS_INFO_STREAM("Found all necessary coordinate frame parameters!");
                     updateDefinition(cfd);
                     pose_sub_ = pnh_.subscribe("desired_pose", 2, &CoordinateFrameHelper::desPoseCB, this);
                 }
@@ -133,7 +133,7 @@ namespace egocylindrical
 //                     return;
 //                 }
 
-                ROS_INFO_STREAM("Successfully updated offset definition!");
+                // ROS_INFO_STREAM("Successfully updated offset definition!");
                 return;
             }
             
@@ -239,7 +239,7 @@ namespace egocylindrical
             {
                 if(new_cfd_)
                 {
-                    ROS_INFO_STREAM("[updateOffsetTransform] Have new CoordinateFrameDefinition!");
+                    // ROS_INFO_STREAM("[updateOffsetTransform] Have new CoordinateFrameDefinition!");
                     
                     geometry_msgs::PoseStamped des_origin_pose;
                     try
@@ -274,7 +274,7 @@ namespace egocylindrical
                     offset_transform_.header.frame_id =  getECSFrameId();
                     offset_transform_.header.stamp = des_origin_pose.header.stamp;
                     offset_transform_.child_frame_id = getECFrameId();
-                    ROS_INFO_STREAM("Successfully processed new offset definition!");
+                    // ROS_INFO_STREAM("Successfully processed new offset definition!");
 
                     new_cfd_ = false;
                 }

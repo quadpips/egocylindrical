@@ -18,7 +18,7 @@
 //#include <pcl.h>
 
 #include <tf2_ros/transform_listener.h>
-#include <image_transport/image_transport.h>
+#include <image_transport/image_transport.hpp>
 #include <image_transport/subscriber_filter.h>
 
 #include <tf2_ros/message_filter.h>

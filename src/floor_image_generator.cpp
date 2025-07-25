@@ -36,9 +36,9 @@ namespace egocylindrical
         pnh_.getParam("floor_normals_colored_topic", floor_normals_colored_topic );
         
         reconfigure_server_ = std::make_shared<ReconfigureServer>(pnh_);
-        reconfigure_server_->setCallback(boost::bind(&EgoCylinderFloorImageGenerator::configCB, this, _1, _2));
+        reconfigure_server_->setCallback(std::bind(&EgoCylinderFloorImageGenerator::configCB, this, _1, _2));
 
-        image_transport::SubscriberStatusCallback image_cb = boost::bind(&EgoCylinderFloorImageGenerator::ssCB, this);
+        image_transport::SubscriberStatusCallback image_cb = std::bind(&EgoCylinderFloorImageGenerator::ssCB, this);
         {
             Lock lock(connect_mutex_);
             // im_pub_ = it_.advertise(image_topic, 2, image_cb, image_cb);
@@ -57,7 +57,7 @@ namespace egocylindrical
       //Num_threads not actually used right now, so not important to lock
       //WriteLock lock(config_mutex_);
       
-      ROS_INFO_STREAM("Updating Floor Image Generator config: num_threads=" << config.num_threads);
+      // ROS_INFO_STREAM("Updating Floor Image Generator config: num_threads=" << config.num_threads);
       num_threads_ = config.num_threads;
     }
     

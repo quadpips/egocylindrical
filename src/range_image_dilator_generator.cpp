@@ -8,8 +8,10 @@
 
 // The below are redundant
 #include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
-#include <image_transport/image_transport.h>
+#include <image_transport/image_transport.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include "rmw/types.h"
+
 #include <egocylindrical/ecwrapper.h>
 #include <egocylindrical/range_image_dilator_core.h>
 
@@ -32,27 +34,27 @@ namespace egocylindrical
         // pnh_.getParam("egocan_enabled", use_egocan_);
         use_egocan_ = node_->get_parameter("egocan_enabled").as_bool();
         
-        im_sub_.registerCallback(boost::bind(&RangeImageDilator::imageCB, this, _1, nullptr, nullptr));
+        im_sub_.registerCallback(std::bind(&RangeImageDilator::imageCB, this, std::placeholders::_1, nullptr, nullptr));
         /*
         if(use_egocan_)
         {
           timeSynchronizerWithCan = std::make_shared<can_synchronizer>(im_sub_, ec_sub_, can_im_sub_, 20);
-          timeSynchronizerWithCan->registerCallback(boost::bind(&RangeImageDilator::imageCB, this, _1, _2, _3));
+          timeSynchronizerWithCan->registerCallback(std::bind(&RangeImageDilator::imageCB, this, _1, _2, _3));
 
         }
         else
         {
           // Synchronize Image and CameraInfo callbacks
           timeSynchronizer = std::make_shared<synchronizer>(im_sub_, ec_sub_, 20);
-          timeSynchronizer->registerCallback(boost::bind(&RangeImageDilator::imageCB, this, _1, _2, nullptr));
+          timeSynchronizer->registerCallback(std::bind(&RangeImageDilator::imageCB, this, _1, _2, nullptr));
         }
         */
 
-        ros::SubscriberStatusCallback info_cb = boost::bind(&RangeImageDilator::ssCB, this);
-        {
-            Lock lock(connect_mutex_);
-            im_pub_ = nh_.advertise<sensor_msgs::msg::Image>("image_out", 2, info_cb, info_cb);
-        }
+        // ros::SubscriberStatusCallback info_cb = std::bind(&RangeImageDilator::ssCB, this);
+        // {
+            // Lock lock(connect_mutex_);
+        im_pub_ = node_->create_publisher<sensor_msgs::msg::Image>("image_out", 2); // , info_cb, info_cb);
+        // }
 
         return true;
     }
@@ -62,7 +64,7 @@ namespace egocylindrical
 
         //std::cout << (void*)ec_sub_ << ": " << im_pub_.getNumSubscribers() << std::endl;
         Lock lock(connect_mutex_);
-        if(im_pub_.getNumSubscribers()>0)
+        if (im_pub_->get_subscription_count() > 0)
         {
             //Note: should probably add separate checks for each
             if((void*)im_sub_.getSubscriber()) //if currently subscribed... no need to do anything
@@ -71,15 +73,17 @@ namespace egocylindrical
             }
             else
             {
-                im_sub_.subscribe(it_, "image_in", 2);
+                rmw_qos_profile_t qos = rmw_qos_profile_default;
+                qos.depth = 2; // TODO: Make this a parameter
+                im_sub_.subscribe(node_.get(), "image_in", "compressed", qos);
 
                 if(use_egocan_)
                 {
-                    can_im_sub_.subscribe(it_, "can_image_in", 2);
+                    can_im_sub_.subscribe(node_.get(), "can_image_in", "compressed", qos);
                 }
-                ec_sub_.subscribe(nh_, "info_in", 2);
+                ec_sub_.subscribe(node_.get(), "info_in");
 
-                ROS_INFO_STREAM("RangeImage Dilator Subscribing to [" << im_sub_.getTopic() << "]");
+                // ROS_INFO_STREAM("RangeImage Dilator Subscribing to [" << im_sub_.getTopic() << "]");
             }
         }
         else
@@ -100,7 +104,7 @@ namespace egocylindrical
         // ROS_DEBUG("Received range msg");
 
         // This may be redundant now
-        if(im_pub_.getNumSubscribers() > 0)
+        if(im_pub_->get_subscription_count() > 0)
         {
             // ros::WallTime// start = ros::WallTime::now();
 
@@ -111,7 +115,7 @@ namespace egocylindrical
 
             // ROS_DEBUG("publish egocylindrical image");
 
-            im_pub_.publish(dilated_img_ptr);
+            im_pub_->publish(*dilated_img_ptr);
         }
 
     }

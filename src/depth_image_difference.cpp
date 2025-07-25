@@ -240,7 +240,7 @@ namespace egocylindrical
             cv::Mat range_mat = cv_bridge::toCvShare(request.results.debug.range_image)->image;
             cv::Mat non_nans_mat = (range_mat == range_mat);
             int num_filled = cv::countNonZero(non_nans_mat);
-            ROS_INFO_STREAM("Num range image pixel filled: " << num_filled);
+            // ROS_INFO_STREAM("Num range image pixel filled: " << num_filled);
 
             int pc_counter = 0;
             // ros::WallTimereprojection_// start = ros::WallTime::now();
@@ -431,7 +431,7 @@ namespace egocylindrical
                 }
             }
             
-            ROS_INFO_STREAM("Time to reproject range image to depth image: " << (ros::WallTime::now() - reprojection_start).toSec()*1000 << "ms");
+            // ROS_INFO_STREAM("Time to reproject range image to depth image: " << (ros::WallTime::now() - reprojection_start).toSec()*1000 << "ms");
 
             if(fill_cloud)
             {

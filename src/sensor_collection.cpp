@@ -16,7 +16,7 @@
 // #include <ros/node_handle.h>
 #include <ros/console.h>
 #include <tf2_ros/buffer.h>
-//#include <image_transport/image_transport.h>
+//#include <image_transport/image_transport.hpp>
 
 
 
@@ -26,7 +26,7 @@ namespace egocylindrical
     {
         SensorInterface::Ptr createSensor(ros::NodeHandle nh, std::string name, tf2_ros::Buffer& buffer)
         {
-            ROS_INFO_STREAM("Creating sensor [" << name << "]");
+            // ROS_INFO_STREAM("Creating sensor [" << name << "]");
             auto sensor_nh = ros::NodeHandle(nh, name);
             
             SensorInterface::Ptr sensor;
@@ -114,7 +114,7 @@ namespace egocylindrical
             //         std::ostringstream imploded;
             //         std::copy(sensor_names.begin(), sensor_names.end(),
             //         std::ostream_iterator<std::string>(imploded, delim));
-            //         ROS_INFO_STREAM("Enabled observation sources: " << delim);
+            //         // ROS_INFO_STREAM("Enabled observation sources: " << delim);
             //     }
 
             //     return sensor_names;
@@ -153,7 +153,7 @@ namespace egocylindrical
 
             if(sensors_.size()>0)
             {
-                ROS_INFO_STREAM("Found " << sensors_.size() << " sensors");
+                // ROS_INFO_STREAM("Found " << sensors_.size() << " sensors");
             }
             else
             {
@@ -180,7 +180,7 @@ namespace egocylindrical
               this->update(*measurement);
             };
 
-    //         seq_.setCallback(boost::bind(&EgoCylindricalPropagator::update, this, _1));
+    //         seq_.setCallback(std::bind(&EgoCylindricalPropagator::update, this, _1));
             seq_.setCallback(seq_cb);
             
             auto seq_input = [this](utils::SensorMeasurement::Ptr measurement)

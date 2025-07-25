@@ -28,7 +28,7 @@
     void connectInput(F& f)
     {
       incoming_connection_.disconnect();
-      incoming_connection_ = f.registerCallback(typename message_filters::SimpleFilter<M>::EventCallback(boost::bind(&TimeFilter::cb, this, boost::placeholders::_1)));
+      incoming_connection_ = f.registerCallback(typename message_filters::SimpleFilter<M>::EventCallback(std::bind(&TimeFilter::cb, this, boost::placeholders::_1)));
     }
 
     void add(const typename message_filters::SimpleFilter<M>::EventType& evt)

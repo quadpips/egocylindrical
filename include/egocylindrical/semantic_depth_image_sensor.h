@@ -159,7 +159,7 @@ namespace egocylindrical
 
       // Synchronize Image and CameraInfo callbacks
       msg_sync_ = std::make_shared<MsgSynchronizer>(depth_sub_, *info_tf_filter, normals_sub_, 3); //   
-      msg_sync_->registerCallback(boost::bind(&SemanticDepthImageSensor::update, this, _1, _2, _3)); //  
+      msg_sync_->registerCallback(std::bind(&SemanticDepthImageSensor::update, this, _1, _2, _3)); //  
 
       // labels_sub_ = it_.subscribe(labels_topic, 1, &SemanticDepthImageSensor::labels_cb, this);
     }

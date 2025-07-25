@@ -214,6 +214,12 @@ target_link_libraries(depth_image_remapper
    ${OpenMP_CXX_FLAGS}
    )
 
+add_library(range_image_dilator src/range_image_dilator_generator.cpp
+            src/range_image_dilator_core.cpp)
+ament_target_dependencies(range_image_dilator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+target_compile_options(range_image_dilator PRIVATE)
+target_link_libraries(range_image_dilator)
+
 #############
 ## Install ##
 #############
@@ -223,8 +229,7 @@ install(
   TARGETS range_image_core can_image_core floor_image_core point_cloud_core 
             projected_point_cloud_core semantic_point_cloud_core normal_point_cloud_core
             normal_point_cloud_floor_only_core point_transformer point_propagator
-            depth_image_remapper
-            # range_image_dilator 
+            depth_image_remapper range_image_dilator 
             # range_image_converter
             # depth_image_difference depth_image_inserter laser_scan_inserter
             # sensors ecwrapper_buffer egocylindrical_propagator

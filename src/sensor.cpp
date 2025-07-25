@@ -42,7 +42,7 @@ namespace egocylindrical
               /*
               if(sensor_nh.getParam(param_name, value))
               {
-                  ROS_INFO_STREAM("Successfully loaded parameter [" << param_name << "]=" << value);
+                  // ROS_INFO_STREAM("Successfully loaded parameter [" << param_name << "]=" << value);
                   return true;
               }
               else

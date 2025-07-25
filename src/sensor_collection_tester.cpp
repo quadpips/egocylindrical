@@ -14,7 +14,7 @@ int main(int argc, char** argv)
     
     auto seq_cb = [](egocylindrical::utils::SensorMeasurement::Ptr measurement)
     {
-        ROS_INFO_STREAM("Received message with header: " << measurement->header);
+        // ROS_INFO_STREAM("Received message with header: " << measurement->header);
     };
     
     egocylindrical::utils::SensorCollection s(pnh, buffer);

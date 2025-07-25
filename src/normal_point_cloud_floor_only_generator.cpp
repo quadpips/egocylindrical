@@ -25,7 +25,7 @@ namespace egocylindrical
     {
         ec_sub_.shutdown();
         
-        ros::SubscriberStatusCallback info_cb = boost::bind(&NormalPointCloudFloorOnlyGenerator::ssCB, this);
+        ros::SubscriberStatusCallback info_cb = std::bind(&NormalPointCloudFloorOnlyGenerator::ssCB, this);
         {
             Lock lock(connect_mutex_);
             pc_pub_ = nh_.advertise<sensor_msgs::msg::PointCloud2>("normals_floor_only", 2, info_cb, info_cb);

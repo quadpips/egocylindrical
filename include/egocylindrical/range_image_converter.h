@@ -4,7 +4,7 @@
 
 //#include <egocylindrical/ecwrapper.h>
 #include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
-#include <image_transport/image_transport.h>
+#include <image_transport/image_transport.hpp>
 #include <image_transport/subscriber_filter.h>
 #include <message_filters/subscriber.h>
 

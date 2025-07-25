@@ -15,7 +15,7 @@
 //#include <opencv2/core.hpp>
 //#include <opencv2/highgui.hpp>
 //#include <opencv2/imgproc.hpp>
-#include <image_transport/image_transport.h>
+#include <image_transport/image_transport.hpp>
 //#include <cv_bridge/cv_bridge.h>
 #include <image_geometry/pinhole_camera_model.h>
 
@@ -126,7 +126,7 @@ namespace egocylindrical
                     // ros::WallTime// start = ros::WallTime::now();
                     
                     DedicatedEgoCylindricalPropagator::propagateHistoryInplace(*old_pts_, *new_pts_, image->header);
-                    //ROS_INFO_STREAM("Propagation took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+                    //// ROS_INFO_STREAM("Propagation took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
                 }
                 else
                 {
@@ -195,13 +195,13 @@ namespace egocylindrical
     {
         WriteLock lock(config_mutex_);
      
-        ROS_INFO_STREAM("Updating propagator config: height=" << config.height << ", width=" << config.width << ", vfov=" << config.vfov);
+        // ROS_INFO_STREAM("Updating propagator config: height=" << config.height << ", width=" << config.width << ", vfov=" << config.vfov);
         config_ = config;
     }
      
     bool DedicatedEgoCylindricalPropagator::init()
     {
-        reconfigure_server_->setCallback(boost::bind(&DedicatedEgoCylindricalPropagator::configCB, this, _1, _2));
+        reconfigure_server_->setCallback(std::bind(&DedicatedEgoCylindricalPropagator::configCB, this, _1, _2));
         
         double pi = std::acos(-1);
         hfov_ = 2*pi;
@@ -224,10 +224,10 @@ namespace egocylindrical
         pnh_.getParam("filtered_points", filtered_pc_topic);
         
         // Setup publishers
-        ros::SubscriberStatusCallback image_cb = boost::bind(&DedicatedEgoCylindricalPropagator::connectCB, this);        
+        ros::SubscriberStatusCallback image_cb = std::bind(&DedicatedEgoCylindricalPropagator::connectCB, this);        
         im_pub_ = nh_.advertise<sensor_msgs::msg::Image>(points_topic, 1, image_cb, image_cb);
         
-        //ros::SubscriberStatusCallback pc_cb = boost::bind(&DedicatedEgoCylindricalPropagator::connectCB, this);        
+        //ros::SubscriberStatusCallback pc_cb = std::bind(&DedicatedEgoCylindricalPropagator::connectCB, this);        
         pc_pub_ = nh_.advertise<sensor_msgs::msg::PointCloud2>(filtered_pc_topic, 3);
         
         
@@ -240,7 +240,7 @@ namespace egocylindrical
         
         // Synchronize Image and CameraInfo callbacks
         timeSynchronizer = std::make_shared<synchronizer>(depthSub, *info_tf_filter, 2);
-        timeSynchronizer->registerCallback(boost::bind(&DedicatedEgoCylindricalPropagator::update, this, _1, _2));
+        timeSynchronizer->registerCallback(std::bind(&DedicatedEgoCylindricalPropagator::update, this, _1, _2));
         
         return true;
     }

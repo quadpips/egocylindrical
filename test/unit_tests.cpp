@@ -24,7 +24,7 @@ using namespace egocylindrical::utils;
             points.project3dToPixelRange(p, pp, range);
             cv::Point3d reproj = range * points.projectPixelTo3dRay(pp);
             double error = cv::norm(p-reproj);
-            ROS_INFO_STREAM("Error=" << error);
+            // ROS_INFO_STREAM("Error=" << error);
         }
 
       return true;
@@ -52,7 +52,7 @@ using namespace egocylindrical::utils;
                 points.project3dToPixelRange(reproj, pp2, proj_range);
                 double range_error = range - proj_range;
                 double pix_error = cv::norm(pp-pp2);
-                // ROS_INFO_STREAM("Pixel0=" << pp<< ", Range0=" << range << ", Point=" << reproj << ", Pixel=" << pp2 << ", Range=" << proj_range << ", Range Error=" << range_error << ", Pix Error=" << pix_error);
+                // // ROS_INFO_STREAM("Pixel0=" << pp<< ", Range0=" << range << ", Point=" << reproj << ", Pixel=" << pp2 << ", Range=" << proj_range << ", Range Error=" << range_error << ", Pix Error=" << pix_error);
                 range+=factor;
             }
         }
@@ -66,7 +66,7 @@ using namespace egocylindrical::utils;
       ECWrapper e = ec; //copy constructor
       auto t2 = ros::WallTime::now();
 
-      ROS_INFO_STREAM("Copy time for " << e.getNumPts() << " points: " << (t2-t1).toSec()*1e3 << "ms");
+      // ROS_INFO_STREAM("Copy time for " << e.getNumPts() << " points: " << (t2-t1).toSec()*1e3 << "ms");
 
       return e;
     }
@@ -86,8 +86,8 @@ using namespace egocylindrical::utils;
       }
       auto t3 = ros::WallTime::now();
 
-      ROS_INFO_STREAM("Allocation time for " << e.getNumPts() << " points: " << (t2-t1).toSec()*1e3 << "ms");
-      ROS_INFO_STREAM("Copy time for " << e.getNumPts() << " points: " << (t3-t2).toSec()*1e3 << "ms");
+      // ROS_INFO_STREAM("Allocation time for " << e.getNumPts() << " points: " << (t2-t1).toSec()*1e3 << "ms");
+      // ROS_INFO_STREAM("Copy time for " << e.getNumPts() << " points: " << (t3-t2).toSec()*1e3 << "ms");
 
 
       return e;
