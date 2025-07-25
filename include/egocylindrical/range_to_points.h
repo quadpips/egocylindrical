@@ -1,6 +1,6 @@
 #include <egocylindrical/ecwrapper.h>
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <opencv2/core.hpp>
 //#include <opencv2/highgui.hpp>
 //#include <opencv2/imgproc.hpp>
@@ -10,7 +10,7 @@
 //#include <tf2_ros/transform_listener.h>
 //#include <tf/LinearMath/Matrix3x3.h>
 #include <omp.h>
-//#include <pcl_ros/point_cloud.h>
+//#include <pcl_ros/point_cloud.hpp>
 //#include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/image_encodings.h>
 

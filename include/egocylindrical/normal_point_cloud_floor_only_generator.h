@@ -4,7 +4,7 @@
 
 #include <egocylindrical/ecwrapper.h>
 #include <egocylindrical/EgoCylinderPoints.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <boost/thread/mutex.hpp>

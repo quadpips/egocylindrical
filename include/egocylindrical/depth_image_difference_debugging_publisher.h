@@ -2,7 +2,7 @@
 #define EGOCYLINDRICAL_DEPTH_IMAGE_DIFFERENCE_DEBUGGING_PUBLISHER_H
 
 #include <egocylindrical/depth_image_difference.h>  //Strictly speaking, a forward declaration would suffice, but not worth the potential hassle
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <map>
 
 namespace egocylindrical

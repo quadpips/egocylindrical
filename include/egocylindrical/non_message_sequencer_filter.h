@@ -35,7 +35,7 @@
 #ifndef EGOCYLINDRICAL_TIME_SEQUENCER_H
 #define EGOCYLINDRICAL_TIME_SEQUENCER_H
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <message_filters/connection.h>
 #include <message_filters/simple_filter.h>

@@ -1,10 +1,10 @@
 #include <egocylindrical/ecwrapper.h>
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <opencv2/core.hpp>
 
 #include <omp.h>
-#include <pcl_ros/point_cloud.h>
+#include <pcl_ros/point_cloud.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
 
@@ -24,7 +24,7 @@ namespace egocylindrical
             
             pcl::PointCloud<pcl::PointXYZRGBA> pcloud;
             
-            sensor_msgs::msg::PointCloud2::Ptr pcloud_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
+            sensor_msgs::msg::PointCloud2::SharedPtr pcloud_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
             
             pcl::toROSMsg(pcloud, *pcloud_msg);
             

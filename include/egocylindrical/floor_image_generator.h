@@ -6,7 +6,7 @@
 #include <egocylindrical/EgoCylinderPoints.h>
 #include <egocylindrical/FloorImageGeneratorConfig.h>
 #include <image_transport/image_transport.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <dynamic_reconfigure/server.h>
 

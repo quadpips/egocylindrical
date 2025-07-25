@@ -1,5 +1,5 @@
 #include <egocylindrical/depth_image_difference_debugging_publisher.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <vector>
 
 namespace egocylindrical

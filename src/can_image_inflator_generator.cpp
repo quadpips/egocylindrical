@@ -9,7 +9,7 @@
 // The below are redundant
 #include <egocylindrical/EgoCylinderPoints.h>
 #include <image_transport/image_transport.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <egocylindrical/ecwrapper.h>
 #include <sensor_msgs/image_encodings.h>
 

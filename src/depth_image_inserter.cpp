@@ -992,7 +992,7 @@ namespace egocylindrical
             // request.params.fill_im = true;
             // request.params.fill_debug = true;
 
-            // sensor_msgs::msg::PointCloud2::Ptr pcloud_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
+            // sensor_msgs::msg::PointCloud2::SharedPtr pcloud_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
             insertPoints(cylindrical_points, image_msg, cam_model_, transform, request); // , 
             // auto pcloud_msg = request.results.point_cloud;
             // pcloud_msg->header = target_header; //image_msg->header;
@@ -1053,7 +1053,7 @@ namespace egocylindrical
             // request.params.fill_im = true;
             // request.params.fill_debug = true;
 
-            // sensor_msgs::msg::PointCloud2::Ptr pcloud_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
+            // sensor_msgs::msg::PointCloud2::SharedPtr pcloud_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
             insertPoints(cylindrical_points, image_msg, normals_msg, cam_model_, transform, request); // , 
             // auto pcloud_msg = request.results.point_cloud;
             // pcloud_msg->header = target_header; //image_msg->header;

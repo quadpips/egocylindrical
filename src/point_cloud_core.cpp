@@ -2,11 +2,13 @@
 
 #include <egocylindrical/ecwrapper.h>
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <opencv2/core.hpp>
 
 #include <omp.h>
-#include <pcl_ros/point_cloud.h>
+// #include <pcl_ros/point_cloud.hpp>
+#include <pcl_conversions/pcl_conversions.h>
+
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
 
@@ -16,14 +18,14 @@ namespace egocylindrical
     namespace utils
     {
         /* TODO: ensure that the right size 'ints' are used everywhere. On my current system, the size of int = minimum size of long int, so 32 bit system might fail */
-        sensor_msgs::msg::PointCloud2::Ptr generate_point_cloud(const utils::ECWrapper& points)
+        sensor_msgs::msg::PointCloud2::SharedPtr generate_point_cloud(const utils::ECWrapper& points)
         {
             const int num_cols = points.getNumPts();
             
             pcl::PointCloud<pcl::PointXYZ> pcloud;
             
             
-            sensor_msgs::msg::PointCloud2::Ptr pcloud_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
+            sensor_msgs::msg::PointCloud2::SharedPtr pcloud_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
             
             pcl::toROSMsg(pcloud, *pcloud_msg);
             

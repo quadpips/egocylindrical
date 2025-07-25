@@ -9,7 +9,7 @@ namespace egocylindrical
 {
     namespace utils
     {
-        sensor_msgs::msg::PointCloud2::Ptr generate_point_cloud(const utils::ECWrapper& points);
+        sensor_msgs::msg::PointCloud2::SharedPtr generate_point_cloud(const utils::ECWrapper& points);
     }
 
 }

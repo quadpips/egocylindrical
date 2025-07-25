@@ -8,13 +8,13 @@
 #include <egocylindrical/utils.h>
 #include <egocylindrical/depth_image_core.h>
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <image_geometry/pinhole_camera_model.h>
-#include <pcl_ros/point_cloud.h>
+#include <pcl_ros/point_cloud.hpp>
 //#include <pcl.h>
 
 #include <tf2_ros/transform_listener.h>

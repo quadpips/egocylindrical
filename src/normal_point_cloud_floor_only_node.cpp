@@ -3,7 +3,7 @@
 //
 
 #include <egocylindrical/normal_point_cloud_floor_only_generator.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 
 int main(int argc, char** argv)

@@ -11,7 +11,7 @@
 
 //#include <tf/LinearMath/Matrix3x3.h>
 //#include <cv_bridge/cv_bridge.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 //#include <opencv2/core.hpp>
 //#include <opencv2/highgui.hpp>
 //#include <opencv2/imgproc.hpp>
@@ -94,7 +94,7 @@ namespace egocylindrical
         if(pc_pub_.getNumSubscribers()>0)
         {
           ReadLock lock(config_mutex_);
-          sensor_msgs::msg::PointCloud2::Ptr pcloud_msg;
+          sensor_msgs::msg::PointCloud2::SharedPtr pcloud_msg;
           depth_remapper_.update(cylindrical_points, image, cam_info, pcloud_msg, config_.filter_y_min, config_.filter_y_max);
           pc_pub_.publish(pcloud_msg);
         }

@@ -3,7 +3,7 @@
 //
 
 #include <egocylindrical/semantic_point_cloud_generator.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 
 int main(int argc, char** argv)

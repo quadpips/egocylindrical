@@ -11,6 +11,10 @@ Note: The previous behavior of locking the egocan frame to the camera frame can 
 
 ## Running alongside go2
 
+### Building
+
+Need source pcl_ros
+
 ### Branches
 - `legged_software` : `dev/mmp`
 

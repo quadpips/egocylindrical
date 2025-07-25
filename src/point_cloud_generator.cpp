@@ -6,7 +6,7 @@
 #include <egocylindrical/point_cloud_core.h>
 #include <egocylindrical/ecwrapper.h>
 #include <egocylindrical/EgoCylinderPoints.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <sensor_msgs/msg/point_cloud2.hpp>
 

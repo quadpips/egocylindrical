@@ -6,7 +6,7 @@
 #include <egocylindrical/point_transformer_object.h>
 
 #include <cv_bridge/cv_bridge.h> //redundant
-#include <pcl_ros/point_cloud.h>
+#include <pcl_ros/point_cloud.hpp>
 
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
@@ -109,7 +109,7 @@ namespace egocylindrical
                 request.results.debug.range_image = range_image_ptr;
 
                 ros::WallTime pc_start = ros::WallTime::now();
-                sensor_msgs::msg::PointCloud2::Ptr point_cloud_ptr = utils::generate_point_cloud(cyl_points);
+                sensor_msgs::msg::PointCloud2::SharedPtr point_cloud_ptr = utils::generate_point_cloud(cyl_points);
                 request.results.debug.point_cloud = point_cloud_ptr;
 
                 ros::WallTime dilate_start = ros::WallTime::now();
@@ -121,7 +121,7 @@ namespace egocylindrical
                 utils::ECWrapperPtr ec_pts = utils::range_image_to_wrapper(info, dilated_image_ptr, nullptr);
 
                 ros::WallTime dilated_pc_start = ros::WallTime::now();
-                sensor_msgs::msg::PointCloud2::Ptr dilated_point_cloud_ptr = utils::generate_point_cloud(*ec_pts);
+                sensor_msgs::msg::PointCloud2::SharedPtr dilated_point_cloud_ptr = utils::generate_point_cloud(*ec_pts);
                 request.results.debug.dilated_point_cloud = dilated_point_cloud_ptr;
 
                 ros::WallTime end_time = ros::WallTime::now();
@@ -167,7 +167,7 @@ namespace egocylindrical
             bool fill_im = request.params.fill_im;
             bool fill_debug = request.params.fill_debug;
 
-            sensor_msgs::msg::PointCloud2::Ptr& pcloud_msg = request.results.point_cloud;
+            sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg = request.results.point_cloud;
             sensor_msgs::msg::Image::SharedPtr& gen_im_msg = request.results.depth_image;
             const sensor_msgs::msg::Image& image_msg = *image_msg_ptr;
 
@@ -488,10 +488,10 @@ namespace egocylindrical
         }
 
         // template <uint16_t>
-        // void insertPoints6(utils::ECWrapper& cylindrical_points, const cv::Mat image, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, float neg_eps, float pos_eps,  sensor_msgs::msg::PointCloud2::Ptr& pcloud_msg);
+        // void insertPoints6(utils::ECWrapper& cylindrical_points, const cv::Mat image, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, float neg_eps, float pos_eps,  sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg);
 
         // template <typename float>
-        // void insertPoints6(utils::ECWrapper& cylindrical_points, const cv::Mat image, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, float neg_eps, float pos_eps,  sensor_msgs::msg::PointCloud2::Ptr& pcloud_msg);
+        // void insertPoints6(utils::ECWrapper& cylindrical_points, const cv::Mat image, const CleanCameraModel& cam_model, const geometry_msgs::TransformStamped transform, float neg_eps, float pos_eps,  sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg);
 
     } //end namespace utils
 } //end namespace egocylindrical

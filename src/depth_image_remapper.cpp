@@ -6,7 +6,7 @@
 #include <image_geometry/pinhole_camera_model.h>
 #include <cv_bridge/cv_bridge.h>
 
-#include <pcl_ros/point_cloud.h>
+#include <pcl_ros/point_cloud.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
 namespace egocylindrical
@@ -69,7 +69,7 @@ namespace egocylindrical
         
         template <typename T, bool fill_cloud, typename U, typename S>
         inline
-        void remapDepthImage(utils::ECWrapper& cylindrical_points, const T* depths, const U* inds, const S* n_x, const S* n_y, const S* n_z, int num_pixels, sensor_msgs::msg::PointCloud2::Ptr& pcloud_msg, S thresh_min, S thresh_max)
+        void remapDepthImage(utils::ECWrapper& cylindrical_points, const T* depths, const U* inds, const S* n_x, const S* n_y, const S* n_z, int num_pixels, sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg, S thresh_min, S thresh_max)
         {
 
             float* x = cylindrical_points.getX();
@@ -140,7 +140,7 @@ namespace egocylindrical
         
         template <bool fill_cloud, typename U, typename S>
         inline
-        void remapDepthImage(utils::ECWrapper& cylindrical_points, const cv::Mat& image, const U* inds, const S* n_x, const S* n_y, const S* n_z, int num_pixels, sensor_msgs::msg::PointCloud2::Ptr& pcloud_msg, S thresh_min, S thresh_max)
+        void remapDepthImage(utils::ECWrapper& cylindrical_points, const cv::Mat& image, const U* inds, const S* n_x, const S* n_y, const S* n_z, int num_pixels, sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg, S thresh_min, S thresh_max)
         {
             if(image.depth() == CV_32FC1)
             {
@@ -154,7 +154,7 @@ namespace egocylindrical
         
         template <bool fill_cloud, typename U, typename S>
         inline
-        void remapDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstPtr& image_msg, const U* inds, const S* n_x, const S* n_y, const S* n_z, int num_pixels, sensor_msgs::msg::PointCloud2::Ptr& pcloud_msg, S thresh_min, S thresh_max)
+        void remapDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstPtr& image_msg, const U* inds, const S* n_x, const S* n_y, const S* n_z, int num_pixels, sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg, S thresh_min, S thresh_max)
         {
             const cv::Mat image = cv_bridge::toCvShare(image_msg)->image;
             remapDepthImage<fill_cloud>(cylindrical_points, image, inds, n_x, n_y, n_z, num_pixels, pcloud_msg, thresh_min, thresh_max);
@@ -208,14 +208,14 @@ namespace egocylindrical
         
 //         template <bool fill_cloud>
 //         inline
-//         void DepthImageRemapper::remapDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstPtr& image_msg, sensor_msgs::msg::PointCloud2::Ptr& pcloud_msg, float thresh_min, float thresh_max)
+//         void DepthImageRemapper::remapDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstPtr& image_msg, sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg, float thresh_min, float thresh_max)
 //         {
 //             utils::remapDepthImage<fill_cloud>(cylindrical_points, image_msg, inds_.data(), x_.data(), y_.data(), z_.data(), num_pixels_, pcloud_msg, thresh_min, thresh_max);
 //         }
 //         
         //template <bool fill_cloud>
         inline
-        void DepthImageRemapper::update( ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstPtr& image_msg, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info, sensor_msgs::msg::PointCloud2::Ptr& pcloud_msg, float thresh_min, float thresh_max, bool fill_cloud)
+        void DepthImageRemapper::update( ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstPtr& image_msg, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info, sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg, float thresh_min, float thresh_max, bool fill_cloud)
         {
             ROS_DEBUG("Updating cylindrical points with depth image");
             
@@ -241,12 +241,12 @@ namespace egocylindrical
         {
             float thresh_min = 0;
             float thresh_max = 0;
-            sensor_msgs::msg::PointCloud2::Ptr pcloud_msg;
+            sensor_msgs::msg::PointCloud2::SharedPtr pcloud_msg;
             update(cylindrical_points, image_msg, cam_info, pcloud_msg, thresh_min, thresh_max, false);
         }
         
         //inline
-        void DepthImageRemapper::update( ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstPtr& image_msg, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info, sensor_msgs::msg::PointCloud2::Ptr& pcloud_msg, float thresh_min, float thresh_max)
+        void DepthImageRemapper::update( ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstPtr& image_msg, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info, sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg, float thresh_min, float thresh_max)
         {
             update(cylindrical_points, image_msg, cam_info, pcloud_msg, thresh_min, thresh_max, true);
             pcloud_msg->header = image_msg->header;

@@ -152,13 +152,22 @@ target_link_libraries(floor_image_core
    ${OpenMP_CXX_FLAGS}
   )
 
+# POINT_CLOUD_CORE
+add_library(point_cloud_core src/point_cloud_core.cpp)
+ament_target_dependencies(point_cloud_core
+                  ${dependencies}
+                  ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_compile_options(point_cloud_core PRIVATE -ftree-vectorize -fopt-info-loop-optimized=vec_point_cloud_core.txt ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
+   )
+target_link_libraries(point_cloud_core)
+
 #############
 ## Install ##
 #############
 
 
 install(
-  TARGETS range_image_core can_image_core floor_image_core
+  TARGETS range_image_core can_image_core floor_image_core point_cloud_core
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
