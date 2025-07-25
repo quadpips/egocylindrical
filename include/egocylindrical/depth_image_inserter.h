@@ -10,8 +10,8 @@
 #include <ros/node_handle.h>
 #include <tf2_ros/buffer.h>
 
-#include <sensor_msgs/Image.h>
-#include <sensor_msgs/CameraInfo.h>
+#include <sensor_msgs/msg/image.hpp>
+#include <sensor_msgs/msg/camera_info.hpp>
 
 
 

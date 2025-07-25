@@ -3,7 +3,8 @@
 
 #include <egocylindrical/ecwrapper.h>
 
-#include <ros/ros.h>
+// #include <ros/ros.h>
+
 #include <cv_bridge/cv_bridge.h>
 #include <omp.h>
 
@@ -26,7 +27,7 @@ namespace egocylindrical
         /////////////////////////
         void generateFloorNormalColoredImage(const utils::ECWrapper& cylindrical_history, uint32_t* data, const uint32_t unknown_val, int num_threads)
         {            
-            ROS_DEBUG("Generating image of cylindrical memory");
+            // ROS_DEBUG("Generating image of cylindrical memory");
             
             const float* const norm_x = cylindrical_history.getNormalX();
             const float* const norm_y = cylindrical_history.getNormalY();
@@ -94,7 +95,7 @@ namespace egocylindrical
         template <typename T>
         void generateFloorNormalImage(const utils::ECWrapper& cylindrical_history, T* r, const T unknown_val, int num_threads)
         {            
-            ROS_DEBUG("Generating image of cylindrical memory");
+            // ROS_DEBUG("Generating image of cylindrical memory");
             
             const float* const norm_x = cylindrical_history.getNormalX();
             const float* const norm_y = cylindrical_history.getNormalY();
@@ -157,7 +158,7 @@ namespace egocylindrical
         /////////////////////////
         void generateFloorLabelColoredImage(const utils::ECWrapper& cylindrical_history, uint32_t* data, const uint32_t unknown_val, int num_threads)
         {            
-            ROS_DEBUG("Generating image of cylindrical memory");
+            // ROS_DEBUG("Generating image of cylindrical memory");
             
             const uint8_t* const labels = cylindrical_history.getLabels();
 
@@ -190,7 +191,7 @@ namespace egocylindrical
                     r = 0; g = 255; b = 0; a = 255;
                 } else
                 {
-                    ROS_DEBUG_STREAM_NAMED("labels", " label not recognized!");
+                    // ROS_DEBUG_STREAM_NAMED("labels", " label not recognized!");
                 }
 
                 std::uint32_t rgba = ((std::uint32_t)a << 24 | (std::uint32_t)b << 16 | (std::uint32_t)g << 8 | (std::uint32_t)r);
@@ -237,7 +238,7 @@ namespace egocylindrical
         template <typename T>
         void generateFloorLabelImage(const utils::ECWrapper& cylindrical_history, T* r, const T unknown_val, int num_threads)
         {            
-            ROS_DEBUG("Generating image of cylindrical memory");
+            // ROS_DEBUG("Generating image of cylindrical memory");
             
             const uint8_t* const labels = cylindrical_history.getLabels();
 
@@ -298,7 +299,7 @@ namespace egocylindrical
         template <typename T,uint scale>
         void generateFloorImage(const utils::ECWrapper& cylindrical_history, T* r, const T unknown_val, int num_threads)
         {            
-            ROS_DEBUG("Generating image of cylindrical memory");
+            // ROS_DEBUG("Generating image of cylindrical memory");
             
             const float* const y = cylindrical_history.getY();
 

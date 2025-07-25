@@ -3,7 +3,7 @@
 
 #include <egocylindrical/ecwrapper.h>
 
-#include <sensor_msgs/Image.h>
+#include <sensor_msgs/msg/image.hpp>
 
 
 namespace egocylindrical

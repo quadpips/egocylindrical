@@ -140,13 +140,25 @@ target_link_libraries(can_image_core
    ${OpenMP_CXX_FLAGS}
    )
 
+# FLOOR_IMAGE_CORE
+add_library(floor_image_core src/floor_image_core.cpp)
+ament_target_dependencies(floor_image_core 
+                          ${dependencies}
+                          ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_compile_options(floor_image_core PRIVATE -ftree-vectorize -fopt-info-loop-optimized=vec_floor_image_core.txt -funsafe-math-optimizations -fno-math-errno -ffinite-math-only #-ffinite-math-only and -fno-trapping-math.
+   )
+target_link_libraries(floor_image_core
+   ${OpenCV_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+  )
+
 #############
 ## Install ##
 #############
 
 
 install(
-  TARGETS range_image_core can_image_core
+  TARGETS range_image_core can_image_core floor_image_core
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib

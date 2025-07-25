@@ -1,7 +1,7 @@
 #ifndef EGOCYLINDRICAL_POINT_TRANSFORMER_OBJECT_H
 #define EGOCYLINDRICAL_POINT_TRANSFORMER_OBJECT_H
 
-#include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/msg/transform_stamped.hpp>
 #include <tf/LinearMath/Matrix3x3.h>
 
 namespace egocylindrical

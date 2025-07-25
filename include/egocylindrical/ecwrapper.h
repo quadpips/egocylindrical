@@ -15,7 +15,7 @@
 //#include <tf2_ros/transform_listener.h>
 //#include <tf/LinearMath/Matrix3x3.h>
 //#include <omp.h>
-//#include <sensor_msgs/PointCloud2.h>
+//#include <sensor_msgs/msg/point_cloud2.hpp>
 
 #include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
 //#include <egocylindrical/EgoCylinderInfo.h>

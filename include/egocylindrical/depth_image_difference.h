@@ -6,9 +6,9 @@
 
 #include <cv_bridge/cv_bridge.h>    //only need cv::Mat
 
-#include <geometry_msgs/TransformStamped.h>
-#include <sensor_msgs/PointCloud2.h>
-#include <visualization_msgs/MarkerArray.h>
+#include <geometry_msgs/msg/transform_stamped.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
 
 namespace egocylindrical
 {

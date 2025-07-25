@@ -2,7 +2,7 @@
 #define EGOCYLINDRICAL_POINT_CLOUD_CORE_H
 
 #include <egocylindrical/ecwrapper.h>
-#include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 
 
 namespace egocylindrical

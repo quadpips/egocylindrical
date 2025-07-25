@@ -13,7 +13,7 @@
 #include <tf/LinearMath/Matrix3x3.h>
 #include <omp.h>
 
-#include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/msg/transform_stamped.hpp>
 
 
 namespace egocylindrical

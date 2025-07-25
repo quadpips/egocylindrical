@@ -18,7 +18,7 @@
 
 // #include <opencv2/imgproc.hpp>
 
-#include <sensor_msgs/Image.h>
+#include <sensor_msgs/msg/image.hpp>
 
 namespace egocylindrical
 {

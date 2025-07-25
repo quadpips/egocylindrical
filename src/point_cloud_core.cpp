@@ -7,7 +7,7 @@
 
 #include <omp.h>
 #include <pcl_ros/point_cloud.h>
-#include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 
 
 namespace egocylindrical

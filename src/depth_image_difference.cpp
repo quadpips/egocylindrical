@@ -8,8 +8,8 @@
 #include <cv_bridge/cv_bridge.h> //redundant
 #include <pcl_ros/point_cloud.h>
 
-#include <sensor_msgs/Image.h>
-#include <sensor_msgs/CameraInfo.h>
+#include <sensor_msgs/msg/image.hpp>
+#include <sensor_msgs/msg/camera_info.hpp>
 
 #include <cstdlib>
 

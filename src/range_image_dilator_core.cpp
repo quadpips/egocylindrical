@@ -6,7 +6,7 @@
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/imgproc.hpp>
 
-#include <sensor_msgs/Image.h>  //Redundant
+#include <sensor_msgs/msg/image.hpp>  //Redundant
 
 #include <stdexcept>    //To throw runtime error
 

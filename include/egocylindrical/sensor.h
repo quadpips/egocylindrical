@@ -2,7 +2,7 @@
 #define EGOCYLINDRICAL_SENSOR_H
 
 #include <egocylindrical/ecwrapper.h>
-#include <std_msgs/Header.h>
+#include <std_msgs/msg/header.hpp>
 
 namespace egocylindrical
 {

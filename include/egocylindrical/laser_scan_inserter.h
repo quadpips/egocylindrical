@@ -6,7 +6,7 @@
 #include <ros/node_handle.h>
 #include <tf2_ros/buffer.h>
 
-#include <sensor_msgs/LaserScan.h>
+#include <sensor_msgs/msg/laser_scan.hpp>
 
 
 namespace egocylindrical

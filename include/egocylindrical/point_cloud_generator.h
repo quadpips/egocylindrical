@@ -6,7 +6,7 @@
 #include <egocylindrical/EgoCylinderPoints.h>
 #include <ros/ros.h>
 
-#include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 #include <boost/thread/mutex.hpp>
 
 

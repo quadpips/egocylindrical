@@ -3,7 +3,7 @@
 
 
 #include <egocylindrical/ecwrapper.h>
-#include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/msg/transform_stamped.hpp>
 
 
 namespace egocylindrical

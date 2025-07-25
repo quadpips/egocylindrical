@@ -12,8 +12,8 @@
 #include <image_geometry/pinhole_camera_model.h>
 #include <cv_bridge/cv_bridge.h>
 
-#include <sensor_msgs/Image.h>
-#include <sensor_msgs/CameraInfo.h>
+#include <sensor_msgs/msg/image.hpp>
+#include <sensor_msgs/msg/camera_info.hpp>
 
 #include <cstdlib>
 
