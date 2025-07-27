@@ -24,14 +24,17 @@ namespace egocylindrical
         {
             tf2_ros::Buffer& buffer_;
             std::string fixed_frame_id_;
-            ros::NodeHandle pnh_;
+            // ros::NodeHandle pnh_;
+            rclcpp::Node::SharedPtr node_;
+
             CleanCameraModel cam_model_;
             utils::DepthImageRemapper depth_remapper_;
-            ros::Publisher pub_diff_pc_, pub_diff_im_;
+            rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pub_diff_pc_;
+            rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_diff_im_;
             DIDiffDebuggingPublisher debug_pub_;
           
         public:
-            DepthImageInserter(tf2_ros::Buffer& buffer, ros::NodeHandle pnh);
+            DepthImageInserter(tf2_ros::Buffer& buffer, rclcpp::Node::SharedPtr node);
             
             bool init();
             bool init(std::string fixed_frame_id);

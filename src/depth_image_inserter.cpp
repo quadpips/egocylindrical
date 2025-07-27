@@ -925,25 +925,30 @@ namespace egocylindrical
             }
         }
 
-        DepthImageInserter::DepthImageInserter(tf2_ros::Buffer& buffer, ros::NodeHandle pnh):
+        DepthImageInserter::DepthImageInserter(tf2_ros::Buffer& buffer, rclcpp::Node::SharedPtr node):
             buffer_(buffer),
-            pnh_(pnh)
+            node_(node)
+            // pnh_(pnh)
         {}
         
         bool DepthImageInserter::init()
         {
             //TODO: use pips::param_utils
             std::string fixed_frame_id;
-            bool status = pnh_.getParam("fixed_frame_id", fixed_frame_id);
-            return status && init(fixed_frame_id);
+            // bool status = pnh_.getParam("fixed_frame_id", fixed_frame_id);
+            fixed_frame_id_ = node_->get_parameter("fixed_frame_id", fixed_frame_id_);
+            return init(fixed_frame_id_); // status && 
         }
         
         bool DepthImageInserter::init(std::string fixed_frame_id)
         {
             fixed_frame_id_ = fixed_frame_id;
-            pub_diff_pc_ = pnh_.advertise<sensor_msgs::msg::PointCloud2>("diff_points",2);
-            pub_diff_im_ = pnh_.advertise<sensor_msgs::msg::Image>("diff_im", 2);
-            debug_pub_.init(pnh_);
+            // pub_diff_pc_ = pnh_.advertise<sensor_msgs::msg::PointCloud2>("diff_points",2);
+            // pub_diff_im_ = pnh_.advertise<sensor_msgs::msg::Image>("diff_im", 2);
+            pub_diff_pc_ = node_->create_publisher<sensor_msgs::msg::PointCloud2>("diff_points", 2);
+            pub_diff_im_ = node_->create_publisher<sensor_msgs::msg::Image>("diff_im", 2);
+
+            debug_pub_.init(node_);
             return true;
         }
 
@@ -956,7 +961,7 @@ namespace egocylindrical
 
             if(target_header == source_header)
             {
-                ROS_INFO_ONCE("Target and source headers match, using remapping approach");
+                // ROS_INFO_ONCE("Target and source headers match, using remapping approach");
                 // // ROS_DEBUG_STREAM_NAMED("labels", "we are remapping now!"); // not happening it appears
                 depth_remapper_.update(cylindrical_points, image_msg, cam_info);
                 return true;
@@ -1017,7 +1022,7 @@ namespace egocylindrical
 
             if(target_header == source_header)
             {
-                ROS_INFO_ONCE("Target and source headers match, using remapping approach");
+                // ROS_INFO_ONCE("Target and source headers match, using remapping approach");
                 // // ROS_DEBUG_STREAM_NAMED("labels", "we are remapping now!"); // not happening it appears
                 depth_remapper_.update(cylindrical_points, image_msg, cam_info);
                 return true;
@@ -1079,7 +1084,7 @@ namespace egocylindrical
 
             if(target_header == source_header)
             {
-                ROS_INFO_ONCE("Target and source headers match, using remapping approach");
+                // ROS_INFO_ONCE("Target and source headers match, using remapping approach");
                 // // ROS_DEBUG_STREAM_NAMED("labels", "we are remapping now!"); // not happening it appears
                 depth_remapper_.update(cylindrical_points, image_msg, cam_info);
                 return true;

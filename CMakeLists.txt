@@ -243,6 +243,19 @@ target_link_libraries(depth_image_difference
    ${OpenMP_CXX_FLAGS}
    )
 
+# DEPTH_IMAGE_INSERTER
+add_library(depth_image_inserter src/depth_image_inserter.cpp)
+ament_target_dependencies(depth_image_inserter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+target_compile_options(depth_image_inserter PRIVATE -ftree-vectorize  -fopt-info-vec-all=vec_depth_image_inserter.txt -funsafe-math-optimizations -fno-math-errno ${OpenMP_CXX_FLAGS}#-finite-math-only and -fno-trapping-math. -ffinite-math-only 
+  )
+target_compile_definitions(depth_image_inserter PRIVATE ${PLATFORM_FLAGS})
+target_link_libraries(depth_image_inserter
+   depth_image_remapper
+   depth_image_difference
+   ${OpenCV_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
+
 #############
 ## Install ##
 #############
