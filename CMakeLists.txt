@@ -261,7 +261,6 @@ add_library(laser_scan_inserter src/laser_scan_inserter.cpp)
 ament_target_dependencies(laser_scan_inserter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
 #target_compile_options(laser_scan_inserter PRIVATE -O0 -g)
 target_link_libraries(laser_scan_inserter
-   ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
    ${OpenMP_CXX_FLAGS}
    )
@@ -273,14 +272,12 @@ target_link_libraries(sensors
    ##TODO: add the various sensor libraries here once implementations moved to source files
    depth_image_inserter
    laser_scan_inserter
-   ${catkin_LIBRARIES}
    )
 
 add_library(ecwrapper_buffer src/ecwrapper_buffer.cpp)
 ament_target_dependencies(ecwrapper_buffer ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
 #target_compile_options(laser_scan_inserter PRIVATE -O0 -g)
 target_link_libraries(ecwrapper_buffer
-   ${catkin_LIBRARIES}
    )
 
 #EGOCYLINDRICAL_PROPAGATOR
@@ -293,7 +290,6 @@ target_link_libraries(egocylindrical_propagator
    point_propagator
    sensors
    ecwrapper_buffer
-   ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
    ${OpenMP_CXX_FLAGS}
    )
@@ -308,14 +304,27 @@ target_link_libraries(egocylindrical_propagator_node
 add_library(point_cloud_generator src/point_cloud_generator.cpp)
 target_link_libraries(point_cloud_generator
    point_cloud_core
-   ${catkin_LIBRARIES}
    )
 
 #POINT_CLOUD_NODE
 add_executable(point_cloud_node src/point_cloud_node.cpp)
 target_link_libraries(point_cloud_node
    point_cloud_generator
-   ${catkin_LIBRARIES}
+   )
+
+#PROJECTED_POINT_CLOUD_GENERATOR
+add_library(projected_point_cloud_generator src/projected_point_cloud_generator.cpp)
+target_link_libraries(projected_point_cloud_generator
+   projected_point_cloud_core
+   )
+
+#PROJECTED_POINT_CLOUD_NODE
+add_executable(projected_point_cloud_node src/projected_point_cloud_node.cpp)
+target_link_libraries(projected_point_cloud_node
+   projected_point_cloud_generator
+   ${OpenCV_LIBRARIES}
+   ${PCL_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
    )
 
 #############
@@ -330,6 +339,7 @@ install(
             depth_image_remapper range_image_dilator range_image_converter depth_image_difference
             laser_scan_inserter depth_image_inserter depth_image_difference
             sensors ecwrapper_buffer egocylindrical_propagator point_cloud_generator
+            projected_point_cloud_generator
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -341,6 +351,7 @@ install(
   TARGETS 
       egocylindrical_propagator_node
       point_cloud_node
+      projected_point_cloud_node
       DESTINATION lib/${PROJECT_NAME}
 )
 
