@@ -41,12 +41,13 @@ namespace utils
       
       bool init(std::string fixed_frame_id);
       
-      void transform(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, const std_msgs::msg::Header& new_header, int num_threads);
+      void transform(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, const std_msgs::msg::Header& new_header);
       
     protected:
       std::string fixed_frame_id_;
       tf2_ros::Buffer& buffer_;
       utils::ECWrapper::Ptr transformed_pts_;
+      int num_threads_ = 1; // Default to single-threaded, can be set externally
     };
     
     

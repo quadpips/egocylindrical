@@ -282,6 +282,21 @@ ament_target_dependencies(ecwrapper_buffer ${${PROJECT_NAME}_EXPORTED_TARGETS} $
 target_link_libraries(ecwrapper_buffer
    ${catkin_LIBRARIES}
    )
+
+#EGOCYLINDRICAL_PROPAGATOR
+add_library(egocylindrical_propagator src/egocylindrical_propagator.cpp)
+ament_target_dependencies(egocylindrical_propagator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+target_compile_options(egocylindrical_propagator PRIVATE -g -ftree-vectorize -funsafe-math-optimizations ${OpenMP_CXX_FLAGS}
+   )
+target_compile_definitions(egocylindrical_propagator PRIVATE ${PLATFORM_FLAGS})
+target_link_libraries(egocylindrical_propagator
+   point_propagator
+   sensors
+   ecwrapper_buffer
+   ${catkin_LIBRARIES}
+   ${OpenCV_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
    
 #############
 ## Install ##

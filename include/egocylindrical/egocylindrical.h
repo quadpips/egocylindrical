@@ -16,10 +16,12 @@
 
 
 // #include <dynamic_reconfigure/server.h>
-#include <egocylindrical/PropagatorConfig.h>
+// #include <egocylindrical/PropagatorConfig.h>
 
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/thread/locks.hpp>
+
+#include <std_msgs/msg/empty.hpp>
 
 //#include <egocylindrical/sensor.h>
 //#include <egocylindrical/laser_scan_sensor.h>
@@ -46,14 +48,19 @@ private:
 
     utils::ECWrapperPtr new_pts_, old_pts_, transformed_pts_, next_pts_;
     
-    ros::NodeHandle nh_, pnh_;
-    
+    // ros::NodeHandle nh_, pnh_;
+    rclcpp::Node::SharedPtr node_;
+
 protected:
-  tf2_ros::Buffer buffer_;
-  std::string fixed_frame_id_;
+    tf2_ros::Buffer buffer_;
+    std::string fixed_frame_id_;
   
+    // std::unique_ptr<tf2_ros::Buffer> buffer_;
+
 private:
     tf2_ros::TransformListener tf_listener_;
+    // std::shared_ptr<tf2_ros::TransformListener> tf_listener_{nullptr};
+
     utils::CoordinateFrameHelper cfh_;
 
     //image_transport::ImageTransport it_;
@@ -63,15 +70,19 @@ private:
     utils::PointPropagator pp_;
     ECWrapperBuffer wrapper_buffer_;
 
-    ros::Publisher ec_pub_, pc_pub_, info_pub_, propagated_ec_pub_;
-    ros::Subscriber reset_sub_;
-    
+    rclcpp::Publisher<egocylindrical_msgs::msg::EgoCylinderPoints>::SharedPtr ec_pub_; 
+    rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pc_pub_;
+    rclcpp::Publisher<egocylindrical_msgs::msg::EgoCylinderPoints>::SharedPtr info_pub_;
+    rclcpp::Publisher<egocylindrical_msgs::msg::EgoCylinderPoints>::SharedPtr propagated_ec_pub_;
+
+    rclcpp::Subscription<std_msgs::msg::Empty>::SharedPtr reset_sub_;
+
     //egocylindrical::TimeSequencer<utils::SensorMeasurement> seq_;
 
     
-    egocylindrical::PropagatorConfig config_;
-    typedef dynamic_reconfigure::Server<egocylindrical::PropagatorConfig> ReconfigureServer;
-    std::shared_ptr<ReconfigureServer> reconfigure_server_;
+    // egocylindrical::PropagatorConfig config_;
+    // typedef dynamic_reconfigure::Server<egocylindrical::PropagatorConfig> ReconfigureServer;
+    // std::shared_ptr<ReconfigureServer> reconfigure_server_;
     
     bool should_reset_;
 
@@ -80,7 +91,7 @@ private:
     
     void connectCB();
     
-    void configCB(const egocylindrical::PropagatorConfig &config, uint32_t level);
+    // void configCB(const egocylindrical::PropagatorConfig &config, uint32_t level);
     
     virtual bool shouldPublish(const utils::ECWrapperPtr& points) { return true;}
     virtual void published(utils::ECWrapperPtr& points) { }
@@ -88,7 +99,7 @@ private:
 
     
 public:
-    EgoCylindricalPropagator(ros::NodeHandle& nh, ros::NodeHandle& pnh);
+    EgoCylindricalPropagator(rclcpp::Node::SharedPtr node);
     ~EgoCylindricalPropagator();
     
     void update(utils::SensorMeasurement& measurement);

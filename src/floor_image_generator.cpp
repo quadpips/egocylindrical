@@ -63,9 +63,9 @@ namespace egocylindrical
     
     void EgoCylinderFloorImageGenerator::ssCB()
     {
-        //std::cout << (void*)ec_sub_ << ": " << im_pub_.getNumSubscribers() << std::endl;
+        //std::cout << (void*)ec_sub_ << ": " << im_pub_->get_subscription_count() << std::endl;
         Lock lock(connect_mutex_);
-        if (floor_im_pub_.getNumSubscribers()>0) // im_pub_.getNumSubscribers()>0 || 
+        if (floor_im_pub_->get_subscription_count()>0) // im_pub_->get_subscription_count()>0 || 
         {
             if((void*)ec_sub_) //if currently subscribed... no need to do anything
             {
@@ -95,8 +95,8 @@ namespace egocylindrical
         // ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[range_image_generator] Received [" << ec_msg->header.stamp << "] at [" << ros::WallTime::now() << "]");
         
         
-        // bool gen_range_image = im_pub_.getNumSubscribers() > 0;
-        bool gen_can_image = floor_im_pub_.getNumSubscribers() > 0;
+        // bool gen_range_image = im_pub_->get_subscription_count() > 0;
+        bool gen_can_image = floor_im_pub_->get_subscription_count() > 0;
         
         utils::ECWrapper ec_pts(ec_msg);
         

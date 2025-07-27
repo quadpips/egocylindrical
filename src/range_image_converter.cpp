@@ -60,7 +60,7 @@ namespace egocylindrical
     void RangeImageConverter::ssCB()
     {
         
-        //std::cout << (void*)ec_sub_ << ": " << im_pub_.get_subscription_count() << std::endl;
+        //std::cout << (void*)ec_sub_ << ": " << im_pub_->get_subscription_count() << std::endl;
         Lock lock(connect_mutex_);
         if (ec_pub_->get_subscription_count() > 0)
         {

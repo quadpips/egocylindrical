@@ -91,7 +91,7 @@ namespace egocylindrical
 
     void DedicatedEgoCylindricalPropagator::addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image, const sensor_msgs::msg::CameraInfo::ConstSharedPtr& cam_info)
     {
-        if(pc_pub_.getNumSubscribers()>0)
+        if(pc_pub_->get_subscription_count()>0)
         {
           ReadLock lock(config_mutex_);
           sensor_msgs::msg::PointCloud2::SharedPtr pcloud_msg;
@@ -147,7 +147,7 @@ namespace egocylindrical
                 // ROS_DEBUG_STREAM("Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
             }
             
-            if(im_pub_.getNumSubscribers() > 0)
+            if(im_pub_->get_subscription_count() > 0)
             {
                 sensor_msgs::msg::Image::ConstSharedPtr image_ptr = use_raw_ ? utils::getRawRangeImageMsg(*new_pts_, 1) : utils::getRangeImageMsg(*new_pts_, 1);
                 im_pub_.publish(image_ptr);
@@ -185,7 +185,7 @@ namespace egocylindrical
     void DedicatedEgoCylindricalPropagator::connectCB()
     {
         // If no one is listening, we can propagate points in place
-        if (im_pub_.getNumSubscribers() == 0)
+        if (im_pub_->get_subscription_count() == 0)
         {
             
         }

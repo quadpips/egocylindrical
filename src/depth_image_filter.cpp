@@ -69,7 +69,7 @@ namespace egocylindrical
     void ssCB()
     {
         
-      if(im_pub_.getNumSubscribers()>0)
+      if(im_pub_->get_subscription_count()>0)
         {
             //Note: should probably add separate checks for each
             if((void*)im_sub_.getSubscriber()) //if currently subscribed... no need to do anything
@@ -96,7 +96,7 @@ namespace egocylindrical
         // ROS_INFO("Received image msg");
         
         // This may be redundant now
-        if(im_pub_.getNumSubscribers() > 0)
+        if(im_pub_->get_subscription_count() > 0)
         {
           try
           {

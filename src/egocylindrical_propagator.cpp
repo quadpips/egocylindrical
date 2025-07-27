@@ -28,15 +28,17 @@ namespace egocylindrical
         
         auto measurement_header = measurement.header;
         auto new_stamp = measurement_header.stamp;
-        if(old_pts_)
+        if (old_pts_)
         {
+            rclcpp::Time old_stamp_ros = old_pts_->getHeader().stamp;
+            rclcpp::Time new_stamp_ros = new_stamp;
             // ROS_INFO_STREAM_NAMED("timing", "old_pts_->getOneLabel(17772): " << std::hex << (uint16_t) old_pts_->getOneLabel(17772));
 
-            if(old_pts_->getHeader().stamp > new_stamp)
+            if (old_stamp_ros > new_stamp_ros)
             {
                 //old_pts_ = nullptr;
             }
-            else if(old_pts_->getHeader().stamp == new_stamp)
+            else if (old_stamp_ros == new_stamp_ros)
             {
               // ROS_WARN_STREAM_NAMED("msg_timestamps","Repeat stamps received! " << new_stamp);
               //return;
@@ -73,7 +75,7 @@ namespace egocylindrical
                     new_pts_ = wrapper_buffer_.getNew(); // adds nullptr
                     try
                     {
-                        pp_.transform(*old_pts_, *new_pts_, target_header, config_.num_threads);
+                        pp_.transform(*old_pts_, *new_pts_, target_header); // , config_.num_threads
                     }
                     catch (tf2::TransformException &ex)
                     {
@@ -97,14 +99,14 @@ namespace egocylindrical
         // ROS_INFO_STREAM_NAMED("timing", "new_pts_->getOneLabel(17772) (before insert): " << std::hex << (uint16_t) new_pts_->getOneLabel(17772));
 
 
-        if(propagated_ec_pub_.getNumSubscribers())
+        if (propagated_ec_pub_->get_subscription_count())
         {
             // ros::WallTimet1 = ros::WallTime::now();
             utils::ECWrapper ec_copy = *new_pts_;
             // ros::WallTimet2 = ros::WallTime::now();
             utils::ECMsgConstPtr msg = ec_copy.getEgoCylinderPointsMsg();
             // ros::WallTimet3 = ros::WallTime::now();
-            propagated_ec_pub_.publish(msg);
+            propagated_ec_pub_->publish(*msg);
             // ros::WallTimet4 = ros::WallTime::now();
             // ROS_DEBUG_STREAM_NAMED("timing", "Time to copy propagated points: " <<  (t2 - t1).toSec() * 1e3 << "ms");
             // ROS_DEBUG_STREAM_NAMED("timing", "Time to get message: " <<  (t3 - t2).toSec() * 1e3 << "ms");
@@ -121,19 +123,19 @@ namespace egocylindrical
 
             if(measurement.publish_update)
             {
-                if(ec_pub_.getNumSubscribers() > 0 && shouldPublish(new_pts_))
+                if(ec_pub_->get_subscription_count() > 0 && shouldPublish(new_pts_))
                 {
-                // TODO: if no one is subscribing, we can propagate the points in place next time (if that turns out to be faster)
-                utils::ECMsgConstPtr msg = new_pts_->getEgoCylinderPointsMsg();
+                    // TODO: if no one is subscribing, we can propagate the points in place next time (if that turns out to be faster)
+                    utils::ECMsgConstPtr msg = new_pts_->getEgoCylinderPointsMsg();
 
-                ec_pub_.publish(msg);
-                // ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[egocylinder] Sent [" << msg->header.stamp << "] at [" << ros::WallTime::now() << "]");
-                published(new_pts_);
+                    ec_pub_->publish(*msg);
+                    // ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[egocylinder] Sent [" << msg->header.stamp << "] at [" << ros::WallTime::now() << "]");
+                    published(new_pts_);
                 }
 
-                if(info_pub_.getNumSubscribers() > 0)
+                if(info_pub_->get_subscription_count() > 0)
                 {
-                    info_pub_.publish(new_pts_->getEgoCylinderInfoMsg());
+                    info_pub_->publish(*new_pts_->getEgoCylinderInfoMsg());
                 }
             }
         }
@@ -147,7 +149,7 @@ namespace egocylindrical
     void EgoCylindricalPropagator::connectCB()
     {
         // If no one is listening, we can propagate points in place
-        if (ec_pub_.getNumSubscribers() == 0)
+        if (ec_pub_->get_subscription_count() == 0)
         {
             
         }
@@ -160,19 +162,19 @@ namespace egocylindrical
         wrapper_buffer_.reset();
     }
     
-    void EgoCylindricalPropagator::configCB(const egocylindrical::PropagatorConfig &config, uint32_t level)
-    {
-        WriteLock lock(config_mutex_);
+    // void EgoCylindricalPropagator::configCB(const egocylindrical::PropagatorConfig &config, uint32_t level)
+    // {
+    //     WriteLock lock(config_mutex_);
      
-        // ROS_INFO_STREAM("Updating propagator config: height=" << config.height << ", width=" << config.width << ", vfov=" << config.vfov << ", can_width=" << config.can_width
-        << ", v_offset=" << config.v_offset << ", cyl_radius=" << config.cyl_radius);
-        config_ = config;
-    }
+    //     // ROS_INFO_STREAM("Updating propagator config: height=" << config.height << ", width=" << config.width << ", vfov=" << config.vfov << ", can_width=" << config.can_width
+    //     << ", v_offset=" << config.v_offset << ", cyl_radius=" << config.cyl_radius);
+    //     config_ = config;
+    // }
     
     
     bool EgoCylindricalPropagator::init()
     {
-        reconfigure_server_->setCallback(std::bind(&EgoCylindricalPropagator::configCB, this, _1, _2));
+        // reconfigure_server_->setCallback(std::bind(&EgoCylindricalPropagator::configCB, this, _1, _2));
         
         // Get topic names
         std::string points_topic="egocylindrical_points", 
@@ -181,10 +183,12 @@ namespace egocylindrical
                     propagated_points_topic="propagated_egocylindrical_points";
         fixed_frame_id_ = "odom";
 
-        pnh_.getParam("points_out", points_topic );
-        pnh_.getParam("filtered_points", filtered_pc_topic);
-        
-        pnh_.getParam("fixed_frame_id", fixed_frame_id_);
+        // pnh_.getParam("points_out", points_topic );
+        // pnh_.getParam("filtered_points", filtered_pc_topic);
+        // pnh_.getParam("fixed_frame_id", fixed_frame_id_);
+        node_->get_parameter("points_out", points_topic);
+        node_->get_parameter("filtered_points", filtered_pc_topic);
+        node_->get_parameter("fixed_frame_id", fixed_frame_id_);
 
         // // ROS_INFO_STREAM_NAMED("update", "points_topic: " << points_topic);
         // // ROS_INFO_STREAM_NAMED("update", "filtered_pc_topic: " << filtered_pc_topic);
@@ -197,17 +201,19 @@ namespace egocylindrical
         wrapper_buffer_.init();
 
         
-        reset_sub_ = nh_.subscribe<std_msgs::Empty>("reset", 1, [this](const std_msgs::Empty::ConstPtr&) { wrapper_buffer_.reset(2); });
+        // reset_sub_ = nh_.subscribe<std_msgs::Empty>("reset", 1, [this](const std_msgs::Empty::ConstPtr&) { wrapper_buffer_.reset(2); });
+        reset_sub_ = node_->create_subscription<std_msgs::msg::Empty>("reset", 1, [this](const std_msgs::msg::Empty::ConstSharedPtr&) { wrapper_buffer_.reset(2); });
 
         // Setup publishers
-        ros::SubscriberStatusCallback image_cb = std::bind(&EgoCylindricalPropagator::connectCB, this);        
-        ec_pub_ = nh_.advertise<egocylindrical_msgs::msg::EgoCylinderPoints>(points_topic, 1, image_cb, image_cb);
-        
-        //ros::SubscriberStatusCallback pc_cb = std::bind(&EgoCylindricalPropagator::connectCB, this);
-        pc_pub_ = nh_.advertise<sensor_msgs::msg::PointCloud2>(filtered_pc_topic, 3);
-        info_pub_ = nh_.advertise<egocylindrical_msgs::msg::EgoCylinderPoints>(egocylinder_info_topic, 1);
+        // ros::SubscriberStatusCallback image_cb = std::bind(&EgoCylindricalPropagator::connectCB, this);        
+        // ec_pub_ = nh_.advertise<egocylindrical_msgs::msg::EgoCylinderPoints>(points_topic, 1, image_cb, image_cb);
+        ec_pub_ = node_->create_publisher<egocylindrical_msgs::msg::EgoCylinderPoints>(points_topic, 1);
 
-        propagated_ec_pub_ = nh_.advertise<egocylindrical_msgs::msg::EgoCylinderPoints>(propagated_points_topic, 3);
+        //ros::SubscriberStatusCallback pc_cb = std::bind(&EgoCylindricalPropagator::connectCB, this);
+        pc_pub_ = node_->create_publisher<sensor_msgs::msg::PointCloud2>(filtered_pc_topic, 3);
+        info_pub_ = node_->create_publisher<egocylindrical_msgs::msg::EgoCylinderPoints>(egocylinder_info_topic, 1);
+
+        propagated_ec_pub_ = node_->create_publisher<egocylindrical_msgs::msg::EgoCylinderPoints>(propagated_points_topic, 3);
 
         auto seq_cb = [this](utils::SensorMeasurement::Ptr measurement)
         {
@@ -220,19 +226,17 @@ namespace egocylindrical
         return true;
     }
 
-    EgoCylindricalPropagator::EgoCylindricalPropagator(ros::NodeHandle& nh, ros::NodeHandle& pnh):
-        nh_(nh),
-        pnh_(pnh),
-        buffer_(),
+    EgoCylindricalPropagator::EgoCylindricalPropagator(rclcpp::Node::SharedPtr node):
+        node_(node),
+        buffer_(node->get_clock()), // Initialize the buffer with the node's clock
         tf_listener_(buffer_),
-        cfh_(buffer_, pnh),
-        sensors_(pnh, buffer_),
+        cfh_(buffer_, node_),
+        sensors_(node_, buffer_),
         pp_(buffer_),
-        wrapper_buffer_(config_),
+        wrapper_buffer_(), // Initialize the wrapper buffer with default config
         should_reset_(false)
     {
-        reconfigure_server_ = std::make_shared<ReconfigureServer>(pnh_);
-        
+        // reconfigure_server_ = std::make_shared<ReconfigureServer>(node_);
     }
     
     EgoCylindricalPropagator::~EgoCylindricalPropagator()

@@ -63,9 +63,9 @@ namespace egocylindrical
     void RangeImageInflatorGenerator::ssCB()
     {
         
-        //std::cout << (void*)ec_sub_ << ": " << im_pub_.getNumSubscribers() << std::endl;
+        //std::cout << (void*)ec_sub_ << ": " << im_pub_->get_subscription_count() << std::endl;
         Lock lock(connect_mutex_);
-        if(im_pub_.getNumSubscribers()>0)
+        if(im_pub_->get_subscription_count()>0)
         {
             if((void*)im_sub_.getSubscriber()) //if currently subscribed... no need to do anything
             {
@@ -389,7 +389,7 @@ namespace egocylindrical
         // ROS_DEBUG("Received EgoCylinderPoints msg");
         
         // This may be redundant now
-        if(im_pub_.getNumSubscribers() > 0)
+        if(im_pub_->get_subscription_count() > 0)
         {
           DURATION_DEBUG_STREAM_THROTTLED("inflation", 100, 1);
           // ros::WallTime// start = ros::WallTime::now();

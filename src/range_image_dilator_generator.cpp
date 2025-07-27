@@ -62,7 +62,7 @@ namespace egocylindrical
     void RangeImageDilator::ssCB()
     {
 
-        //std::cout << (void*)ec_sub_ << ": " << im_pub_.getNumSubscribers() << std::endl;
+        //std::cout << (void*)ec_sub_ << ": " << im_pub_->get_subscription_count() << std::endl;
         Lock lock(connect_mutex_);
         if (im_pub_->get_subscription_count() > 0)
         {
@@ -104,7 +104,7 @@ namespace egocylindrical
         // ROS_DEBUG("Received range msg");
 
         // This may be redundant now
-        if(im_pub_->get_subscription_count() > 0)
+        if (im_pub_->get_subscription_count() > 0)
         {
             // ros::WallTime// start = ros::WallTime::now();
 
