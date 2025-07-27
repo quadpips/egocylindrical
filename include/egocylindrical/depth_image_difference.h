@@ -25,7 +25,7 @@ namespace egocylindrical
         {
             sensor_msgs::msg::PointCloud2::SharedPtr point_cloud, dilated_point_cloud;
             sensor_msgs::msg::Image::SharedPtr depth_image, reproj_depth_image, depth_diff_image, range_image, dilated_range_image;
-            visualization_msgs::MarkerArray::Ptr marker_array;
+            visualization_msgs::msg::MarkerArray::SharedPtr marker_array;
         };
 
         struct DIDiffResults

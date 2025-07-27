@@ -15,7 +15,7 @@ namespace egocylindrical
     class LaserScanMeasurement: public SensorMeasurement
     {
     public:
-      LaserScanMeasurement(SensorCharacteristics sc, const sensor_msgs::msg::LaserScan::ConstPtr& scan, LaserScanInserter& lsi):
+      LaserScanMeasurement(SensorCharacteristics sc, const sensor_msgs::msg::LaserScan::ConstSharedPtr& scan, LaserScanInserter& lsi):
         SensorMeasurement(sc, scan->header),
         scan_(scan),
         lsi_(lsi)
@@ -25,12 +25,12 @@ namespace egocylindrical
       {
         // ros::WallTimetemp = ros::WallTime::now();
         lsi_.insert(cylindrical_points, scan_);
-        ROS_INFO_STREAM_NAMED("timing","Adding laser scan took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
+        // ROS_INFO_STREAM_NAMED("timing","Adding laser scan took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
       }
 
       
     protected:
-      const sensor_msgs::msg::LaserScan::ConstPtr scan_;
+      const sensor_msgs::msg::LaserScan::ConstSharedPtr scan_;
       utils::LaserScanInserter& lsi_;
     };
     
@@ -86,7 +86,7 @@ namespace egocylindrical
       }
       
     protected:
-      void update(const sensor_msgs::msg::LaserScan::ConstPtr& scan)
+      void update(const sensor_msgs::msg::LaserScan::ConstSharedPtr& scan)
       {
         if(cb_)
         {

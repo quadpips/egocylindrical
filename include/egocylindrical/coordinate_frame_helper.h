@@ -159,7 +159,7 @@ namespace egocylindrical
                 return tf_prefix_ + "egocan_camera";
             }
             
-            void desPoseCB(const geometry_msgs::PoseStamped::ConstPtr& pose)
+            void desPoseCB(const geometry_msgs::PoseStamped::ConstSharedPtr& pose)
             {
                 cfd_.pose = *pose;
                 updateDefinition(cfd_);

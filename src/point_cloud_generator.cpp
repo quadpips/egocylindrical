@@ -71,7 +71,7 @@ namespace egocylindrical
           
           utils::ECWrapper ec_pts(ec_msg);
           
-          sensor_msgs::msg::PointCloud2::ConstPtr msg = utils::generate_point_cloud(ec_pts);
+          sensor_msgs::msg::PointCloud2::ConstSharedPtr msg = utils::generate_point_cloud(ec_pts);
           
           // ROS_DEBUG_STREAM("Generating point cloud took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
           

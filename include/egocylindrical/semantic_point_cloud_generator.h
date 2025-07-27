@@ -15,7 +15,7 @@ namespace egocylindrical
 
     namespace utils
     {
-        sensor_msgs::msg::PointCloud2::ConstPtr generate_semantic_point_cloud(const utils::ECWrapper& points);
+        sensor_msgs::msg::PointCloud2::ConstSharedPtr generate_semantic_point_cloud(const utils::ECWrapper& points);
     }
 
 class SemanticPointCloudGenerator

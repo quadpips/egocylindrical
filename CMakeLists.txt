@@ -13,6 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(dependencies
       cv_bridge
       geometry_msgs
+      visualization_msgs
       image_geometry
       image_transport
       egocylindrical_msgs
@@ -227,6 +228,20 @@ target_link_libraries(range_image_converter
    ${OpenMP_CXX_FLAGS}
    )
    
+# DEPTH_IMAGE_DIFFERENCE
+add_library(depth_image_difference src/depth_image_difference.cpp
+            src/depth_image_difference_debugging_publisher.cpp)
+ament_target_dependencies(depth_image_difference ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+target_compile_options(depth_image_difference PRIVATE)
+target_compile_definitions(depth_image_difference PRIVATE ${PLATFORM_FLAGS} )
+target_link_libraries(depth_image_difference
+   range_image_core
+   range_image_dilator
+   range_image_converter
+   point_cloud_core
+   ${OpenCV_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
 
 #############
 ## Install ##
@@ -237,7 +252,7 @@ install(
   TARGETS range_image_core can_image_core floor_image_core point_cloud_core 
             projected_point_cloud_core semantic_point_cloud_core normal_point_cloud_core
             normal_point_cloud_floor_only_core point_transformer point_propagator
-            depth_image_remapper range_image_dilator range_image_converter
+            depth_image_remapper range_image_dilator range_image_converter depth_image_difference
             # depth_image_difference depth_image_inserter laser_scan_inserter
             # sensors ecwrapper_buffer egocylindrical_propagator
   EXPORT export_${PROJECT_NAME}

@@ -13,7 +13,7 @@ namespace egocylindrical
     namespace utils
     {
         /* TODO: ensure that the right size 'ints' are used everywhere. On my current system, the size of int = minimum size of long int, so 32 bit system might fail */
-        sensor_msgs::msg::PointCloud2::ConstPtr generate_normal_point_cloud_floor_only(const utils::ECWrapper& points)
+        sensor_msgs::msg::PointCloud2::ConstSharedPtr generate_normal_point_cloud_floor_only(const utils::ECWrapper& points)
         {
             const int num_cap_pts = points.getNumCapPts() / 2;
             const int num_caps_pts = points.getNumCapPts();

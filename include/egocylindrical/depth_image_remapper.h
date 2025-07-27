@@ -32,15 +32,15 @@ namespace egocylindrical
         public:
             
             //inline
-            void update( ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info);
+            void update( ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, const sensor_msgs::msg::CameraInfo::ConstSharedPtr& cam_info);
             
             //inline
-            void update( ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info, sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg, float thresh_min, float thresh_max);
+            void update( ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, const sensor_msgs::msg::CameraInfo::ConstSharedPtr& cam_info, sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg, float thresh_min, float thresh_max);
             
         private:
           
             //inline
-            void updateMapping(const ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info);
+            void updateMapping(const ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, const sensor_msgs::msg::CameraInfo::ConstSharedPtr& cam_info);
             
 //             template <bool fill_cloud>
 //             inline
@@ -48,7 +48,7 @@ namespace egocylindrical
             
             //template <bool fill_cloud>
             //inline
-            void update( ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info, sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg, float thresh_min, float thresh_max, bool fill_cloud);
+            void update( ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, const sensor_msgs::msg::CameraInfo::ConstSharedPtr& cam_info, sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg, float thresh_min, float thresh_max, bool fill_cloud);
             
         };
       

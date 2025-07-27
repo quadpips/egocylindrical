@@ -27,11 +27,11 @@ namespace tf2
 {
     //Both functions copied from tf2/src/buffer_core.cpp; ideally, tf2 would declare them in a header so we could just use them directly
 
-    void transformMsgToTF2(const geometry_msgs::Transform& msg, tf2::Transform& tf2)
+    void transformMsgToTF2(const geometry_msgs::msg::Transform& msg, tf2::Transform& tf2)
     {tf2 = tf2::Transform(tf2::Quaternion(msg.rotation.x, msg.rotation.y, msg.rotation.z, msg.rotation.w), tf2::Vector3(msg.translation.x, msg.translation.y, msg.translation.z));}
 
     /** \brief convert Transform to Transform msg*/
-    void transformTF2ToMsg(const tf2::Transform& tf2, geometry_msgs::Transform& msg)
+    void transformTF2ToMsg(const tf2::Transform& tf2, geometry_msgs::msg::Transform& msg)
     {
         msg.translation.x = tf2.getOrigin().x();
         msg.translation.y = tf2.getOrigin().y();
@@ -63,12 +63,12 @@ namespace egocylindrical
             return inverted_transform_msg;
         }
 
-        visualization_msgs::Marker getECPointMarker(const utils::ECWrapper& ec_points, std::string ns="points", float scale=0.025, float r=1, float g=1, float b=1, float a=1)
+        visualization_msgs::msg::Marker getECPointMarker(const utils::ECWrapper& ec_points, std::string ns="points", float scale=0.025, float r=1, float g=1, float b=1, float a=1)
         {
-            visualization_msgs::Marker m;
-            m.type = visualization_msgs::Marker::POINTS;
+            visualization_msgs::msg::Marker m;
+            m.type = visualization_msgs::msg::Marker::POINTS;
             m.ns = ns;
-            m.action = visualization_msgs::Marker::ADD;
+            m.action = visualization_msgs::msg::Marker::ADD;
             m.id = 0;
             m.header = ec_points.getHeader();
             m.pose.orientation.w = 1;
@@ -85,7 +85,7 @@ namespace egocylindrical
 
             for(int i = 0; i < ec_points.getNumPts(); ++i)
             {
-                geometry_msgs::Point p;
+                geometry_msgs::msg::Point p;
                 p.x = x[i];
                 p.y = y[i];
                 p.z = z[i];
@@ -128,13 +128,13 @@ namespace egocylindrical
 
                 if(request.params.fill_debug)
                 {
-                    visualization_msgs::MarkerArray::Ptr& marker_array = request.results.debug.marker_array;
-                    marker_array = std::make_shared<visualization_msgs::MarkerArray>();
+                    visualization_msgs::msg::MarkerArray::SharedPtr& marker_array = request.results.debug.marker_array;
+                    marker_array = std::make_shared<visualization_msgs::msg::MarkerArray>();
 
-                    visualization_msgs::Marker m_cyl = getECPointMarker(cyl_points, "ec_points", 0.025, 0.6, 0.1, 0.3, 1);
+                    visualization_msgs::msg::Marker m_cyl = getECPointMarker(cyl_points, "ec_points", 0.025, 0.6, 0.1, 0.3, 1);
                     marker_array->markers.push_back(m_cyl);
 
-                    visualization_msgs::Marker m_dil_cyl = getECPointMarker(*ec_pts, "dilated_ec_points", 0.025, 0.2, 0.6, 0.2, 1);
+                    visualization_msgs::msg::Marker m_dil_cyl = getECPointMarker(*ec_pts, "dilated_ec_points", 0.025, 0.2, 0.6, 0.2, 1);
                     m_cyl.ns = "dilated_ec_points";
                     m_cyl.color.r = 0.2;
                     m_cyl.color.g = 0.6;
@@ -150,7 +150,7 @@ namespace egocylindrical
                 // ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Dilating range image took " <<  (wrapper_start - dilate_start).toSec() * 1e3 << "ms");
                 // ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Converting dilated range image to wrapper took " <<  (dilated_pc_start - wrapper_start).toSec() * 1e3 << "ms");
                 // ROS_DEBUG_STREAM_NAMED("depth_diff.timing", "Converting dilated wrapper to point cloud took " <<  (end_time - dilated_pc_start).toSec() * 1e3 << "ms");
-                ROS_INFO_STREAM_NAMED("depth_diff.timing", "Total dilation process took " <<  (end_time - range_start).toSec() * 1e3 << "ms");
+                // ROS_INFO_STREAM_NAMED("depth_diff.timing", "Total dilation process took " <<  (end_time - range_start).toSec() * 1e3 << "ms");
 
                 return ec_pts;
             };
@@ -203,14 +203,14 @@ namespace egocylindrical
                 gen_im_mat = cv::Mat(image.rows, image.cols, image.type(), dNaN);
             }
 
-            visualization_msgs::Marker novel_pc_marker;
+            visualization_msgs::msg::Marker novel_pc_marker;
             if(fill_debug)
             {
                 request.results.debug.depth_image = std::make_shared<sensor_msgs::msg::Image>(*image_msg_ptr); //Any reason not to just use image_msg_ptr directly here?
 
-                novel_pc_marker.type = visualization_msgs::Marker::POINTS;
+                novel_pc_marker.type = visualization_msgs::msg::Marker::POINTS;
                 novel_pc_marker.ns = "novel_points";
-                novel_pc_marker.action = visualization_msgs::Marker::ADD;
+                novel_pc_marker.action = visualization_msgs::msg::Marker::ADD;
                 novel_pc_marker.id = 0;
                 novel_pc_marker.header = transform.header;  //.frame_id = transform.child_frame_id;
                 // novel_pc_marker.header.stamp = transform.header.stamp;
@@ -221,7 +221,7 @@ namespace egocylindrical
                 novel_pc_marker.scale.y = 0.025;
                 novel_pc_marker.pose.orientation.w = 1;
 
-                // request.results.debug.marker_array = std::make_shared<visualization_msgs::MarkerArray>();
+                // request.results.debug.marker_array = std::make_shared<visualization_msgs::msg::MarkerArray>();
             }
             
 
@@ -362,7 +362,7 @@ namespace egocylindrical
 
                                 if(fill_debug)
                                 {
-                                    geometry_msgs::Point p;
+                                    geometry_msgs::msg::Point p;
                                     p.x = transformed_pnt.x;
                                     p.y = transformed_pnt.y;
                                     p.z = transformed_pnt.z;
@@ -467,7 +467,7 @@ namespace egocylindrical
             {
                 if(novel_pc_marker.points.size()==0)
                 {
-                    novel_pc_marker.action = visualization_msgs::Marker::DELETE;
+                    novel_pc_marker.action = visualization_msgs::msg::Marker::DELETE;
                 }
                 request.results.debug.marker_array->markers.push_back(novel_pc_marker);
             }

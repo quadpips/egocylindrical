@@ -13,7 +13,7 @@ namespace egocylindrical
           
             LaserScan2Points(){}
             
-            virtual void setScan(const sensor_msgs::msg::LaserScan::ConstPtr& scan_msg)=0;
+            virtual void setScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr& scan_msg)=0;
             
             virtual cv::Point3f getPoint(int ind) const = 0;
             
@@ -37,7 +37,7 @@ namespace egocylindrical
         {
         public:
           
-            virtual void setScan(const sensor_msgs::msg::LaserScan::ConstPtr& scan_msg)
+            virtual void setScan(const sensor_msgs::msg::LaserScan::ConstSharedPtr& scan_msg)
             {
                 scan_msg_ = scan_msg;
             }
@@ -55,7 +55,7 @@ namespace egocylindrical
             }
           
         protected:            
-            sensor_msgs::msg::LaserScan::ConstPtr scan_msg_;
+            sensor_msgs::msg::LaserScan::ConstSharedPtr scan_msg_;
           
         };
         
@@ -85,7 +85,7 @@ namespace egocylindrical
         }
         
         
-        void insertPoints(ECWrapper& cylindrical_points, const sensor_msgs::msg::LaserScan::ConstPtr &scan_msg, const geometry_msgs::msg::TransformStamped& transform, bool clearing)
+        void insertPoints(ECWrapper& cylindrical_points, const sensor_msgs::msg::LaserScan::ConstSharedPtr &scan_msg, const geometry_msgs::msg::TransformStamped& transform, bool clearing)
         {
             BasicLaserScan2Points converter;
             converter.setScan(scan_msg);
@@ -174,7 +174,7 @@ namespace egocylindrical
         }
         
             
-        bool LaserScanInserter::insert(ECWrapper& cylindrical_points, const sensor_msgs::msg::LaserScan::ConstPtr& scan_msg)
+        bool LaserScanInserter::insert(ECWrapper& cylindrical_points, const sensor_msgs::msg::LaserScan::ConstSharedPtr& scan_msg)
         {
             const std_msgs::msg::Header& target_header = cylindrical_points.getHeader();
             const std_msgs::msg::Header& source_header = scan_msg->header;
@@ -193,7 +193,7 @@ namespace egocylindrical
             
             const auto& t = transform.transform.translation;
             bool clearing = (t.x == 0 && t.y == 0 && t.z == 0);
-            ROS_INFO_STREAM_NAMED("clearing", "Laser scan insertion clearing?: " << clearing << ": translation = " << t);
+            // ROS_INFO_STREAM_NAMED("clearing", "Laser scan insertion clearing?: " << clearing << ": translation = " << t);
             
             insertPoints(cylindrical_points, scan_msg, transform, clearing);
 

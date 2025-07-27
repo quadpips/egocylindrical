@@ -89,7 +89,7 @@ namespace egocylindrical
     }
 
 
-    void DedicatedEgoCylindricalPropagator::addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info)
+    void DedicatedEgoCylindricalPropagator::addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image, const sensor_msgs::msg::CameraInfo::ConstSharedPtr& cam_info)
     {
         if(pc_pub_.getNumSubscribers()>0)
         {
@@ -105,7 +105,7 @@ namespace egocylindrical
     }
 
 
-    void DedicatedEgoCylindricalPropagator::update(const sensor_msgs::msg::Image::ConstSharedPtr& image, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info)
+    void DedicatedEgoCylindricalPropagator::update(const sensor_msgs::msg::Image::ConstSharedPtr& image, const sensor_msgs::msg::CameraInfo::ConstSharedPtr& cam_info)
     {
         if(old_pts_ && old_pts_->getHeader().stamp >= cam_info->header.stamp)
         {

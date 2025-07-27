@@ -38,16 +38,16 @@ namespace egocylindrical
 
             bool insert(ECWrapper& cylindrical_points, 
                         const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, 
-                        const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info);
+                        const sensor_msgs::msg::CameraInfo::ConstSharedPtr& cam_info);
 
             bool insert(ECWrapper& cylindrical_points, 
                         const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, 
-                        const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info,
+                        const sensor_msgs::msg::CameraInfo::ConstSharedPtr& cam_info,
                         const sensor_msgs::msg::Image::ConstSharedPtr& normals_msg);
 
             bool insert(ECWrapper& cylindrical_points, 
                         const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, 
-                        const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info,
+                        const sensor_msgs::msg::CameraInfo::ConstSharedPtr& cam_info,
                         const sensor_msgs::msg::Image::ConstSharedPtr& labels_msg,
                         const sensor_msgs::msg::Image::ConstSharedPtr& normals_msg);
 

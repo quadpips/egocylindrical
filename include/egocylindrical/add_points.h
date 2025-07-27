@@ -78,15 +78,15 @@ namespace utils
 
                     // if (n_labels[i] == n_labels[i])
                     // {
-                    //     // ROS_INFO_STREAM_NAMED("labels", "labels[" << idx << "]: " << labels[idx] << " (1)");
-                    //     // ROS_INFO_STREAM_NAMED("labels", "n_labels[" << i << "]: " << n_labels[i] << " (1)");
+                    //     // // ROS_INFO_STREAM_NAMED("labels", "labels[" << idx << "]: " << labels[idx] << " (1)");
+                    //     // // ROS_INFO_STREAM_NAMED("labels", "n_labels[" << i << "]: " << n_labels[i] << " (1)");
                     //     // labels[idx] = n_labels[i]; // overwrite label as well
                     // } else
                     // {
-                    //     ROS_INFO_STREAM_NAMED("labels", "n_labels[" << i << "] is NaN (1)"); 
+                    //     // ROS_INFO_STREAM_NAMED("labels", "n_labels[" << i << "] is NaN (1)"); 
                     // }
-                    // // ROS_INFO_STREAM_NAMED("update", "labels[idx]: " << labels[idx]);
-                    // ROS_INFO_STREAM_NAMED("update", "i: " << i << ", idx: " << idx << ", numPts: " << new_points.getNumPts());
+                    // // // ROS_INFO_STREAM_NAMED("update", "labels[idx]: " << labels[idx]);
+                    // // ROS_INFO_STREAM_NAMED("update", "i: " << i << ", idx: " << idx << ", numPts: " << new_points.getNumPts());
                 }
                 
             }
@@ -121,12 +121,12 @@ namespace utils
 
                             // if (n_labels[i] == n_labels[i])
                             // {
-                            //     // ROS_INFO_STREAM_NAMED("labels", "labels[" << idx << "]: " << labels[idx] << " (2)");
-                            //     // ROS_INFO_STREAM_NAMED("labels", "n_labels[" << i << "]: " << n_labels[i] << " (1)");
+                            //     // // ROS_INFO_STREAM_NAMED("labels", "labels[" << idx << "]: " << labels[idx] << " (2)");
+                            //     // // ROS_INFO_STREAM_NAMED("labels", "n_labels[" << i << "]: " << n_labels[i] << " (1)");
                             //     // labels[idx] =  n_labels[i]; // overwrite label as well
                             // } else
                             // {
-                            //     ROS_INFO_STREAM_NAMED("labels", "n_labels[" << i << "] is NaN (2)"); 
+                            //     // ROS_INFO_STREAM_NAMED("labels", "n_labels[" << i << "] is NaN (2)"); 
                             // }
                         }
                     }

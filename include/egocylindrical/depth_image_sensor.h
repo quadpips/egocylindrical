@@ -23,7 +23,7 @@ namespace egocylindrical
     public:
       DepthImageMeasurement(SensorCharacteristics sc, 
                             const sensor_msgs::msg::Image::ConstSharedPtr& image, 
-                            const sensor_msgs::msg::CameraInfo::ConstPtr& info, 
+                            const sensor_msgs::msg::CameraInfo::ConstSharedPtr& info, 
                             DepthImageInserter* dii):
         SensorMeasurement(sc, info->header),
         image_(image),
@@ -37,13 +37,13 @@ namespace egocylindrical
       {
         // ros::WallTimetemp = ros::WallTime::now();
         dii_->insert(cylindrical_points, image_, info_); 
-        ROS_INFO_STREAM_NAMED("timing","Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
+        // ROS_INFO_STREAM_NAMED("timing","Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
       }
 
       
     protected:
       const sensor_msgs::msg::Image::ConstSharedPtr image_;
-      const sensor_msgs::msg::CameraInfo::ConstPtr info_;
+      const sensor_msgs::msg::CameraInfo::ConstSharedPtr info_;
       utils::DepthImageInserter* dii_;
     };
 
@@ -111,10 +111,10 @@ namespace egocylindrical
       
     protected:
       void update(const sensor_msgs::msg::Image::ConstSharedPtr& image, 
-                  const sensor_msgs::msg::CameraInfo::ConstPtr& info) // , 
+                  const sensor_msgs::msg::CameraInfo::ConstSharedPtr& info) // , 
       {
-        ROS_INFO_STREAM_NAMED("timing", "image timestamp: " << image->header.stamp);
-        ROS_INFO_STREAM_NAMED("timing", "info timestamp: " << info->header.stamp);
+        // ROS_INFO_STREAM_NAMED("timing", "image timestamp: " << image->header.stamp);
+        // ROS_INFO_STREAM_NAMED("timing", "info timestamp: " << info->header.stamp);
 
         if(cb_)
         {

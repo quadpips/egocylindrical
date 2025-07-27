@@ -27,7 +27,7 @@ namespace egocylindrical
             
             bool init(std::string fixed_frame_id);
             
-            bool insert(ECWrapper& cylindrical_points, const sensor_msgs::msg::LaserScan::ConstPtr& scan_msg);
+            bool insert(ECWrapper& cylindrical_points, const sensor_msgs::msg::LaserScan::ConstSharedPtr& scan_msg);
 
         };
         

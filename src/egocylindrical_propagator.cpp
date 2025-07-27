@@ -11,7 +11,7 @@ namespace egocylindrical
 
     void EgoCylindricalPropagator::update(utils::SensorMeasurement& measurement)
     {
-        ROS_INFO_STREAM_NAMED("timing", "update()");
+        // ROS_INFO_STREAM_NAMED("timing", "update()");
 
         //TODO: Make ecwrapper pointers into local variables
         old_pts_ = wrapper_buffer_.getOld();
@@ -30,7 +30,7 @@ namespace egocylindrical
         auto new_stamp = measurement_header.stamp;
         if(old_pts_)
         {
-            ROS_INFO_STREAM_NAMED("timing", "old_pts_->getOneLabel(17772): " << std::hex << (uint16_t) old_pts_->getOneLabel(17772));
+            // ROS_INFO_STREAM_NAMED("timing", "old_pts_->getOneLabel(17772): " << std::hex << (uint16_t) old_pts_->getOneLabel(17772));
 
             if(old_pts_->getHeader().stamp > new_stamp)
             {
@@ -51,7 +51,7 @@ namespace egocylindrical
 
         //TODO: Warn of out-of-order images
         //TODO: If clock jumps back in time, reset egocylinder
-        ROS_INFO_STREAM_NAMED("update", "Measurement source: " << measurement.name);
+        // ROS_INFO_STREAM_NAMED("update", "Measurement source: " << measurement.name);
         // ROS_DEBUG_STREAM_NAMED("msg_timestamps","Current stamp: " << new_stamp);
         // ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[egocylinder] Received [" << new_stamp << "] at [" << ros::WallTime::now() << "]");
 
@@ -94,7 +94,7 @@ namespace egocylindrical
             wrapper_buffer_.releaseOld();
         }
 
-        ROS_INFO_STREAM_NAMED("timing", "new_pts_->getOneLabel(17772) (before insert): " << std::hex << (uint16_t) new_pts_->getOneLabel(17772));
+        // ROS_INFO_STREAM_NAMED("timing", "new_pts_->getOneLabel(17772) (before insert): " << std::hex << (uint16_t) new_pts_->getOneLabel(17772));
 
 
         if(propagated_ec_pub_.getNumSubscribers())
@@ -117,7 +117,7 @@ namespace egocylindrical
                 measurement.insert(*new_pts_);
             }
 
-            ROS_INFO_STREAM_NAMED("timing", "new_pts_->getOneLabel(17772) (after insert): " << std::hex << (uint16_t) new_pts_->getOneLabel(17772));
+            // ROS_INFO_STREAM_NAMED("timing", "new_pts_->getOneLabel(17772) (after insert): " << std::hex << (uint16_t) new_pts_->getOneLabel(17772));
 
             if(measurement.publish_update)
             {
@@ -186,11 +186,11 @@ namespace egocylindrical
         
         pnh_.getParam("fixed_frame_id", fixed_frame_id_);
 
-        // ROS_INFO_STREAM_NAMED("update", "points_topic: " << points_topic);
-        // ROS_INFO_STREAM_NAMED("update", "filtered_pc_topic: " << filtered_pc_topic);
-        // ROS_INFO_STREAM_NAMED("update", "egocylinder_info_topic: " << egocylinder_info_topic);
-        // ROS_INFO_STREAM_NAMED("update", "propagated_points_topic: " << propagated_points_topic);
-        // ROS_INFO_STREAM_NAMED("update", "fixed_frame_id_: " << fixed_frame_id_);
+        // // ROS_INFO_STREAM_NAMED("update", "points_topic: " << points_topic);
+        // // ROS_INFO_STREAM_NAMED("update", "filtered_pc_topic: " << filtered_pc_topic);
+        // // ROS_INFO_STREAM_NAMED("update", "egocylinder_info_topic: " << egocylinder_info_topic);
+        // // ROS_INFO_STREAM_NAMED("update", "propagated_points_topic: " << propagated_points_topic);
+        // // ROS_INFO_STREAM_NAMED("update", "fixed_frame_id_: " << fixed_frame_id_);
 
 
         cfh_.init();

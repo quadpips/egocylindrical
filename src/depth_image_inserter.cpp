@@ -51,8 +51,8 @@ namespace egocylindrical
 
             AlignedVector<int32_t> inds(num_pixels);
             
-            ROS_INFO_STREAM_NAMED("timing", "getNumPts:" << cylindrical_points.getNumPts());
-            ROS_INFO_STREAM_NAMED("timing", "num_pixels:" << num_pixels);
+            // ROS_INFO_STREAM_NAMED("timing", "getNumPts:" << cylindrical_points.getNumPts());
+            // ROS_INFO_STREAM_NAMED("timing", "num_pixels:" << num_pixels);
 
             const T* const __restrict__ imgptr = (T* const) image.data;
 
@@ -181,8 +181,8 @@ namespace egocylindrical
 
             AlignedVector<int32_t> inds(num_pixels);
             
-            ROS_INFO_STREAM_NAMED("timing", "getNumPts:" << cylindrical_points.getNumPts());
-            ROS_INFO_STREAM_NAMED("timing", "num_pixels:" << num_pixels);
+            // ROS_INFO_STREAM_NAMED("timing", "getNumPts:" << cylindrical_points.getNumPts());
+            // ROS_INFO_STREAM_NAMED("timing", "num_pixels:" << num_pixels);
 
             const T* const __restrict__ imgptr = (T* const) image.data;
 
@@ -337,20 +337,20 @@ namespace egocylindrical
             AlignedVector<uint8_t> nlabels(num_pixels); // size: num_pixels
             AlignedVector<int32_t> inds(num_pixels);
             
-            ROS_INFO_STREAM_NAMED("timing", "getNumPts:" << cylindrical_points.getNumPts());
-            ROS_INFO_STREAM_NAMED("timing", "num_pixels:" << num_pixels);
+            // ROS_INFO_STREAM_NAMED("timing", "getNumPts:" << cylindrical_points.getNumPts());
+            // ROS_INFO_STREAM_NAMED("timing", "num_pixels:" << num_pixels);
 
             const T* const __restrict__ imgptr = (T* const) image.data;
             const uint8_t* const __restrict__ labelsptr = (uint8_t* const) step_labels.data; // do not do!!
             
-            // ROS_INFO_STREAM_NAMED("timing", "step_labels cols: " << step_labels.cols);
-            // ROS_INFO_STREAM_NAMED("timing", "step_labels rows: " << step_labels.rows);
-            // ROS_INFO_STREAM_NAMED("timing", "step_labels size: " << step_labels.size);
-            // ROS_INFO_STREAM_NAMED("timing", "nlabels[200000]: " << nlabels[200000]);
+            // // ROS_INFO_STREAM_NAMED("timing", "step_labels cols: " << step_labels.cols);
+            // // ROS_INFO_STREAM_NAMED("timing", "step_labels rows: " << step_labels.rows);
+            // // ROS_INFO_STREAM_NAMED("timing", "step_labels size: " << step_labels.size);
+            // // ROS_INFO_STREAM_NAMED("timing", "nlabels[200000]: " << nlabels[200000]);
 
-            ROS_INFO_STREAM_NAMED("labels", "step_labels.data[100] " << std::hex << (uint16_t) step_labels.data[100]);
+            // ROS_INFO_STREAM_NAMED("labels", "step_labels.data[100] " << std::hex << (uint16_t) step_labels.data[100]);
 
-            // ROS_INFO_STREAM_NAMED("timing", "imgptr[2]: " << imgptr[2]);
+            // // ROS_INFO_STREAM_NAMED("timing", "imgptr[2]: " << imgptr[2]);
 
             // nlabels[200000] = labelsptr[200000];
 
@@ -398,8 +398,8 @@ namespace egocylindrical
                     n_norm_x[i] = transformed_norm.x;
                     n_norm_y[i] = transformed_norm.y;
                     n_norm_z[i] = transformed_norm.z;
-                    // ROS_INFO_STREAM_NAMED("timing", "nlabels size: " << nlabels.size());
-                    // ROS_INFO_STREAM_NAMED("timing", "i: " << i);
+                    // // ROS_INFO_STREAM_NAMED("timing", "nlabels size: " << nlabels.size());
+                    // // ROS_INFO_STREAM_NAMED("timing", "i: " << i);
 
                     // nlabels[i] = 0; // Fine.
 
@@ -833,7 +833,7 @@ namespace egocylindrical
             cv_bridge::CvImageConstPtr normalsPtr = cv_bridge::toCvCopy(normals_msg, "32FC3");
             const cv::Mat normals = normalsPtr->image;
 
-            // ROS_INFO_STREAM_NAMED("timing", "in DepthImageInserter::insertPoints, normals.at(240, 360): " << 
+            // // ROS_INFO_STREAM_NAMED("timing", "in DepthImageInserter::insertPoints, normals.at(240, 360): " << 
             //                                                                     normals.at<cv::Vec3f>(240, 360)[0] << ", " <<
             //                                                                     normals.at<cv::Vec3f>(240, 360)[1] << ", " <<
             //                                                                     normals.at<cv::Vec3f>(240, 360)[2]);
@@ -866,7 +866,7 @@ namespace egocylindrical
             cv_bridge::CvImageConstPtr normalsPtr = cv_bridge::toCvCopy(normals_msg, "32FC3");
             const cv::Mat normals = normalsPtr->image;
 
-            // ROS_INFO_STREAM_NAMED("labels", "labels: " << labels.data);
+            // // ROS_INFO_STREAM_NAMED("labels", "labels: " << labels.data);
 
             // uint8_t test_label_uint8_t = labels.at<uint8_t>(0, 100); // DOES NOT WORK 
             // int test_label_int = labels.at<uint8_t>(0, 100); // WORKS
@@ -888,32 +888,32 @@ namespace egocylindrical
             // uint8_t test_label_uint8_t_int = labels.at<int>(0, 100); // DOES NOT WORK 
 
             // if (test_label_uint8_t == 3)
-            //     ROS_INFO_STREAM_NAMED("labels", "COMPARING IS FINE!!");    
+            //     // ROS_INFO_STREAM_NAMED("labels", "COMPARING IS FINE!!");    
 
-            // ROS_INFO_STREAM_NAMED("labels", "test_label_uint8_t: " << std::hex << (uint16_t) test_label_uint8_t);
-            // ROS_INFO_STREAM_NAMED("labels", "test_label_int: " << test_label_int);
-            // ROS_INFO_STREAM_NAMED("labels", "test_label_int8_t: " << test_label_int8_t);
-            // ROS_INFO_STREAM_NAMED("labels", "test_label_int2: " << test_label_int2);
-            // ROS_INFO_STREAM_NAMED("labels", "test_label_data: " << test_label_data_int);
-            // ROS_INFO_STREAM_NAMED("labels", "test_label_data_int8_t: " << test_label_data_int8_t);
-            // ROS_INFO_STREAM_NAMED("labels", "test_convert_uint8: " << *test_convert_uint8);
-            // ROS_INFO_STREAM_NAMED("labels", "test_convert_int8: " << *test_convert_int8);
-            // ROS_INFO_STREAM_NAMED("labels", "test_convert_short: " << test_convert_short);
-            // ROS_INFO_STREAM_NAMED("labels", "test_convert_float: " << test_convert_float);
-            // ROS_INFO_STREAM_NAMED("labels", "labels.at<uint8_t>(0, 100): " << labels.at<uint8_t>(0, 100));
-            // ROS_INFO_STREAM_NAMED("labels", "labels.at<int8_t>(0, 100): " << labels.at<int8_t>(0, 100));
-            // ROS_INFO_STREAM_NAMED("labels", "labels.at<uint16_t>(0, 100): " << labels.at<uint16_t>(0, 100)); // huge number 
-            // ROS_INFO_STREAM_NAMED("labels", "labels.at<int16_t>(0, 100): " << labels.at<int16_t>(0, 100)); // huge number            
-            // ROS_INFO_STREAM_NAMED("labels", "labels.at<uint32_t>(0, 100): " << labels.at<uint32_t>(0, 100)); // huge number 
-            // ROS_INFO_STREAM_NAMED("labels", "labels.at<int32_t>(0, 100): " << labels.at<int32_t>(0, 100)); // huge number
-            // ROS_INFO_STREAM_NAMED("labels", "labels.at<int>(0, 100): " << labels.at<int>(0, 100));
-            // ROS_INFO_STREAM_NAMED("labels", "test_label_uint8_t_int: " << test_label_uint8_t_int);
-            // ROS_INFO_STREAM_NAMED("labels", "test_label_uint16_t: " << test_label_uint16_t); 
-            // ROS_INFO_STREAM_NAMED("labels", "test_16_to_8_convert: " << test_16_to_8_convert); 
+            // // ROS_INFO_STREAM_NAMED("labels", "test_label_uint8_t: " << std::hex << (uint16_t) test_label_uint8_t);
+            // // ROS_INFO_STREAM_NAMED("labels", "test_label_int: " << test_label_int);
+            // // ROS_INFO_STREAM_NAMED("labels", "test_label_int8_t: " << test_label_int8_t);
+            // // ROS_INFO_STREAM_NAMED("labels", "test_label_int2: " << test_label_int2);
+            // // ROS_INFO_STREAM_NAMED("labels", "test_label_data: " << test_label_data_int);
+            // // ROS_INFO_STREAM_NAMED("labels", "test_label_data_int8_t: " << test_label_data_int8_t);
+            // // ROS_INFO_STREAM_NAMED("labels", "test_convert_uint8: " << *test_convert_uint8);
+            // // ROS_INFO_STREAM_NAMED("labels", "test_convert_int8: " << *test_convert_int8);
+            // // ROS_INFO_STREAM_NAMED("labels", "test_convert_short: " << test_convert_short);
+            // // ROS_INFO_STREAM_NAMED("labels", "test_convert_float: " << test_convert_float);
+            // // ROS_INFO_STREAM_NAMED("labels", "labels.at<uint8_t>(0, 100): " << labels.at<uint8_t>(0, 100));
+            // // ROS_INFO_STREAM_NAMED("labels", "labels.at<int8_t>(0, 100): " << labels.at<int8_t>(0, 100));
+            // // ROS_INFO_STREAM_NAMED("labels", "labels.at<uint16_t>(0, 100): " << labels.at<uint16_t>(0, 100)); // huge number 
+            // // ROS_INFO_STREAM_NAMED("labels", "labels.at<int16_t>(0, 100): " << labels.at<int16_t>(0, 100)); // huge number            
+            // // ROS_INFO_STREAM_NAMED("labels", "labels.at<uint32_t>(0, 100): " << labels.at<uint32_t>(0, 100)); // huge number 
+            // // ROS_INFO_STREAM_NAMED("labels", "labels.at<int32_t>(0, 100): " << labels.at<int32_t>(0, 100)); // huge number
+            // // ROS_INFO_STREAM_NAMED("labels", "labels.at<int>(0, 100): " << labels.at<int>(0, 100));
+            // // ROS_INFO_STREAM_NAMED("labels", "test_label_uint8_t_int: " << test_label_uint8_t_int);
+            // // ROS_INFO_STREAM_NAMED("labels", "test_label_uint16_t: " << test_label_uint16_t); 
+            // // ROS_INFO_STREAM_NAMED("labels", "test_16_to_8_convert: " << test_16_to_8_convert); 
 
             // int label = labels.at<uint8_t>(3, 3);
-            // ROS_INFO_STREAM_NAMED("timing", "in DepthImageInserter::insertPoints, label: " << label);
-            // ROS_INFO_STREAM_NAMED("timing", "in DepthImageInserter::insertPoints, current use: " << labels.at<uint8_t>(3, 3));
+            // // ROS_INFO_STREAM_NAMED("timing", "in DepthImageInserter::insertPoints, label: " << label);
+            // // ROS_INFO_STREAM_NAMED("timing", "in DepthImageInserter::insertPoints, current use: " << labels.at<uint8_t>(3, 3));
 
             if(image.depth() == CV_32FC1)
             {
@@ -949,7 +949,7 @@ namespace egocylindrical
 
         bool DepthImageInserter::insert(ECWrapper& cylindrical_points, 
                                         const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, 
-                                        const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info)                                        
+                                        const sensor_msgs::msg::CameraInfo::ConstSharedPtr& cam_info)                                        
         {
             const std_msgs::msg::Header& target_header = cylindrical_points.getHeader();
             const std_msgs::msg::Header& source_header = image_msg->header;
@@ -1009,7 +1009,7 @@ namespace egocylindrical
 
         bool DepthImageInserter::insert(ECWrapper& cylindrical_points, 
                                         const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, 
-                                        const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info,
+                                        const sensor_msgs::msg::CameraInfo::ConstSharedPtr& cam_info,
                                         const sensor_msgs::msg::Image::ConstSharedPtr& normals_msg)                                        
         {
             const std_msgs::msg::Header& target_header = cylindrical_points.getHeader();
@@ -1070,7 +1070,7 @@ namespace egocylindrical
 
         bool DepthImageInserter::insert(ECWrapper& cylindrical_points, 
                                         const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, 
-                                        const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info, 
+                                        const sensor_msgs::msg::CameraInfo::ConstSharedPtr& cam_info, 
                                         const sensor_msgs::msg::Image::ConstSharedPtr& normals_msg,
                                         const sensor_msgs::msg::Image::ConstSharedPtr& labels_msg)                                        
         {

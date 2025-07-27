@@ -165,7 +165,7 @@ namespace egocylindrical
         //DepthImageRemapper definitions
         
         inline
-        void DepthImageRemapper::updateMapping(const ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info)
+        void DepthImageRemapper::updateMapping(const ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, const sensor_msgs::msg::CameraInfo::ConstSharedPtr& cam_info)
         {
             bool reinit = false;
             
@@ -215,7 +215,7 @@ namespace egocylindrical
 //         
         //template <bool fill_cloud>
         inline
-        void DepthImageRemapper::update( ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info, sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg, float thresh_min, float thresh_max, bool fill_cloud)
+        void DepthImageRemapper::update( ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, const sensor_msgs::msg::CameraInfo::ConstSharedPtr& cam_info, sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg, float thresh_min, float thresh_max, bool fill_cloud)
         {
             // ROS_DEBUG("Updating cylindrical points with depth image");
             
@@ -237,7 +237,7 @@ namespace egocylindrical
         }
         
         //inline
-        void DepthImageRemapper::update( ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info)
+        void DepthImageRemapper::update( ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, const sensor_msgs::msg::CameraInfo::ConstSharedPtr& cam_info)
         {
             float thresh_min = 0;
             float thresh_max = 0;
@@ -246,7 +246,7 @@ namespace egocylindrical
         }
         
         //inline
-        void DepthImageRemapper::update( ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info, sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg, float thresh_min, float thresh_max)
+        void DepthImageRemapper::update( ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, const sensor_msgs::msg::CameraInfo::ConstSharedPtr& cam_info, sensor_msgs::msg::PointCloud2::SharedPtr& pcloud_msg, float thresh_min, float thresh_max)
         {
             update(cylindrical_points, image_msg, cam_info, pcloud_msg, thresh_min, thresh_max, true);
             pcloud_msg->header = image_msg->header;

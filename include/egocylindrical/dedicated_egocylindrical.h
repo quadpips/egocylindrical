@@ -82,7 +82,7 @@ private:
     void propagateHistoryInplace(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::msg::Header new_header);
     
     void propagateHistory(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::msg::Header new_header);
-    void addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info);
+    void addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image, const sensor_msgs::msg::CameraInfo::ConstSharedPtr& cam_info);
     
     void connectCB();
     
@@ -94,7 +94,7 @@ public:
     DedicatedEgoCylindricalPropagator(ros::NodeHandle& nh, ros::NodeHandle& pnh);
     ~DedicatedEgoCylindricalPropagator();
     
-    void update(const sensor_msgs::msg::Image::ConstSharedPtr& image, const sensor_msgs::msg::CameraInfo::ConstPtr& cam_info);
+    void update(const sensor_msgs::msg::Image::ConstSharedPtr& image, const sensor_msgs::msg::CameraInfo::ConstSharedPtr& cam_info);
     sensor_msgs::msg::PointCloud2  getPropagatedPointCloud();
     sensor_msgs::msg::Image::ConstSharedPtr getRawRangeImage();
 

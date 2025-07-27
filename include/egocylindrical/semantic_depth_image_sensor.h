@@ -24,7 +24,7 @@ namespace egocylindrical
   public:
     TerrainImageMeasurement(SensorCharacteristics sc, 
                                   const sensor_msgs::msg::Image::ConstSharedPtr& image, 
-                                  const sensor_msgs::msg::CameraInfo::ConstPtr& info, 
+                                  const sensor_msgs::msg::CameraInfo::ConstSharedPtr& info, 
                                   const sensor_msgs::msg::Image::ConstSharedPtr& normals,
                                   DepthImageInserter* dii):
       SensorMeasurement(sc, info->header),
@@ -40,13 +40,13 @@ namespace egocylindrical
     {
       // ros::WallTimetemp = ros::WallTime::now();
       dii_->insert(cylindrical_points, image_, info_, normals_); //  
-      ROS_INFO_STREAM_NAMED("timing","Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
+      // ROS_INFO_STREAM_NAMED("timing","Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
     }
 
   protected:
     const sensor_msgs::msg::Image::ConstSharedPtr image_;
     const sensor_msgs::msg::Image::ConstSharedPtr normals_;
-    const sensor_msgs::msg::CameraInfo::ConstPtr info_;
+    const sensor_msgs::msg::CameraInfo::ConstSharedPtr info_;
     utils::DepthImageInserter* dii_;
   };
 
@@ -55,7 +55,7 @@ namespace egocylindrical
   public:
     SemanticDepthImageMeasurement(SensorCharacteristics sc, 
                                   const sensor_msgs::msg::Image::ConstSharedPtr& image, 
-                                  const sensor_msgs::msg::CameraInfo::ConstPtr& info, 
+                                  const sensor_msgs::msg::CameraInfo::ConstSharedPtr& info, 
                                   const sensor_msgs::msg::Image::ConstSharedPtr& normals,
                                   const sensor_msgs::msg::Image::ConstSharedPtr& labels, 
                                   DepthImageInserter* dii):
@@ -73,12 +73,12 @@ namespace egocylindrical
     {
       // ros::WallTimetemp = ros::WallTime::now();
       dii_->insert(cylindrical_points, image_, info_, normals_, labels_); //  
-      ROS_INFO_STREAM_NAMED("timing","Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
+      // ROS_INFO_STREAM_NAMED("timing","Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
     }
 
   protected:
     const sensor_msgs::msg::Image::ConstSharedPtr image_;
-    const sensor_msgs::msg::CameraInfo::ConstPtr info_;
+    const sensor_msgs::msg::CameraInfo::ConstSharedPtr info_;
     const sensor_msgs::msg::Image::ConstSharedPtr normals_;
     const sensor_msgs::msg::Image::ConstSharedPtr labels_;
     utils::DepthImageInserter* dii_;
@@ -146,10 +146,10 @@ namespace egocylindrical
       depth_info_sub_.subscribe(pnh_, info_topic, 3);
       normals_sub_.subscribe(it_, normals_topic, 3);
 
-      ROS_INFO_STREAM_NAMED("update", "depth_topic: " << depth_topic);
-      ROS_INFO_STREAM_NAMED("update", "info_topic: " << info_topic);
-      ROS_INFO_STREAM_NAMED("update", "labels_topic: " << labels_topic);
-      ROS_INFO_STREAM_NAMED("update", "normals_topic: " << normals_topic);
+      // ROS_INFO_STREAM_NAMED("update", "depth_topic: " << depth_topic);
+      // ROS_INFO_STREAM_NAMED("update", "info_topic: " << info_topic);
+      // ROS_INFO_STREAM_NAMED("update", "labels_topic: " << labels_topic);
+      // ROS_INFO_STREAM_NAMED("update", "normals_topic: " << normals_topic);
 
       //Filter out images with duplicate time stamps
       time_filter_ = std::make_shared<TimeFilter_t>(depth_info_sub_);
@@ -170,27 +170,27 @@ namespace egocylindrical
       //   labels_ = labels;
       //   new_labels = true;
       //   have_labels = true;
-      //   // ROS_INFO_STREAM_NAMED("timing", "in solo callback, label: " << label);
+      //   // // ROS_INFO_STREAM_NAMED("timing", "in solo callback, label: " << label);
       // }
 
       void update(const sensor_msgs::msg::Image::ConstSharedPtr& image, 
-                  const sensor_msgs::msg::CameraInfo::ConstPtr& info,
+                  const sensor_msgs::msg::CameraInfo::ConstSharedPtr& info,
                   const sensor_msgs::msg::Image::ConstSharedPtr& normals) // , 
       {
-        // ROS_INFO_STREAM_NAMED("timing", "labels->image.at<uint8_t>(50, 50): " << labels->image.at<uint8_t>(50, 50));
+        // // ROS_INFO_STREAM_NAMED("timing", "labels->image.at<uint8_t>(50, 50): " << labels->image.at<uint8_t>(50, 50));
 
-        ROS_INFO_STREAM_NAMED("timing", "image timestamp: " << image->header.stamp);
-        ROS_INFO_STREAM_NAMED("timing", "info timestamp: " << info->header.stamp);
-        ROS_INFO_STREAM_NAMED("timing", "normals timestamp: " << normals->header.stamp);  
+        // ROS_INFO_STREAM_NAMED("timing", "image timestamp: " << image->header.stamp);
+        // ROS_INFO_STREAM_NAMED("timing", "info timestamp: " << info->header.stamp);
+        // ROS_INFO_STREAM_NAMED("timing", "normals timestamp: " << normals->header.stamp);  
 
         if (cb_) //  && have_labels // want first update to be a depth+labels one
         {
           std::shared_ptr<SensorMeasurement> m;
           // if (new_labels)
           // {
-          //   ROS_INFO_STREAM_NAMED("timing", "image timestamp: " << image->header.stamp);
-          //   ROS_INFO_STREAM_NAMED("timing", "info timestamp: " << info->header.stamp);
-          //   ROS_INFO_STREAM_NAMED("timing", "labels_ timestamp: " << labels_->header.stamp);            
+          //   // ROS_INFO_STREAM_NAMED("timing", "image timestamp: " << image->header.stamp);
+          //   // ROS_INFO_STREAM_NAMED("timing", "info timestamp: " << info->header.stamp);
+          //   // ROS_INFO_STREAM_NAMED("timing", "labels_ timestamp: " << labels_->header.stamp);            
           //   m = std::make_shared<SemanticDepthImageMeasurement>(sc_, image, info, normals, labels_, &dii_); // normals,  
           //   new_labels = false;
           // } else
