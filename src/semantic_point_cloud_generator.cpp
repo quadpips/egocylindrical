@@ -13,23 +13,22 @@
 namespace egocylindrical
 {
 
-
-    SemanticPointCloudGenerator::SemanticPointCloudGenerator(ros::NodeHandle& nh, ros::NodeHandle& pnh) :
-        nh_(nh),
-        pnh_(pnh)
+    // ros::NodeHandle& nh, ros::NodeHandle& pnh
+    SemanticPointCloudGenerator::SemanticPointCloudGenerator(rclcpp::Node::SharedPtr node) :
+        node_(node)
     {
         std::cout<<"Labeled PointCloud publishing Node Initialized"<<std::endl;
     }
     
     bool SemanticPointCloudGenerator::init()
     {
-        ec_sub_.shutdown();
+        ec_sub_.reset();
         
-        ros::SubscriberStatusCallback info_cb = std::bind(&SemanticPointCloudGenerator::ssCB, this);
-        {
-            Lock lock(connect_mutex_);
-            pc_pub_ = nh_.advertise<sensor_msgs::msg::PointCloud2>("labeled_points", 2, info_cb, info_cb);
-        }
+        // ros::SubscriberStatusCallback info_cb = std::bind(&SemanticPointCloudGenerator::ssCB, this);
+        // {
+        //     Lock lock(connect_mutex_);
+        pc_pub_ = node_->create_publisher<sensor_msgs::msg::PointCloud2>("labeled_points", 2);
+        // }
         
         return true;
     }
@@ -39,7 +38,7 @@ namespace egocylindrical
     {
         //std::cout << (void*)ec_sub_ << ": " << pc_pub_->get_subscription_count() << std::endl;
         Lock lock(connect_mutex_);
-        if(pc_pub_->get_subscription_count()>0)
+        if (pc_pub_->get_subscription_count()>0)
         {
             if(ec_sub_) //if currently subscribed... no need to do anything
             {
@@ -47,14 +46,15 @@ namespace egocylindrical
             }
             else
             {
-              // ROS_INFO("Labeled PointCloud Generator Subscribing");
-              ec_sub_ = nh_.subscribe("egocylindrical_points", 2, &SemanticPointCloudGenerator::ecPointsCB, this);
+                // ROS_INFO("Labeled PointCloud Generator Subscribing");
+                //   ec_sub_ = nh_.subscribe("egocylindrical_points", 2, &SemanticPointCloudGenerator::ecPointsCB, this);
+                ec_sub_ = node_->create_subscription<egocylindrical_msgs::msg::EgoCylinderPoints>("egocylindrical_points", 2, std::bind(&SemanticPointCloudGenerator::ecPointsCB, this, std::placeholders::_1));
             }
       
         }
         else
         {
-            ec_sub_.shutdown();
+            ec_sub_.reset();
             // ROS_INFO("Labeled PointCloud Generator Unsubscribing");
         }
     }
@@ -64,7 +64,7 @@ namespace egocylindrical
     {
         // ROS_DEBUG("Received EgoCylinderPoints msg");
 
-        if(pc_pub_->get_subscription_count()>0)
+        if (pc_pub_->get_subscription_count() > 0)
         {
           // ros::WallTime// start = ros::WallTime::now();
           
@@ -76,8 +76,8 @@ namespace egocylindrical
           
 
           // ROS_DEBUG("publish egocylindrical labeled pointcloud");
-          
-          pc_pub_.publish(msg);
+
+          pc_pub_->publish(*msg);
         }
         
     }

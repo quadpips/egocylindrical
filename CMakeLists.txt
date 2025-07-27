@@ -327,6 +327,21 @@ target_link_libraries(projected_point_cloud_node
    ${OpenMP_CXX_FLAGS}
    )
 
+#SEMANTIC_POINT_CLOUD_GENERATOR
+add_library(semantic_point_cloud_generator src/semantic_point_cloud_generator.cpp)
+target_link_libraries(semantic_point_cloud_generator
+   semantic_point_cloud_core
+   )
+
+#SEMANTIC_POINT_CLOUD_NODE
+add_executable(semantic_point_cloud_node src/semantic_point_cloud_node.cpp)
+target_link_libraries(semantic_point_cloud_node
+   semantic_point_cloud_generator
+   ${OpenCV_LIBRARIES}
+   ${PCL_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
+
 #############
 ## Install ##
 #############
@@ -339,7 +354,7 @@ install(
             depth_image_remapper range_image_dilator range_image_converter depth_image_difference
             laser_scan_inserter depth_image_inserter depth_image_difference
             sensors ecwrapper_buffer egocylindrical_propagator point_cloud_generator
-            projected_point_cloud_generator
+            projected_point_cloud_generator semantic_point_cloud_generator
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -352,6 +367,7 @@ install(
       egocylindrical_propagator_node
       point_cloud_node
       projected_point_cloud_node
+      semantic_point_cloud_node
       DESTINATION lib/${PROJECT_NAME}
 )
 
