@@ -276,7 +276,13 @@ target_link_libraries(sensors
    ${catkin_LIBRARIES}
    )
 
-
+add_library(ecwrapper_buffer src/ecwrapper_buffer.cpp)
+ament_target_dependencies(ecwrapper_buffer ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+#target_compile_options(laser_scan_inserter PRIVATE -O0 -g)
+target_link_libraries(ecwrapper_buffer
+   ${catkin_LIBRARIES}
+   )
+   
 #############
 ## Install ##
 #############

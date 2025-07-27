@@ -1,5 +1,5 @@
 #include <egocylindrical/ecwrapper_buffer.h>
-#include <egocylindrical/PropagatorConfig.h>
+// #include <egocylindrical/PropagatorConfig.h>
 #include <egocylindrical/ecwrapper.h>
 
 #include <stdexcept>
@@ -8,28 +8,41 @@
 namespace egocylindrical
 {
 
-    utils::ECParams getParams(const egocylindrical::PropagatorConfig &config)
+    // utils::ECParams getParams(const egocylindrical::PropagatorConfig &config)
+    // {
+    //   utils::ECParams params;
+    //   params.height = config.height;
+    //   params.width = config.width;
+    //   params.vfov = config.vfov;
+    //   params.can_width = config.can_width;
+    //   params.v_offset = config.v_offset;
+    //   params.cyl_radius = config.cyl_radius;
+    //   return params;
+    // }
+
+    utils::ECParams getParams() // const egocylindrical::PropagatorConfig &config
     {
       utils::ECParams params;
-      params.height = config.height;
-      params.width = config.width;
-      params.vfov = config.vfov;
-      params.can_width = config.can_width;
-      params.v_offset = config.v_offset;
-      params.cyl_radius = config.cyl_radius;
+      params.height = 120;
+      params.width = 256;
+      params.vfov = M_PI / 3.0;
+      params.can_width = 512;
+      params.v_offset = 0.0;
+      params.cyl_radius = 1.0;
       return params;
     }
 
     namespace utils
     {
-      utils::ECWrapperPtr getECWrapper(const egocylindrical::PropagatorConfig &config, bool allocate_arrays=false)
-      {
-        return utils::getECWrapper(getParams(config), allocate_arrays);
-      }
+        // const egocylindrical::PropagatorConfig &config, 
+        utils::ECWrapperPtr getECWrapper(bool allocate_arrays=false)
+        {
+            return utils::getECWrapper(getParams(), allocate_arrays); // config
+        }
     }
 
-    ECWrapperBuffer::ECWrapperBuffer(egocylindrical::PropagatorConfig& config):
-        config_(config),
+    ECWrapperBuffer::ECWrapperBuffer(): // egocylindrical::PropagatorConfig& config
+        // config_(config),
         old_pts_(nullptr)
     {}
 
@@ -95,13 +108,16 @@ namespace egocylindrical
 
     utils::ECWrapper::Ptr ECWrapperBuffer::getNew()
     {
-        while(new_pts_buffer_.empty())
+        while (new_pts_buffer_.empty())
         {
             // ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.getNew", "Waiting for wrapper to become available...");
             addNew();
-            ros::WallDuration(0.01).sleep();
+            // ros::WallDuration(0.01).sleep();
+            rclcpp::Duration duration = rclcpp::Duration::from_seconds(0.01);
+            rclcpp::sleep_for((std::chrono::nanoseconds(duration.nanoseconds()))); // sleep();
+
         }
-        if(!new_pts_buffer_.empty())
+        if (!new_pts_buffer_.empty())
         {
             // ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.getNew", "Retrieving clean, preallocated ECWrapper");
             new_pts_ = new_pts_buffer_.front();
@@ -174,12 +190,12 @@ namespace egocylindrical
     utils::ECWrapper::Ptr ECWrapperBuffer::createNew()
     {
         // ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.createNew", "Create new ECWrapper with current config");
-        return utils::getECWrapper(config_);
+        return utils::getECWrapper(); // config_
     }
 
     void ECWrapperBuffer::bufferProcessingThread()
     {
-        while(true || ros::ok())
+        while(true || rclcpp::ok())
         {
             // Wait until object added to buffer
             Lock lk(next_pts_mutex_);
@@ -200,7 +216,7 @@ namespace egocylindrical
                 {
                     if(!v->isLocked())
                     {
-                        v->init(getParams(config_), true);
+                        v->init(getParams(), true); // config_
                         // ROS_DEBUG_STREAM_NAMED("ecwrapper_buffer.prepareNext", "Reuse old ECWrapper for next time");
                     }
                     else

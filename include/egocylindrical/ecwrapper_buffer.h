@@ -1,7 +1,7 @@
 #ifndef EGOCYLINDRICAL_ECWRAPPER_BUFFER_H
 #define EGOCYLINDRICAL_ECWRAPPER_BUFFER_H
 
-#include <egocylindrical/PropagatorConfig.h>
+// #include <egocylindrical/PropagatorConfig.h>
 #include <egocylindrical/ecwrapper.h>
 
 #include <queue>
@@ -10,6 +10,8 @@
 #include <mutex>
 #include <condition_variable>
 #include <thread>
+
+#include <rclcpp/rclcpp.hpp>
 
 
 namespace egocylindrical
@@ -37,7 +39,7 @@ namespace egocylindrical
 
 
     public:
-        ECWrapperBuffer(egocylindrical::PropagatorConfig& config);
+        ECWrapperBuffer(); // egocylindrical::PropagatorConfig& config
 
         ~ECWrapperBuffer();
 
@@ -74,7 +76,7 @@ namespace egocylindrical
 
 
     protected:
-        egocylindrical::PropagatorConfig& config_;
+        // egocylindrical::PropagatorConfig& config_;
 
         std::queue<utils::ECWrapper::Ptr> new_pts_buffer_, next_pts_buffer_;
         
