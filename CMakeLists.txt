@@ -298,6 +298,12 @@ target_link_libraries(egocylindrical_propagator
    ${OpenMP_CXX_FLAGS}
    )
    
+#EGOCYLINDRICAL_PROPAGATOR_NODE
+add_executable(egocylindrical_propagator_node src/egocylindrical_propagator_node.cpp)
+target_link_libraries(egocylindrical_propagator_node
+   egocylindrical_propagator
+   )
+
 #############
 ## Install ##
 #############
@@ -308,8 +314,8 @@ install(
             projected_point_cloud_core semantic_point_cloud_core normal_point_cloud_core
             normal_point_cloud_floor_only_core point_transformer point_propagator
             depth_image_remapper range_image_dilator range_image_converter depth_image_difference
-            # depth_image_difference depth_image_inserter laser_scan_inserter
-            # sensors ecwrapper_buffer egocylindrical_propagator
+            laser_scan_inserter depth_image_inserter depth_image_difference
+            sensors ecwrapper_buffer egocylindrical_propagator
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -317,11 +323,11 @@ install(
   INCLUDES DESTINATION include/${PROJECT_NAME}
 )
 
-
-# install(
-#   TARGETS 
-#       DESTINATION lib/${PROJECT_NAME}
-# )
+install(
+  TARGETS 
+      egocylindrical_propagator_node
+      DESTINATION lib/${PROJECT_NAME}
+)
 
 
 # install(DIRECTORY include/ 
