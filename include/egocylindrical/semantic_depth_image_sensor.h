@@ -86,7 +86,8 @@ namespace egocylindrical
 
   class SemanticDepthImageSensor : public SensorInterface
   {
-    ros::NodeHandle pnh_;
+    // ros::NodeHandle pnh_;
+    rclcpp::Node::SharedPtr node_;
     tf2_ros::Buffer& buffer_;
     
     utils::DepthImageInserter dii_;
@@ -111,18 +112,18 @@ namespace egocylindrical
     std::shared_ptr<MsgSynchronizer> msg_sync_;
 
   public:
-    SemanticDepthImageSensor(ros::NodeHandle pnh, tf2_ros::Buffer& buffer):
-      pnh_(pnh),
+    SemanticDepthImageSensor(rclcpp::Node::SharedPtr node, tf2_ros::Buffer& buffer): // ros::NodeHandle pnh,
+      node_(node),
       buffer_(buffer),
-      dii_(buffer, pnh),
-      it_(pnh)
+      dii_(buffer, node),
+      it_(node)
       {}
 
     
     void init(std::string fixed_frame_id) override
     {
       //Load general parameters
-      sc_.init(pnh_);
+      sc_.init(node_);
       
       //sc_.name = depth_topic;
       //sc_.publish_update = true;
@@ -133,18 +134,21 @@ namespace egocylindrical
                   info_topic= "/camera/depth/camera_info",
                   normals_topic="/camera/normals",
                   labels_topic="/camera/steppability/labels";
-      pnh_.getParam("image_in", depth_topic );
-      pnh_.getParam("info_in", info_topic );
-      pnh_.getParam("labels_in", labels_topic );
-      pnh_.getParam("normals_in", normals_topic );
-      
+      node_->get_parameter("image_in", depth_topic);
+      node_->get_parameter("info_in", info_topic);
+      node_->get_parameter("labels_in", labels_topic);
+      node_->get_parameter("normals_in", normals_topic);
+
       //Initialize helper classes
       dii_.init(fixed_frame_id);
       
       //Set up publishers/subscribers and any necessary filters
-      depth_sub_.subscribe(it_, depth_topic, 3);
-      depth_info_sub_.subscribe(pnh_, info_topic, 3);
-      normals_sub_.subscribe(it_, normals_topic, 3);
+      rmw_qos_profile_t qos = rmw_qos_profile_default;
+      qos.depth = 3; // TODO: Make this a parameter
+
+      depth_sub_.subscribe(node_.get(), depth_topic, "compressed", qos);
+      depth_info_sub_.subscribe(node_.get(), info_topic); // , 3
+      normals_sub_.subscribe(node_.get(), normals_topic, "compressed", qos);
 
       // ROS_INFO_STREAM_NAMED("update", "depth_topic: " << depth_topic);
       // ROS_INFO_STREAM_NAMED("update", "info_topic: " << info_topic);
@@ -155,7 +159,7 @@ namespace egocylindrical
       time_filter_ = std::make_shared<TimeFilter_t>(depth_info_sub_);
       
       // Ensure that the message is transformable
-      info_tf_filter = std::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, pnh_);
+      info_tf_filter = std::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, node_);
 
       // Synchronize Image and CameraInfo callbacks
       msg_sync_ = std::make_shared<MsgSynchronizer>(depth_sub_, *info_tf_filter, normals_sub_, 3); //   
@@ -202,7 +206,7 @@ namespace egocylindrical
         }
         else
         {
-          ROS_ERROR("No callback defined for SemanticDepthImageSensor!");
+          // ROS_ERROR(("No callback defined for SemanticDepthImageSensor!");
         }
       }
       

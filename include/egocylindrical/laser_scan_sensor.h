@@ -36,7 +36,9 @@ namespace egocylindrical
     
     class LaserScanSensor: public SensorInterface
     {
-      ros::NodeHandle pnh_;
+      // ros::NodeHandle pnh_;
+      rclcpp::Node::SharedPtr node_;
+
       tf2_ros::Buffer& buffer_;
       
       LaserScanInserter lsi_;
@@ -50,17 +52,17 @@ namespace egocylindrical
       std::shared_ptr<TfFilter> scan_tf_filter;
       
     public:
-      LaserScanSensor(ros::NodeHandle pnh, tf2_ros::Buffer& buffer):
-        pnh_(pnh),
+      LaserScanSensor(rclcpp::Node::SharedPtr node, tf2_ros::Buffer& buffer):
+        node_(node),
         buffer_(buffer),
-        lsi_(buffer, pnh)
+        lsi_(buffer, node)
         {}
 
       
       void init(std::string fixed_frame_id) override
       {
         //Load general parameters
-        sc_.init(pnh_);
+        sc_.init(node_);
         
         //sc_.name = scan_topic;
         //sc_.publish_update = true;
@@ -68,19 +70,20 @@ namespace egocylindrical
         
         //Load implementation parameters
         std::string scan_topic = "scan";
-        pnh_.getParam("scan_in", scan_topic);
+        // pnh_.getParam("scan_in", scan_topic);
+        node_->get_parameter("scan_in", scan_topic);
         
         //Initialize helper classes
         lsi_.init(fixed_frame_id);
         
         //Set up publishers/subscribers and any necessary filters
-        scan_sub_.subscribe(pnh_, scan_topic, 3);
+        scan_sub_.subscribe(node_.get(), scan_topic); // , 3
         
         //Filter out images with duplicate time stamps
         time_filter_ = std::make_shared<TimeFilter_t>(scan_sub_);
 
         // Ensure that the scan is transformable
-        scan_tf_filter = std::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, pnh_);
+        scan_tf_filter = std::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, node_);
 
         scan_tf_filter->registerCallback(std::bind(&LaserScanSensor::update, this, _1));
       }
@@ -95,7 +98,7 @@ namespace egocylindrical
         }
         else
         {
-          ROS_ERROR("No callback defined for LaserScanSensor!");
+          // ROS_ERROR(("No callback defined for LaserScanSensor!");
         }
       }
       

@@ -298,7 +298,7 @@ namespace egocylindrical
       }
       else
       {
-        ROS_ERROR_STREAM("Unsupported image format for inflation: " << range_msg->encoding);
+        // // ROS_ERROR(_STREAM("Unsupported image format for inflation: " << range_msg->encoding);
       }
       
       

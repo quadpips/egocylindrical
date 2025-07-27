@@ -13,6 +13,7 @@
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
 
+using namespace std::placeholders;
 
 namespace egocylindrical
 {
@@ -49,7 +50,9 @@ namespace egocylindrical
 
     class DepthImageSensor : public SensorInterface
     {
-      ros::NodeHandle pnh_;
+      // ros::NodeHandle pnh_;
+      rclcpp::Node::SharedPtr node_;
+
       tf2_ros::Buffer& buffer_;
       
       utils::DepthImageInserter dii_;
@@ -68,18 +71,18 @@ namespace egocylindrical
       std::shared_ptr<MsgSynchronizer> msg_sync_;
       
     public:
-      DepthImageSensor(ros::NodeHandle pnh, tf2_ros::Buffer& buffer):
-        pnh_(pnh),
+      DepthImageSensor(rclcpp::Node::SharedPtr node, tf2_ros::Buffer& buffer):
+        node_(node),
         buffer_(buffer),
-        dii_(buffer, pnh),
-        it_(pnh)
+        dii_(buffer, node),
+        it_(node)
         {}
 
       
       void init(std::string fixed_frame_id) override
       {
         //Load general parameters
-        sc_.init(pnh_);
+        sc_.init(node_);
         
         //sc_.name = depth_topic;
         //sc_.publish_update = true;
@@ -88,21 +91,23 @@ namespace egocylindrical
         //Load implementation parameters
         std::string depth_topic="/camera/depth/image_raw", 
                     info_topic= "/camera/depth/camera_info";
-        pnh_.getParam("image_in", depth_topic );
-        pnh_.getParam("info_in", info_topic );
+        // pnh_.getParam("image_in", depth_topic );
+        // pnh_.getParam("info_in", info_topic );
+        node_->get_parameter("image_in", depth_topic);
+        node_->get_parameter("info_in", info_topic);
         
         //Initialize helper classes
         dii_.init(fixed_frame_id);
         
         //Set up publishers/subscribers and any necessary filters
-        depth_sub_.subscribe(it_, depth_topic, 3);
-        depth_info_sub_.subscribe(pnh_, info_topic, 3);
+        depth_sub_.subscribe(node_.get(), depth_topic, "compressed");
+        depth_info_sub_.subscribe(node_.get(), info_topic); // , "compressed"
 
         //Filter out images with duplicate time stamps
         time_filter_ = std::make_shared<TimeFilter_t>(depth_info_sub_);
         
         // Ensure that the message is transformable
-        info_tf_filter = std::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, pnh_);
+        info_tf_filter = std::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, node_);
 
         // Synchronize Image and CameraInfo callbacks
         msg_sync_ = std::make_shared<MsgSynchronizer>(depth_sub_, *info_tf_filter, 2); //   
@@ -116,14 +121,14 @@ namespace egocylindrical
         // ROS_INFO_STREAM_NAMED("timing", "image timestamp: " << image->header.stamp);
         // ROS_INFO_STREAM_NAMED("timing", "info timestamp: " << info->header.stamp);
 
-        if(cb_)
+        if (cb_)
         {
           auto m = std::make_shared<DepthImageMeasurement>(sc_, image, info, &dii_);  
           cb_(m);
         }
         else
         {
-          ROS_ERROR("No callback defined for DepthImageSensor!");
+          // ROS_ERROR(("No callback defined for DepthImageSensor!");
         }
       }
       

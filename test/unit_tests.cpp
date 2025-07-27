@@ -164,7 +164,7 @@ using namespace egocylindrical::utils;
 
           if(!verifyCopy(cp, *points))
           {
-            ROS_ERROR_STREAM("Copy failed verification!");
+            // // ROS_ERROR(_STREAM("Copy failed verification!");
             return false;
           }
           point_conversion2(cp);

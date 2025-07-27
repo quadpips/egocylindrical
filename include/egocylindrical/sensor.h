@@ -4,6 +4,8 @@
 #include <egocylindrical/ecwrapper.h>
 #include <std_msgs/msg/header.hpp>
 
+#include <rclcpp/rclcpp.hpp>
+
 namespace egocylindrical
 {
   namespace utils
@@ -19,7 +21,7 @@ namespace egocylindrical
         }
         else
         {
-            ROS_ERROR_STREAM("Unable to find parameter [" << param_name << "]! Full namespace=" << sensor_nh.getNamespace() + "/" + param_name);
+            // // ROS_ERROR(_STREAM("Unable to find parameter [" << param_name << "]! Full namespace=" << sensor_nh.getNamespace() + "/" + param_name);
             return false;
         }
     }
@@ -32,7 +34,7 @@ namespace egocylindrical
       bool raytrace=false;
       
       //This is really a factory method, should potentially be moved elsewhere
-      virtual bool init(ros::NodeHandle sensor_nh);
+      virtual bool init(rclcpp::Node::SharedPtr node); // ros::NodeHandle sensor_nh
       /*
       {
           //Find name of sensor
@@ -43,7 +45,7 @@ namespace egocylindrical
 
               if(pos == std::string::npos)
               {
-                  ROS_ERROR_STREAM("Invalid namespace for sensor! [" << ns << "]");
+                  // // ROS_ERROR(_STREAM("Invalid namespace for sensor! [" << ns << "]");
                   return false;
               }
               
@@ -51,7 +53,7 @@ namespace egocylindrical
 
               if(substr.empty())
               {
-                  ROS_ERROR_STREAM("Invalid namespace for sensor! [" << ns << "]");
+                  // // ROS_ERROR(_STREAM("Invalid namespace for sensor! [" << ns << "]");
                   return false;
               }
               value = substr;
@@ -119,6 +121,6 @@ namespace egocylindrical
   } //end namespace utils
 } //end namespace egocylindrical
 
-#include <egocylindrical/sensor_filter.h> //NOTE: This is here to avoid a circular dependency issue
+// #include <egocylindrical/sensor_filter.h> //NOTE: This is here to avoid a circular dependency issue
 
 #endif //EGOCYLINDRICAL_SENSOR_H

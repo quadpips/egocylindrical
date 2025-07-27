@@ -110,7 +110,7 @@ namespace egocylindrical
         }
         else
         {
-            ROS_ERROR_STREAM("There must be a valid ECWrapper in [new_pts_buffer_]");
+            // // ROS_ERROR(_STREAM("There must be a valid ECWrapper in [new_pts_buffer_]");
 
             throw std::out_of_range("There must be a valid ECWrapper in [new_pts_buffer_]");
         }

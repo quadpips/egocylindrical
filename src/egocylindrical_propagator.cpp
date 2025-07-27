@@ -38,7 +38,7 @@ namespace egocylindrical
             }
             else if(old_pts_->getHeader().stamp == new_stamp)
             {
-              ROS_WARN_STREAM_NAMED("msg_timestamps","Repeat stamps received! " << new_stamp);
+              // ROS_WARN_STREAM_NAMED("msg_timestamps","Repeat stamps received! " << new_stamp);
               //return;
             }
         }

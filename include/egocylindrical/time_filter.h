@@ -28,15 +28,16 @@
     void connectInput(F& f)
     {
       incoming_connection_.disconnect();
-      incoming_connection_ = f.registerCallback(typename message_filters::SimpleFilter<M>::EventCallback(std::bind(&TimeFilter::cb, this, boost::placeholders::_1)));
+      incoming_connection_ = f.registerCallback(typename message_filters::SimpleFilter<M>::EventCallback(std::bind(&TimeFilter::cb, this, std::placeholders::_1)));
     }
 
     void add(const typename message_filters::SimpleFilter<M>::EventType& evt)
     {
-      namespace mt = ros::message_traits;
+      namespace mt = message_filters::message_traits;
       if(clock_monitor_.update())
       {
-        last_msg_time_ = ros::Time();
+        // last_msg_time_ = ros::Time();
+        last_msg_time_ = rclcpp::Time();
       }
       
       auto timestamp = mt::TimeStamp<M>::value(*evt.getMessage());
@@ -61,10 +62,11 @@
       add(evt);
     }
       
-    ros::Time last_msg_time_;
+    // ros::Time last_msg_time_;
+    rclcpp::Time last_msg_time_;
     
     message_filters::Connection incoming_connection_;
-    boost::mutex time_mutex_;
+    // boost::mutex time_mutex_;
     message_filters::ClockResetMonitor clock_monitor_;
 
   };

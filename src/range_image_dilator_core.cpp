@@ -64,7 +64,7 @@ sensor_msgs::msg::Image::SharedPtr dilateImage(const sensor_msgs::msg::Image::Co
 {
 //     if(image_msg_in->encoding != sensor_msgs::image_encodings::TYPE_16UC1)
 //     {
-// //         ROS_ERROR_STREAM("Range Image Dilator only supports encoding '16U'!");
+// //         // // ROS_ERROR(_STREAM("Range Image Dilator only supports encoding '16U'!");
 //         throw std::runtime_error("Range Image Dilator only supports encoding '16U'!");
 //     }
 
@@ -83,7 +83,7 @@ sensor_msgs::msg::Image::SharedPtr dilateImage(const sensor_msgs::msg::Image::Co
     }
     else
     {
-        //ROS_ERROR_STREAM("Range Image Dilator encountered unrecognized encoding [" << image_msg_in->encoding << "]");
+        //// // ROS_ERROR(_STREAM("Range Image Dilator encountered unrecognized encoding [" << image_msg_in->encoding << "]");
         throw std::runtime_error("Range Image Dilator encountered unrecognized encoding");
     }
 

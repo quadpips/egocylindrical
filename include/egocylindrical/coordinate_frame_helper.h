@@ -264,7 +264,7 @@ namespace egocylindrical
                         // For now, this likely represents an error
                         if(t.x != 0 || t.y != 0 || t.z != 0)
                         {
-                            ROS_WARN_STREAM_NAMED("update_offset_transform", "The specified offset has a non-zero translational component, are you sure you want to do this?");
+                            // ROS_WARN_STREAM_NAMED("update_offset_transform", "The specified offset has a non-zero translational component, are you sure you want to do this?");
                         }
                     }
                     

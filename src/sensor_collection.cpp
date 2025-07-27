@@ -14,7 +14,9 @@
 #include <iterator>
 
 // #include <ros/node_handle.h>
-#include <ros/console.h>
+// #include <ros/console.h>
+#include <rclcpp/rclcpp.hpp>
+
 #include <tf2_ros/buffer.h>
 //#include <image_transport/image_transport.hpp>
 
@@ -24,14 +26,14 @@ namespace egocylindrical
 {
     namespace utils 
     {
-        SensorInterface::Ptr createSensor(ros::NodeHandle nh, std::string name, tf2_ros::Buffer& buffer)
+        SensorInterface::Ptr createSensor(rclcpp::Node::SharedPtr node, std::string name, tf2_ros::Buffer& buffer) // ros::NodeHandle nh, 
         {
             // ROS_INFO_STREAM("Creating sensor [" << name << "]");
-            auto sensor_nh = ros::NodeHandle(nh, name);
+            // auto sensor_nh = ros::NodeHandle(nh, name);
             
             SensorInterface::Ptr sensor;
             std::string sensor_type;
-            if(!sensor_nh.getParam("type", sensor_type))
+            if (!node->get_parameter("type", sensor_type))
             {
                 throw std::runtime_error("Type [" + sensor_type + "] is not defined for Sensor! [" + name + "]");
             }
@@ -39,17 +41,17 @@ namespace egocylindrical
             //This isn't possible w/ C++11 apparently
             //auto make_sensor = [name, buffer_&, sensor_nh&](){ std::make_shared<T>(name, buffer_, sensor_nh); };
             
-            if(sensor_type == "laser")
+            if (sensor_type == "laser")
             {
-                sensor = std::dynamic_pointer_cast<SensorInterface>(std::make_shared<LaserScanSensor>(sensor_nh, buffer));
+                sensor = std::dynamic_pointer_cast<SensorInterface>(std::make_shared<LaserScanSensor>(node, buffer));
             }
-            else if(sensor_type == "depth")
+            else if (sensor_type == "depth")
             {
-                sensor = std::make_shared<DepthImageSensor>(sensor_nh, buffer);
+                sensor = std::make_shared<DepthImageSensor>(node, buffer);
             }
-            else if(sensor_type == "semantic_depth")
+            else if (sensor_type == "semantic_depth")
             {
-                sensor = std::make_shared<SemanticDepthImageSensor>(sensor_nh, buffer);
+                sensor = std::make_shared<SemanticDepthImageSensor>(node, buffer);
             }
             else
             {
@@ -60,26 +62,22 @@ namespace egocylindrical
         }
 
 
-        SensorCollection::SensorCollection(ros::NodeHandle pnh, tf2_ros::Buffer& buffer):
+        SensorCollection::SensorCollection(rclcpp::Node::SharedPtr node, tf2_ros::Buffer& buffer):
             buffer_(buffer),
-            pnh_(pnh)
+            node_(node)
+            // pnh_(pnh)
         {
         
         
         
         }
         
-        
-        
-        
-        
-        
         bool SensorCollection::init(std::string fixed_frame_id, callback_t& f)
         {
             fixed_frame_id_ = fixed_frame_id;
             
             //read configuration from parameter server
-            auto sensor_root_nh = ros::NodeHandle(pnh_, "sensors");
+            // auto sensor_root_nh = ros::NodeHandle(pnh_, "sensors");
             
             // auto get_sensor_names1 = [ ](ros::NodeHandle nh)
             // {
@@ -119,28 +117,31 @@ namespace egocylindrical
 
             //     return sensor_names;
             // };
-            
-            auto get_sensor_names3 = [](ros::NodeHandle nh)
-            {
-                XmlRpc::XmlRpcValue my_list;
-                nh.getParam("observation_sources", my_list);
-                ROS_ASSERT(my_list.getType() == XmlRpc::XmlRpcValue::TypeArray);
 
-                std::vector<std::string> sensor_names;
-                for (int32_t i = 0; i < my_list.size(); ++i) 
-                {
-                  ROS_ASSERT(my_list[i].getType() == XmlRpc::XmlRpcValue::TypeString);
-                  sensor_names.push_back(static_cast<std::string>(my_list[i]));
-                }
-                return sensor_names;
-            };
+            // // rclcpp::Node::SharedPtr node
+            // auto get_sensor_names3 = []() 
+            // {
+            //     XmlRpc::XmlRpcValue my_list;
+            //     // nh.getParam("observation_sources", my_list);
+            //     my_list = node_->get_parameter("observation_sources").get_value<XmlRpc::XmlRpcValue>();
+            //     // ROS_ASSERT(my_list.getType() == XmlRpc::XmlRpcValue::TypeArray);
+
+            //     std::vector<std::string> sensor_names;
+            //     for (int32_t i = 0; i < my_list.size(); ++i) 
+            //     {
+            //       // ROS_ASSERT(my_list[i].getType() == XmlRpc::XmlRpcValue::TypeString);
+            //       sensor_names.push_back(static_cast<std::string>(my_list[i]));
+            //     }
+            //     return sensor_names;
+            // };
             
-            std::vector<std::string> sensor_names = get_sensor_names3(sensor_root_nh);
-            
+            // std::vector<std::string> sensor_names = get_sensor_names3(); // sensor_root_nh
+            std::vector<std::string> sensor_names = { "semantic_depth" };
+
             for(const auto& name : sensor_names)
             {
                 //auto sensor_nh = ros::NodeHandle(sensor_root_nh, name);
-                SensorInterface::Ptr sensor = createSensor(sensor_root_nh, name, buffer_);
+                SensorInterface::Ptr sensor = createSensor(node_, name, buffer_); // sensor_root_nh, 
                 if(sensor)
                 {
                     sensors_.push_back(sensor);
@@ -151,13 +152,13 @@ namespace egocylindrical
                 }
             }
 
-            if(sensors_.size()>0)
+            if (sensors_.size() > 0)
             {
                 // ROS_INFO_STREAM("Found " << sensors_.size() << " sensors");
             }
             else
             {
-                ROS_ERROR_STREAM("Did not find any sensors!");
+                // // ROS_ERROR(_STREAM("Did not find any sensors!");
                 return false;
             }
             

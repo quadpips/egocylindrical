@@ -266,6 +266,17 @@ target_link_libraries(laser_scan_inserter
    ${OpenMP_CXX_FLAGS}
    )
 
+# SENSORS
+add_library(sensors src/sensor.cpp src/sensor_collection.cpp)
+#target_compile_options(sensors PRIVATE -O0 -g)
+target_link_libraries(sensors
+   ##TODO: add the various sensor libraries here once implementations moved to source files
+   depth_image_inserter
+   laser_scan_inserter
+   ${catkin_LIBRARIES}
+   )
+
+
 #############
 ## Install ##
 #############

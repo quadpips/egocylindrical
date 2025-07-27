@@ -78,8 +78,8 @@ namespace egocylindrical
               // ec_sub_.subscribe(nh_, "info_in", 2);
 
               rmw_qos_profile_t qos = rmw_qos_profile_default;
-                qos.depth = 2; // TODO: Make this a parameter
-                im_sub_.subscribe(node_.get(), "image_in", "compressed", qos);              
+              qos.depth = 2; // TODO: Make this a parameter
+              im_sub_.subscribe(node_.get(), "image_in", "compressed", qos);              
 
               if (use_egocan_)
               {

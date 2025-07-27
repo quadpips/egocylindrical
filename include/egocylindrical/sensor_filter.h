@@ -3,10 +3,10 @@
 
 ///NOTE: Having sensor.h include this file ensures that this functionality is available by including just sensor.h while also avoiding a circular dependency
 //#include <egocylindrical/sensor.h>  
-#include <ros/message_traits.h>
+// #include <ros/message_traits.h>
 
 
-namespace ros
+namespace message_filters
 {
 namespace message_traits
 {
