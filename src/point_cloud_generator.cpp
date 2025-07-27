@@ -15,50 +15,50 @@ namespace egocylindrical
 {
 
 
-    EgoCylinderPointCloudGenerator::EgoCylinderPointCloudGenerator(ros::NodeHandle& nh, ros::NodeHandle& pnh) :
-        nh_(nh),
-        pnh_(pnh)
+    EgoCylinderPointCloudGenerator::EgoCylinderPointCloudGenerator(rclcpp::Node::SharedPtr node) :
+        node_(node)
     {
         std::cout<<"PointCloud publishing Node Initialized"<<std::endl;
     }
     
     bool EgoCylinderPointCloudGenerator::init()
     {
-        ec_sub_.shutdown();
-        
-        ros::SubscriberStatusCallback info_cb = std::bind(&EgoCylinderPointCloudGenerator::ssCB, this);
-        {
-            Lock lock(connect_mutex_);
-            pc_pub_ = nh_.advertise<sensor_msgs::msg::PointCloud2>("cylindrical", 2, info_cb, info_cb);
-        }
+        ec_sub_.reset();
+
+        // ros::SubscriberStatusCallback info_cb = std::bind(&EgoCylinderPointCloudGenerator::ssCB, this);
+        // {
+        //     Lock lock(connect_mutex_);
+            // pc_pub_ = nh_.advertise<sensor_msgs::msg::PointCloud2>("cylindrical", 2); // , info_cb, info_cb
+        pc_pub_ = node_->create_publisher<sensor_msgs::msg::PointCloud2>("cylindrical", 2);
+        // }
         
         return true;
     }
 
 
-    void EgoCylinderPointCloudGenerator::ssCB()
-    {
-        //std::cout << (void*)ec_sub_ << ": " << pc_pub_->get_subscription_count() << std::endl;
-        Lock lock(connect_mutex_);
-        if(pc_pub_->get_subscription_count()>0)
-        {
-            if(ec_sub_) //if currently subscribed... no need to do anything
-            {
+    // void EgoCylinderPointCloudGenerator::ssCB()
+    // {
+    //     //std::cout << (void*)ec_sub_ << ": " << pc_pub_->get_subscription_count() << std::endl;
+    //     Lock lock(connect_mutex_);
+    //     if(pc_pub_->get_subscription_count() > 0)
+    //     {
+    //         if (ec_sub_) //if currently subscribed... no need to do anything
+    //         {
                 
-            }
-            else
-            {
-                // ROS_INFO("PointCloud Generator Subscribing");
-                ec_sub_ = nh_.subscribe("egocylindrical_points", 2, &EgoCylinderPointCloudGenerator::ecPointsCB, this);
-            }
+    //         }
+    //         else
+    //         {
+    //             // ROS_INFO("PointCloud Generator Subscribing");
+    //             ec_sub_ = nh_.subscribe("egocylindrical_points", 2, &EgoCylinderPointCloudGenerator::ecPointsCB, this);
+    //         }
       
-        }
-        else
-        {
-            ec_sub_.shutdown();
-            // ROS_INFO("PointCloud Generator Unsubscribing");
-        }
-    }
+    //     }
+    //     else
+    //     {
+    //         ec_sub_.shutdown();
+    //         // ROS_INFO("PointCloud Generator Unsubscribing");
+    //     }
+    // }
     
     
     void EgoCylinderPointCloudGenerator::ecPointsCB(const egocylindrical_msgs::msg::EgoCylinderPoints::ConstSharedPtr& ec_msg)
@@ -78,7 +78,7 @@ namespace egocylindrical
 
           // ROS_DEBUG("publish egocylindrical pointcloud");
           
-          pc_pub_.publish(msg);
+          pc_pub_->publish(*msg);
         }
         
     }

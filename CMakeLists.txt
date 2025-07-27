@@ -304,6 +304,20 @@ target_link_libraries(egocylindrical_propagator_node
    egocylindrical_propagator
    )
 
+#POINT_CLOUD_GENERATOR
+add_library(point_cloud_generator src/point_cloud_generator.cpp)
+target_link_libraries(point_cloud_generator
+   point_cloud_core
+   ${catkin_LIBRARIES}
+   )
+
+#POINT_CLOUD_NODE
+add_executable(point_cloud_node src/point_cloud_node.cpp)
+target_link_libraries(point_cloud_node
+   point_cloud_generator
+   ${catkin_LIBRARIES}
+   )
+
 #############
 ## Install ##
 #############
@@ -315,7 +329,7 @@ install(
             normal_point_cloud_floor_only_core point_transformer point_propagator
             depth_image_remapper range_image_dilator range_image_converter depth_image_difference
             laser_scan_inserter depth_image_inserter depth_image_difference
-            sensors ecwrapper_buffer egocylindrical_propagator
+            sensors ecwrapper_buffer egocylindrical_propagator point_cloud_generator
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -326,6 +340,7 @@ install(
 install(
   TARGETS 
       egocylindrical_propagator_node
+      point_cloud_node
       DESTINATION lib/${PROJECT_NAME}
 )
 
