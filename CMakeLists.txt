@@ -342,6 +342,39 @@ target_link_libraries(semantic_point_cloud_node
    ${OpenMP_CXX_FLAGS}
    )
 
+#NORMAL_POINT_CLOUD_GENERATOR
+add_library(normal_point_cloud_generator src/normal_point_cloud_generator.cpp)
+target_link_libraries(normal_point_cloud_generator
+   normal_point_cloud_core
+   ${catkin_LIBRARIES}
+   )
+
+#NORMAL_POINT_CLOUD_NODE
+add_executable(normal_point_cloud_node src/normal_point_cloud_node.cpp)
+target_link_libraries(normal_point_cloud_node
+   normal_point_cloud_generator
+   ${catkin_LIBRARIES}
+   ${OpenCV_LIBRARIES}
+   ${PCL_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
+
+#FLOOR_IMAGE_GENERATOR
+add_library(floor_image_generator src/floor_image_generator.cpp)
+target_link_libraries(floor_image_generator
+   range_image_core
+   floor_image_core
+   ${catkin_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
+
+#FLOOR_IMAGE_NODE
+add_executable(floor_image_node src/floor_image_node.cpp)
+target_link_libraries(floor_image_node
+   floor_image_generator
+   ${catkin_LIBRARIES}
+   )
+
 #############
 ## Install ##
 #############
@@ -355,6 +388,7 @@ install(
             laser_scan_inserter depth_image_inserter depth_image_difference
             sensors ecwrapper_buffer egocylindrical_propagator point_cloud_generator
             projected_point_cloud_generator semantic_point_cloud_generator
+            normal_point_cloud_generator floor_image_generator
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -368,6 +402,8 @@ install(
       point_cloud_node
       projected_point_cloud_node
       semantic_point_cloud_node
+      normal_point_cloud_node
+      floor_image_node
       DESTINATION lib/${PROJECT_NAME}
 )
 

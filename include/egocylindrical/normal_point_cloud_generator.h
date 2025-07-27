@@ -22,15 +22,19 @@ class NormalPointCloudGenerator
 {   using Mutex = boost::mutex;
     using Lock = Mutex::scoped_lock;
     
-    ros::NodeHandle nh_, pnh_;
-    ros::Publisher pc_pub_;
-    ros::Subscriber ec_sub_;
+    // ros::NodeHandle nh_, pnh_;
+    rclcpp::Node::SharedPtr node_;
+
+    // ros::Publisher pc_pub_;
+    // ros::Subscriber ec_sub_;
+    rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pc_pub_;
+    rclcpp::Subscription<egocylindrical_msgs::msg::EgoCylinderPoints>::SharedPtr ec_sub_;
 
     Mutex connect_mutex_;
     
 public:
 
-    NormalPointCloudGenerator(ros::NodeHandle& nh, ros::NodeHandle& pnh);
+    NormalPointCloudGenerator(rclcpp::Node::SharedPtr node);
 
     bool init();
 

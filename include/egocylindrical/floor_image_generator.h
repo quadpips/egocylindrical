@@ -4,7 +4,7 @@
 
 //#include <egocylindrical/ecwrapper.h>
 #include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
-#include <egocylindrical/FloorImageGeneratorConfig.h>
+// #include <egocylindrical/FloorImageGeneratorConfig.h>
 #include <image_transport/image_transport.hpp>
 #include <rclcpp/rclcpp.hpp>
 
@@ -26,10 +26,13 @@ namespace egocylindrical
 
     class EgoCylinderFloorImageGenerator
     {
-        ros::NodeHandle nh_, pnh_;
+        // ros::NodeHandle nh_, pnh_;
+        rclcpp::Node::SharedPtr node_;
+
         image_transport::ImageTransport it_;
         image_transport::Publisher floor_im_pub_, labels_im_pub_, labels_colored_im_pub_, normals_im_pub_, normals_colored_im_pub_;
-        ros::Subscriber ec_sub_;
+        // ros::Subscriber ec_sub_;
+        rclcpp::Subscription<egocylindrical_msgs::msg::EgoCylinderPoints>::SharedPtr ec_sub_;
         bool use_raw_;
         
         using Mutex = boost::mutex;
@@ -37,21 +40,21 @@ namespace egocylindrical
         using Lock = Mutex::scoped_lock;
         
         //Mutex config_mutex_;
-        int num_threads_;
+        int num_threads_ = 1;
         
         sensor_msgs::msg::Image::SharedPtr preallocated_can_msg_, preallocated_labels_msg_, preallocated_labels_colored_msg_, preallocated_normals_msg_, preallocated_normals_colored_msgs_;
         
-        typedef egocylindrical::FloorImageGeneratorConfig ConfigType;
-        ConfigType config_;
-        typedef dynamic_reconfigure::Server<ConfigType> ReconfigureServer;
-        std::shared_ptr<ReconfigureServer> reconfigure_server_;
+        // typedef egocylindrical::FloorImageGeneratorConfig ConfigType;
+        // ConfigType config_;
+        // typedef dynamic_reconfigure::Server<ConfigType> ReconfigureServer;
+        // std::shared_ptr<ReconfigureServer> reconfigure_server_;
     public:
 
-        EgoCylinderFloorImageGenerator(ros::NodeHandle& nh, ros::NodeHandle& pnh);
+        EgoCylinderFloorImageGenerator(rclcpp::Node::SharedPtr node);
         
         bool init();
         
-        void configCB(const ConfigType &config, uint32_t level);
+        // void configCB(const ConfigType &config, uint32_t level);
         
         void ssCB();
 

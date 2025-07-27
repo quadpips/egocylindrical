@@ -8,11 +8,18 @@
 
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "egocylindrical_normal_pointcloud_publisher");
-    
-    ros::NodeHandle nh;
-    ros::NodeHandle pnh("~");
-    egocylindrical::NormalPointCloudGenerator s(nh, pnh);
+    // ros::init(argc, argv, "egocylindrical_normal_pointcloud_publisher");
+    rclcpp::init(argc, argv);
+
+    rclcpp::Node::SharedPtr node = rclcpp::Node::make_shared(
+        "egocylindrical_normal_pointcloud_publisher",
+        rclcpp::NodeOptions()
+            .allow_undeclared_parameters(true)
+            .automatically_declare_parameters_from_overrides(true));
+
+    // ros::NodeHandle nh;
+    // ros::NodeHandle pnh("~");
+    egocylindrical::NormalPointCloudGenerator s(node);
     s.init();
-    ros::spin();
+    rclcpp::spin(node);
 }

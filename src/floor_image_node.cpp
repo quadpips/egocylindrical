@@ -6,13 +6,20 @@
 
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "egocylindrical_floor_image_publisher");
-        
-    ros::NodeHandle nh;
-    ros::NodeHandle pnh("~");
-    egocylindrical::EgoCylinderFloorImageGenerator s(nh, pnh);
+    // ros::init(argc, argv, "egocylindrical_floor_image_publisher");
+    rclcpp::init(argc, argv);
+
+    rclcpp::Node::SharedPtr node = rclcpp::Node::make_shared(
+        "egocylindrical_floor_image_publisher",
+        rclcpp::NodeOptions()
+            .allow_undeclared_parameters(true)
+            .automatically_declare_parameters_from_overrides(true));
+
+    // ros::NodeHandle nh;
+    // ros::NodeHandle pnh("~");
+    egocylindrical::EgoCylinderFloorImageGenerator s(node);
     s.init();
     //ros::MultiThreadedSpinner spinner(2);
     //spinner.spin();
-    ros::spin();
+    rclcpp::spin(node);
 }
