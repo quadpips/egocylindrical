@@ -152,9 +152,10 @@ namespace egocylindrical
 
       
 
-        LaserScanInserter::LaserScanInserter(tf2_ros::Buffer& buffer, ros::NodeHandle pnh):
+        LaserScanInserter::LaserScanInserter(tf2_ros::Buffer& buffer, rclcpp::Node::SharedPtr node): // , ros::NodeHandle pnh
           buffer_(buffer),
-          pnh_(pnh)
+          node_(node)
+          // pnh_(pnh)
         {}
         
             
@@ -162,9 +163,10 @@ namespace egocylindrical
         {
             fixed_frame_id_ = "map";
             //TODO: use pips::param_utils
-            bool status = pnh_.getParam("fixed_frame_id", fixed_frame_id_);
+            // bool status = pnh_.getParam("fixed_frame_id", fixed_frame_id_);
+            fixed_frame_id_ = node_->get_parameter("fixed_frame_id").as_string();
 
-            return status;
+            return true;
         }
         
         bool LaserScanInserter::init(std::string fixed_frame_id)

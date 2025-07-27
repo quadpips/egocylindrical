@@ -256,6 +256,16 @@ target_link_libraries(depth_image_inserter
    ${OpenMP_CXX_FLAGS}
    )
 
+# LASER_SCAN_INSERTER
+add_library(laser_scan_inserter src/laser_scan_inserter.cpp)
+ament_target_dependencies(laser_scan_inserter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+#target_compile_options(laser_scan_inserter PRIVATE -O0 -g)
+target_link_libraries(laser_scan_inserter
+   ${catkin_LIBRARIES}
+   ${OpenCV_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
+
 #############
 ## Install ##
 #############
