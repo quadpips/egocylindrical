@@ -66,7 +66,7 @@ namespace egocylindrical
  *
  * TimeSequencer's input and output connections are both of the same signature as roscpp subscription callbacks, ie.
 \verbatim
-void callback(const boost::shared_ptr<M const>&);
+void callback(const std::shared_ptr<M const>&);
 \endverbatim
  *
  */
@@ -74,7 +74,7 @@ template<class M>
 class TimeSequencer  //: public message_filters::SimpleFilter<M>
 {
 public:
-//   typedef boost::shared_ptr<M> MPtr;
+//   typedef std::shared_ptr<M> MPtr;
 
   using MPtr = typename M::Ptr;
   using Callback = boost::function<void(MPtr) > ;

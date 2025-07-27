@@ -6,7 +6,7 @@
 #include <egocylindrical/depth_image_inserter.h>
 
 #include <egocylindrical/time_filter.h>
-#include <image_transport/subscriber_filter.h>
+#include <image_transport/subscriber_filter.hpp>
 #include <tf2_ros/message_filter.h>
 
 #include <message_filters/subscriber.h>
@@ -23,9 +23,9 @@ namespace egocylindrical
   {
   public:
     TerrainImageMeasurement(SensorCharacteristics sc, 
-                                  const sensor_msgs::msg::Image::ConstPtr& image, 
+                                  const sensor_msgs::msg::Image::ConstSharedPtr& image, 
                                   const sensor_msgs::msg::CameraInfo::ConstPtr& info, 
-                                  const sensor_msgs::msg::Image::ConstPtr& normals,
+                                  const sensor_msgs::msg::Image::ConstSharedPtr& normals,
                                   DepthImageInserter* dii):
       SensorMeasurement(sc, info->header),
       image_(image),
@@ -44,8 +44,8 @@ namespace egocylindrical
     }
 
   protected:
-    const sensor_msgs::msg::Image::ConstPtr image_;
-    const sensor_msgs::msg::Image::ConstPtr normals_;
+    const sensor_msgs::msg::Image::ConstSharedPtr image_;
+    const sensor_msgs::msg::Image::ConstSharedPtr normals_;
     const sensor_msgs::msg::CameraInfo::ConstPtr info_;
     utils::DepthImageInserter* dii_;
   };
@@ -54,10 +54,10 @@ namespace egocylindrical
   {
   public:
     SemanticDepthImageMeasurement(SensorCharacteristics sc, 
-                                  const sensor_msgs::msg::Image::ConstPtr& image, 
+                                  const sensor_msgs::msg::Image::ConstSharedPtr& image, 
                                   const sensor_msgs::msg::CameraInfo::ConstPtr& info, 
-                                  const sensor_msgs::msg::Image::ConstPtr& normals,
-                                  const sensor_msgs::msg::Image::ConstPtr& labels, 
+                                  const sensor_msgs::msg::Image::ConstSharedPtr& normals,
+                                  const sensor_msgs::msg::Image::ConstSharedPtr& labels, 
                                   DepthImageInserter* dii):
       SensorMeasurement(sc, info->header),
       image_(image),
@@ -77,10 +77,10 @@ namespace egocylindrical
     }
 
   protected:
-    const sensor_msgs::msg::Image::ConstPtr image_;
+    const sensor_msgs::msg::Image::ConstSharedPtr image_;
     const sensor_msgs::msg::CameraInfo::ConstPtr info_;
-    const sensor_msgs::msg::Image::ConstPtr normals_;
-    const sensor_msgs::msg::Image::ConstPtr labels_;
+    const sensor_msgs::msg::Image::ConstSharedPtr normals_;
+    const sensor_msgs::msg::Image::ConstSharedPtr labels_;
     utils::DepthImageInserter* dii_;
   };
 
@@ -98,17 +98,17 @@ namespace egocylindrical
     image_transport::Subscriber labels_sub_;
 
     using TimeFilter_t = TimeFilter<sensor_msgs::msg::CameraInfo>;
-    boost::shared_ptr<TimeFilter_t> time_filter_;
+    std::shared_ptr<TimeFilter_t> time_filter_;
     
     using TfFilter = tf2_ros::MessageFilter<sensor_msgs::msg::CameraInfo>;
-    boost::shared_ptr<TfFilter> info_tf_filter;
+    std::shared_ptr<TfFilter> info_tf_filter;
     
-    sensor_msgs::msg::Image::ConstPtr labels_;
+    sensor_msgs::msg::Image::ConstSharedPtr labels_;
     bool new_labels = false;
     bool have_labels = false;
 
     using MsgSynchronizer = message_filters::TimeSynchronizer<sensor_msgs::msg::Image, sensor_msgs::msg::CameraInfo, sensor_msgs::msg::Image>; //  
-    boost::shared_ptr<MsgSynchronizer> msg_sync_;
+    std::shared_ptr<MsgSynchronizer> msg_sync_;
 
   public:
     SemanticDepthImageSensor(ros::NodeHandle pnh, tf2_ros::Buffer& buffer):
@@ -165,7 +165,7 @@ namespace egocylindrical
     }
       
     protected:
-      // void labels_cb(const sensor_msgs::msg::Image::ConstPtr& labels)
+      // void labels_cb(const sensor_msgs::msg::Image::ConstSharedPtr& labels)
       // {
       //   labels_ = labels;
       //   new_labels = true;
@@ -173,9 +173,9 @@ namespace egocylindrical
       //   // ROS_INFO_STREAM_NAMED("timing", "in solo callback, label: " << label);
       // }
 
-      void update(const sensor_msgs::msg::Image::ConstPtr& image, 
+      void update(const sensor_msgs::msg::Image::ConstSharedPtr& image, 
                   const sensor_msgs::msg::CameraInfo::ConstPtr& info,
-                  const sensor_msgs::msg::Image::ConstPtr& normals) // , 
+                  const sensor_msgs::msg::Image::ConstSharedPtr& normals) // , 
       {
         // ROS_INFO_STREAM_NAMED("timing", "labels->image.at<uint8_t>(50, 50): " << labels->image.at<uint8_t>(50, 50));
 
@@ -185,7 +185,7 @@ namespace egocylindrical
 
         if (cb_) //  && have_labels // want first update to be a depth+labels one
         {
-          boost::shared_ptr<SensorMeasurement> m;
+          std::shared_ptr<SensorMeasurement> m;
           // if (new_labels)
           // {
           //   ROS_INFO_STREAM_NAMED("timing", "image timestamp: " << image->header.stamp);

@@ -5,7 +5,7 @@
 //#include <egocylindrical/ecwrapper.h>
 #include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
 #include <image_transport/image_transport.hpp>
-#include <image_transport/subscriber_filter.h>
+#include <image_transport/subscriber_filter.hpp>
 #include <message_filters/subscriber.h>
 
 #include <message_filters/synchronizer.h>
@@ -36,9 +36,9 @@ namespace egocylindrical
         bool use_egocan_;
 
         typedef message_filters::TimeSynchronizer<sensor_msgs::msg::Image, egocylindrical_msgs::msg::EgoCylinderPoints> synchronizer;
-        boost::shared_ptr<synchronizer> timeSynchronizer;
+        std::shared_ptr<synchronizer> timeSynchronizer;
         typedef message_filters::TimeSynchronizer<sensor_msgs::msg::Image, egocylindrical_msgs::msg::EgoCylinderPoints, sensor_msgs::msg::Image> can_synchronizer;
-        boost::shared_ptr<can_synchronizer> timeSynchronizerWithCan;
+        std::shared_ptr<can_synchronizer> timeSynchronizerWithCan;
 
         // ros::Publisher im_pub_;
         rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr im_pub_;
@@ -57,7 +57,7 @@ namespace egocylindrical
 
     private:
 
-        void imageCB(const sensor_msgs::msg::Image::ConstPtr& image, const egocylindrical_msgs::msg::EgoCylinderPoints::ConstPtr& info, const sensor_msgs::msg::Image::ConstPtr& can_image);
+        void imageCB(const sensor_msgs::msg::Image::ConstSharedPtr& image, const egocylindrical_msgs::msg::EgoCylinderPoints::ConstSharedPtr& info, const sensor_msgs::msg::Image::ConstSharedPtr& can_image);
 
     };
 

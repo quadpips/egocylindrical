@@ -334,7 +334,7 @@ namespace egocylindrical
     }
     
     
-    sensor_msgs::msg::Image::ConstPtr getInflatedRangeImageMsg(const EgoCylinderPoints::ConstPtr& ec_msg, const sensor_msgs::msg::Image::ConstPtr& range_msg, float inflation_radius, float inflation_height, bool conservative, int num_threads, sensor_msgs::msg::Image::SharedPtr preallocated_msg)
+    sensor_msgs::msg::Image::ConstSharedPtr getInflatedRangeImageMsg(const EgoCylinderPoints::ConstPtr& ec_msg, const sensor_msgs::msg::Image::ConstSharedPtr& range_msg, float inflation_radius, float inflation_height, bool conservative, int num_threads, sensor_msgs::msg::Image::SharedPtr preallocated_msg)
     {
       sensor_msgs::msg::Image::SharedPtr new_msg_ptr = (preallocated_msg) ? preallocated_msg : std::make_shared<sensor_msgs::msg::Image>();
       
@@ -384,7 +384,7 @@ namespace egocylindrical
     }
 
     
-    void RangeImageInflatorGenerator::imgCB(const sensor_msgs::msg::Image::ConstPtr& range_msg, const egocylindrical_msgs::msg::EgoCylinderPoints::ConstPtr& ec_msg)
+    void RangeImageInflatorGenerator::imgCB(const sensor_msgs::msg::Image::ConstSharedPtr& range_msg, const egocylindrical_msgs::msg::EgoCylinderPoints::ConstSharedPtr& ec_msg)
     {
         // ROS_DEBUG("Received EgoCylinderPoints msg");
         
@@ -402,7 +402,7 @@ namespace egocylindrical
             Lock lock(config_mutex_);
             config = config_;
           }
-          sensor_msgs::msg::Image::ConstPtr image_ptr = getInflatedRangeImageMsg(ec_msg, range_msg, config.inflation_radius, config.inflation_height/2, conservative, config.num_threads, preallocated_msg_);
+          sensor_msgs::msg::Image::ConstSharedPtr image_ptr = getInflatedRangeImageMsg(ec_msg, range_msg, config.inflation_radius, config.inflation_height/2, conservative, config.num_threads, preallocated_msg_);
 
           // ROS_DEBUG_STREAM_NAMED("timing","Inflating range image by {" << config.inflation_radius << "x" << config.inflation_height/2 << "} took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
           

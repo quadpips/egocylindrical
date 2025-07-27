@@ -99,7 +99,7 @@ namespace egocylindrical
         }
     }
 
-    void RangeImageDilator::imageCB(const sensor_msgs::msg::Image::ConstPtr& image, const egocylindrical_msgs::msg::EgoCylinderPoints::ConstPtr& info, const sensor_msgs::msg::Image::ConstPtr& can_image)
+    void RangeImageDilator::imageCB(const sensor_msgs::msg::Image::ConstSharedPtr& image, const egocylindrical_msgs::msg::EgoCylinderPoints::ConstSharedPtr& info, const sensor_msgs::msg::Image::ConstSharedPtr& can_image)
     {
         // ROS_DEBUG("Received range msg");
 

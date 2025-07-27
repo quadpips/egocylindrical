@@ -100,7 +100,7 @@ namespace egocylindrical
 
         //immediate insert
         template <typename T>
-        void insertPoints6_impl(const utils::ECWrapper& original_cylindrical_points, const cv::Mat& image, const sensor_msgs::msg::Image::ConstPtr& image_msg_ptr, const CleanCameraModel& cam_model, const geometry_msgs::msg::TransformStamped transform, DIDiffRequest& request)
+        void insertPoints6_impl(const utils::ECWrapper& original_cylindrical_points, const cv::Mat& image, const sensor_msgs::msg::Image::ConstSharedPtr& image_msg_ptr, const CleanCameraModel& cam_model, const geometry_msgs::msg::TransformStamped transform, DIDiffRequest& request)
         {
             auto getDilatedPoints = [&request](const utils::ECWrapper& cyl_points)    //  utils::ECWrapperPtr
             {
@@ -474,7 +474,7 @@ namespace egocylindrical
         }
 
 
-        void insertPoints6(const utils::ECWrapper& cylindrical_points, const cv::Mat& image, const sensor_msgs::msg::Image::ConstPtr& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::msg::TransformStamped transform, DIDiffRequest& request)
+        void insertPoints6(const utils::ECWrapper& cylindrical_points, const cv::Mat& image, const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::msg::TransformStamped transform, DIDiffRequest& request)
         {
             if(image.depth() == CV_32FC1)
             {

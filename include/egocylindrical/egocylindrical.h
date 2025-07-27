@@ -93,7 +93,7 @@ public:
     
     void update(utils::SensorMeasurement& measurement);
     sensor_msgs::msg::PointCloud2  getPropagatedPointCloud();
-    sensor_msgs::msg::Image::ConstPtr getRawRangeImage();
+    sensor_msgs::msg::Image::ConstSharedPtr getRawRangeImage();
 
     virtual bool init();
     void reset();

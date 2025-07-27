@@ -5,7 +5,7 @@
 #include <egocylindrical/depth_image_inserter.h>
 
 #include <egocylindrical/time_filter.h>
-#include <image_transport/subscriber_filter.h>
+#include <image_transport/subscriber_filter.hpp>
 #include <tf2_ros/message_filter.h>
 
 #include <message_filters/subscriber.h>
@@ -22,7 +22,7 @@ namespace egocylindrical
     {
     public:
       DepthImageMeasurement(SensorCharacteristics sc, 
-                            const sensor_msgs::msg::Image::ConstPtr& image, 
+                            const sensor_msgs::msg::Image::ConstSharedPtr& image, 
                             const sensor_msgs::msg::CameraInfo::ConstPtr& info, 
                             DepthImageInserter* dii):
         SensorMeasurement(sc, info->header),
@@ -42,7 +42,7 @@ namespace egocylindrical
 
       
     protected:
-      const sensor_msgs::msg::Image::ConstPtr image_;
+      const sensor_msgs::msg::Image::ConstSharedPtr image_;
       const sensor_msgs::msg::CameraInfo::ConstPtr info_;
       utils::DepthImageInserter* dii_;
     };
@@ -59,13 +59,13 @@ namespace egocylindrical
       message_filters::Subscriber<sensor_msgs::msg::CameraInfo> depth_info_sub_;
 
       using TimeFilter_t = TimeFilter<sensor_msgs::msg::CameraInfo>;
-      boost::shared_ptr<TimeFilter_t> time_filter_;
+      std::shared_ptr<TimeFilter_t> time_filter_;
       
       using TfFilter = tf2_ros::MessageFilter<sensor_msgs::msg::CameraInfo>;
-      boost::shared_ptr<TfFilter> info_tf_filter;
+      std::shared_ptr<TfFilter> info_tf_filter;
 
       using MsgSynchronizer = message_filters::TimeSynchronizer<sensor_msgs::msg::Image, sensor_msgs::msg::CameraInfo>;
-      boost::shared_ptr<MsgSynchronizer> msg_sync_;
+      std::shared_ptr<MsgSynchronizer> msg_sync_;
       
     public:
       DepthImageSensor(ros::NodeHandle pnh, tf2_ros::Buffer& buffer):
@@ -110,7 +110,7 @@ namespace egocylindrical
       }
       
     protected:
-      void update(const sensor_msgs::msg::Image::ConstPtr& image, 
+      void update(const sensor_msgs::msg::Image::ConstSharedPtr& image, 
                   const sensor_msgs::msg::CameraInfo::ConstPtr& info) // , 
       {
         ROS_INFO_STREAM_NAMED("timing", "image timestamp: " << image->header.stamp);

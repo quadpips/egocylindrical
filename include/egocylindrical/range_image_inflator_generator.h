@@ -8,7 +8,7 @@
 #include <image_transport/image_transport.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-#include <image_transport/subscriber_filter.h>
+#include <image_transport/subscriber_filter.hpp>
 #include <message_filters/subscriber.h>
 
 #include <message_filters/synchronizer.h>
@@ -43,7 +43,7 @@ namespace egocylindrical
         message_filters::Subscriber<EgoCylinderPoints> ec_sub_;
         
         typedef message_filters::TimeSynchronizer<sensor_msgs::msg::Image, egocylindrical_msgs::msg::EgoCylinderPoints> synchronizer;
-        boost::shared_ptr<synchronizer> timeSynchronizer_;
+        std::shared_ptr<synchronizer> timeSynchronizer_;
         
         
         //bool use_raw_;
@@ -72,7 +72,7 @@ namespace egocylindrical
 
     private:
         
-        void imgCB(const sensor_msgs::msg::Image::ConstPtr& range_msg, const egocylindrical_msgs::msg::EgoCylinderPoints::ConstPtr& ec_msg);
+        void imgCB(const sensor_msgs::msg::Image::ConstSharedPtr& range_msg, const egocylindrical_msgs::msg::EgoCylinderPoints::ConstSharedPtr& ec_msg);
       
     };
 

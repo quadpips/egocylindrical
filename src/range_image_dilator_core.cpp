@@ -60,7 +60,7 @@ cv::Mat dilateImage(const cv::Mat image_in)
 }
 
 
-sensor_msgs::msg::Image::SharedPtr dilateImage(const sensor_msgs::msg::Image::ConstPtr& image_msg_in)
+sensor_msgs::msg::Image::SharedPtr dilateImage(const sensor_msgs::msg::Image::ConstSharedPtr& image_msg_in)
 {
 //     if(image_msg_in->encoding != sensor_msgs::image_encodings::TYPE_16UC1)
 //     {

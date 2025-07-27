@@ -44,10 +44,10 @@ namespace egocylindrical
       message_filters::Subscriber<sensor_msgs::msg::LaserScan> scan_sub_;
       
       using TimeFilter_t = TimeFilter<sensor_msgs::msg::LaserScan>;
-      boost::shared_ptr<TimeFilter_t> time_filter_;
+      std::shared_ptr<TimeFilter_t> time_filter_;
       
       using TfFilter = tf2_ros::MessageFilter<sensor_msgs::msg::LaserScan>;
-      boost::shared_ptr<TfFilter> scan_tf_filter;
+      std::shared_ptr<TfFilter> scan_tf_filter;
       
     public:
       LaserScanSensor(ros::NodeHandle pnh, tf2_ros::Buffer& buffer):

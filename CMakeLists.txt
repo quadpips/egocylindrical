@@ -220,6 +220,14 @@ ament_target_dependencies(range_image_dilator ${${PROJECT_NAME}_EXPORTED_TARGETS
 target_compile_options(range_image_dilator PRIVATE)
 target_link_libraries(range_image_dilator)
 
+#RANGE_IMAGE_CONVERTER
+add_library(range_image_converter src/range_image_converter.cpp)
+ament_target_dependencies(range_image_converter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+target_link_libraries(range_image_converter
+   ${OpenMP_CXX_FLAGS}
+   )
+   
+
 #############
 ## Install ##
 #############
@@ -229,8 +237,7 @@ install(
   TARGETS range_image_core can_image_core floor_image_core point_cloud_core 
             projected_point_cloud_core semantic_point_cloud_core normal_point_cloud_core
             normal_point_cloud_floor_only_core point_transformer point_propagator
-            depth_image_remapper range_image_dilator 
-            # range_image_converter
+            depth_image_remapper range_image_dilator range_image_converter
             # depth_image_difference depth_image_inserter laser_scan_inserter
             # sensors ecwrapper_buffer egocylindrical_propagator
   EXPORT export_${PROJECT_NAME}

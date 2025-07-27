@@ -88,7 +88,7 @@ namespace egocylindrical
     }
 
     
-    void EgoCylinderFloorImageGenerator::ecPointsCB(const egocylindrical_msgs::msg::EgoCylinderPoints::ConstPtr& ec_msg)
+    void EgoCylinderFloorImageGenerator::ecPointsCB(const egocylindrical_msgs::msg::EgoCylinderPoints::ConstSharedPtr& ec_msg)
     {
         // ROS_DEBUG("Received EgoCylinderPoints msg");
         
@@ -105,35 +105,35 @@ namespace egocylindrical
             // RANGE
             // ros::WallTime// start = ros::WallTime::now();
             
-            sensor_msgs::msg::Image::ConstPtr image_ptr = use_raw_ ? utils::getRawFloorImageMsg(ec_pts, num_threads_, preallocated_can_msg_) : utils::getFloorImageMsg(ec_pts, num_threads_, preallocated_can_msg_);
+            sensor_msgs::msg::Image::ConstSharedPtr image_ptr = use_raw_ ? utils::getRawFloorImageMsg(ec_pts, num_threads_, preallocated_can_msg_) : utils::getFloorImageMsg(ec_pts, num_threads_, preallocated_can_msg_);
             
             // ROS_DEBUG_STREAM_NAMED("timing","Generating can image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
                         
             // LABELS
             // start = ros::WallTime::now();
 
-            sensor_msgs::msg::Image::ConstPtr labels_ptr = utils::getFloorLabelImageMsg(ec_pts, num_threads_, preallocated_labels_msg_);
+            sensor_msgs::msg::Image::ConstSharedPtr labels_ptr = utils::getFloorLabelImageMsg(ec_pts, num_threads_, preallocated_labels_msg_);
 
             // ROS_DEBUG_STREAM_NAMED("timing","Generating can labels took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
 
             // LABELS COLORED
             // start = ros::WallTime::now();
 
-            sensor_msgs::msg::Image::ConstPtr labels_colored_ptr = utils::getFloorLabelColoredImageMsg(ec_pts, num_threads_, preallocated_labels_colored_msg_);
+            sensor_msgs::msg::Image::ConstSharedPtr labels_colored_ptr = utils::getFloorLabelColoredImageMsg(ec_pts, num_threads_, preallocated_labels_colored_msg_);
 
             // ROS_DEBUG_STREAM_NAMED("timing","Generating can labels colored took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
 
             // NORMALS
             // start = ros::WallTime::now();
 
-            sensor_msgs::msg::Image::ConstPtr normals_ptr = utils::getFloorNormalImageMsg(ec_pts, num_threads_, preallocated_normals_msg_);
+            sensor_msgs::msg::Image::ConstSharedPtr normals_ptr = utils::getFloorNormalImageMsg(ec_pts, num_threads_, preallocated_normals_msg_);
 
             // ROS_DEBUG_STREAM_NAMED("timing","Generating can normals took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
 
             // NORMALS COLORED
             // start = ros::WallTime::now();
 
-            sensor_msgs::msg::Image::ConstPtr normals_colored_ptr = utils::getFloorNormalColoredImageMsg(ec_pts, num_threads_, preallocated_normals_colored_msgs_);
+            sensor_msgs::msg::Image::ConstSharedPtr normals_colored_ptr = utils::getFloorNormalColoredImageMsg(ec_pts, num_threads_, preallocated_normals_colored_msgs_);
 
             // ROS_DEBUG_STREAM_NAMED("timing","Generating can normals colored took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
 

@@ -2,7 +2,7 @@
 
 #include <image_transport/image_transport.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <image_transport/subscriber_filter.h>
+#include <image_transport/subscriber_filter.hpp>
 #include <message_filters/subscriber.h>
 
 #include <cv_bridge/cv_bridge.h>
@@ -91,7 +91,7 @@ namespace egocylindrical
     }
 
     //NOTE: Once the parameters have been moved to their own message, this should subscribe to the parameters instead
-    void imageCB(const sensor_msgs::msg::Image::ConstPtr& image_msg)
+    void imageCB(const sensor_msgs::msg::Image::ConstSharedPtr& image_msg)
     {
         // ROS_INFO("Received image msg");
         

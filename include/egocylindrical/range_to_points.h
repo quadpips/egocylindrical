@@ -101,7 +101,7 @@ namespace egocylindrical
         
         
         
-        ECWrapperPtr range_image_to_wrapper(const ECWrapper& info, const sensor_msgs::msg::Image::ConstPtr image, const sensor_msgs::msg::Image::ConstPtr can_image)
+        ECWrapperPtr range_image_to_wrapper(const ECWrapper& info, const sensor_msgs::msg::Image::ConstSharedPtr image, const sensor_msgs::msg::Image::ConstSharedPtr can_image)
         {
           ECWrapperPtr wrapper = getECWrapper(info);
           ECConverter converter;

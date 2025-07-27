@@ -94,7 +94,7 @@
       <param name="floor_normals_colored_topic" value="floor_normals_colored"/>
     </node>
 
-    <group if="$(arg range_images)">
+    <!-- <group if="$(arg range_images)">
 
       <node name="egocylindrical_to_range_image" pkg="egocylindrical" type="range_image_node" output="log" launch-prefix="">
         <remap from="egocylindrical_points" to="data"/>
@@ -128,9 +128,9 @@
         <param name="image_topic" value="inflated_can_image"/>
       </node>
 
-    </group>
+    </group> -->
     
-    <group if="$(arg viz_inflated)">
+    <!-- <group if="$(arg viz_inflated)">
     
       <node name="inflated_range_converter" pkg="egocylindrical" type="range_image_converter_node" output="log">
         <remap from="data_out" to="inflated_data"/>
@@ -154,9 +154,9 @@
         <remap from="cylindrical" to="inflated_points_raw"/>
       </node>
       
-    </group>
+    </group> -->
       
-    <group if="$(arg sanity_check)">
+    <!-- <group if="$(arg sanity_check)">
     
       <node name="sanity_check_range_converter" pkg="egocylindrical" type="range_image_converter_node" output="log">
         <remap from="data_out" to="sanity_data"/>
@@ -179,9 +179,9 @@
         <remap from="egocylindrical_points" to="sanity_data_raw"/>
         <remap from="cylindrical" to="sanity_points_raw"/>
       </node>
-    </group>
+    </group> -->
 
-    <group if="$(arg novel_points)">
+    <!-- <group if="$(arg novel_points)">
       <node name="reprojected_depth_image_to_pointcloud" pkg="nodelet" type="nodelet" args="standalone depth_image_proc/point_cloud_xyz">
         <remap from="depth_to_egocylindrical_node/sensors/depth/debugging/camera_info" to="$(arg depth_info)"/>
         <remap from="image_rect" to="depth_to_egocylindrical_node/sensors/depth/debugging/reprojected_depth_image"/>
@@ -197,7 +197,7 @@
 
         <param name="queue_size" value="40"/>
       </node>
-    </group>
+    </group> -->
     
   </group>
   

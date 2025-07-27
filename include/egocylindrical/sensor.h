@@ -88,8 +88,8 @@ namespace egocylindrical
     public:
        std_msgs::msg::Header header;
        
-       using Ptr = boost::shared_ptr<SensorMeasurement>;
-       using ConstPtr = boost::shared_ptr<const SensorMeasurement>;
+       using Ptr = std::shared_ptr<SensorMeasurement>;
+       using ConstPtr = std::shared_ptr<const SensorMeasurement>;
     };
     
     

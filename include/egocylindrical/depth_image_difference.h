@@ -41,7 +41,7 @@ namespace egocylindrical
             DIDiffResults results;
         };
 
-        void insertPoints6(const utils::ECWrapper& cylindrical_points, const cv::Mat& image, const sensor_msgs::msg::Image::ConstPtr& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::msg::TransformStamped transform, DIDiffRequest& request);
+        void insertPoints6(const utils::ECWrapper& cylindrical_points, const cv::Mat& image, const sensor_msgs::msg::Image::ConstSharedPtr& image_msg, const CleanCameraModel& cam_model, const geometry_msgs::msg::TransformStamped transform, DIDiffRequest& request);
 
     }
 

@@ -5,7 +5,7 @@
 //#include <egocylindrical/ecwrapper.h>
 // #include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
 // #include <image_transport/image_transport.hpp>
-// #include <image_transport/subscriber_filter.h>
+// #include <image_transport/subscriber_filter.hpp>
 // #include <message_filters/subscriber.h>
 //
 // #include <message_filters/synchronizer.h>
@@ -26,7 +26,7 @@ namespace egocylindrical
 namespace utils
 {
 
-sensor_msgs::msg::Image::SharedPtr dilateImage(const sensor_msgs::msg::Image::ConstPtr& image_in);
+sensor_msgs::msg::Image::SharedPtr dilateImage(const sensor_msgs::msg::Image::ConstSharedPtr& image_in);
 }
 }
 

@@ -5,7 +5,7 @@
 //#include <egocylindrical/ecwrapper.h>
 #include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
 #include <image_transport/image_transport.hpp>
-#include <image_transport/subscriber_filter.h>
+#include <image_transport/subscriber_filter.hpp>
 #include <message_filters/subscriber.h>
 
 #include <message_filters/synchronizer.h>
@@ -16,17 +16,18 @@
 #include <rclcpp/rclcpp.hpp>
 #include <boost/thread/mutex.hpp>
 
+using namespace std::placeholders;
 
 namespace egocylindrical
 {
-
-
     class RangeImageConverter
     {
         using Mutex = boost::mutex;
         using Lock = Mutex::scoped_lock;
         
         // ros::NodeHandle nh_, pnh_;
+        rclcpp::Node::SharedPtr node_;
+
         image_transport::ImageTransport it_;
 
         image_transport::SubscriberFilter im_sub_, can_im_sub_;
@@ -35,17 +36,19 @@ namespace egocylindrical
         bool use_egocan_;
         
         typedef message_filters::TimeSynchronizer<sensor_msgs::msg::Image, egocylindrical_msgs::msg::EgoCylinderPoints> synchronizer;
-        boost::shared_ptr<synchronizer> timeSynchronizer;
+        std::shared_ptr<synchronizer> timeSynchronizer;
         typedef message_filters::TimeSynchronizer<sensor_msgs::msg::Image, egocylindrical_msgs::msg::EgoCylinderPoints, sensor_msgs::msg::Image> can_synchronizer;
-        boost::shared_ptr<can_synchronizer> timeSynchronizerWithCan;
+        std::shared_ptr<can_synchronizer> timeSynchronizerWithCan;
         
-        ros::Publisher ec_pub_;
-        
+        // ros::Publisher ec_pub_;
+        rclcpp::Publisher<egocylindrical_msgs::msg::EgoCylinderPoints>::SharedPtr ec_pub_;
+
         Mutex connect_mutex_;
 
     public:
 
-        RangeImageConverter(ros::NodeHandle& nh, ros::NodeHandle& pnh);
+        // RangeImageConverter(); // ros::NodeHandle& nh, ros::NodeHandle& pnh
+        RangeImageConverter(const rclcpp::Node::SharedPtr& node);
         
         bool init();
         
@@ -55,7 +58,7 @@ namespace egocylindrical
 
     private:
         
-        void imageCB(const sensor_msgs::msg::Image::ConstPtr& image, const egocylindrical_msgs::msg::EgoCylinderPoints::ConstPtr& info, const sensor_msgs::msg::Image::ConstPtr& can_image);
+        void imageCB(const sensor_msgs::msg::Image::ConstSharedPtr& image, const egocylindrical_msgs::msg::EgoCylinderPoints::ConstSharedPtr& info, const sensor_msgs::msg::Image::ConstSharedPtr& can_image);
 
     };
 

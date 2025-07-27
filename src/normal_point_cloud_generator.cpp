@@ -60,7 +60,7 @@ namespace egocylindrical
     }
     
     
-    void NormalPointCloudGenerator::ecPointsCB(const egocylindrical_msgs::msg::EgoCylinderPoints::ConstPtr& ec_msg)
+    void NormalPointCloudGenerator::ecPointsCB(const egocylindrical_msgs::msg::EgoCylinderPoints::ConstSharedPtr& ec_msg)
     {
         // ROS_DEBUG("Received EgoCylinderPoints msg");
 
