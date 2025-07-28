@@ -26,10 +26,12 @@ class EgoCylinderPointCloudGenerator
     // ros::NodeHandle nh_, pnh_;
     rclcpp::Node::SharedPtr node_;
 
+    rclcpp::TimerBase::SharedPtr timer_{nullptr};
+
     rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pc_pub_;
     rclcpp::Subscription<egocylindrical_msgs::msg::EgoCylinderPoints>::SharedPtr ec_sub_;
 
-    Mutex connect_mutex_;
+    // Mutex connect_mutex_;
     
 public:
 

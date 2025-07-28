@@ -959,17 +959,17 @@ namespace egocylindrical
             const std_msgs::msg::Header& target_header = cylindrical_points.getHeader();
             const std_msgs::msg::Header& source_header = image_msg->header;
 
-            if(target_header == source_header)
+            if (target_header == source_header)
             {
-                // ROS_INFO_ONCE("Target and source headers match, using remapping approach");
+                RCLCPP_DEBUG_STREAM(node_->get_logger(), "Target and source headers match, using remapping approach");
                 // // ROS_DEBUG_STREAM_NAMED("labels", "we are remapping now!"); // not happening it appears
                 depth_remapper_.update(cylindrical_points, image_msg, cam_info);
                 return true;
             }
             
-            if( cam_model_.fromCameraInfo(cam_info) )
+            if (cam_model_.fromCameraInfo(cam_info))
             {
-                // ROS_DEBUG("Camera info has changed!");
+                RCLCPP_DEBUG_STREAM(node_->get_logger(), "Camera info has changed!");
                 //If camera info changed, update any precomputed values
                 //cam_model_.init();
             }
@@ -986,7 +986,7 @@ namespace egocylindrical
             }
             catch (tf2::TransformException &ex) 
             {
-                // ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
+                RCLCPP_WARN_STREAM(node_->get_logger(), "Problem finding transform:\n" <<ex.what());
                 return false;
             }
 
@@ -997,6 +997,7 @@ namespace egocylindrical
             // request.params.fill_im = true;
             // request.params.fill_debug = true;
 
+            RCLCPP_INFO_STREAM(node_->get_logger(), "dii calling insertPoints ...");
             // sensor_msgs::msg::PointCloud2::SharedPtr pcloud_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
             insertPoints(cylindrical_points, image_msg, cam_model_, transform, request); // , 
             // auto pcloud_msg = request.results.point_cloud;

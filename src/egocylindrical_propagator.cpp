@@ -11,7 +11,7 @@ namespace egocylindrical
 
     void EgoCylindricalPropagator::update(utils::SensorMeasurement& measurement)
     {
-        // ROS_INFO_STREAM_NAMED("timing", "update()");
+        RCLCPP_INFO_STREAM(node_->get_logger(), "[EgoCylindricalPropagator::update()]");
 
         //TODO: Make ecwrapper pointers into local variables
         old_pts_ = wrapper_buffer_.getOld();
@@ -101,6 +101,8 @@ namespace egocylindrical
 
         if (propagated_ec_pub_->get_subscription_count())
         {
+            RCLCPP_INFO_STREAM(node_->get_logger(), "propagated_ec_pub_ has subscribers, propagating points");
+
             // ros::WallTimet1 = ros::WallTime::now();
             utils::ECWrapper ec_copy = *new_pts_;
             // ros::WallTimet2 = ros::WallTime::now();
@@ -123,8 +125,11 @@ namespace egocylindrical
 
             if(measurement.publish_update)
             {
+                RCLCPP_INFO_STREAM(node_->get_logger(), "Publishing updated measurement");
+                
                 if(ec_pub_->get_subscription_count() > 0 && shouldPublish(new_pts_))
                 {
+                    RCLCPP_INFO_STREAM(node_->get_logger(), "ec_pub_ has subscribers, publishing points");
                     // TODO: if no one is subscribing, we can propagate the points in place next time (if that turns out to be faster)
                     utils::ECMsgConstPtr msg = new_pts_->getEgoCylinderPointsMsg();
 
@@ -210,7 +215,7 @@ namespace egocylindrical
         ec_pub_ = node_->create_publisher<egocylindrical_msgs::msg::EgoCylinderPoints>(points_topic, 1);
 
         //ros::SubscriberStatusCallback pc_cb = std::bind(&EgoCylindricalPropagator::connectCB, this);
-        pc_pub_ = node_->create_publisher<sensor_msgs::msg::PointCloud2>(filtered_pc_topic, 3);
+        // pc_pub_ = node_->create_publisher<sensor_msgs::msg::PointCloud2>(filtered_pc_topic, 3);
         info_pub_ = node_->create_publisher<egocylindrical_msgs::msg::EgoCylinderPoints>(egocylinder_info_topic, 1);
 
         propagated_ec_pub_ = node_->create_publisher<egocylindrical_msgs::msg::EgoCylinderPoints>(propagated_points_topic, 3);

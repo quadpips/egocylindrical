@@ -52,39 +52,39 @@ namespace egocylindrical
     utils::DepthImageInserter* dii_;
   };
 
-  class SemanticDepthImageMeasurement: public SensorMeasurement
-  {
-  public:
-    SemanticDepthImageMeasurement(SensorCharacteristics sc, 
-                                  const sensor_msgs::msg::Image::ConstSharedPtr& image, 
-                                  const sensor_msgs::msg::CameraInfo::ConstSharedPtr& info, 
-                                  const sensor_msgs::msg::Image::ConstSharedPtr& normals,
-                                  const sensor_msgs::msg::Image::ConstSharedPtr& labels, 
-                                  DepthImageInserter* dii):
-      SensorMeasurement(sc, info->header),
-      image_(image),
-      info_(info),
-      normals_(normals),
-      labels_(labels),
-      dii_(dii)
-      {}
+  // class SemanticDepthImageMeasurement: public SensorMeasurement
+  // {
+  // public:
+  //   SemanticDepthImageMeasurement(SensorCharacteristics sc, 
+  //                                 const sensor_msgs::msg::Image::ConstSharedPtr& image, 
+  //                                 const sensor_msgs::msg::CameraInfo::ConstSharedPtr& info, 
+  //                                 const sensor_msgs::msg::Image::ConstSharedPtr& normals,
+  //                                 const sensor_msgs::msg::Image::ConstSharedPtr& labels, 
+  //                                 DepthImageInserter* dii):
+  //     SensorMeasurement(sc, info->header),
+  //     image_(image),
+  //     info_(info),
+  //     normals_(normals),
+  //     labels_(labels),
+  //     dii_(dii)
+  //     {}
     
-    //virtual std_msgs::msg::Header getHeader() const {return info_->header;}
+  //   //virtual std_msgs::msg::Header getHeader() const {return info_->header;}
     
-    virtual void insert(ECWrapper& cylindrical_points)
-    {
-      // ros::WallTimetemp = ros::WallTime::now();
-      dii_->insert(cylindrical_points, image_, info_, normals_, labels_); //  
-      // ROS_INFO_STREAM_NAMED("timing","Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
-    }
+  //   virtual void insert(ECWrapper& cylindrical_points)
+  //   {
+  //     // ros::WallTimetemp = ros::WallTime::now();
+  //     dii_->insert(cylindrical_points, image_, info_, normals_, labels_); //  
+  //     // ROS_INFO_STREAM_NAMED("timing","Adding depth image took " <<  (ros::WallTime::now() - temp).toSec() * 1e3 << "ms");
+  //   }
 
-  protected:
-    const sensor_msgs::msg::Image::ConstSharedPtr image_;
-    const sensor_msgs::msg::CameraInfo::ConstSharedPtr info_;
-    const sensor_msgs::msg::Image::ConstSharedPtr normals_;
-    const sensor_msgs::msg::Image::ConstSharedPtr labels_;
-    utils::DepthImageInserter* dii_;
-  };
+  // protected:
+  //   const sensor_msgs::msg::Image::ConstSharedPtr image_;
+  //   const sensor_msgs::msg::CameraInfo::ConstSharedPtr info_;
+  //   const sensor_msgs::msg::Image::ConstSharedPtr normals_;
+  //   const sensor_msgs::msg::Image::ConstSharedPtr labels_;
+  //   utils::DepthImageInserter* dii_;
+  // };
 
   class SemanticDepthImageSensor : public SensorInterface
   {
@@ -100,11 +100,11 @@ namespace egocylindrical
     image_transport::SubscriberFilter normals_sub_;
     image_transport::Subscriber labels_sub_;
 
-    using TimeFilter_t = TimeFilter<sensor_msgs::msg::CameraInfo>;
-    std::shared_ptr<TimeFilter_t> time_filter_;
+    // using TimeFilter_t = TimeFilter<sensor_msgs::msg::CameraInfo>;
+    // std::shared_ptr<TimeFilter_t> time_filter_;
     
-    using TfFilter = tf2_ros::MessageFilter<sensor_msgs::msg::CameraInfo>;
-    std::shared_ptr<TfFilter> info_tf_filter;
+    // using TfFilter = tf2_ros::MessageFilter<sensor_msgs::msg::CameraInfo>;
+    // std::shared_ptr<TfFilter> info_tf_filter;
     
     sensor_msgs::msg::Image::ConstSharedPtr labels_;
     bool new_labels = false;
@@ -163,18 +163,18 @@ namespace egocylindrical
       // RCLCPP_INFO_STREAM_NAMED("update", "normals_topic: " << normals_topic);
 
       //Filter out images with duplicate time stamps
-      time_filter_ = std::make_shared<TimeFilter_t>(depth_info_sub_);
+      // time_filter_ = std::make_shared<TimeFilter_t>(depth_info_sub_);
 
-      RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using time filter with fixed frame ID: " << fixed_frame_id);
+      // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using time filter with fixed frame ID: " << fixed_frame_id);
       
-      // Ensure that the message is transformable
-      info_tf_filter = std::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, node_);
+      // // Ensure that the message is transformable
+      // info_tf_filter = std::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, node_);
 
-      RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using TF filter with fixed frame ID: " << fixed_frame_id);
+      // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using TF filter with fixed frame ID: " << fixed_frame_id);
 
       // Synchronize Image and CameraInfo callbacks
-      msg_sync_ = std::make_shared<MsgSynchronizer>(depth_sub_, *info_tf_filter, normals_sub_, 3); //   
-      msg_sync_->registerCallback(std::bind(&SemanticDepthImageSensor::update, this, _1, _2, _3)); //  
+      msg_sync_ = std::make_shared<MsgSynchronizer>(depth_sub_, depth_info_sub_, normals_sub_, 3); // *info_tf_filter,    
+      msg_sync_->registerCallback(std::bind(&SemanticDepthImageSensor::update, this, _1, _2, _3)); // , _3  
 
       RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using message synchronizer for depth, info, and normals topics");
 
@@ -213,6 +213,7 @@ namespace egocylindrical
           //   new_labels = false;
           // } else
           // {
+          RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Creating TerrainImageMeasurement");
           m = std::make_shared<TerrainImageMeasurement>(sc_, image, info, normals, &dii_); //    
           // }
 
@@ -220,7 +221,7 @@ namespace egocylindrical
         }
         else
         {
-          // ROS_ERROR(("No callback defined for SemanticDepthImageSensor!");
+          RCLCPP_ERROR_STREAM(node_->get_logger(), "No callback defined for SemanticDepthImageSensor!");
         }
       }
       

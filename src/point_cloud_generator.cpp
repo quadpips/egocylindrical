@@ -10,15 +10,16 @@
 
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
+using namespace std::chrono_literals;
 
 namespace egocylindrical
 {
-
-
     EgoCylinderPointCloudGenerator::EgoCylinderPointCloudGenerator(rclcpp::Node::SharedPtr node) :
         node_(node)
     {
-        std::cout<<"PointCloud publishing Node Initialized"<<std::endl;
+        RCLCPP_INFO_STREAM(node_->get_logger(), "EgoCylinderPointCloudGenerator: Initializing point cloud generator node");
+
+        timer_ = node_->create_wall_timer(0.05s, std::bind(&EgoCylinderPointCloudGenerator::ssCB, this));
     }
     
     bool EgoCylinderPointCloudGenerator::init()
@@ -39,15 +40,17 @@ namespace egocylindrical
     void EgoCylinderPointCloudGenerator::ssCB()
     {
         //std::cout << (void*)ec_sub_ << ": " << pc_pub_->get_subscription_count() << std::endl;
-        Lock lock(connect_mutex_);
+        // Lock lock(connect_mutex_);
         if (pc_pub_->get_subscription_count() > 0)
         {
+            RCLCPP_INFO_STREAM(node_->get_logger(), "EgoCylinderPointCloudGenerator: egocylindrical points publisher has subscribers, subscribing to egocylindrical points topic");
             if (ec_sub_) //if currently subscribed... no need to do anything
             {
                 
             }
             else
             {
+                RCLCPP_INFO_STREAM(node_->get_logger(), "EgoCylinderPointCloudGenerator: Subscribing to egocylindrical points topic");
                 // ROS_INFO("PointCloud Generator Subscribing");
                 // ec_sub_ = nh_.subscribe("egocylindrical_points", 2, &EgoCylinderPointCloudGenerator::ecPointsCB, this);
                 ec_sub_ = node_->create_subscription<egocylindrical_msgs::msg::EgoCylinderPoints>("egocylindrical_points", 2, std::bind(&EgoCylinderPointCloudGenerator::ecPointsCB, this, std::placeholders::_1));

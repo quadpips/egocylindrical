@@ -16,12 +16,12 @@ namespace egocylindrical
       {
           if (node->get_parameter(param_name, value))
           {
-              // ROS_INFO_STREAM("Successfully loaded parameter [" << param_name << "]=" << value);
+              RCLCPP_INFO_STREAM(node->get_logger(), "Successfully loaded parameter [" << param_name << "]=" << value);
               return true;
           }
           else
           {
-              // // ROS_ERROR(_STREAM("Unable to find parameter [" << param_name << "]! Full namespace=" << nh.getNamespace() + "/" + param_name);
+              RCLCPP_ERROR_STREAM(node->get_logger(), "Unable to find parameter [" << param_name << "]! Full namespace=" << node->get_namespace() << "/" << param_name);
               return false;
           }
       }

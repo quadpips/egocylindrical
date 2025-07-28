@@ -8,6 +8,8 @@
 #include <egocylindrical/ecwrapper.h>
 
 // #include <ros/node_handle.h>
+#include <rclcpp/rclcpp.hpp>
+
 #include <tf2_ros/buffer.h>
 
 #include <sensor_msgs/msg/image.hpp>
