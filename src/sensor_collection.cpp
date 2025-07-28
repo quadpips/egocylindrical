@@ -31,11 +31,21 @@ namespace egocylindrical
             // ROS_INFO_STREAM("Creating sensor [" << name << "]");
             // auto sensor_nh = ros::NodeHandle(nh, name);
             
+            auto parameters_and_prefixes = node->list_parameters({"sensors"}, 10);
+
+            for (auto & name : parameters_and_prefixes.names) {
+                std::cout << "Parameter name: " << name << std::endl;
+            }
+            for (auto & prefix : parameters_and_prefixes.prefixes) {
+                std::cout << "Parameter prefix: " << prefix << std::endl;
+            }
+
             SensorInterface::Ptr sensor;
             std::string sensor_type;
-            if (!node->get_parameter("type", sensor_type))
+            std::string sensor_ns = "sensors." + name + ".type";
+            if (!node->get_parameter(sensor_ns, sensor_type))
             {
-                throw std::runtime_error("Type [" + sensor_type + "] is not defined for Sensor! [" + name + "]");
+                throw std::runtime_error("Type [" + sensor_type + "] is not defined for Sensor! [" + sensor_ns + "]");
             }
             
             //This isn't possible w/ C++11 apparently
@@ -142,7 +152,7 @@ namespace egocylindrical
             {
                 //auto sensor_nh = ros::NodeHandle(sensor_root_nh, name);
                 SensorInterface::Ptr sensor = createSensor(node_, name, buffer_); // sensor_root_nh, 
-                if(sensor)
+                if (sensor)
                 {
                     sensors_.push_back(sensor);
                 }

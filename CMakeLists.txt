@@ -412,9 +412,9 @@ install(
 #   DESTINATION include/${PROJECT_NAME}
 # )
 
-# install(DIRECTORY cfg launch
-#   DESTINATION share/${PROJECT_NAME}/
-# )
+install(DIRECTORY cfg launch
+  DESTINATION share/${PROJECT_NAME}/
+)
 
 # ament_export_dependencies(${dependencies})  
 # ament_export_include_directories("include/${PROJECT_NAME}")
