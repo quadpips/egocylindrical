@@ -25,6 +25,8 @@ class NormalPointCloudGenerator
     // ros::NodeHandle nh_, pnh_;
     rclcpp::Node::SharedPtr node_;
 
+    rclcpp::TimerBase::SharedPtr timer_{nullptr};
+
     // ros::Publisher pc_pub_;
     // ros::Subscriber ec_sub_;
     rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pc_pub_;

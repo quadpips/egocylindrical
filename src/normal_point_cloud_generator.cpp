@@ -9,15 +9,16 @@
 
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
+using namespace std::chrono_literals;
 
 namespace egocylindrical
 {
-
-
     NormalPointCloudGenerator::NormalPointCloudGenerator(rclcpp::Node::SharedPtr node) :
         node_(node)
     {
         std::cout<<"Labeled PointCloud publishing Node Initialized"<<std::endl;
+
+        timer_ = node_->create_wall_timer(0.05s, std::bind(&NormalPointCloudGenerator::ssCB, this));
     }
     
     bool NormalPointCloudGenerator::init()

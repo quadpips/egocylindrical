@@ -9,15 +9,16 @@
 
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
+using namespace std::chrono_literals;
 
 namespace egocylindrical
 {
-
-
     ProjectedPointCloudGenerator::ProjectedPointCloudGenerator(rclcpp::Node::SharedPtr node) : // ros::NodeHandle& nh, ros::NodeHandle& pnh
         node_(node)
     {
-        std::cout<<"Projected PointCloud publishing Node Initialized"<<std::endl;
+        // std::cout<<"Projected PointCloud publishing Node Initialized"<<std::endl;
+
+        timer_ = node_->create_wall_timer(0.05s, std::bind(&ProjectedPointCloudGenerator::ssCB, this));
     }
     
     bool ProjectedPointCloudGenerator::init()
@@ -38,7 +39,7 @@ namespace egocylindrical
     void ProjectedPointCloudGenerator::ssCB()
     {
         //std::cout << (void*)ec_sub_ << ": " << pc_pub_->get_subscription_count() << std::endl;
-        Lock lock(connect_mutex_);
+        // Lock lock(connect_mutex_);
         if(pc_pub_->get_subscription_count()>0)
         {
             if(ec_sub_) //if currently subscribed... no need to do anything

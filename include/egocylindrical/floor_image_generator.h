@@ -34,10 +34,12 @@ namespace egocylindrical
         // ros::Subscriber ec_sub_;
         rclcpp::Subscription<egocylindrical_msgs::msg::EgoCylinderPoints>::SharedPtr ec_sub_;
         bool use_raw_;
+
+        rclcpp::TimerBase::SharedPtr timer_{nullptr};
         
-        using Mutex = boost::mutex;
-        Mutex connect_mutex_;
-        using Lock = Mutex::scoped_lock;
+        // using Mutex = boost::mutex;
+        // Mutex connect_mutex_;
+        // using Lock = Mutex::scoped_lock;
         
         //Mutex config_mutex_;
         int num_threads_ = 1;

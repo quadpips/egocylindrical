@@ -50,15 +50,15 @@ def generate_launch_description():
         ]
     )
 
-    # projected_point_cloud_node = Node(
-    #     package="egocylindrical",
-    #     executable="projected_point_cloud_node",
-    #     name="projected_point_cloud_node",
-    #     output="screen",
-    #     remappings=[
-    #         ('egocylindrical_points', 'data'),
-    #     ],
-    # )
+    projected_point_cloud_node = Node(
+        package="egocylindrical",
+        executable="projected_point_cloud_node",
+        name="projected_point_cloud_node",
+        output="screen",
+        remappings=[
+            ('egocylindrical_points', 'data'),
+        ],
+    )
 
     # semantic_point_cloud_node = Node(
     #     package="egocylindrical",
@@ -70,31 +70,31 @@ def generate_launch_description():
     #     ],
     # )
 
-    # normal_point_cloud_node = Node(
-    #     package="egocylindrical",
-    #     executable="normal_point_cloud_node",
-    #     name="normal_point_cloud_node",
-    #     output="screen",
-    #     remappings=[
-    #         ('egocylindrical_points', 'data'),
-    #     ],
-    # )
+    normal_point_cloud_node = Node(
+        package="egocylindrical",
+        executable="normal_point_cloud_node",
+        name="normal_point_cloud_node",
+        output="screen",
+        remappings=[
+            ('egocylindrical_points', 'data'),
+        ],
+    )
 
-    # floor_image_node = Node(
-    #     package="egocylindrical",
-    #     executable="floor_image_node",
-    #     name="floor_image_node",
-    #     output="screen",
-    #     remappings=[
-    #         ('egocylindrical_points', 'data'),
-    #         ('use_raw', 'False'),
-    #         ('floor_image_topic', 'floor_image'),
-    #         ('floor_labels_topic', 'floor_labels'),
-    #         ('floor_labels_colored_topic', 'floor_labels_colored'),
-    #         ('floor_normals_topic', 'floor_normals'),
-    #         ('floor_labels_colored_topic', 'floor_labels_colored')
-    #     ],
-    # )
+    floor_image_node = Node(
+        package="egocylindrical",
+        executable="floor_image_node",
+        name="floor_image_node",
+        output="screen",
+        remappings=[
+            ('egocylindrical_points', 'data'),
+            ('use_raw', 'False'),
+            ('floor_image_topic', 'floor_image'),
+            ('floor_labels_topic', 'floor_labels'),
+            ('floor_labels_colored_topic', 'floor_labels_colored'),
+            ('floor_normals_topic', 'floor_normals'),
+            ('floor_labels_colored_topic', 'floor_labels_colored')
+        ],
+    )
 
     ###########################
     # Full Launch Description #
@@ -103,9 +103,9 @@ def generate_launch_description():
         [
             egocylindrical_propagator_node,
             point_cloud_node,
-            # projected_point_cloud_node,
+            projected_point_cloud_node,
             # semantic_point_cloud_node,
-            # normal_point_cloud_node,
-            # floor_image_node,
+            normal_point_cloud_node,
+            floor_image_node,
         ]
     )
