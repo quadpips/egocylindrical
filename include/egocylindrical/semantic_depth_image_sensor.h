@@ -141,10 +141,10 @@ namespace egocylindrical
       node_->get_parameter("labels_in", labels_topic);
       node_->get_parameter("normals_in", normals_topic);
 
-      RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using depth topic: " << depth_topic);
-      RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using info topic: " << info_topic);
-      RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using normals topic: " << normals_topic);
-      RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using labels topic: " << labels_topic);
+      // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using depth topic: " << depth_topic);
+      // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using info topic: " << info_topic);
+      // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using normals topic: " << normals_topic);
+      // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using labels topic: " << labels_topic);
 
       //Initialize helper classes
       dii_.init(fixed_frame_id);
@@ -162,7 +162,7 @@ namespace egocylindrical
       // RCLCPP_INFO_STREAM_NAMED("update", "labels_topic: " << labels_topic);
       // RCLCPP_INFO_STREAM_NAMED("update", "normals_topic: " << normals_topic);
 
-      //Filter out images with duplicate time stamps
+      // // Filter out images with duplicate time stamps
       // time_filter_ = std::make_shared<TimeFilter_t>(depth_info_sub_);
 
       // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using time filter with fixed frame ID: " << fixed_frame_id);
@@ -173,10 +173,10 @@ namespace egocylindrical
       // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using TF filter with fixed frame ID: " << fixed_frame_id);
 
       // Synchronize Image and CameraInfo callbacks
-      msg_sync_ = std::make_shared<MsgSynchronizer>(depth_sub_, depth_info_sub_, normals_sub_, 3); // *info_tf_filter,    
+      msg_sync_ = std::make_shared<MsgSynchronizer>(depth_sub_, depth_info_sub_, normals_sub_, 3); //  
       msg_sync_->registerCallback(std::bind(&SemanticDepthImageSensor::update, this, _1, _2, _3)); // , _3  
 
-      RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using message synchronizer for depth, info, and normals topics");
+      // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using message synchronizer for depth, info, and normals topics");
 
       // labels_sub_ = it_.subscribe(labels_topic, 1, &SemanticDepthImageSensor::labels_cb, this);
     }
@@ -190,11 +190,12 @@ namespace egocylindrical
       //   // // ROS_INFO_STREAM_NAMED("timing", "in solo callback, label: " << label);
       // }
 
+                  // const sensor_msgs::msg::Image::ConstSharedPtr& normals
+
       void update(const sensor_msgs::msg::Image::ConstSharedPtr& image, 
-                  const sensor_msgs::msg::CameraInfo::ConstSharedPtr& info,
-                  const sensor_msgs::msg::Image::ConstSharedPtr& normals) // , 
+                  const sensor_msgs::msg::CameraInfo::ConstSharedPtr& info) // , 
       {
-        RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Received image with timestamp: " << image->header.stamp.sec << "." << image->header.stamp.nanosec);
+        // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Received image with timestamp: " << image->header.stamp.sec << "." << image->header.stamp.nanosec);
         // // ROS_INFO_STREAM_NAMED("timing", "labels->image.at<uint8_t>(50, 50): " << labels->image.at<uint8_t>(50, 50));
 
         // ROS_INFO_STREAM_NAMED("timing", "image timestamp: " << image->header.stamp);
@@ -214,10 +215,10 @@ namespace egocylindrical
           // } else
           // {
           RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Creating TerrainImageMeasurement");
-          m = std::make_shared<TerrainImageMeasurement>(sc_, image, info, normals, &dii_); //    
+          // m = std::make_shared<TerrainImageMeasurement>(sc_, image, info, normals, &dii_); //    
           // }
 
-          cb_(m);
+          // cb_(m);
         }
         else
         {

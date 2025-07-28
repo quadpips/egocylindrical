@@ -58,6 +58,11 @@ def generate_launch_description():
         remappings=[
             ('egocylindrical_points', 'data'),
         ],
+        parameters=[
+            {
+                'use_sim_time': True,  # Use simulation time if available
+            }
+        ]
     )
 
     # semantic_point_cloud_node = Node(
@@ -78,6 +83,11 @@ def generate_launch_description():
         remappings=[
             ('egocylindrical_points', 'data'),
         ],
+        parameters=[
+            {
+                'use_sim_time': True,  # Use simulation time if available
+            }
+        ]
     )
 
     floor_image_node = Node(
@@ -86,14 +96,19 @@ def generate_launch_description():
         name="floor_image_node",
         output="screen",
         remappings=[
-            ('egocylindrical_points', 'data'),
-            ('use_raw', 'False'),
-            ('floor_image_topic', 'floor_image'),
-            ('floor_labels_topic', 'floor_labels'),
-            ('floor_labels_colored_topic', 'floor_labels_colored'),
-            ('floor_normals_topic', 'floor_normals'),
-            ('floor_labels_colored_topic', 'floor_labels_colored')
+            ('egocylindrical_points', 'data')
         ],
+        parameters=[
+            {
+            'use_sim_time': True,  # Use simulation time if available
+            'use_raw': False,
+            'floor_image_topic': 'floor_image',
+            'floor_labels_topic': 'floor_labels',
+            'floor_labels_colored_topic': 'floor_labels_colored',
+            'floor_normals_topic': 'floor_normals',
+            'floor_labels_colored_topic': 'floor_labels_colored'
+            }
+        ]
     )
 
     ###########################

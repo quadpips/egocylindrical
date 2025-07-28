@@ -28,14 +28,14 @@ namespace egocylindrical
         std::string floor_normals_topic = "floor_normals";
         std::string floor_normals_colored_topic = "floor_normals_colored";
 
-        auto parameters_and_prefixes = node_->list_parameters({}, 10);
+        // auto parameters_and_prefixes = node_->list_parameters({}, 10);
 
-        for (auto & name : parameters_and_prefixes.names) {
-            std::cout << "Parameter name: " << name << std::endl;
-        }
-        for (auto & prefix : parameters_and_prefixes.prefixes) {
-            std::cout << "Parameter prefix: " << prefix << std::endl;
-        }
+        // for (auto & name : parameters_and_prefixes.names) {
+        //     std::cout << "Parameter name: " << name << std::endl;
+        // }
+        // for (auto & prefix : parameters_and_prefixes.prefixes) {
+        //     std::cout << "Parameter prefix: " << prefix << std::endl;
+        // }
 
         // pnh_.getParam("use_raw", use_raw_ );
         node_->get_parameter("use_raw", use_raw_);
@@ -156,15 +156,15 @@ namespace egocylindrical
 
             // ROS_DEBUG_STREAM_NAMED("timing","Generating can normals colored took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
 
-            // ROS_DEBUG("publish egocylindrical image");
+            RCLCPP_DEBUG_STREAM(node_->get_logger(), "Publishing floor image");
             floor_im_pub_.publish(*image_ptr);
             // ROS_DEBUG("publish egocylindrical labels");
             // labels_im_pub_.publish(*labels_ptr);
             // ROS_DEBUG("publish egocylindrical labels colored");
             // labels_colored_im_pub_.publish(*labels_colored_ptr);
-            // ROS_DEBUG("publish egocylindrical normals");
+            RCLCPP_DEBUG_STREAM(node_->get_logger(), "publish egocylindrical normals");
             normals_im_pub_.publish(*normals_ptr);
-            // ROS_DEBUG("publish egocylindrical normals colored");
+            RCLCPP_DEBUG_STREAM(node_->get_logger(), "publish egocylindrical normals colored");
             normals_colored_im_pub_.publish(*normals_colored_ptr);
 
             // start = ros::WallTime::now();

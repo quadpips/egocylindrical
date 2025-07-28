@@ -11,7 +11,7 @@ namespace egocylindrical
 
     void EgoCylindricalPropagator::update(utils::SensorMeasurement& measurement)
     {
-        RCLCPP_INFO_STREAM(node_->get_logger(), "[EgoCylindricalPropagator::update()]");
+        // RCLCPP_INFO_STREAM(node_->get_logger(), "[EgoCylindricalPropagator::update()]");
 
         //TODO: Make ecwrapper pointers into local variables
         old_pts_ = wrapper_buffer_.getOld();
@@ -46,7 +46,7 @@ namespace egocylindrical
         }
         
                 
-        if(old_pts_)
+        if (old_pts_)
         {
             // ROS_DEBUG_STREAM_NAMED("msg_timestamps","Previous stamp " << old_pts_->getHeader().stamp);
         }
@@ -59,7 +59,7 @@ namespace egocylindrical
 
         // ros::WallTime// start = ros::WallTime::now();
         
-        if(!cfh_.updateTransforms(measurement_header))
+        if (!cfh_.updateTransforms(measurement_header))
         {
             // ROS_WARN_STREAM("Failed to update transforms!");
             return;
@@ -68,9 +68,9 @@ namespace egocylindrical
         std_msgs::msg::Header target_header = cfh_.getTargetHeader();
         
         {
-            if(old_pts_)
+            if (old_pts_)
             {
-                if(measurement.raytrace)
+                if (measurement.raytrace)
                 {
                     new_pts_ = wrapper_buffer_.getNew(); // adds nullptr
                     try
@@ -101,7 +101,7 @@ namespace egocylindrical
 
         if (propagated_ec_pub_->get_subscription_count())
         {
-            RCLCPP_INFO_STREAM(node_->get_logger(), "propagated_ec_pub_ has subscribers, propagating points");
+            // RCLCPP_INFO_STREAM(node_->get_logger(), "propagated_ec_pub_ has subscribers, propagating points");
 
             // ros::WallTimet1 = ros::WallTime::now();
             utils::ECWrapper ec_copy = *new_pts_;
@@ -123,13 +123,13 @@ namespace egocylindrical
 
             // ROS_INFO_STREAM_NAMED("timing", "new_pts_->getOneLabel(17772) (after insert): " << std::hex << (uint16_t) new_pts_->getOneLabel(17772));
 
-            if(measurement.publish_update)
+            if (measurement.publish_update)
             {
-                RCLCPP_INFO_STREAM(node_->get_logger(), "Publishing updated measurement");
+                // RCLCPP_INFO_STREAM(node_->get_logger(), "Publishing updated measurement");
                 
-                if(ec_pub_->get_subscription_count() > 0 && shouldPublish(new_pts_))
+                if (ec_pub_->get_subscription_count() > 0 && shouldPublish(new_pts_))
                 {
-                    RCLCPP_INFO_STREAM(node_->get_logger(), "ec_pub_ has subscribers, publishing points");
+                    // RCLCPP_INFO_STREAM(node_->get_logger(), "ec_pub_ has subscribers, publishing points");
                     // TODO: if no one is subscribing, we can propagate the points in place next time (if that turns out to be faster)
                     utils::ECMsgConstPtr msg = new_pts_->getEgoCylinderPointsMsg();
 
@@ -138,7 +138,7 @@ namespace egocylindrical
                     published(new_pts_);
                 }
 
-                if(info_pub_->get_subscription_count() > 0)
+                if (info_pub_->get_subscription_count() > 0)
                 {
                     info_pub_->publish(*new_pts_->getEgoCylinderInfoMsg());
                 }
