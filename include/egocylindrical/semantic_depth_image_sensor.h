@@ -166,26 +166,26 @@ namespace egocylindrical
       // RCLCPP_INFO_STREAM_NAMED("update", "labels_topic: " << labels_topic);
       // RCLCPP_INFO_STREAM_NAMED("update", "normals_topic: " << normals_topic);
 
-      auto timer_interface = std::make_shared<tf2_ros::CreateTimerROS>(
-            node_->get_node_base_interface(),
-            node_->get_node_timers_interface());
-      buffer_.setCreateTimerInterface(timer_interface);
+      // auto timer_interface = std::make_shared<tf2_ros::CreateTimerROS>(
+      //       node_->get_node_base_interface(),
+      //       node_->get_node_timers_interface());
+      // buffer_.setCreateTimerInterface(timer_interface);
 
-      // Filter out images with duplicate time stamps
-      time_filter_ = std::make_shared<TimeFilter_t>(node_, depth_info_sub_);
+      // // Filter out images with duplicate time stamps
+      // time_filter_ = std::make_shared<TimeFilter_t>(node_, depth_info_sub_);
 
       // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using time filter with fixed frame ID: " << fixed_frame_id);
       
       // Ensure that the message is transformable
-      std::chrono::duration<int> buffer_timeout(1);
-      info_tf_filter = std::make_shared<TfFilter>(*time_filter_, buffer_, 
-                                                  fixed_frame_id, 100, node_->get_node_logging_interface(),
-                                                  node_->get_node_clock_interface(), buffer_timeout);
+      // std::chrono::duration<int> buffer_timeout(1);
+      // info_tf_filter = std::make_shared<TfFilter>(*time_filter_, buffer_, 
+      //                                             fixed_frame_id, 100, node_->get_node_logging_interface(),
+      //                                             node_->get_node_clock_interface(), buffer_timeout);
 
       // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using TF filter with fixed frame ID: " << fixed_frame_id);
 
       // Synchronize Image and CameraInfo callbacks
-      msg_sync_ = std::make_shared<MsgSynchronizer>(depth_sub_, *info_tf_filter, normals_sub_, 3);
+      msg_sync_ = std::make_shared<MsgSynchronizer>(depth_sub_, depth_info_sub_, normals_sub_, 3);
       msg_sync_->registerCallback(std::bind(&SemanticDepthImageSensor::update, this, _1, _2, _3));
 
       // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using message synchronizer for depth, info, and normals topics");
