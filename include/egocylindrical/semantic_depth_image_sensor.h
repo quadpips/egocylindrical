@@ -172,7 +172,7 @@ namespace egocylindrical
       buffer_.setCreateTimerInterface(timer_interface);
 
       // Filter out images with duplicate time stamps
-      // time_filter_ = std::make_shared<TimeFilter_t>(node_, depth_info_sub_);
+      time_filter_ = std::make_shared<TimeFilter_t>(node_, depth_info_sub_);
 
       // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using time filter with fixed frame ID: " << fixed_frame_id);
       

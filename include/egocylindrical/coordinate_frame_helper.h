@@ -177,14 +177,15 @@ namespace egocylindrical
 
             bool updateECSTransform(builtin_interfaces::msg::Time stamp)
             {
-                //TODO: Lock a mutex
+                RCLCPP_INFO_STREAM(node_->get_logger(), "[updateECSTransform]");
 
+                // TODO: Lock a mutex
               
-//                 if(cfd_.orientation_fixed_frame_id==cfd_.origin_fixed_frame_id)
-//                 {
-//                     // RCLCPP_WARN_STREAM(node_->get_logger(), "[updateECSTransform] Not publishing redundant transform! " << stamp);
-//                     return true;
-//                 }
+                // if(cfd_.orientation_fixed_frame_id==cfd_.origin_fixed_frame_id)
+                // {
+                //      // RCLCPP_WARN_STREAM(node_->get_logger(), "[updateECSTransform] Not publishing redundant transform! " << stamp);
+                //     return true;
+                // }
 
                 //If we've already computed it, don't do it again
                 if (stamp == ecs_.header.stamp && stamp != node_->get_clock()->now())
@@ -219,6 +220,7 @@ namespace egocylindrical
 
             bool updateECCTransform(builtin_interfaces::msg::Time stamp)
             {
+                RCLCPP_INFO_STREAM(node_->get_logger(), "[updateECCTransform]");
 
                 if (stamp == ecc_.header.stamp && stamp != builtin_interfaces::msg::Time())
                 {
@@ -236,7 +238,7 @@ namespace egocylindrical
                 q.z=-0.500;
                 q.w=0.500;
 
-                RCLCPP_DEBUG_STREAM(node_->get_logger(), "[updateECCTransform] Updated transform! " << stamp.sec << "." << stamp.nanosec);
+                RCLCPP_INFO_STREAM(node_->get_logger(), "[updateECCTransform] Updated transform! " << stamp.sec << "." << stamp.nanosec);
 
                 ecc_.header.stamp.nanosec += nano_second.nanosec;
                 buffer_.setTransform(ecc_, "coordinate_frame_helper", false);
@@ -248,6 +250,8 @@ namespace egocylindrical
 
             bool updateOffsetTransform(builtin_interfaces::msg::Time stamp)
             {
+                RCLCPP_INFO_STREAM(node_->get_logger(), "[updateOffsetTransform]");
+
                 if (new_cfd_)
                 {
                     RCLCPP_INFO_STREAM(node_->get_logger(), "[updateOffsetTransform] Have new CoordinateFrameDefinition!");
