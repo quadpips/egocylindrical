@@ -23,6 +23,8 @@ def generate_launch_description():
         'cfg',
         'egocylindrical_propagator.yaml')
 
+    set_use_sim_time = launch_ros.actions.SetParameter(name='use_sim_time', value=True)
+
     #################
     # Include Nodes #
     #################
@@ -116,6 +118,7 @@ def generate_launch_description():
     ###########################
     return LaunchDescription(
         [
+            set_use_sim_time,
             egocylindrical_propagator_node,
             point_cloud_node,
             projected_point_cloud_node,

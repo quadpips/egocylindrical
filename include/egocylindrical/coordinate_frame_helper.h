@@ -187,7 +187,7 @@ namespace egocylindrical
 //                 }
 
                 //If we've already computed it, don't do it again
-                if (stamp == ecs_.header.stamp && stamp != rclcpp::Time())
+                if (stamp == ecs_.header.stamp && stamp != node_->get_clock()->now())
                 {
                     RCLCPP_WARN_STREAM(node_->get_logger(), "[updateECSTransform] Not publishing redundant transform! " << stamp.sec << "." << stamp.nanosec);
                     return true;

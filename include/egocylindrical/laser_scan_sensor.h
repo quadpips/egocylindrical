@@ -80,7 +80,7 @@ namespace egocylindrical
         scan_sub_.subscribe(node_.get(), scan_topic); // , 3
         
         //Filter out images with duplicate time stamps
-        time_filter_ = std::make_shared<TimeFilter_t>(scan_sub_);
+        time_filter_ = std::make_shared<TimeFilter_t>(node_, scan_sub_);
 
         // Ensure that the scan is transformable
         scan_tf_filter = std::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, node_);

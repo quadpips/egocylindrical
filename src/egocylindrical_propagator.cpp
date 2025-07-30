@@ -40,7 +40,7 @@ namespace egocylindrical
             }
             else if (old_stamp_ros == new_stamp_ros)
             {
-              // ROS_WARN_STREAM_NAMED("msg_timestamps","Repeat stamps received! " << new_stamp);
+              RCLCPP_WARN_STREAM(node_->get_logger(), "Repeat stamps received! " << new_stamp.sec << "." << new_stamp.nanosec << " seconds");
               //return;
             }
         }
@@ -61,7 +61,7 @@ namespace egocylindrical
         
         if (!cfh_.updateTransforms(measurement_header))
         {
-            // ROS_WARN_STREAM("Failed to update transforms!");
+            RCLCPP_WARN_STREAM(node_->get_logger(), "Failed to update transforms!");
             return;
         }
 
@@ -79,7 +79,7 @@ namespace egocylindrical
                     }
                     catch (tf2::TransformException &ex)
                     {
-                        // ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
+                        RCLCPP_WARN_STREAM(node_->get_logger(), "Problem finding transform:\n" << ex.what());
                         return; //TODO: After a configurable timeout, reset
                     }
                 }

@@ -9,7 +9,9 @@
 
 #include <egocylindrical/time_filter.h>
 #include <image_transport/subscriber_filter.hpp>
+
 #include <tf2_ros/message_filter.h>
+#include "tf2_ros/create_timer_ros.h"
 
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
@@ -25,10 +27,10 @@ namespace egocylindrical
   {
   public:
     TerrainImageMeasurement(SensorCharacteristics sc, 
-                                  const sensor_msgs::msg::Image::ConstSharedPtr& image, 
-                                  const sensor_msgs::msg::CameraInfo::ConstSharedPtr& info, 
-                                  const sensor_msgs::msg::Image::ConstSharedPtr& normals,
-                                  DepthImageInserter* dii):
+                            const sensor_msgs::msg::Image::ConstSharedPtr& image, 
+                            const sensor_msgs::msg::CameraInfo::ConstSharedPtr& info, 
+                            const sensor_msgs::msg::Image::ConstSharedPtr& normals,
+                            DepthImageInserter* dii):
       SensorMeasurement(sc, info->header),
       image_(image),
       info_(info),
@@ -100,17 +102,19 @@ namespace egocylindrical
     image_transport::SubscriberFilter normals_sub_;
     image_transport::Subscriber labels_sub_;
 
-    // using TimeFilter_t = TimeFilter<sensor_msgs::msg::CameraInfo>;
-    // std::shared_ptr<TimeFilter_t> time_filter_;
+    using TimeFilter_t = TimeFilter<sensor_msgs::msg::CameraInfo>;
+    std::shared_ptr<TimeFilter_t> time_filter_;
     
-    // using TfFilter = tf2_ros::MessageFilter<sensor_msgs::msg::CameraInfo>;
-    // std::shared_ptr<TfFilter> info_tf_filter;
+    using TfFilter = tf2_ros::MessageFilter<sensor_msgs::msg::CameraInfo>;
+    std::shared_ptr<TfFilter> info_tf_filter;
     
-    sensor_msgs::msg::Image::ConstSharedPtr labels_;
-    bool new_labels = false;
-    bool have_labels = false;
+    // sensor_msgs::msg::Image::ConstSharedPtr labels_;
+    // bool new_labels = false;
+    // bool have_labels = false;
 
-    using MsgSynchronizer = message_filters::TimeSynchronizer<sensor_msgs::msg::Image, sensor_msgs::msg::CameraInfo, sensor_msgs::msg::Image>; //  
+    using MsgSynchronizer = message_filters::TimeSynchronizer<sensor_msgs::msg::Image, 
+                                                              sensor_msgs::msg::CameraInfo,
+                                                              sensor_msgs::msg::Image>;
     std::shared_ptr<MsgSynchronizer> msg_sync_;
 
   public:
@@ -154,7 +158,7 @@ namespace egocylindrical
       qos.depth = 3; // TODO: Make this a parameter
 
       depth_sub_.subscribe(node_.get(), depth_topic, "raw", qos);
-      depth_info_sub_.subscribe(node_.get(), info_topic); // , 3
+      depth_info_sub_.subscribe(node_.get(), info_topic, qos); // , 3
       normals_sub_.subscribe(node_.get(), normals_topic, "raw", qos);
 
       // RCLCPP_INFO_STREAM_NAMED("update", "depth_topic: " << depth_topic);
@@ -162,19 +166,27 @@ namespace egocylindrical
       // RCLCPP_INFO_STREAM_NAMED("update", "labels_topic: " << labels_topic);
       // RCLCPP_INFO_STREAM_NAMED("update", "normals_topic: " << normals_topic);
 
-      // // Filter out images with duplicate time stamps
-      // time_filter_ = std::make_shared<TimeFilter_t>(depth_info_sub_);
+      auto timer_interface = std::make_shared<tf2_ros::CreateTimerROS>(
+            node_->get_node_base_interface(),
+            node_->get_node_timers_interface());
+      buffer_.setCreateTimerInterface(timer_interface);
+
+      // Filter out images with duplicate time stamps
+      // time_filter_ = std::make_shared<TimeFilter_t>(node_, depth_info_sub_);
 
       // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using time filter with fixed frame ID: " << fixed_frame_id);
       
-      // // Ensure that the message is transformable
-      // info_tf_filter = std::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, node_);
+      // Ensure that the message is transformable
+      std::chrono::duration<int> buffer_timeout(1);
+      info_tf_filter = std::make_shared<TfFilter>(*time_filter_, buffer_, 
+                                                  fixed_frame_id, 100, node_->get_node_logging_interface(),
+                                                  node_->get_node_clock_interface(), buffer_timeout);
 
       // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using TF filter with fixed frame ID: " << fixed_frame_id);
 
       // Synchronize Image and CameraInfo callbacks
-      msg_sync_ = std::make_shared<MsgSynchronizer>(depth_sub_, depth_info_sub_, normals_sub_, 3); //  
-      msg_sync_->registerCallback(std::bind(&SemanticDepthImageSensor::update, this, _1, _2, _3)); // , _3  
+      msg_sync_ = std::make_shared<MsgSynchronizer>(depth_sub_, *info_tf_filter, normals_sub_, 3);
+      msg_sync_->registerCallback(std::bind(&SemanticDepthImageSensor::update, this, _1, _2, _3));
 
       // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using message synchronizer for depth, info, and normals topics");
 
@@ -192,7 +204,7 @@ namespace egocylindrical
 
       void update(const sensor_msgs::msg::Image::ConstSharedPtr& image, 
                   const sensor_msgs::msg::CameraInfo::ConstSharedPtr& info,
-                  const sensor_msgs::msg::Image::ConstSharedPtr& normals) // , 
+                  const sensor_msgs::msg::Image::ConstSharedPtr& normals) //  
       {
         // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Received image with timestamp: " << image->header.stamp.sec << "." << image->header.stamp.nanosec);
         // // ROS_INFO_STREAM_NAMED("timing", "labels->image.at<uint8_t>(50, 50): " << labels->image.at<uint8_t>(50, 50));
@@ -213,7 +225,7 @@ namespace egocylindrical
           //   new_labels = false;
           // } else
           // {
-          // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Creating TerrainImageMeasurement");
+          RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Creating TerrainImageMeasurement");
           m = std::make_shared<TerrainImageMeasurement>(sc_, image, info, normals, &dii_); //    
           // }
 

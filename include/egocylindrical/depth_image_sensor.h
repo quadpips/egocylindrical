@@ -104,7 +104,7 @@ namespace egocylindrical
         depth_info_sub_.subscribe(node_.get(), info_topic); // , "compressed"
 
         //Filter out images with duplicate time stamps
-        time_filter_ = std::make_shared<TimeFilter_t>(depth_info_sub_);
+        time_filter_ = std::make_shared<TimeFilter_t>(node_, depth_info_sub_);
         
         // Ensure that the message is transformable
         info_tf_filter = std::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, node_);
