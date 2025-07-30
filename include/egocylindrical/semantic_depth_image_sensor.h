@@ -190,10 +190,9 @@ namespace egocylindrical
       //   // // ROS_INFO_STREAM_NAMED("timing", "in solo callback, label: " << label);
       // }
 
-                  // const sensor_msgs::msg::Image::ConstSharedPtr& normals
-
       void update(const sensor_msgs::msg::Image::ConstSharedPtr& image, 
-                  const sensor_msgs::msg::CameraInfo::ConstSharedPtr& info) // , 
+                  const sensor_msgs::msg::CameraInfo::ConstSharedPtr& info,
+                  const sensor_msgs::msg::Image::ConstSharedPtr& normals) // , 
       {
         // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Received image with timestamp: " << image->header.stamp.sec << "." << image->header.stamp.nanosec);
         // // ROS_INFO_STREAM_NAMED("timing", "labels->image.at<uint8_t>(50, 50): " << labels->image.at<uint8_t>(50, 50));
@@ -214,11 +213,11 @@ namespace egocylindrical
           //   new_labels = false;
           // } else
           // {
-          RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Creating TerrainImageMeasurement");
-          // m = std::make_shared<TerrainImageMeasurement>(sc_, image, info, normals, &dii_); //    
+          // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Creating TerrainImageMeasurement");
+          m = std::make_shared<TerrainImageMeasurement>(sc_, image, info, normals, &dii_); //    
           // }
 
-          // cb_(m);
+          cb_(m);
         }
         else
         {
