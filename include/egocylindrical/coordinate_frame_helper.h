@@ -8,7 +8,7 @@
 
 #include "builtin_interfaces/msg/time.hpp"
 
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #include <mutex>
 
@@ -169,7 +169,7 @@ namespace egocylindrical
                 return tf_prefix_ + "egocan_camera";
             }
             
-            void desPoseCB(const geometry_msgs::msg::PoseStamped::ConstSharedPtr& pose)
+            void desPoseCB(const geometry_msgs::msg::PoseStamped::SharedPtr pose)
             {
                 cfd_.pose = *pose;
                 updateDefinition(cfd_);

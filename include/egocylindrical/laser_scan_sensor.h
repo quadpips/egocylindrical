@@ -85,7 +85,7 @@ namespace egocylindrical
         // Ensure that the scan is transformable
         scan_tf_filter = std::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, node_);
 
-        scan_tf_filter->registerCallback(std::bind(&LaserScanSensor::update, this, _1));
+        scan_tf_filter->registerCallback(std::bind(&LaserScanSensor::update, this, std::placeholders::_1));
       }
       
     protected:

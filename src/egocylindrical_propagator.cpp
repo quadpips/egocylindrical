@@ -207,7 +207,7 @@ namespace egocylindrical
 
         
         // reset_sub_ = nh_.subscribe<std_msgs::Empty>("reset", 1, [this](const std_msgs::Empty::ConstPtr&) { wrapper_buffer_.reset(2); });
-        reset_sub_ = node_->create_subscription<std_msgs::msg::Empty>("reset", 1, [this](const std_msgs::msg::Empty::ConstSharedPtr&) { wrapper_buffer_.reset(2); });
+        reset_sub_ = node_->create_subscription<std_msgs::msg::Empty>("reset", 1, [this](const std_msgs::msg::Empty::SharedPtr) { wrapper_buffer_.reset(2); });
 
         // Setup publishers
         // ros::SubscriberStatusCallback image_cb = std::bind(&EgoCylindricalPropagator::connectCB, this);        

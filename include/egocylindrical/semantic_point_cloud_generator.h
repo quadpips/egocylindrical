@@ -41,7 +41,7 @@ private:
     
     void ssCB();
 
-    void ecPointsCB(const egocylindrical_msgs::msg::EgoCylinderPoints::ConstSharedPtr& ec_msg);
+    void ecPointsCB(const egocylindrical_msgs::msg::EgoCylinderPoints::SharedPtr ec_msg);
 
 };
 

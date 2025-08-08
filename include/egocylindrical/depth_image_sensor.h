@@ -111,7 +111,7 @@ namespace egocylindrical
 
         // Synchronize Image and CameraInfo callbacks
         msg_sync_ = std::make_shared<MsgSynchronizer>(depth_sub_, *info_tf_filter, 2); //   
-        msg_sync_->registerCallback(std::bind(&DepthImageSensor::update, this, _1, _2)); //  
+        msg_sync_->registerCallback(std::bind(&DepthImageSensor::update, this, std::placeholders::_1, std::placeholders::_2)); //  
       }
       
     protected:
