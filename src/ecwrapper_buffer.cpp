@@ -26,7 +26,7 @@ namespace egocylindrical
       params.height = 120; // 80; // 120
       params.width = 256; // 128; // 256
       params.vfov = M_PI / 2.5; // M_PI / 3.0;
-      params.can_width = 512; // 512
+      params.can_width = 256; // 512
       params.v_offset = 0.0;
       params.cyl_radius = 1.0;
       return params;
