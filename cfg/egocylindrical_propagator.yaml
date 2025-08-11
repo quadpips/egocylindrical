@@ -2,9 +2,9 @@ egocylindrical_propagator_node:
   ros__parameters:
     use_sim_time: true
     sensors:
-      observation_sources: ["semantic_depth"]
-      semantic_depth:
-        type: semantic_depth
+      observation_sources: ["depth"] # ["semantic_depth"]
+      depth:
+        type: depth
         image_in: /camera/depth/image_raw
         info_in: /camera/depth/camera_info
         publish_update: true

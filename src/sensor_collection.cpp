@@ -146,7 +146,7 @@ namespace egocylindrical
             // };
             
             // std::vector<std::string> sensor_names = get_sensor_names3(); // sensor_root_nh
-            std::vector<std::string> sensor_names = { "semantic_depth" };
+            std::vector<std::string> sensor_names = { "depth" };
 
             for(const auto& name : sensor_names)
             {
