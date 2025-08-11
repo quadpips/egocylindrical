@@ -92,7 +92,9 @@ namespace egocylindrical
   {
     // ros::NodeHandle pnh_;
     rclcpp::Node::SharedPtr node_;
-    tf2_ros::Buffer& buffer_;
+
+    // tf2_ros::Buffer& buffer_;
+    std::shared_ptr<tf2_ros::Buffer> buffer_;
     
     utils::DepthImageInserter dii_;
     
@@ -118,7 +120,7 @@ namespace egocylindrical
     std::shared_ptr<MsgSynchronizer> msg_sync_;
 
   public:
-    SemanticDepthImageSensor(rclcpp::Node::SharedPtr node, tf2_ros::Buffer& buffer): // ros::NodeHandle pnh,
+    SemanticDepthImageSensor(rclcpp::Node::SharedPtr node, std::shared_ptr<tf2_ros::Buffer> buffer): // ros::NodeHandle pnh,
       node_(node),
       buffer_(buffer),
       dii_(buffer, node),
@@ -177,15 +179,15 @@ namespace egocylindrical
       // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using time filter with fixed frame ID: " << fixed_frame_id);
       
       // Ensure that the message is transformable
-      // std::chrono::duration<int> buffer_timeout(1);
-      // info_tf_filter = std::make_shared<TfFilter>(*time_filter_, buffer_, 
-      //                                             fixed_frame_id, 100, node_->get_node_logging_interface(),
-      //                                             node_->get_node_clock_interface(), buffer_timeout);
+      std::chrono::duration<int> buffer_timeout(1);
+      info_tf_filter = std::make_shared<TfFilter>(depth_info_sub_, *buffer_, 
+                                                  fixed_frame_id, 100, node_->get_node_logging_interface(),
+                                                  node_->get_node_clock_interface(), buffer_timeout);
 
       // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using TF filter with fixed frame ID: " << fixed_frame_id);
 
       // Synchronize Image and CameraInfo callbacks
-      msg_sync_ = std::make_shared<MsgSynchronizer>(depth_sub_, depth_info_sub_, normals_sub_, 3);
+      msg_sync_ = std::make_shared<MsgSynchronizer>(depth_sub_, *info_tf_filter, normals_sub_, 10);
       msg_sync_->registerCallback(std::bind(&SemanticDepthImageSensor::update, this, _1, _2, _3));
 
       // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using message synchronizer for depth, info, and normals topics");

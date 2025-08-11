@@ -11,7 +11,7 @@ namespace egocylindrical
 
     void EgoCylindricalPropagator::update(utils::SensorMeasurement& measurement)
     {
-        // RCLCPP_INFO_STREAM(node_->get_logger(), "[EgoCylindricalPropagator::update()]");
+        RCLCPP_INFO_STREAM(node_->get_logger(), "[EgoCylindricalPropagator::update()]");
 
         //TODO: Make ecwrapper pointers into local variables
         old_pts_ = wrapper_buffer_.getOld();
@@ -59,13 +59,13 @@ namespace egocylindrical
 
         // ros::WallTime// start = ros::WallTime::now();
         
-        if (!cfh_.updateTransforms(measurement_header))
+        if (!cfh_->updateTransforms(measurement_header))
         {
             RCLCPP_WARN_STREAM(node_->get_logger(), "Failed to update transforms!");
             return;
         }
 
-        std_msgs::msg::Header target_header = cfh_.getTargetHeader();
+        std_msgs::msg::Header target_header = cfh_->getTargetHeader();
         
         {
             if (old_pts_)
@@ -75,7 +75,7 @@ namespace egocylindrical
                     new_pts_ = wrapper_buffer_.getNew(); // adds nullptr
                     try
                     {
-                        pp_.transform(*old_pts_, *new_pts_, target_header); // , config_.num_threads
+                        pp_->transform(*old_pts_, *new_pts_, target_header); // , config_.num_threads
                     }
                     catch (tf2::TransformException &ex)
                     {
@@ -202,7 +202,7 @@ namespace egocylindrical
         // // ROS_INFO_STREAM_NAMED("update", "fixed_frame_id_: " << fixed_frame_id_);
 
 
-        cfh_.init();
+        cfh_->init();
         wrapper_buffer_.init();
 
         
@@ -225,22 +225,34 @@ namespace egocylindrical
           this->update(*measurement);
         };
 
-        sensors_.init(fixed_frame_id_, seq_cb);
-        pp_.init(fixed_frame_id_);
-        
+        sensors_->init(fixed_frame_id_, seq_cb);
+        pp_->init(fixed_frame_id_);
+
         return true;
     }
 
     EgoCylindricalPropagator::EgoCylindricalPropagator(rclcpp::Node::SharedPtr node):
         node_(node),
-        buffer_(node->get_clock()), // Initialize the buffer with the node's clock
-        tf_listener_(buffer_),
-        cfh_(buffer_, node_),
-        sensors_(node_, buffer_),
-        pp_(buffer_),
+        // buffer_(node->get_clock()), // Initialize the buffer with the node's clock
+        // tf_listener_(buffer_),
+        // cfh_(buffer_, node_),
+        // sensors_(node_, buffer_),
+        // pp_(buffer_),
         wrapper_buffer_(), // Initialize the wrapper buffer with default config
         should_reset_(false)
     {
+        // node_ = node;
+        buffer_ = std::make_shared<tf2_ros::Buffer>(node_->get_clock());
+        auto timer_interface = std::make_shared<tf2_ros::CreateTimerROS>(node_->get_node_base_interface(),
+                                                                            node_->get_node_timers_interface());
+        buffer_->setCreateTimerInterface(timer_interface);
+        tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*buffer_);
+
+        cfh_ = std::make_shared<utils::CoordinateFrameHelper>(buffer_, node_);
+        sensors_ = std::make_shared<utils::SensorCollection>(node_, buffer_);
+
+        pp_ = std::make_shared<utils::PointPropagator>(buffer_);
+
         // reconfigure_server_ = std::make_shared<ReconfigureServer>(node_);
     }
     

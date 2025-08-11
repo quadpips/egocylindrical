@@ -26,7 +26,9 @@ namespace egocylindrical
         class CoordinateFrameHelper
         {
         protected:
-            tf2_ros::Buffer& buffer_;
+            // tf2_ros::Buffer& buffer_;
+            std::shared_ptr<tf2_ros::Buffer> buffer_;
+
             std::string fixed_frame_id_;
             // ros::NodeHandle pnh_;
             rclcpp::Node::SharedPtr node_;
@@ -51,7 +53,7 @@ namespace egocylindrical
             
         public:
 
-            CoordinateFrameHelper(tf2_ros::Buffer& buffer, rclcpp::Node::SharedPtr node):
+            CoordinateFrameHelper(std::shared_ptr<tf2_ros::Buffer> buffer, rclcpp::Node::SharedPtr node):
                 buffer_(buffer),
                 node_(node),
                 // tf_br_(),
@@ -193,11 +195,13 @@ namespace egocylindrical
                     RCLCPP_WARN_STREAM(node_->get_logger(), "[updateECSTransform] Not publishing redundant transform! " << stamp.sec << "." << stamp.nanosec);
                     return true;
                 }
-                                              
+                 
+                RCLCPP_INFO_STREAM(node_->get_logger(), "Trying to transform from " << cfd_.origin_fixed_frame_id << " to " << cfd_.orientation_fixed_frame_id << " at " << stamp.sec << "." << stamp.nanosec);
                 try
                 {
-                    ecs_ = buffer_.lookupTransform(cfd_.orientation_fixed_frame_id, stamp, cfd_.origin_fixed_frame_id, stamp, fixed_frame_id_);
-                    
+                    ecs_ = buffer_->lookupTransform(cfd_.orientation_fixed_frame_id, stamp, 
+                                                    cfd_.origin_fixed_frame_id, stamp, fixed_frame_id_);
+
                     ecs_.transform.rotation = geometry_msgs::msg::Quaternion();
                     ecs_.transform.rotation.w=1;
                     ecs_.child_frame_id = tf_prefix_ + "egocan_stabilized";
@@ -211,7 +215,7 @@ namespace egocylindrical
                 RCLCPP_DEBUG_STREAM(node_->get_logger(), "[updateECSTransform] Updated transform! " << stamp.sec << "." << stamp.nanosec);
 
                 ecs_.header.stamp.nanosec += nano_second.nanosec;
-                buffer_.setTransform(ecs_, "coordinate_frame_helper", false);
+                buffer_->setTransform(ecs_, "coordinate_frame_helper", false);
                 ecs_.header.stamp.nanosec -= nano_second.nanosec;
                 tf_br_->sendTransform(ecs_);
                 
@@ -241,7 +245,7 @@ namespace egocylindrical
                 RCLCPP_INFO_STREAM(node_->get_logger(), "[updateECCTransform] Updated transform! " << stamp.sec << "." << stamp.nanosec);
 
                 ecc_.header.stamp.nanosec += nano_second.nanosec;
-                buffer_.setTransform(ecc_, "coordinate_frame_helper", false);
+                buffer_->setTransform(ecc_, "coordinate_frame_helper", false);
                 ecc_.header.stamp.nanosec -= nano_second.nanosec;
                 tf_br_->sendTransform(ecc_);
 
@@ -260,7 +264,7 @@ namespace egocylindrical
                     try
                     {
                         rclcpp::Time rosTime = rclcpp::Time(stamp);
-                        auto trans = buffer_.lookupTransform(getECSFrameId(), fixed_frame_id_, rosTime); // cfd_.pose,
+                        auto trans = buffer_->lookupTransform(getECSFrameId(), fixed_frame_id_, rosTime); // cfd_.pose,
                         tf2::doTransform(cfd_.pose, des_origin_pose, trans);
                     }
                     catch (tf2::TransformException &ex) 
@@ -307,7 +311,7 @@ namespace egocylindrical
 
                 RCLCPP_DEBUG_STREAM(node_->get_logger(), "[updateOffsetTransform] Updated transform! " << stamp.sec << "." << stamp.nanosec);
                 offset_transform_.header.stamp.nanosec += nano_second.nanosec;
-                buffer_.setTransform(offset_transform_, "coordinate_frame_helper", false);
+                buffer_->setTransform(offset_transform_, "coordinate_frame_helper", false);
                 offset_transform_.header.stamp.nanosec -= nano_second.nanosec;
                 tf_br_->sendTransform(offset_transform_);
 

@@ -25,7 +25,9 @@ namespace egocylindrical
         {
             std::string fixed_frame_id_;
             
-            tf2_ros::Buffer& buffer_;
+            // tf2_ros::Buffer& buffer_;
+            std::shared_ptr<tf2_ros::Buffer> buffer_;
+
             // ros::NodeHandle pnh_;
             rclcpp::Node::SharedPtr node_;
             //i mage_transport::ImageTransport it_;
@@ -36,7 +38,7 @@ namespace egocylindrical
             
         public:
 
-            SensorCollection(rclcpp::Node::SharedPtr node, tf2_ros::Buffer& buffer); // ros::NodeHandle pnh,
+            SensorCollection(rclcpp::Node::SharedPtr node, std::shared_ptr<tf2_ros::Buffer> buffer); // ros::NodeHandle pnh,
 
             bool init(std::string fixed_frame_id, callback_t& f);
             

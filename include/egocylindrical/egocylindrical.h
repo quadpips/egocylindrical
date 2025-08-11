@@ -13,6 +13,9 @@
 #include <pcl_conversions/pcl_conversions.h>
 
 #include <tf2_ros/transform_listener.h>
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/message_filter.h>
+#include <tf2_ros/create_timer_ros.h>
 
 
 // #include <dynamic_reconfigure/server.h>
@@ -52,22 +55,22 @@ private:
     rclcpp::Node::SharedPtr node_;
 
 protected:
-    tf2_ros::Buffer buffer_;
+    // tf2_ros::Buffer buffer_;
     std::string fixed_frame_id_;
   
-    // std::unique_ptr<tf2_ros::Buffer> buffer_;
+    std::shared_ptr<tf2_ros::Buffer> buffer_;
 
 private:
-    tf2_ros::TransformListener tf_listener_;
+    std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
     // std::shared_ptr<tf2_ros::TransformListener> tf_listener_{nullptr};
 
-    utils::CoordinateFrameHelper cfh_;
+    std::shared_ptr<utils::CoordinateFrameHelper> cfh_;
 
     //image_transport::ImageTransport it_;
-    utils::SensorCollection sensors_;
+    std::shared_ptr<utils::SensorCollection> sensors_;
     //utils::LaserScanSensor lss_;
     //utils::DepthImageSensor dis_;
-    utils::PointPropagator pp_;
+    std::shared_ptr<utils::PointPropagator> pp_;
     ECWrapperBuffer wrapper_buffer_;
 
     rclcpp::Publisher<egocylindrical_msgs::msg::EgoCylinderPoints>::SharedPtr ec_pub_; 
