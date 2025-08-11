@@ -148,7 +148,7 @@ namespace egocylindrical
             // std::vector<std::string> sensor_names = get_sensor_names3(); // sensor_root_nh
             std::vector<std::string> sensor_names = { "semantic_depth" };
 
-            for(const auto& name : sensor_names)
+            for (const auto& name : sensor_names)
             {
                 //auto sensor_nh = ros::NodeHandle(sensor_root_nh, name);
                 SensorInterface::Ptr sensor = createSensor(node_, name, buffer_); // sensor_root_nh, 
