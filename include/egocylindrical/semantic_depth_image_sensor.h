@@ -168,19 +168,14 @@ namespace egocylindrical
       // RCLCPP_INFO_STREAM_NAMED("update", "labels_topic: " << labels_topic);
       // RCLCPP_INFO_STREAM_NAMED("update", "normals_topic: " << normals_topic);
 
-      // auto timer_interface = std::make_shared<tf2_ros::CreateTimerROS>(
-      //       node_->get_node_base_interface(),
-      //       node_->get_node_timers_interface());
-      // buffer_.setCreateTimerInterface(timer_interface);
-
       // // Filter out images with duplicate time stamps
-      // time_filter_ = std::make_shared<TimeFilter_t>(node_, depth_info_sub_);
+      time_filter_ = std::make_shared<TimeFilter_t>(node_, depth_info_sub_);
 
       // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using time filter with fixed frame ID: " << fixed_frame_id);
       
       // Ensure that the message is transformable
       std::chrono::duration<int> buffer_timeout(1);
-      info_tf_filter = std::make_shared<TfFilter>(depth_info_sub_, *buffer_, 
+      info_tf_filter = std::make_shared<TfFilter>(*time_filter_, *buffer_, 
                                                   fixed_frame_id, 100, node_->get_node_logging_interface(),
                                                   node_->get_node_clock_interface(), buffer_timeout);
 
@@ -227,7 +222,7 @@ namespace egocylindrical
           //   new_labels = false;
           // } else
           // {
-          RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Creating TerrainImageMeasurement");
+          // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Creating TerrainImageMeasurement");
           m = std::make_shared<TerrainImageMeasurement>(sc_, image, info, normals, &dii_); //    
           // }
 

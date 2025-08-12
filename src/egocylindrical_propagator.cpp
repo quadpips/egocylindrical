@@ -11,7 +11,7 @@ namespace egocylindrical
 
     void EgoCylindricalPropagator::update(utils::SensorMeasurement& measurement)
     {
-        RCLCPP_INFO_STREAM(node_->get_logger(), "[EgoCylindricalPropagator::update()]");
+        // RCLCPP_INFO_STREAM(node_->get_logger(), "[EgoCylindricalPropagator::update()]");
 
         //TODO: Make ecwrapper pointers into local variables
         old_pts_ = wrapper_buffer_.getOld();
@@ -46,10 +46,10 @@ namespace egocylindrical
         }
         
                 
-        if (old_pts_)
-        {
-            // ROS_DEBUG_STREAM_NAMED("msg_timestamps","Previous stamp " << old_pts_->getHeader().stamp);
-        }
+        // if (old_pts_)
+        // {
+        //     // ROS_DEBUG_STREAM_NAMED("msg_timestamps","Previous stamp " << old_pts_->getHeader().stamp);
+        // }
 
         //TODO: Warn of out-of-order images
         //TODO: If clock jumps back in time, reset egocylinder

@@ -97,6 +97,8 @@ namespace egocylindrical
             {
                 Lock lock(cfd_mutex_);
 
+                // RCLCPP_INFO_STREAM(node_->get_logger(), "[updateTransforms] sensor_header: " << sensor_header.frame_id << " at " << sensor_header.stamp.sec << "." << sensor_header.stamp.nanosec);
+
                 //TODO: Lock a recursive mutex?
                 //TODO: possibly only specify orientation fixed frame, since should really be using same origin as the camera regardless
                 if (cfd_.orientation_fixed_frame_id=="" || cfd_.origin_fixed_frame_id=="")
