@@ -29,7 +29,7 @@ public:
     
     if (res)
     {
-      RCLCPP_WARN_STREAM(node_->get_logger(), "Resetting detector: New clock time (" << cur_time.seconds() << "." << cur_time.nanoseconds() << ") is older than previous value (" << last_clock_time_.seconds() << "." << last_clock_time_.nanoseconds() << ") by more greater than [" << threshold_.seconds() << "]");
+      RCLCPP_WARN_STREAM(node_->get_logger(), "Resetting detector: New clock time (" << cur_time.nanoseconds() << ") is older than previous value (" << last_clock_time_.nanoseconds() << ") by more greater than [" << threshold_.seconds() << "]");
       cur_time = node_->get_clock()->now(); // rclcpp::Time();
     }
     last_clock_time_ = cur_time;
