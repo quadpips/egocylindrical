@@ -181,7 +181,7 @@ namespace egocylindrical
 
             bool updateECSTransform(builtin_interfaces::msg::Time stamp)
             {
-                RCLCPP_INFO_STREAM(node_->get_logger(), "[updateECSTransform]");
+                // RCLCPP_INFO_STREAM(node_->get_logger(), "[updateECSTransform]");
 
                 // TODO: Lock a mutex
               
@@ -198,7 +198,7 @@ namespace egocylindrical
                     return true;
                 }
                  
-                RCLCPP_INFO_STREAM(node_->get_logger(), "Trying to transform from " << cfd_.origin_fixed_frame_id << " to " << cfd_.orientation_fixed_frame_id << " at " << stamp.sec << "." << stamp.nanosec);
+                // RCLCPP_INFO_STREAM(node_->get_logger(), "Trying to transform from " << cfd_.origin_fixed_frame_id << " to " << cfd_.orientation_fixed_frame_id << " at " << stamp.sec << "." << stamp.nanosec);
                 try
                 {
                     ecs_ = buffer_->lookupTransform(cfd_.orientation_fixed_frame_id, stamp, 
@@ -214,7 +214,7 @@ namespace egocylindrical
                     return false;
                 }
 
-                RCLCPP_DEBUG_STREAM(node_->get_logger(), "[updateECSTransform] Updated transform! " << stamp.sec << "." << stamp.nanosec);
+                // RCLCPP_DEBUG_STREAM(node_->get_logger(), "[updateECSTransform] Updated transform! " << stamp.sec << "." << stamp.nanosec);
 
                 ecs_.header.stamp.nanosec += nano_second.nanosec;
                 buffer_->setTransform(ecs_, "coordinate_frame_helper", false);
@@ -256,11 +256,11 @@ namespace egocylindrical
 
             bool updateOffsetTransform(builtin_interfaces::msg::Time stamp)
             {
-                RCLCPP_INFO_STREAM(node_->get_logger(), "[updateOffsetTransform]");
+                // RCLCPP_INFO_STREAM(node_->get_logger(), "[updateOffsetTransform]");
 
                 if (new_cfd_)
                 {
-                    RCLCPP_INFO_STREAM(node_->get_logger(), "[updateOffsetTransform] Have new CoordinateFrameDefinition!");
+                    // RCLCPP_INFO_STREAM(node_->get_logger(), "[updateOffsetTransform] Have new CoordinateFrameDefinition!");
                     
                     geometry_msgs::msg::PoseStamped des_origin_pose;
                     try
