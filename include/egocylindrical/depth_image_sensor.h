@@ -7,6 +7,7 @@
 #include <egocylindrical/time_filter.h>
 #include <image_transport/subscriber_filter.hpp>
 #include <tf2_ros/message_filter.h>
+#include "tf2_ros/create_timer_ros.h"
 
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
@@ -53,7 +54,9 @@ namespace egocylindrical
       // ros::NodeHandle pnh_;
       rclcpp::Node::SharedPtr node_;
 
-      tf2_ros::Buffer& buffer_;
+      // tf2_ros::Buffer& buffer_;
+      std::shared_ptr<tf2_ros::Buffer> buffer_;
+
       
       utils::DepthImageInserter dii_;
       
@@ -71,7 +74,7 @@ namespace egocylindrical
       std::shared_ptr<MsgSynchronizer> msg_sync_;
       
     public:
-      DepthImageSensor(rclcpp::Node::SharedPtr node, tf2_ros::Buffer& buffer):
+      DepthImageSensor(rclcpp::Node::SharedPtr node, std::shared_ptr<tf2_ros::Buffer> buffer):
         node_(node),
         buffer_(buffer),
         dii_(buffer, node),
@@ -100,27 +103,41 @@ namespace egocylindrical
         dii_.init(fixed_frame_id);
         
         //Set up publishers/subscribers and any necessary filters
-        depth_sub_.subscribe(node_.get(), depth_topic, "compressed");
-        depth_info_sub_.subscribe(node_.get(), info_topic); // , "compressed"
+        rmw_qos_profile_t qos = rmw_qos_profile_default;
+        qos.depth = 3; // TODO: Make this a parameter
 
-        //Filter out images with duplicate time stamps
-        time_filter_ = std::make_shared<TimeFilter_t>(node_, depth_info_sub_);
-        
+        depth_sub_.subscribe(node_.get(), depth_topic, "raw", qos);
+        depth_info_sub_.subscribe(node_.get(), info_topic, qos); // , 3
+
+        // auto timer_interface = std::make_shared<tf2_ros::CreateTimerROS>(
+        //       node_->get_node_base_interface(),
+        //       node_->get_node_timers_interface());
+        // buffer_.setCreateTimerInterface(timer_interface);
+
+        // Filter out images with duplicate time stamps
+        // time_filter_ = std::make_shared<TimeFilter_t>(node_, depth_info_sub_);
+
         // Ensure that the message is transformable
-        info_tf_filter = std::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, node_);
+        std::chrono::duration<int> buffer_timeout(1);
+        info_tf_filter = std::make_shared<TfFilter>(depth_info_sub_, *buffer_, 
+                                                    fixed_frame_id, 100, node_->get_node_logging_interface(),
+                                                    node_->get_node_clock_interface(), buffer_timeout);
 
         // Synchronize Image and CameraInfo callbacks
-        msg_sync_ = std::make_shared<MsgSynchronizer>(depth_sub_, *info_tf_filter, 2); //   
-        msg_sync_->registerCallback(std::bind(&DepthImageSensor::update, this, std::placeholders::_1, std::placeholders::_2)); //  
+        msg_sync_ = std::make_shared<MsgSynchronizer>(depth_sub_, *info_tf_filter, 10); //   
+        msg_sync_->registerCallback(std::bind(&DepthImageSensor::update, this, _1, _2)); //  
       }
       
     protected:
       void update(const sensor_msgs::msg::Image::ConstSharedPtr& image, 
                   const sensor_msgs::msg::CameraInfo::ConstSharedPtr& info) // , 
       {
-        // ROS_INFO_STREAM_NAMED("timing", "image timestamp: " << image->header.stamp);
-        // ROS_INFO_STREAM_NAMED("timing", "info timestamp: " << info->header.stamp);
-
+        // Process the image and camera info messages here
+        RCLCPP_INFO_STREAM(node_->get_logger(), "Received image (" << image->header.stamp.sec << "." << 
+                                                                image->header.stamp.nanosec << 
+                                                                ") and camera info at: " << 
+                                                                info->header.stamp.sec << 
+                                                                "." << info->header.stamp.nanosec << ")");
         if (cb_)
         {
           auto m = std::make_shared<DepthImageMeasurement>(sc_, image, info, &dii_);  

@@ -152,7 +152,7 @@ namespace egocylindrical
 
       
 
-        LaserScanInserter::LaserScanInserter(tf2_ros::Buffer& buffer, rclcpp::Node::SharedPtr node): // , ros::NodeHandle pnh
+        LaserScanInserter::LaserScanInserter(std::shared_ptr<tf2_ros::Buffer> buffer, rclcpp::Node::SharedPtr node): // , ros::NodeHandle pnh
           buffer_(buffer),
           node_(node)
           // pnh_(pnh)
@@ -185,7 +185,7 @@ namespace egocylindrical
             geometry_msgs::msg::TransformStamped transform;
             try
             {
-                transform = buffer_.lookupTransform(target_header.frame_id, target_header.stamp, source_header.frame_id, source_header.stamp, fixed_frame_id_);
+                transform = buffer_->lookupTransform(target_header.frame_id, target_header.stamp, source_header.frame_id, source_header.stamp, fixed_frame_id_);
             }
             catch (tf2::TransformException &ex) 
             {

@@ -37,7 +37,7 @@ namespace utils
     class PointPropagator
     {
     public:
-      PointPropagator(tf2_ros::Buffer& buffer);
+      PointPropagator(std::shared_ptr<tf2_ros::Buffer> buffer);
       
       bool init(std::string fixed_frame_id);
       
@@ -45,7 +45,9 @@ namespace utils
       
     protected:
       std::string fixed_frame_id_;
-      tf2_ros::Buffer& buffer_;
+      // tf2_ros::Buffer& buffer_;
+      std::shared_ptr<tf2_ros::Buffer> buffer_;
+
       utils::ECWrapper::Ptr transformed_pts_;
       int num_threads_ = 1; // Default to single-threaded, can be set externally
     };

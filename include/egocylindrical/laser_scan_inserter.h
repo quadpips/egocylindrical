@@ -16,13 +16,15 @@ namespace egocylindrical
 
         class LaserScanInserter
         {
-            tf2_ros::Buffer& buffer_;
+            // tf2_ros::Buffer& buffer_;
+            std::shared_ptr<tf2_ros::Buffer> buffer_;
+
             // ros::NodeHandle pnh_;
             rclcpp::Node::SharedPtr node_;
             std::string fixed_frame_id_;
           
         public:
-            LaserScanInserter(tf2_ros::Buffer& buffer, rclcpp::Node::SharedPtr node);
+            LaserScanInserter(std::shared_ptr<tf2_ros::Buffer> buffer, rclcpp::Node::SharedPtr node);
             
             bool init();
             

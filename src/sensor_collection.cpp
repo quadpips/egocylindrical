@@ -26,7 +26,7 @@ namespace egocylindrical
 {
     namespace utils 
     {
-        SensorInterface::Ptr createSensor(rclcpp::Node::SharedPtr node, std::string name, tf2_ros::Buffer& buffer) // ros::NodeHandle nh, 
+        SensorInterface::Ptr createSensor(rclcpp::Node::SharedPtr node, std::string name, std::shared_ptr<tf2_ros::Buffer> buffer) // ros::NodeHandle nh, 
         {
             // ROS_INFO_STREAM("Creating sensor [" << name << "]");
             // auto sensor_nh = ros::NodeHandle(nh, name);
@@ -72,7 +72,7 @@ namespace egocylindrical
         }
 
 
-        SensorCollection::SensorCollection(rclcpp::Node::SharedPtr node, tf2_ros::Buffer& buffer):
+        SensorCollection::SensorCollection(rclcpp::Node::SharedPtr node, std::shared_ptr<tf2_ros::Buffer> buffer):
             buffer_(buffer),
             node_(node)
             // pnh_(pnh)
@@ -148,7 +148,7 @@ namespace egocylindrical
             // std::vector<std::string> sensor_names = get_sensor_names3(); // sensor_root_nh
             std::vector<std::string> sensor_names = { "semantic_depth" };
 
-            for(const auto& name : sensor_names)
+            for (const auto& name : sensor_names)
             {
                 //auto sensor_nh = ros::NodeHandle(sensor_root_nh, name);
                 SensorInterface::Ptr sensor = createSensor(node_, name, buffer_); // sensor_root_nh, 

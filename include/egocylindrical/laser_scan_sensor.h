@@ -39,7 +39,9 @@ namespace egocylindrical
       // ros::NodeHandle pnh_;
       rclcpp::Node::SharedPtr node_;
 
-      tf2_ros::Buffer& buffer_;
+      // tf2_ros::Buffer& buffer_;
+      std::shared_ptr<tf2_ros::Buffer> buffer_;
+
       
       LaserScanInserter lsi_;
       
@@ -52,7 +54,7 @@ namespace egocylindrical
       std::shared_ptr<TfFilter> scan_tf_filter;
       
     public:
-      LaserScanSensor(rclcpp::Node::SharedPtr node, tf2_ros::Buffer& buffer):
+      LaserScanSensor(rclcpp::Node::SharedPtr node, std::shared_ptr<tf2_ros::Buffer> buffer):
         node_(node),
         buffer_(buffer),
         lsi_(buffer, node)
@@ -83,7 +85,7 @@ namespace egocylindrical
         time_filter_ = std::make_shared<TimeFilter_t>(node_, scan_sub_);
 
         // Ensure that the scan is transformable
-        scan_tf_filter = std::make_shared<TfFilter>(*time_filter_, buffer_, fixed_frame_id, 2, node_);
+        scan_tf_filter = std::make_shared<TfFilter>(*time_filter_, *buffer_, fixed_frame_id, 2, node_);
 
         scan_tf_filter->registerCallback(std::bind(&LaserScanSensor::update, this, std::placeholders::_1));
       }

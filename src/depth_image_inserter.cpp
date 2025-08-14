@@ -925,7 +925,7 @@ namespace egocylindrical
             }
         }
 
-        DepthImageInserter::DepthImageInserter(tf2_ros::Buffer& buffer, rclcpp::Node::SharedPtr node):
+        DepthImageInserter::DepthImageInserter(std::shared_ptr<tf2_ros::Buffer> buffer, rclcpp::Node::SharedPtr node):
             buffer_(buffer),
             node_(node)
             // pnh_(pnh)
@@ -982,7 +982,7 @@ namespace egocylindrical
             geometry_msgs::msg::TransformStamped transform;
             try
             {
-                transform = buffer_.lookupTransform(target_header.frame_id, target_header.stamp, source_header.frame_id, source_header.stamp, fixed_frame_id_);
+                transform = buffer_->lookupTransform(target_header.frame_id, target_header.stamp, source_header.frame_id, source_header.stamp, fixed_frame_id_);
             }
             catch (tf2::TransformException &ex) 
             {
@@ -1044,7 +1044,7 @@ namespace egocylindrical
             geometry_msgs::msg::TransformStamped transform;
             try
             {
-                transform = buffer_.lookupTransform(target_header.frame_id, target_header.stamp, source_header.frame_id, source_header.stamp, fixed_frame_id_);
+                transform = buffer_->lookupTransform(target_header.frame_id, target_header.stamp, source_header.frame_id, source_header.stamp, fixed_frame_id_);
             }
             catch (tf2::TransformException &ex) 
             {
@@ -1106,7 +1106,7 @@ namespace egocylindrical
             geometry_msgs::msg::TransformStamped transform;
             try
             {
-                transform = buffer_.lookupTransform(target_header.frame_id, target_header.stamp, 
+                transform = buffer_->lookupTransform(target_header.frame_id, target_header.stamp, 
                                                     source_header.frame_id, source_header.stamp, fixed_frame_id_);
             }
             catch (tf2::TransformException &ex) 

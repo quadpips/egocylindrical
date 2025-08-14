@@ -24,7 +24,9 @@ namespace egocylindrical
 
         class DepthImageInserter
         {
-            tf2_ros::Buffer& buffer_;
+            // tf2_ros::Buffer& buffer_;
+            std::shared_ptr<tf2_ros::Buffer> buffer_;
+
             std::string fixed_frame_id_;
             // ros::NodeHandle pnh_;
             rclcpp::Node::SharedPtr node_;
@@ -36,8 +38,8 @@ namespace egocylindrical
             DIDiffDebuggingPublisher debug_pub_;
           
         public:
-            DepthImageInserter(tf2_ros::Buffer& buffer, rclcpp::Node::SharedPtr node);
-            
+            DepthImageInserter(std::shared_ptr<tf2_ros::Buffer> buffer, rclcpp::Node::SharedPtr node);
+
             bool init();
             bool init(std::string fixed_frame_id);
 

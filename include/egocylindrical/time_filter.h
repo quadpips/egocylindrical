@@ -47,7 +47,7 @@ public:
     //  stamp(timestamp.sec, timestamp.nanosec);
     if (timestamp <= last_msg_time_)
     {
-      RCLCPP_DEBUG_STREAM(node_->get_logger(), "Dropping message with timestamp: " << timestamp.seconds() << "." << timestamp.nanoseconds() << ", not newer than last message: " << last_msg_time_.seconds() << "." << last_msg_time_.nanoseconds());
+      RCLCPP_DEBUG_STREAM(node_->get_logger(), "Dropping message with timestamp: " << timestamp.nanoseconds() << ", not newer than last message: " << last_msg_time_.nanoseconds());
       return;
     }
     else
