@@ -113,6 +113,24 @@ def generate_launch_description():
         ]
     )
 
+    range_image_node = Node(
+        package="egocylindrical",
+        executable="range_image_node",
+        name="egocylindrical_to_range_image",
+        output="screen",
+        remappings=[
+            ('egocylindrical_points', 'data'),
+        ],
+        parameters=[
+            {
+                'use_sim_time': True,  # Use simulation time if available
+                'use_raw': False,
+                'image_topic': 'image',
+                'can_image_topic': 'can_image'
+            }
+        ]
+    )
+
     ###########################
     # Full Launch Description #
     ###########################
@@ -122,6 +140,7 @@ def generate_launch_description():
             egocylindrical_propagator_node,
             point_cloud_node,
             projected_point_cloud_node,
+            range_image_node,
             # semantic_point_cloud_node,
             normal_point_cloud_node,
             floor_image_node,

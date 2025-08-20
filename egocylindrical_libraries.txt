@@ -40,22 +40,6 @@ target_link_libraries(normal_point_cloud_floor_only_node
    ${OpenMP_CXX_FLAGS}
    )
 
-#RANGE_IMAGE_GENERATOR
-add_library(range_image_generator src/range_image_generator.cpp)
-target_link_libraries(range_image_generator
-   range_image_core
-   can_image_core
-   ${catkin_LIBRARIES}
-   ${OpenMP_CXX_FLAGS}
-   )
-
-#RANGE_IMAGE_NODE
-add_executable(range_image_node src/range_image_node.cpp)
-target_link_libraries(range_image_node
-   range_image_generator
-   ${catkin_LIBRARIES}
-   )
-  
 #RANGE_IMAGE_NODELET
 add_library(range_image_nodelet MODULE src/range_image_nodelet.cpp)
 target_link_libraries(range_image_nodelet
