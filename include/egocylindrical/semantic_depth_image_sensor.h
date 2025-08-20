@@ -183,7 +183,7 @@ namespace egocylindrical
 
       // Synchronize Image and CameraInfo callbacks
       msg_sync_ = std::make_shared<MsgSynchronizer>(depth_sub_, depth_info_sub_, normals_sub_, 10);
-      msg_sync_->registerCallback(std::bind(&SemanticDepthImageSensor::update, this, _1, _2, _3));
+      msg_sync_->registerCallback(std::bind(&SemanticDepthImageSensor::update, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
       // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using message synchronizer for depth, info, and normals topics");
 
