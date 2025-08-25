@@ -30,6 +30,7 @@ set(dependencies
       tf2_sensor_msgs
       tf2_geometry_msgs
       rosidl_default_generators
+      depth_img_normal_estimation
       # message_generation
       # dynamic_reconfigure
       # benchmarking_tools #Probably just temporary to avoid adding any custom dependencies to this package.

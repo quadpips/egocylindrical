@@ -82,7 +82,8 @@
 
   <depend>egocylindrical_msgs</depend>
   <depend>tf2_geometry_msgs</depend>
-  
+  <depend>depth_img_normal_estimation</depend>
+    
   <member_of_group>rosidl_interface_packages</member_of_group>
 
   <export>
