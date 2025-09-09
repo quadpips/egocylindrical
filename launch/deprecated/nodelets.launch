@@ -4,8 +4,8 @@
   <arg name="nodelet_manager" default="egocylindrical_nodelet_manager" unless="$(arg use_provided_manager)" />
   <arg name="nodelet_manager" default="$(arg provided_manager)" if="$(arg use_provided_manager)" />
 
-  <arg name="depth_image" default="/camera/depth/image_raw"/>
-  <arg name="depth_info" default="/camera/depth/camera_info"/>
+  <arg name="depth_image" default="/D435/depth/image_rect_raw"/>
+  <arg name="depth_info" default="/D435/depth/camera_info"/>
   <arg name="fixed_frame_id" default="odom"/>
 
   
@@ -15,7 +15,7 @@
     </node>
 
     <node name="depth_to_egocylindrical_nodelet" pkg="nodelet" type="nodelet" args="load egocylindrical/egocylindrical_propagator_nodelet $(arg nodelet_manager)" >
-     <!-- <remap from="/camera/depth/image_raw" to="$(arg depth_image)"/> -->
+     <!-- <remap from="/D435/depth/image_rect_raw" to="$(arg depth_image)"/> -->
       <param name="image_in" value="$(arg depth_image)"/>
       <param name="info_in" value="$(arg depth_info)"/>
       <param name="points_out" value="data"/>

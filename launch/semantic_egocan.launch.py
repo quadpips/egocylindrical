@@ -23,7 +23,7 @@ def generate_launch_description():
         'cfg',
         'egocylindrical_propagator.yaml')
 
-    set_use_sim_time = launch_ros.actions.SetParameter(name='use_sim_time', value=True)
+    set_use_sim_time = launch_ros.actions.SetParameter(name='use_sim_time', value=False)
 
     #################
     # Include Nodes #
@@ -47,7 +47,7 @@ def generate_launch_description():
         ],
         parameters=[
             {
-                'use_sim_time': True,  # Use simulation time if available
+                'use_sim_time': False,  # Use simulation time if available
             }
         ]
     )
@@ -62,7 +62,7 @@ def generate_launch_description():
         ],
         parameters=[
             {
-                'use_sim_time': True,  # Use simulation time if available
+                'use_sim_time': False,  # Use simulation time if available
             }
         ]
     )
@@ -87,7 +87,7 @@ def generate_launch_description():
         ],
         parameters=[
             {
-                'use_sim_time': True,  # Use simulation time if available
+                'use_sim_time': False,  # Use simulation time if available
             }
         ]
     )
@@ -102,7 +102,7 @@ def generate_launch_description():
         ],
         parameters=[
             {
-            'use_sim_time': True,  # Use simulation time if available
+            'use_sim_time': False,  # Use simulation time if available
             'use_raw': False,
             'floor_image_topic': 'floor_image',
             'floor_labels_topic': 'floor_labels',

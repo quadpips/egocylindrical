@@ -1,6 +1,6 @@
 <launch>
-  <arg name="depth_image" default="/camera/depth/image_raw"/>
-  <arg name="depth_info" default="/camera/depth/camera_info"/>
+  <arg name="depth_image" default="/D435/depth/image_rect_raw"/>
+  <arg name="depth_info" default="/D435/depth/camera_info"/>
   <arg name="scan_topic" default="/scan"/>
   <arg name="fixed_frame_id" default="map"/>
   

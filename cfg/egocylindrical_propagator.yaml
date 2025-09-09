@@ -5,14 +5,14 @@ egocylindrical_propagator_node:
       observation_sources: ["semantic_depth"]
       semantic_depth:
         type: semantic_depth
-        image_in: /camera/depth/image_raw
-        info_in: /camera/depth/camera_info
+        image_in: /D435/depth/image_rect_raw
+        info_in: /D435/depth/camera_info
         publish_update: true
         raytrace: true
     points_out: data
     filtered_points: filtered_points
     fixed_frame_id: odom
     orientation_fixed_frame_id: base_aligned
-    origin_fixed_frame_id: camera_depth_optical_frame
+    origin_fixed_frame_id: D435_depth_optical_frame
     width: 256
     height: 120

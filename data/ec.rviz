@@ -280,7 +280,7 @@ Visualization Manager:
     - Class: rviz/Camera
       Enabled: true
       Image Rendering: background and overlay
-      Image Topic: /camera/depth/image_raw
+      Image Topic: /D435/depth/image_rect_raw
       Name: Depth Camera
       Overlay Alpha: 0.5
       Queue Size: 2

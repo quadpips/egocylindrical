@@ -1,5 +1,5 @@
 <launch>
-  <arg name="depth_image" default="/camera/depth/image_raw"/>
+  <arg name="depth_image" default="/D435/depth/image_rect_raw"/>
   <arg name="depth_info" default=""/>
   <arg name="scan_topic" default="/scan"/>
   <arg name="fixed_frame_id" default="odom"/>
