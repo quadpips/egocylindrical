@@ -140,7 +140,7 @@ namespace egocylindrical
       //Load implementation parameters
       std::string depth_topic="/D435/depth/image_rect_raw", 
                   info_topic= "/D435/depth/camera_info",
-                  normals_topic="/camera/normals",
+                  normals_topic="/D435/normals",
                   labels_topic="/camera/steppability/labels";
       node_->get_parameter("image_in", depth_topic);
       node_->get_parameter("info_in", info_topic);

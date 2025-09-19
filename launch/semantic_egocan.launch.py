@@ -36,36 +36,36 @@ def generate_launch_description():
         parameters=[egocylindrical_propagator_config]
     )
 
-    point_cloud_node = Node(
-        package="egocylindrical",
-        executable="point_cloud_node",
-        name="point_cloud_node",
-        output="screen",
-        remappings=[
-            ('egocylindrical_points', 'data'),
-            ('cylindrical', 'points'),
-        ],
-        parameters=[
-            {
-                'use_sim_time': False,  # Use simulation time if available
-            }
-        ]
-    )
+    # point_cloud_node = Node(
+    #     package="egocylindrical",
+    #     executable="point_cloud_node",
+    #     name="point_cloud_node",
+    #     output="screen",
+    #     remappings=[
+    #         ('egocylindrical_points', 'data'),
+    #         ('cylindrical', 'points'),
+    #     ],
+    #     parameters=[
+    #         {
+    #             'use_sim_time': False,  # Use simulation time if available
+    #         }
+    #     ]
+    # )
 
-    projected_point_cloud_node = Node(
-        package="egocylindrical",
-        executable="projected_point_cloud_node",
-        name="projected_point_cloud_node",
-        output="screen",
-        remappings=[
-            ('egocylindrical_points', 'data'),
-        ],
-        parameters=[
-            {
-                'use_sim_time': False,  # Use simulation time if available
-            }
-        ]
-    )
+    # projected_point_cloud_node = Node(
+    #     package="egocylindrical",
+    #     executable="projected_point_cloud_node",
+    #     name="projected_point_cloud_node",
+    #     output="screen",
+    #     remappings=[
+    #         ('egocylindrical_points', 'data'),
+    #     ],
+    #     parameters=[
+    #         {
+    #             'use_sim_time': False,  # Use simulation time if available
+    #         }
+    #     ]
+    # )
 
     # semantic_point_cloud_node = Node(
     #     package="egocylindrical",
@@ -77,20 +77,20 @@ def generate_launch_description():
     #     ],
     # )
 
-    normal_point_cloud_node = Node(
-        package="egocylindrical",
-        executable="normal_point_cloud_node",
-        name="normal_point_cloud_node",
-        output="screen",
-        remappings=[
-            ('egocylindrical_points', 'data'),
-        ],
-        parameters=[
-            {
-                'use_sim_time': False,  # Use simulation time if available
-            }
-        ]
-    )
+    # normal_point_cloud_node = Node(
+        # package="egocylindrical",
+        # executable="normal_point_cloud_node",
+        # name="normal_point_cloud_node",
+        # output="screen",
+        # remappings=[
+            # ('egocylindrical_points', 'data'),
+        # ],
+        # parameters=[
+            # {
+                # 'use_sim_time': False,  # Use simulation time if available
+            # }
+        # ]
+    # )
 
     floor_image_node = Node(
         package="egocylindrical",
@@ -120,10 +120,10 @@ def generate_launch_description():
         [
             set_use_sim_time,
             egocylindrical_propagator_node,
-            point_cloud_node,
-            projected_point_cloud_node,
+            # point_cloud_node,
+            # projected_point_cloud_node,
             # semantic_point_cloud_node,
-            normal_point_cloud_node,
+            # normal_point_cloud_node,
             floor_image_node,
         ]
     )
