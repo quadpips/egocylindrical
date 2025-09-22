@@ -226,7 +226,7 @@ namespace egocylindrical
 
             bool updateECCTransform(builtin_interfaces::msg::Time stamp)
             {
-                RCLCPP_INFO_STREAM(node_->get_logger(), "[updateECCTransform]");
+                // RCLCPP_INFO_STREAM(node_->get_logger(), "[updateECCTransform]");
 
                 if (stamp == ecc_.header.stamp && stamp != builtin_interfaces::msg::Time())
                 {
@@ -244,7 +244,7 @@ namespace egocylindrical
                 q.z=-0.500;
                 q.w=0.500;
 
-                RCLCPP_INFO_STREAM(node_->get_logger(), "[updateECCTransform] Updated transform! " << stamp.sec << "." << stamp.nanosec);
+                // RCLCPP_INFO_STREAM(node_->get_logger(), "[updateECCTransform] Updated transform! " << stamp.sec << "." << stamp.nanosec);
 
                 ecc_.header.stamp.nanosec += nano_second.nanosec;
                 buffer_->setTransform(ecc_, "coordinate_frame_helper", false);
