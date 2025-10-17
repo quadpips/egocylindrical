@@ -30,6 +30,7 @@ set(dependencies
       tf2_sensor_msgs
       tf2_geometry_msgs
       rosidl_default_generators
+      depth_img_normal_estimation
       # message_generation
       # dynamic_reconfigure
       # benchmarking_tools #Probably just temporary to avoid adding any custom dependencies to this package.
@@ -346,34 +347,45 @@ target_link_libraries(semantic_point_cloud_node
 add_library(normal_point_cloud_generator src/normal_point_cloud_generator.cpp)
 target_link_libraries(normal_point_cloud_generator
    normal_point_cloud_core
-   ${catkin_LIBRARIES}
    )
 
 #NORMAL_POINT_CLOUD_NODE
 add_executable(normal_point_cloud_node src/normal_point_cloud_node.cpp)
 target_link_libraries(normal_point_cloud_node
    normal_point_cloud_generator
-   ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
    ${PCL_LIBRARIES}
    ${OpenMP_CXX_FLAGS}
-   )
+)
 
 #FLOOR_IMAGE_GENERATOR
 add_library(floor_image_generator src/floor_image_generator.cpp)
 target_link_libraries(floor_image_generator
    range_image_core
    floor_image_core
-   ${catkin_LIBRARIES}
    ${OpenMP_CXX_FLAGS}
-   )
+)
 
 #FLOOR_IMAGE_NODE
 add_executable(floor_image_node src/floor_image_node.cpp)
 target_link_libraries(floor_image_node
    floor_image_generator
-   ${catkin_LIBRARIES}
-   )
+)
+
+#RANGE_IMAGE_GENERATOR
+add_library(range_image_generator src/range_image_generator.cpp)
+target_link_libraries(range_image_generator
+   range_image_core
+   can_image_core
+   ${OpenMP_CXX_FLAGS}
+)
+
+#RANGE_IMAGE_NODE
+add_executable(range_image_node src/range_image_node.cpp)
+target_link_libraries(range_image_node
+   range_image_generator
+)
+  
 
 #############
 ## Install ##
@@ -384,11 +396,11 @@ install(
   TARGETS range_image_core can_image_core floor_image_core point_cloud_core 
             projected_point_cloud_core semantic_point_cloud_core normal_point_cloud_core
             normal_point_cloud_floor_only_core point_transformer point_propagator
-            depth_image_remapper range_image_dilator range_image_converter depth_image_difference
+            depth_image_remapper range_image_dilator range_image_converter
             laser_scan_inserter depth_image_inserter depth_image_difference
             sensors ecwrapper_buffer egocylindrical_propagator point_cloud_generator
             projected_point_cloud_generator semantic_point_cloud_generator
-            normal_point_cloud_generator floor_image_generator
+            normal_point_cloud_generator floor_image_generator range_image_generator
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -404,19 +416,20 @@ install(
       semantic_point_cloud_node
       normal_point_cloud_node
       floor_image_node
+      range_image_node
       DESTINATION lib/${PROJECT_NAME}
 )
 
 
-# install(DIRECTORY include/ 
-#   DESTINATION include/${PROJECT_NAME}
-# )
+install(DIRECTORY include/ 
+  DESTINATION include/${PROJECT_NAME}
+)
 
 install(DIRECTORY cfg launch
   DESTINATION share/${PROJECT_NAME}/
 )
 
-# ament_export_dependencies(${dependencies})  
-# ament_export_include_directories("include/${PROJECT_NAME}")
-# ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+ament_export_dependencies(${dependencies})  
+ament_export_include_directories("include/${PROJECT_NAME}")
+ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_package()
