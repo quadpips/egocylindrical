@@ -18,7 +18,7 @@ from launch.substitutions import Command, LaunchConfiguration
 
 def generate_launch_description():
     fixed_frame_id = "odom"
-    scan_frame_id = "egocan"
+    scan_frame_id = "egocan_stabilized"
 
     # Change in egocylindrical_image_to_laserscan if running nodes separately
     range_max = 5.0  
