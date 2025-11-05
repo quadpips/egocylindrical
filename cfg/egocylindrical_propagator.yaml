@@ -5,7 +5,7 @@ egocylindrical_propagator_node:
       observation_sources: ["semantic_depth"]
       semantic_depth:
         type: semantic_depth
-        image_in: /D435/depth/image_rect_raw
+        image_in: /D435/depth/image_raw
         info_in: /D435/depth/camera_info
         publish_update: true
         raytrace: true
@@ -14,5 +14,5 @@ egocylindrical_propagator_node:
     fixed_frame_id: odom
     orientation_fixed_frame_id: base_aligned
     origin_fixed_frame_id: D435_depth_optical_frame
-    width: 256
+    width: 512
     height: 120

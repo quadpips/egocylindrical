@@ -138,7 +138,7 @@ namespace egocylindrical
       //sc_.raytrace = true;
       
       //Load implementation parameters
-      std::string depth_topic="/D435/depth/image_rect_raw", 
+      std::string depth_topic="/D435/depth/image_raw", 
                   info_topic= "/D435/depth/camera_info",
                   normals_topic="/D435/normals",
                   labels_topic="/camera/steppability/labels";
@@ -147,10 +147,10 @@ namespace egocylindrical
       node_->get_parameter("labels_in", labels_topic);
       node_->get_parameter("normals_in", normals_topic);
 
-      // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using depth topic: " << depth_topic);
-      // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using info topic: " << info_topic);
-      // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using normals topic: " << normals_topic);
-      // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using labels topic: " << labels_topic);
+      RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using depth topic: " << depth_topic);
+      RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using info topic: " << info_topic);
+      RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using normals topic: " << normals_topic);
+      RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using labels topic: " << labels_topic);
 
       //Initialize helper classes
       dii_.init(fixed_frame_id);
@@ -203,7 +203,7 @@ namespace egocylindrical
                   const sensor_msgs::msg::CameraInfo::ConstSharedPtr& info,
                   const sensor_msgs::msg::Image::ConstSharedPtr& normals) //  
       {
-        // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Received image with timestamp: " << image->header.stamp.sec << "." << image->header.stamp.nanosec);
+        RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Received image with timestamp: " << image->header.stamp.sec << "." << image->header.stamp.nanosec);
         // // ROS_INFO_STREAM_NAMED("timing", "labels->image.at<uint8_t>(50, 50): " << labels->image.at<uint8_t>(50, 50));
 
         // ROS_INFO_STREAM_NAMED("timing", "image timestamp: " << image->header.stamp);

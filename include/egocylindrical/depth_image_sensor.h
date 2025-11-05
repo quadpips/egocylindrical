@@ -92,7 +92,7 @@ namespace egocylindrical
         //sc_.raytrace = true;
         
         //Load implementation parameters
-        std::string depth_topic="/D435/depth/image_rect_raw", 
+        std::string depth_topic="/D435/depth/image_raw", 
                     info_topic= "/D435/depth/camera_info";
         // pnh_.getParam("image_in", depth_topic );
         // pnh_.getParam("info_in", info_topic );
