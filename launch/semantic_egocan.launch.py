@@ -23,7 +23,7 @@ def generate_launch_description():
     # Change in egocylindrical_image_to_laserscan if running nodes separately
     range_max = 5.0  
     range_min = 0.1
-    floor_dist = 0.37
+    floor_dist = 0.25 # TODO: dynamically update based on robot height
     overhead_dist = 0.2
 
     egocylindrical_propagator_config = os.path.join(
