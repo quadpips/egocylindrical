@@ -75,6 +75,11 @@ namespace egocylindrical
                 
                 cv::Point2d pt(col, row);
 
+                if (depth == 0)
+                {
+                    depth = 5.0 * scale; // treat 0 depth as max range
+                }
+
                 //if(depth>0)  //Only insert actual points (works for both float and uint16)
                 {                        
                     cv::Point3f ray = cam_model.projectPixelTo3dRay(pt); // compute image ray
