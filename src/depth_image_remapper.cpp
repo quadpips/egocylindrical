@@ -118,7 +118,7 @@ namespace egocylindrical
                     if(idx >=0)
                     {
                     
-                        // if (!(z[idx] <= z_val))
+                        if (!(z[idx] <= z_val))
                         {
                             x[idx] = x_val;
                             y[idx] = y_val;

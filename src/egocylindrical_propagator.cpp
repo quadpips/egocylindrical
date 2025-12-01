@@ -165,7 +165,7 @@ namespace egocylindrical
         totalTimeTaken += std::chrono::duration_cast<std::chrono::microseconds>(totalEnd - totalBegin).count();
         numberOfTotalCalls++;
 
-        log();
+        // log();
 
         // ROS_DEBUG_STREAM_NAMED("timing", "Total time: " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
     }

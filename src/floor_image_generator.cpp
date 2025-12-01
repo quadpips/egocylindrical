@@ -211,6 +211,6 @@ namespace egocylindrical
         totalTimeTaken += std::chrono::duration_cast<std::chrono::microseconds>(totalEnd - totalBegin).count();
         numberOfTotalCalls++;
 
-        log();
+        // log();
     }
 }
