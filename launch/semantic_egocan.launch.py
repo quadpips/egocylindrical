@@ -17,6 +17,14 @@ from launch.substitutions import Command, LaunchConfiguration
 
 
 def generate_launch_description():
+    fixed_frame_id = "odom"
+    scan_frame_id = "egocan_stabilized"
+
+    # Change in egocylindrical_image_to_laserscan if running nodes separately
+    range_max = 5.0  
+    range_min = 0.1
+    floor_dist = 0.25 # TODO: dynamically update based on robot height
+    overhead_dist = 0.2
 
     egocylindrical_propagator_config = os.path.join(
         get_package_share_directory('egocylindrical'),
@@ -87,7 +95,7 @@ def generate_launch_description():
     #     ],
     #     parameters=[
     #         {
-    #             'use_sim_time': False,  # Use simulation time if available
+    #             'use_sim_time': True,  # Use simulation time if available
     #         }
     #     ]
     # )
@@ -131,6 +139,37 @@ def generate_launch_description():
         ]
     )
 
+    # egocylindrical_image_to_laserscan_node = Node(
+    #   package="egocylindrical_image_to_laserscan",
+    #   executable="egocylindrical_image_to_laserscan_node",
+    #   name="egocylindrical_image_to_laserscan_node",
+    #   output="screen",
+    #   remappings=[
+    #       ("image_in", "image"),
+    #       ("camera_info", "/camera/depth/camera_info"),
+    #       ('egocylindrical_points', 'data'),
+    #   ],
+    #   parameters=[
+    #         {
+    #         "use_sim_time": True,
+    #         "fixed_frame_id": fixed_frame_id,
+    #         "scan_frame_id": scan_frame_id,
+    #         "range_max": range_max,
+    #         "range_min": range_min,
+    #         "floor_dist": floor_dist,
+    #         "overhead_dist": overhead_dist,
+    #         }
+    #     ]
+    # )
+
+    # egocircle_node = Node(
+    #     package="egocircle",
+    #     executable="egocircle_node",
+    #     name="egocircle_node",
+    #     output="screen",
+    #     prefix="gnome-terminal --",
+    # )
+
     ###########################
     # Full Launch Description #
     ###########################
@@ -143,6 +182,8 @@ def generate_launch_description():
             range_image_node,
             # semantic_point_cloud_node,
             # normal_point_cloud_node,
-            # floor_image_node,
+            floor_image_node,
+            # egocircle_node,
+            # egocylindrical_image_to_laserscan_node
         ]
     )

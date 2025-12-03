@@ -1,6 +1,9 @@
 #ifndef EGOCYLINDRICAL_FLOOR_IMAGE_GENERATOR_H
 #define EGOCYLINDRICAL_FLOOR_IMAGE_GENERATOR_H
 
+#include <chrono>
+#include <fstream>
+#include <string>
 
 //#include <egocylindrical/ecwrapper.h>
 #include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
@@ -46,6 +49,13 @@ namespace egocylindrical
         
         sensor_msgs::msg::Image::SharedPtr preallocated_can_msg_, preallocated_labels_msg_, preallocated_labels_colored_msg_, preallocated_normals_msg_, preallocated_normals_colored_msgs_;
         
+        std::chrono::steady_clock::time_point totalBegin;
+        std::chrono::steady_clock::time_point totalEnd;
+        float totalTimeTaken = 0.0f;
+        int numberOfTotalCalls = 0;
+
+        std::chrono::steady_clock::time_point initStartTime;
+
         // typedef egocylindrical::FloorImageGeneratorConfig ConfigType;
         // ConfigType config_;
         // typedef dynamic_reconfigure::Server<ConfigType> ReconfigureServer;
@@ -55,6 +65,8 @@ namespace egocylindrical
         EgoCylinderFloorImageGenerator(rclcpp::Node::SharedPtr node);
         
         bool init();
+
+        void log();
         
         // void configCB(const ConfigType &config, uint32_t level);
         

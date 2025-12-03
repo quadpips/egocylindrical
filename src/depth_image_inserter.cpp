@@ -75,6 +75,11 @@ namespace egocylindrical
                 
                 cv::Point2d pt(col, row);
 
+                if (depth == 0)
+                {
+                    depth = 5.0 * scale; // treat 0 depth as max range
+                }
+
                 //if(depth>0)  //Only insert actual points (works for both float and uint16)
                 {                        
                     cv::Point3f ray = cam_model.projectPixelTo3dRay(pt); // compute image ray
@@ -417,27 +422,21 @@ namespace egocylindrical
                     float range_sq = worldToRangeSquared(transformed_pnt);
                     
                     //Only insert actual points (works for both float and uint16)
-                    ranges[i] = (depth>0) ? range_sq : dNaN;    
+                    ranges[i] = ( depth > 0) ? range_sq : dNaN;    
                     inds[i] = cyl_idx;
                 }                
             }
             
             for(int i = 0; i < num_pixels; ++i)
             {
-                if(ranges[i]>0)
+                if (ranges[i] > 0)
                 {
                     cv::Point3f transformed_pnt(nx[i], ny[i], nz[i]);
                     cv::Point3f transformed_norm(n_norm_x[i], n_norm_y[i], n_norm_z[i]);
                     
                     int cyl_idx = inds[i];
-                            
-                    if (i == 100)
-                    {
-                        // ROS_DEBUG_STREAM_NAMED("labels", "at i = 100:" << cyl_idx);                     
-                    }
 
-
-                    if(cyl_idx >= 0  && cyl_idx < max_ind) // mapping onto columns of egocylinder
+                    if (cyl_idx >= 0  && cyl_idx < max_ind) // mapping onto columns of egocylinder
                     {
                         float range_sq = ranges[i];
                 
@@ -445,7 +444,7 @@ namespace egocylindrical
                         
                         float prev_range_sq = worldToRangeSquared(prev_point);
 
-                        if(!(prev_range_sq <= range_sq)) //overwrite || 
+                        if( !(prev_range_sq <= range_sq)) //overwrite || 
                         {   
                             x[cyl_idx] = transformed_pnt.x;
                             y[cyl_idx] = transformed_pnt.y;
@@ -456,19 +455,13 @@ namespace egocylindrical
                             norm_z[cyl_idx] = transformed_norm.z;
                             
                             labels[cyl_idx] = nlabels[i]; // setting i for i does not feel right to me.
-                            if (i == 100)
-                            {
-                                // // ROS_DEBUG_STREAM_NAMED("labels", "nlabels[" << i << "]:" << nlabels[i]);
-                                // ROS_DEBUG_STREAM_NAMED("labels", "labels[" << cyl_idx << "]:" << std::hex << (uint16_t) labels[cyl_idx]);                     
-                                // // ROS_DEBUG_STREAM_NAMED("labels", "labels[" << cyl_idx << "]:" << labels[cyl_idx]);
-                            } 
                         }
                     }
-                    else if(use_egocan)
+                    else if (use_egocan)
                     {
                         cyl_idx = cylindrical_points.worldToCanIdx(transformed_pnt);
                     
-                        if(cyl_idx >=0 && cyl_idx < cylindrical_points.getNumPts()) // mapping onto top/bottom of egocan
+                        if (cyl_idx >=0 && cyl_idx < cylindrical_points.getNumPts()) // mapping onto top/bottom of egocan
                         {
                             float can_depth = worldToCanDepth(transformed_pnt);
                             
@@ -476,7 +469,7 @@ namespace egocylindrical
                             
                             float prev_can_depth = worldToCanDepth(prev_point);
                             
-                            if(!(prev_can_depth <= can_depth)) //overwrite || 
+                            if (!(prev_can_depth <= can_depth)) //overwrite || 
                             {                               
                                 x[cyl_idx] = transformed_pnt.x;
                                 y[cyl_idx] = transformed_pnt.y;
@@ -787,7 +780,6 @@ namespace egocylindrical
                                 
                                 if(!(prev_can_depth <= can_depth)) //overwrite || 
                                 {   
-                                    
                                     x[cyl_idx] = transformed_pnt.x;
                                     y[cyl_idx] = transformed_pnt.y;
                                     z[cyl_idx] = transformed_pnt.z;

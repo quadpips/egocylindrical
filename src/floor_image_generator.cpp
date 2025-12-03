@@ -17,6 +17,18 @@ namespace egocylindrical
         // std::cout<<"Egocylindrical Floor Image Node Constructed"<<std::endl;
 
         timer_ = node_->create_wall_timer(0.05s, std::bind(&EgoCylinderFloorImageGenerator::ssCB, this));
+
+        initStartTime = std::chrono::steady_clock::now();
+    }
+
+    void EgoCylinderFloorImageGenerator::log()
+    {
+        std::ofstream logFile;
+        logFile.open("/home/masselmeier3/Desktop/Research/quad_pips_experiments/timing/superpixels/floor_image/timing_log_" + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(initStartTime.time_since_epoch()).count()) + ".csv", std::ios::out);
+        float averageTotalTime = totalTimeTaken * 1.0e-3 / static_cast<float>(numberOfTotalCalls);
+        logFile << "avg total time (ms), number of calls" << std::endl;
+        logFile << averageTotalTime << ", " << numberOfTotalCalls << std::endl;
+        logFile.close();
     }
     
     bool EgoCylinderFloorImageGenerator::init()
@@ -109,6 +121,8 @@ namespace egocylindrical
     
     void EgoCylinderFloorImageGenerator::ecPointsCB(const egocylindrical_msgs::msg::EgoCylinderPoints::SharedPtr ec_msg)
     {
+        totalBegin = std::chrono::steady_clock::now();
+
         // ROS_DEBUG("Received EgoCylinderPoints msg");
         
         // ROS_DEBUG_STREAM_NAMED("msg_timestamps.detailed","[range_image_generator] Received [" << ec_msg->header.stamp << "] at [" << ros::WallTime::now() << "]");
@@ -192,5 +206,11 @@ namespace egocylindrical
             preallocated_normals_colored_msgs_->data.resize(normals_colored_ptr->data.size()); //We initialize the image to the same size as the most recently generated image
             // ROS_DEBUG_STREAM_NAMED("timing","Preallocating can normals colored took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
         }
+
+        totalEnd = std::chrono::steady_clock::now();
+        totalTimeTaken += std::chrono::duration_cast<std::chrono::microseconds>(totalEnd - totalBegin).count();
+        numberOfTotalCalls++;
+
+        // log();
     }
 }

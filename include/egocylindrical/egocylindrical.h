@@ -5,7 +5,6 @@
 #ifndef EGOCYLINDRICAL_EGOCYLINDRICAL_H
 #define EGOCYLINDRICAL_EGOCYLINDRICAL_H
 
-
 #include <egocylindrical/coordinate_frame_helper.h>
 
 
@@ -80,6 +79,23 @@ private:
 
     rclcpp::Subscription<std_msgs::msg::Empty>::SharedPtr reset_sub_;
 
+    std::chrono::steady_clock::time_point totalBegin;
+    std::chrono::steady_clock::time_point totalEnd;
+    float totalTimeTaken = 0.0f;
+    int numberOfTotalCalls = 0;
+
+    std::chrono::steady_clock::time_point updateBegin;
+    std::chrono::steady_clock::time_point updateEnd;
+    float updateTimeTaken = 0.0f;
+    int numberOfUpdateCalls = 0;
+
+    std::chrono::steady_clock::time_point insertBegin;
+    std::chrono::steady_clock::time_point insertEnd;
+    float insertTimeTaken = 0.0f;
+    int numberOfInsertCalls = 0;
+
+    std::chrono::steady_clock::time_point initStartTime;
+
     //egocylindrical::TimeSequencer<utils::SensorMeasurement> seq_;
 
     
@@ -111,6 +127,8 @@ public:
 
     virtual bool init();
     void reset();
+
+    void log();
 
 };
 

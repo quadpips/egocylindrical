@@ -5,12 +5,17 @@
 #include <egocylindrical/egocylindrical.h>
 #include <rclcpp/rclcpp.hpp>
 
+#include <chrono>
 
 namespace egocylindrical
 {
 
     void EgoCylindricalPropagator::update(utils::SensorMeasurement& measurement)
     {
+        totalBegin = std::chrono::steady_clock::now();
+
+        updateBegin = std::chrono::steady_clock::now();
+
         // RCLCPP_INFO_STREAM(node_->get_logger(), "[EgoCylindricalPropagator::update()]");
 
         //TODO: Make ecwrapper pointers into local variables
@@ -96,9 +101,14 @@ namespace egocylindrical
             wrapper_buffer_.releaseOld();
         }
 
+        updateEnd = std::chrono::steady_clock::now();
+        updateTimeTaken += std::chrono::duration_cast<std::chrono::microseconds>(updateEnd - updateBegin).count();
+        numberOfUpdateCalls++;
+
         // ROS_INFO_STREAM_NAMED("timing", "new_pts_->getOneLabel(17772) (before insert): " << std::hex << (uint16_t) new_pts_->getOneLabel(17772));
 
 
+        insertBegin = std::chrono::steady_clock::now();
         if (propagated_ec_pub_->get_subscription_count())
         {
             // RCLCPP_INFO_STREAM(node_->get_logger(), "propagated_ec_pub_ has subscribers, propagating points");
@@ -144,10 +154,19 @@ namespace egocylindrical
                 }
             }
         }
+        insertEnd = std::chrono::steady_clock::now();
+        insertTimeTaken += std::chrono::duration_cast<std::chrono::microseconds>(insertEnd - insertBegin).count();
+        numberOfInsertCalls++;
 
 
         wrapper_buffer_.update();
         
+        totalEnd = std::chrono::steady_clock::now();
+        totalTimeTaken += std::chrono::duration_cast<std::chrono::microseconds>(totalEnd - totalBegin).count();
+        numberOfTotalCalls++;
+
+        // log();
+
         // ROS_DEBUG_STREAM_NAMED("timing", "Total time: " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
     }
     
@@ -254,11 +273,24 @@ namespace egocylindrical
         pp_ = std::make_shared<utils::PointPropagator>(buffer_);
 
         // reconfigure_server_ = std::make_shared<ReconfigureServer>(node_);
+
+        initStartTime = std::chrono::steady_clock::now();
     }
+
+    EgoCylindricalPropagator::~EgoCylindricalPropagator() {}
     
-    EgoCylindricalPropagator::~EgoCylindricalPropagator()
+    void EgoCylindricalPropagator::log()
     {
-      
+        std::ofstream logFile;
+        logFile.open("/home/masselmeier3/Desktop/Research/quad_pips_experiments/timing/superpixels/egocan/timing_log_" + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(initStartTime.time_since_epoch()).count()) + ".csv", std::ios::out);
+
+        float averageUpdateTime = updateTimeTaken * 1.0e-3 / static_cast<float>(numberOfUpdateCalls);
+        float averageInsertTime = insertTimeTaken * 1.0e-3 / static_cast<float>(numberOfInsertCalls);
+        float averageTotalTime = totalTimeTaken * 1.0e-3 / static_cast<float>(numberOfTotalCalls);
+
+        logFile << "avg update time (ms), avg insert time (ms), avg total time (ms), number of calls" << std::endl;
+        logFile << averageUpdateTime << ", " << averageInsertTime << ", " << averageTotalTime << ", " << numberOfTotalCalls << std::endl;
+        logFile.close();        
     }
       
 

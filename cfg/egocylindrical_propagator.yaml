@@ -12,7 +12,13 @@ egocylindrical_propagator_node:
     points_out: data
     filtered_points: filtered_points
     fixed_frame_id: odom
+<<<<<<< HEAD
     orientation_fixed_frame_id: base_aligned
     origin_fixed_frame_id: D435_depth_optical_frame
     width: 512
+=======
+    orientation_fixed_frame_id: odom
+    origin_fixed_frame_id: camera_depth_optical_frame
+    width: 256
+>>>>>>> ros2_humble
     height: 120

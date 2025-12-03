@@ -50,7 +50,7 @@ namespace utils
             int idx=-1;
             idx= inds[i];
             
-            if(idx >=0)
+            if (idx >=0)
             {
                 float depth = ranges[i];
                 
@@ -58,7 +58,7 @@ namespace utils
                 
                 float prev_depth = worldToRangeSquared(prev_point);
                 
-                if(!(prev_depth <= depth)) // if new depth is less than old depth, then update
+                if (!(prev_depth <= depth)) // if new depth is less than old depth, then update
                 {   
                     /*TODO: Check if this gets compiled out or not. If not, remove this object, 
                      * or perhaps use basic templated custom point class to combine benefits of
@@ -90,16 +90,16 @@ namespace utils
                 }
                 
             }
-            else if(use_egocan)
+            else if (use_egocan)
             {
-                if(n_x[i]==n_x[i])  //Skip NaNs
+                if (n_x[i] == n_x[i])  //Skip NaNs
                 {
                     cv::Point3f world_pnt(n_x[i],n_y[i],n_z[i]);
                     cv::Point3f world_norm(n_x_norms[i],n_y_norms[i],n_z_norms[i]);
                   
                     idx = new_points.worldToCanIdx(world_pnt);
                     
-                    if(idx >=0 && idx < new_points.getNumPts())
+                    if (idx >=0 && idx < new_points.getNumPts())
                     {
                         float depth = worldToCanDepth(world_pnt);
                           
@@ -107,7 +107,7 @@ namespace utils
                         
                         float prev_depth = worldToCanDepth(prev_point);
                         
-                        if(!(prev_depth <= depth)) //overwrite || 
+                        if (!(prev_depth <= depth)) //overwrite || 
                         {   
                             
                             x[idx] = world_pnt.x;
