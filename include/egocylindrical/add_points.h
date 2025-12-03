@@ -58,7 +58,7 @@ namespace utils
                 
                 float prev_depth = worldToRangeSquared(prev_point);
                 
-                // if (!(prev_depth <= depth)) // if new depth is less than old depth, then update
+                if (!(prev_depth <= depth)) // if new depth is less than old depth, then update
                 {   
                     /*TODO: Check if this gets compiled out or not. If not, remove this object, 
                      * or perhaps use basic templated custom point class to combine benefits of
@@ -107,7 +107,7 @@ namespace utils
                         
                         float prev_depth = worldToCanDepth(prev_point);
                         
-                        // if (!(prev_depth <= depth)) //overwrite || 
+                        if (!(prev_depth <= depth)) //overwrite || 
                         {   
                             
                             x[idx] = world_pnt.x;

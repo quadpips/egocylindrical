@@ -333,13 +333,6 @@ namespace egocylindrical
                                 // save_point = false;
                             }
 
-//                             if(!(prev_range_sq <= range_sq)) //overwrite || 
-//                             {   
-// //                                 x[cyl_idx] = transformed_pnt.x;
-// //                                 y[cyl_idx] = transformed_pnt.y;
-// //                                 z[cyl_idx] = transformed_pnt.z;
-//                             }
-
                             if (fill_im)
                             {
                                 auto pp = inverse_point_transformer.transform(prev_point);
@@ -401,14 +394,6 @@ namespace egocylindrical
                                 {
                                     //save_point = false;
                                 }
-
-//                                 if(!(prev_can_depth <= can_depth)) //overwrite || 
-//                                 {   
-                                    
-// //                                     x[cyl_idx] = transformed_pnt.x;
-// //                                     y[cyl_idx] = transformed_pnt.y;
-// //                                     z[cyl_idx] = transformed_pnt.z;
-//                                 }
                             }
                             //TODO: fill in gen_im_data here
                         }
