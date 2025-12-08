@@ -141,13 +141,13 @@ namespace egocylindrical
       //sc_.raytrace = true;
       
       //Load implementation parameters
-      std::string depth_topic="/camera/depth/image_raw", 
-                  info_topic= "/camera/depth/camera_info",
-                  normals_topic="/camera/normals",
-                  labels_topic="/camera/steppability/labels";
+      std::string depth_topic = "/" + name_ + "/depth/image_raw";  // "/camera/depth/image_raw";
+      std::string info_topic= "/" + name_ + "/depth/camera_info";
+      std::string normals_topic="/" + name_ + "/normals";
+      // std::string labels_topic="/camera/steppability/labels";
       node_->get_parameter("image_in", depth_topic);
       node_->get_parameter("info_in", info_topic);
-      node_->get_parameter("labels_in", labels_topic);
+      // node_->get_parameter("labels_in", labels_topic);
       node_->get_parameter("normals_in", normals_topic);
 
       // RCLCPP_INFO_STREAM(node_->get_logger(), "SemanticDepthImageSensor: Using depth topic: " << depth_topic);
