@@ -31,41 +31,43 @@ namespace egocylindrical
             // ROS_INFO_STREAM("Creating sensor [" << name << "]");
             // auto sensor_nh = ros::NodeHandle(nh, name);
             
-            auto parameters_and_prefixes = node->list_parameters({"sensors"}, 10);
+            // auto parameters_and_prefixes = node->list_parameters({"sensors"}, 10);
 
-            for (auto & name : parameters_and_prefixes.names) {
-                std::cout << "Parameter name: " << name << std::endl;
-            }
-            for (auto & prefix : parameters_and_prefixes.prefixes) {
-                std::cout << "Parameter prefix: " << prefix << std::endl;
-            }
+            // for (auto & name : parameters_and_prefixes.names) {
+            //     std::cout << "Parameter name: " << name << std::endl;
+            // }
+            // for (auto & prefix : parameters_and_prefixes.prefixes) {
+            //     std::cout << "Parameter prefix: " << prefix << std::endl;
+            // }
 
             SensorInterface::Ptr sensor;
-            std::string sensor_type;
-            std::string sensor_ns = "sensors." + name + ".type";
-            if (!node->get_parameter(sensor_ns, sensor_type))
-            {
-                throw std::runtime_error("Type [" + sensor_type + "] is not defined for Sensor! [" + sensor_ns + "]");
-            }
+            // std::string sensor_type;
+            // std::string sensor_ns = "sensors." + name + ".type";
+            // if (!node->get_parameter(sensor_ns, sensor_type))
+            // {
+            //     throw std::runtime_error("Type [" + sensor_type + "] is not defined for Sensor! [" + sensor_ns + "]");
+            // }
             
             //This isn't possible w/ C++11 apparently
             //auto make_sensor = [name, buffer_&, sensor_nh&](){ std::make_shared<T>(name, buffer_, sensor_nh); };
             
-            if (sensor_type == "laser")
+            // if (sensor_type == "laser")
+            // {
+            //     sensor = std::dynamic_pointer_cast<SensorInterface>(std::make_shared<LaserScanSensor>(node, buffer));
+            // }
+            // else if (sensor_type == "depth")
+            // {
+            //     sensor = std::make_shared<DepthImageSensor>(node, buffer);
+            // }
+            // else 
+
+            if (name == "camera") //  || name == "camera1"
             {
-                sensor = std::dynamic_pointer_cast<SensorInterface>(std::make_shared<LaserScanSensor>(node, buffer));
-            }
-            else if (sensor_type == "depth")
-            {
-                sensor = std::make_shared<DepthImageSensor>(node, buffer);
-            }
-            else if (sensor_type == "semantic_depth")
-            {
-                sensor = std::make_shared<SemanticDepthImageSensor>(node, buffer);
+                sensor = std::make_shared<SemanticDepthImageSensor>(node, name, buffer);
             }
             else
             {
-                throw std::runtime_error("Sensor type [" + sensor_type + "] not recognized!");
+                throw std::runtime_error("Sensor name [" + name + "] not recognized!");
             }
             
             return sensor;
@@ -146,7 +148,7 @@ namespace egocylindrical
             // };
             
             // std::vector<std::string> sensor_names = get_sensor_names3(); // sensor_root_nh
-            std::vector<std::string> sensor_names = { "semantic_depth" };
+            std::vector<std::string> sensor_names = { "camera"}; // , "camera1" 
 
             for (const auto& name : sensor_names)
             {

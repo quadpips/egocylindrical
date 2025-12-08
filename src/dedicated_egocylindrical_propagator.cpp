@@ -216,7 +216,10 @@ namespace egocylindrical
                 
         
         // Get topic names
-        std::string depth_topic="/camera/depth/image_raw", info_topic= "/camera/depth/camera_info", points_topic="image_out", filtered_pc_topic="filtered_points";
+        std::string depth_topic="/camera/depth/image_raw", 
+                    info_topic= "/camera/depth/camera_info", 
+                    points_topic="image_out", 
+                    filtered_pc_topic="filtered_points";
         
         pnh_.getParam("image_in", depth_topic );
         pnh_.getParam("info_in", info_topic );

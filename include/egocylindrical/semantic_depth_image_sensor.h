@@ -93,6 +93,8 @@ namespace egocylindrical
     // ros::NodeHandle pnh_;
     rclcpp::Node::SharedPtr node_;
 
+    std::string name_;
+
     // tf2_ros::Buffer& buffer_;
     std::shared_ptr<tf2_ros::Buffer> buffer_;
     
@@ -120,8 +122,9 @@ namespace egocylindrical
     std::shared_ptr<MsgSynchronizer> msg_sync_;
 
   public:
-    SemanticDepthImageSensor(rclcpp::Node::SharedPtr node, std::shared_ptr<tf2_ros::Buffer> buffer): // ros::NodeHandle pnh,
+    SemanticDepthImageSensor(rclcpp::Node::SharedPtr node, const std::string & name, std::shared_ptr<tf2_ros::Buffer> buffer): // ros::NodeHandle pnh,
       node_(node),
+      name_(name),
       buffer_(buffer),
       dii_(buffer, node),
       it_(node)
