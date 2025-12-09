@@ -1,14 +1,14 @@
 egocylindrical_propagator_node:
   ros__parameters:
     use_sim_time: true
-    sensors:
-      observation_sources: ["semantic_depth"]
-      semantic_depth:
-        type: semantic_depth
-        image_in: /camera0/depth/image_raw
-        info_in: /camera0/depth/camera_info
-        publish_update: true
-        raytrace: true
+    # sensors:
+    #   observation_sources: ["semantic_depth"]
+    #   semantic_depth:
+    #     type: semantic_depth
+    #     image_in: /camera0/depth/image_raw
+    #     info_in: /camera0/depth/camera_info
+    #     publish_update: true
+    #     raytrace: true
     points_out: data
     filtered_points: filtered_points
     fixed_frame_id: odom

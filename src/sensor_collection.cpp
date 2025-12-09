@@ -61,7 +61,7 @@ namespace egocylindrical
             // }
             // else 
 
-            if (name == "camera0") //  || name == "camera1"
+            if (name == "camera0" || name == "camera1" || name == "camera2")
             {
                 sensor = std::make_shared<SemanticDepthImageSensor>(node, name, buffer);
             }
@@ -148,7 +148,7 @@ namespace egocylindrical
             // };
             
             // std::vector<std::string> sensor_names = get_sensor_names3(); // sensor_root_nh
-            std::vector<std::string> sensor_names = { "camera0"}; // , "camera1" 
+            std::vector<std::string> sensor_names = { "camera0", "camera1", "camera2"}; // , "camera1" 
 
             for (const auto& name : sensor_names)
             {

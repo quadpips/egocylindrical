@@ -65,13 +65,17 @@ namespace egocylindrical
 
             //sensor_nh.getParam("publish_update", publish_update);
             //sensor_nh.getParam("raytrace", raytrace);
-            bool publish_update_res = get_param("sensors.semantic_depth.publish_update", publish_update);
-            bool raytrace_res = get_param("sensors.semantic_depth.raytrace", raytrace);
-            if (publish_update_res && raytrace_res) // get_name(name) && 
-            {
-                return true;
-            }
-            return false;
+            // bool publish_update_res = get_param("sensors.semantic_depth.publish_update", publish_update);
+            // bool raytrace_res = get_param("sensors.semantic_depth.raytrace", raytrace);
+            publish_update = true;
+            raytrace = true;
+
+            return true;
+            // if (publish_update_res && raytrace_res) // get_name(name) && 
+            // {
+            //     return true;
+            // }
+            // return false;
       }
 
   } //end namespace utils
