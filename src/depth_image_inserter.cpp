@@ -116,7 +116,7 @@ namespace egocylindrical
                         
                         float prev_range_sq = worldToRangeSquared(prev_point);
 
-                        if(!(prev_range_sq <= range_sq)) //overwrite || 
+                        // if(!(prev_range_sq <= range_sq)) //overwrite || 
                         {   
                             x[cyl_idx] = transformed_pnt.x;
                             y[cyl_idx] = transformed_pnt.y;
@@ -135,7 +135,7 @@ namespace egocylindrical
                             
                             float prev_can_depth = worldToCanDepth(prev_point);
                             
-                            if(!(prev_can_depth <= can_depth)) //overwrite || 
+                            // if(!(prev_can_depth <= can_depth)) //overwrite || 
                             {                               
                                 x[cyl_idx] = transformed_pnt.x;
                                 y[cyl_idx] = transformed_pnt.y;
@@ -263,7 +263,7 @@ namespace egocylindrical
                         
                         float prev_range_sq = worldToRangeSquared(prev_point);
 
-                        if(!(prev_range_sq <= range_sq)) //overwrite || 
+                        // if(!(prev_range_sq <= range_sq)) //overwrite || 
                         {   
                             x[cyl_idx] = transformed_pnt.x;
                             y[cyl_idx] = transformed_pnt.y;
@@ -286,7 +286,7 @@ namespace egocylindrical
                             
                             float prev_can_depth = worldToCanDepth(prev_point);
                             
-                            if(!(prev_can_depth <= can_depth)) //overwrite || 
+                            // if(!(prev_can_depth <= can_depth)) //overwrite || 
                             {                               
                                 x[cyl_idx] = transformed_pnt.x;
                                 y[cyl_idx] = transformed_pnt.y;
@@ -444,7 +444,7 @@ namespace egocylindrical
                         
                         float prev_range_sq = worldToRangeSquared(prev_point);
 
-                        if( !(prev_range_sq <= range_sq)) //overwrite || 
+                        // if(!(prev_range_sq <= range_sq)) //overwrite || 
                         {   
                             x[cyl_idx] = transformed_pnt.x;
                             y[cyl_idx] = transformed_pnt.y;
@@ -469,7 +469,7 @@ namespace egocylindrical
                             
                             float prev_can_depth = worldToCanDepth(prev_point);
                             
-                            if (!(prev_can_depth <= can_depth)) //overwrite || 
+                            // if(!(prev_can_depth <= can_depth)) //overwrite || 
                             {                               
                                 x[cyl_idx] = transformed_pnt.x;
                                 y[cyl_idx] = transformed_pnt.y;
@@ -570,7 +570,7 @@ namespace egocylindrical
                         
                         float prev_range_sq = worldToRangeSquared(prev_point);
                         
-                        if(!(prev_range_sq <= range_sq)) //overwrite || 
+                        // if(!(prev_range_sq <= range_sq)) //overwrite || 
                         {   
                             x[cyl_idx] = transformed_pnt.x;
                             y[cyl_idx] = transformed_pnt.y;
@@ -589,7 +589,7 @@ namespace egocylindrical
                             
                             float prev_can_depth = worldToCanDepth(prev_point);
                             
-                            if(!(prev_can_depth <= can_depth)) //overwrite || 
+                            // if(!(prev_can_depth <= can_depth)) //overwrite || 
                             {   
                                 
                                 x[cyl_idx] = transformed_pnt.x;
@@ -679,7 +679,7 @@ namespace egocylindrical
                         
                         float prev_range_sq = worldToRangeSquared(prev_point);
                         
-                        if(!(prev_range_sq <= range_sq)) //overwrite || 
+                        // if(!(prev_range_sq <= range_sq)) //overwrite || 
                         {   
                             x[cyl_idx] = transformed_pnt.x;
                             y[cyl_idx] = transformed_pnt.y;
@@ -698,7 +698,7 @@ namespace egocylindrical
                             
                             float prev_can_depth = worldToCanDepth(prev_point);
                             
-                            if(!(prev_can_depth <= can_depth)) //overwrite || 
+                            // if(!(prev_can_depth <= can_depth)) //overwrite || 
                             {   
                                 
                                 x[cyl_idx] = transformed_pnt.x;
@@ -759,7 +759,7 @@ namespace egocylindrical
                             
                             float prev_range_sq = worldToRangeSquared(prev_point);
                             
-                            if(!(prev_range_sq <= range_sq)) //overwrite || 
+                            // if(!(prev_range_sq <= range_sq)) //overwrite || 
                             {   
                                 x[cyl_idx] = transformed_pnt.x;
                                 y[cyl_idx] = transformed_pnt.y;
@@ -778,7 +778,7 @@ namespace egocylindrical
                                 
                                 float prev_can_depth = worldToCanDepth(prev_point);
                                 
-                                if(!(prev_can_depth <= can_depth)) //overwrite || 
+                                // if(!(prev_can_depth <= can_depth)) //overwrite || 
                                 {   
                                     x[cyl_idx] = transformed_pnt.x;
                                     y[cyl_idx] = transformed_pnt.y;
