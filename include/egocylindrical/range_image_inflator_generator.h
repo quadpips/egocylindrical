@@ -3,18 +3,18 @@
 
 
 //#include <egocylindrical/ecwrapper.h>
-#include <egocylindrical/EgoCylinderPoints.h>
+#include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
 #include <egocylindrical/RangeImageInflatorGeneratorConfig.h>
-#include <image_transport/image_transport.h>
-#include <ros/ros.h>
+#include <image_transport/image_transport.hpp>
+#include <rclcpp/rclcpp.hpp>
 
-#include <image_transport/subscriber_filter.h>
+#include <image_transport/subscriber_filter.hpp>
 #include <message_filters/subscriber.h>
 
 #include <message_filters/synchronizer.h>
 #include <message_filters/time_synchronizer.h>
 
-#include <dynamic_reconfigure/server.h>
+// #include <dynamic_reconfigure/server.h>
 #include <boost/thread/mutex.hpp>
 
 // #include <boost/thread/shared_mutex.hpp>
@@ -42,8 +42,8 @@ namespace egocylindrical
         image_transport::SubscriberFilter im_sub_;
         message_filters::Subscriber<EgoCylinderPoints> ec_sub_;
         
-        typedef message_filters::TimeSynchronizer<sensor_msgs::Image, egocylindrical::EgoCylinderPoints> synchronizer;
-        boost::shared_ptr<synchronizer> timeSynchronizer_;
+        typedef message_filters::TimeSynchronizer<sensor_msgs::msg::Image, egocylindrical_msgs::msg::EgoCylinderPoints> synchronizer;
+        std::shared_ptr<synchronizer> timeSynchronizer_;
         
         
         //bool use_raw_;
@@ -51,7 +51,7 @@ namespace egocylindrical
         Mutex config_mutex_, connect_mutex_;
         //int num_threads_;
         
-        sensor_msgs::Image::Ptr preallocated_msg_;
+        sensor_msgs::msg::Image::SharedPtr preallocated_msg_;
         
         typedef egocylindrical::RangeImageInflatorGeneratorConfig ConfigType;
         ConfigType config_;
@@ -72,7 +72,7 @@ namespace egocylindrical
 
     private:
         
-        void imgCB(const sensor_msgs::Image::ConstPtr& range_msg, const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg);
+        void imgCB(const sensor_msgs::msg::Image::ConstSharedPtr& range_msg, const egocylindrical_msgs::msg::EgoCylinderPoints::ConstSharedPtr& ec_msg);
       
     };
 

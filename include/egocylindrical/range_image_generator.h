@@ -3,12 +3,12 @@
 
 
 //#include <egocylindrical/ecwrapper.h>
-#include <egocylindrical/EgoCylinderPoints.h>
-#include <egocylindrical/RangeImageGeneratorConfig.h>
-#include <image_transport/image_transport.h>
-#include <ros/ros.h>
+#include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
+// #include <egocylindrical/RangeImageGeneratorConfig.h>
+#include <image_transport/image_transport.hpp>
+#include <rclcpp/rclcpp.hpp>
 
-#include <dynamic_reconfigure/server.h>
+// #include <dynamic_reconfigure/server.h>
 
 //#include <boost/thread/shared_mutex.hpp>
 //#include <boost/thread/locks.hpp>
@@ -26,10 +26,15 @@ namespace egocylindrical
 
     class EgoCylinderRangeImageGenerator
     {
-        ros::NodeHandle nh_, pnh_;
+        // ros::NodeHandle nh_, pnh_;
+        rclcpp::Node::SharedPtr node_;
+
         image_transport::ImageTransport it_;
         image_transport::Publisher im_pub_, can_im_pub_;
-        ros::Subscriber ec_sub_;
+
+        // ros::Subscriber ec_sub_;
+        rclcpp::Subscription<egocylindrical_msgs::msg::EgoCylinderPoints>::SharedPtr ec_sub_;
+
         bool use_raw_;
         
         using Mutex = boost::mutex;
@@ -37,22 +42,25 @@ namespace egocylindrical
         using Lock = Mutex::scoped_lock;
         
         //Mutex config_mutex_;
-        int num_threads_;
+        int num_threads_ = 1;
+
+        rclcpp::TimerBase::SharedPtr timer_{nullptr};
         
-        sensor_msgs::Image::Ptr preallocated_msg_, preallocated_can_msg_;
+        sensor_msgs::msg::Image::SharedPtr preallocated_msg_, preallocated_can_msg_;
         
-        typedef egocylindrical::RangeImageGeneratorConfig ConfigType;
-        ConfigType config_;
-        typedef dynamic_reconfigure::Server<ConfigType> ReconfigureServer;
-        std::shared_ptr<ReconfigureServer> reconfigure_server_;
+        // typedef egocylindrical::RangeImageGeneratorConfig ConfigType;
+        // ConfigType config_;
+        // typedef dynamic_reconfigure::Server<ConfigType> ReconfigureServer;
+        // std::shared_ptr<ReconfigureServer> reconfigure_server_;
 
     public:
 
-        EgoCylinderRangeImageGenerator(ros::NodeHandle& nh, ros::NodeHandle& pnh);
+        // ros::NodeHandle& nh, ros::NodeHandle& pnh
+        EgoCylinderRangeImageGenerator(rclcpp::Node::SharedPtr node);
         
         bool init();
         
-        void configCB(const ConfigType &config, uint32_t level);
+        // void configCB(const ConfigType &config, uint32_t level);
         
         void ssCB();
 
@@ -60,7 +68,7 @@ namespace egocylindrical
 
     private:
         
-        void ecPointsCB(const egocylindrical::EgoCylinderPoints::ConstPtr& ec_msg);
+        void ecPointsCB(const egocylindrical_msgs::msg::EgoCylinderPoints::ConstSharedPtr& ec_msg);
 
     };
 

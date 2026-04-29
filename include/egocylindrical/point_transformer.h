@@ -3,7 +3,7 @@
 
 
 #include <egocylindrical/ecwrapper.h>
-#include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/msg/transform_stamped.hpp>
 
 
 namespace egocylindrical
@@ -12,9 +12,9 @@ namespace egocylindrical
     namespace utils
     {
 
-      //void transformPoints(utils::ECWrapper& points, const geometry_msgs::TransformStamped& trans);
+      //void transformPoints(utils::ECWrapper& points, const geometry_msgs::msg::TransformStamped& trans);
       
-      void transformPoints(const utils::ECWrapper& points, utils::ECWrapper& transformed_points, const utils::ECWrapper& new_points, const geometry_msgs::TransformStamped& trans, int num_threads=1);
+      void transformPoints(const utils::ECWrapper& points, utils::ECWrapper& transformed_points, const utils::ECWrapper& new_points, const geometry_msgs::msg::TransformStamped& trans, int num_threads=1);
 
     }
 

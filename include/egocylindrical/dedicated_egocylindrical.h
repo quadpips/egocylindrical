@@ -8,18 +8,18 @@
 #include <egocylindrical/utils.h>
 #include <egocylindrical/depth_image_core.h>
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <image_geometry/pinhole_camera_model.h>
-#include <pcl_ros/point_cloud.h>
+#include <pcl_conversions/pcl_conversions.h>
 //#include <pcl.h>
 
 #include <tf2_ros/transform_listener.h>
-#include <image_transport/image_transport.h>
-#include <image_transport/subscriber_filter.h>
+#include <image_transport/image_transport.hpp>
+#include <image_transport/subscriber_filter.hpp>
 
 #include <tf2_ros/message_filter.h>
 
@@ -27,7 +27,7 @@
 #include <message_filters/synchronizer.h>
 #include <message_filters/time_synchronizer.h>
 
-#include <dynamic_reconfigure/server.h>
+// #include <dynamic_reconfigure/server.h>
 #include <egocylindrical/PropagatorConfig.h>
 
 #include <boost/thread/shared_mutex.hpp>
@@ -65,13 +65,13 @@ private:
     
     image_transport::ImageTransport it_;
     image_transport::SubscriberFilter depthSub;
-    message_filters::Subscriber<sensor_msgs::CameraInfo> depthInfoSub;
+    message_filters::Subscriber<sensor_msgs::msg::CameraInfo> depthInfoSub;
     
-    typedef tf2_ros::MessageFilter<sensor_msgs::CameraInfo> tf_filter;
-    boost::shared_ptr<tf_filter> info_tf_filter;
+    typedef tf2_ros::MessageFilter<sensor_msgs::msg::CameraInfo> tf_filter;
+    std::shared_ptr<tf_filter> info_tf_filter;
     
-    typedef message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::CameraInfo> synchronizer;
-    boost::shared_ptr<synchronizer> timeSynchronizer;
+    typedef message_filters::TimeSynchronizer<sensor_msgs::msg::Image, sensor_msgs::msg::CameraInfo> synchronizer;
+    std::shared_ptr<synchronizer> timeSynchronizer;
     
     ros::Publisher im_pub_, pc_pub_;
     
@@ -79,10 +79,10 @@ private:
     typedef dynamic_reconfigure::Server<egocylindrical::PropagatorConfig> ReconfigureServer;
     std::shared_ptr<ReconfigureServer> reconfigure_server_;
 
-    void propagateHistoryInplace(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::Header new_header);
+    void propagateHistoryInplace(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::msg::Header new_header);
     
-    void propagateHistory(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::Header new_header);
-    void addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info);
+    void propagateHistory(utils::ECWrapper& old_pnts, utils::ECWrapper& new_pnts, std_msgs::msg::Header new_header);
+    void addDepthImage(utils::ECWrapper& cylindrical_points, const sensor_msgs::msg::Image::ConstSharedPtr& image, const sensor_msgs::msg::CameraInfo::ConstSharedPtr& cam_info);
     
     void connectCB();
     
@@ -94,9 +94,9 @@ public:
     DedicatedEgoCylindricalPropagator(ros::NodeHandle& nh, ros::NodeHandle& pnh);
     ~DedicatedEgoCylindricalPropagator();
     
-    void update(const sensor_msgs::Image::ConstPtr& image, const sensor_msgs::CameraInfo::ConstPtr& cam_info);
-    sensor_msgs::PointCloud2  getPropagatedPointCloud();
-    sensor_msgs::Image::ConstPtr getRawRangeImage();
+    void update(const sensor_msgs::msg::Image::ConstSharedPtr& image, const sensor_msgs::msg::CameraInfo::ConstSharedPtr& cam_info);
+    sensor_msgs::msg::PointCloud2  getPropagatedPointCloud();
+    sensor_msgs::msg::Image::ConstSharedPtr getRawRangeImage();
 
     bool init();
 

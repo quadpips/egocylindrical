@@ -1,33 +1,45 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.15)
 project(egocylindrical)
 
-add_compile_options(-Wall -std=c++14)
+# Cpp standard version
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  cv_bridge
-  geometry_msgs
-  image_geometry
-  image_transport
-  nodelet
-  pcl_ros
-  roscpp
-  rospy
-  sensor_msgs
-  std_msgs
-  tf
-  tf2
-  tf2_msgs
-  tf2_ros
-  tf2_sensor_msgs
-  tf2_geometry_msgs
-  message_generation
-  dynamic_reconfigure
-  benchmarking_tools #Probably just temporary to avoid adding any custom dependencies to this package.
+
+# ament_cmake dependencies
+set(dependencies
+      cv_bridge
+      geometry_msgs
+      visualization_msgs
+      image_geometry
+      image_transport
+      egocylindrical_msgs
+      # nodelet
+      pcl_ros
+      rclcpp
+      rclpy
+      sensor_msgs
+      std_msgs
+      # tf
+      tf2
+      tf2_msgs
+      tf2_ros
+      tf2_sensor_msgs
+      tf2_geometry_msgs
+      rosidl_default_generators
+      depth_img_normal_estimation
+      # message_generation
+      # dynamic_reconfigure
+      # benchmarking_tools #Probably just temporary to avoid adding any custom dependencies to this package.
 )
 
+# Dependencies
+foreach(Dependency IN ITEMS ${dependencies})
+  find_package(${Dependency} REQUIRED)
+endforeach()
 
 find_package(OpenCV REQUIRED)
 find_package(PCL    REQUIRED)
@@ -46,66 +58,6 @@ else()
     set(PLATFORM_FLAGS "")
 endif()
 
-
-## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
-
-
-## Uncomment this if the package has a setup.py. This macro ensures
-## modules and global scripts declared therein get installed
-## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-catkin_python_setup()
-
-################################################
-## Declare ROS messages, services and actions ##
-################################################
-
-## To declare and build messages, services or actions from within this
-## package, follow these steps:
-## * Let MSG_DEP_SET be the set of packages whose message types you use in
-##   your messages/services/actions (e.g. std_msgs, actionlib_msgs, ...).
-## * In the file package.xml:
-##   * add a build_depend tag for "message_generation"
-##   * add a build_depend and a run_depend tag for each package in MSG_DEP_SET
-##   * If MSG_DEP_SET isn't empty the following dependency has been pulled in
-##     but can be declared for certainty nonetheless:
-##     * add a run_depend tag for "message_runtime"
-## * In this file (CMakeLists.txt):
-##   * add "message_generation" and every package in MSG_DEP_SET to
-##     find_package(catkin REQUIRED COMPONENTS ...)
-##   * add "message_runtime" and every package in MSG_DEP_SET to
-##     catkin_package(CATKIN_DEPENDS ...)
-##   * uncomment the add_*_files sections below as needed
-##     and list every .msg/.srv/.action file to be processed
-##   * uncomment the generate_messages entry below
-##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
-
-# Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  EgoCylinderPoints.msg
-)
-
-## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
-
-## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
-
-# Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-)
-
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
 ################################################
@@ -122,12 +74,13 @@ generate_messages(
 
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
 
-generate_dynamic_reconfigure_options(
-  cfg/Propagator.cfg
-  cfg/RangeImageGenerator.cfg
-  cfg/Filter.cfg
-  cfg/RangeImageInflatorGenerator.cfg
-  )
+# generate_dynamic_reconfigure_options(
+#   cfg/Propagator.cfg
+#   cfg/RangeImageGenerator.cfg
+#   cfg/Filter.cfg
+#   cfg/RangeImageInflatorGenerator.cfg
+#   cfg/FloorImageGenerator.cfg
+#   )
 
 ###################################
 ## catkin specific configuration ##
@@ -138,12 +91,12 @@ generate_dynamic_reconfigure_options(
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES egocylindrical_propagator
-  CATKIN_DEPENDS cv_bridge geometry_msgs image_geometry image_transport roscpp rospy sensor_msgs std_msgs tf tf2 tf2_ros tf2_sensor_msgs tf2_geometry_msgs 
+# catkin_package(
+#   INCLUDE_DIRS include
+#   LIBRARIES egocylindrical_propagator range_image_core can_image_core floor_image_core point_cloud_core projected_point_cloud_core semantic_point_cloud_core normal_point_cloud_core normal_point_cloud_floor_only_core point_transformer depth_image_remapper range_image_converter depth_image_inserter laser_scan_inserter sensors ecwrapper_buffer
+#   CATKIN_DEPENDS cv_bridge geometry_msgs image_geometry image_transport roscpp rospy sensor_msgs std_msgs tf tf2 tf2_ros tf2_sensor_msgs tf2_geometry_msgs 
 #  DEPENDS system_lib
-)
+# )
 
 ###########
 ## Build ##
@@ -153,383 +106,330 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
   include
-  ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
 )
 
-# This is a separate library partly to reduce compile times, but mostly because it needs to be compiled with certain 'fast-math' optimization options
-add_library(range_image_core src/range_image_core.cpp)
-add_dependencies(range_image_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+###############
+## Libraries ##
+###############
+
+# RANGE_IMAGE_CORE
+add_library(range_image_core 
+            src/range_image_core.cpp)
+ament_target_dependencies(range_image_core 	
+                           ${dependencies}
+                           ${${PROJECT_NAME}_EXPORTED_TARGETS}
+)
 target_compile_options(range_image_core PRIVATE -ftree-vectorize -fopt-info-loop-optimized=vec_range_image_core.txt -funsafe-math-optimizations -fno-math-errno -ffinite-math-only #-ffinite-math-only and -fno-trapping-math.
    )
 target_link_libraries(range_image_core
-   ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
    ${OpenMP_CXX_FLAGS}
    )
 
-add_library(can_image_core src/can_image_core.cpp)
-add_dependencies(can_image_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# CAN_IMAGE_CORE
+add_library(can_image_core 
+            src/can_image_core.cpp)
+ament_target_dependencies(can_image_core 
+                  ${dependencies}
+                  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+)
 target_compile_options(can_image_core PRIVATE -ftree-vectorize -fopt-info-loop-optimized=vec_can_image_core.txt -funsafe-math-optimizations -fno-math-errno -ffinite-math-only #-ffinite-math-only and -fno-trapping-math.
    )
 target_link_libraries(can_image_core
-   ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
    ${OpenMP_CXX_FLAGS}
    )
 
-##Verified that ${OpenMP_CXX_FLAGS} contains what it should
-#message(STATUS=WARNING ${OpenMP_CXX_FLAGS})
-  
+# FLOOR_IMAGE_CORE
+add_library(floor_image_core src/floor_image_core.cpp)
+ament_target_dependencies(floor_image_core 
+                          ${dependencies}
+                          ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_compile_options(floor_image_core PRIVATE -ftree-vectorize -fopt-info-loop-optimized=vec_floor_image_core.txt -funsafe-math-optimizations -fno-math-errno -ffinite-math-only #-ffinite-math-only and -fno-trapping-math.
+   )
+target_link_libraries(floor_image_core
+   ${OpenCV_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+  )
+
+# POINT_CLOUD_CORE
 add_library(point_cloud_core src/point_cloud_core.cpp)
-add_dependencies(point_cloud_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+ament_target_dependencies(point_cloud_core
+                  ${dependencies}
+                  ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_compile_options(point_cloud_core PRIVATE -ftree-vectorize -fopt-info-loop-optimized=vec_point_cloud_core.txt ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
    )
-target_link_libraries(point_cloud_core
-   ${catkin_LIBRARIES}
-   #${OpenCV_LIBRARIES}
-   #${PCL_LIBRARIES}
-   #${OpenMP_CXX_FLAGS}    #Not currently needed
-   )
+target_link_libraries(point_cloud_core)
 
+# PROJECTED_POINT_CLOUD_CORE
 add_library(projected_point_cloud_core src/projected_point_cloud_core.cpp)
-add_dependencies(projected_point_cloud_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+ament_target_dependencies(projected_point_cloud_core ${dependencies} ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_compile_options(projected_point_cloud_core PRIVATE -ftree-vectorize -fno-trapping-math -fno-math-errno  -fopt-info-loop-optimized=vec_projected_point_cloud_core.txt ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
    )
-target_link_libraries(projected_point_cloud_core
-   ${catkin_LIBRARIES}
-   #${OpenCV_LIBRARIES}
-   #${PCL_LIBRARIES}
-   #${OpenMP_CXX_FLAGS}
+target_link_libraries(projected_point_cloud_core)
+
+
+add_library(semantic_point_cloud_core src/semantic_point_cloud_core.cpp)
+ament_target_dependencies(semantic_point_cloud_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+target_compile_options(semantic_point_cloud_core PRIVATE -ftree-vectorize -fno-trapping-math -fno-math-errno  -fopt-info-loop-optimized=vec_projected_point_cloud_core.txt ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
    )
+target_link_libraries(semantic_point_cloud_core)
+
+add_library(normal_point_cloud_core src/normal_point_cloud_core.cpp)
+ament_target_dependencies(normal_point_cloud_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+target_compile_options(normal_point_cloud_core PRIVATE -ftree-vectorize -fno-trapping-math -fno-math-errno  -fopt-info-loop-optimized=vec_projected_point_cloud_core.txt ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
+   )
+target_link_libraries(normal_point_cloud_core)
+
+add_library(normal_point_cloud_floor_only_core src/normal_point_cloud_floor_only_core.cpp)
+ament_target_dependencies(normal_point_cloud_floor_only_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+target_compile_options(normal_point_cloud_floor_only_core PRIVATE -ftree-vectorize -fno-trapping-math -fno-math-errno  -fopt-info-loop-optimized=vec_projected_point_cloud_core.txt ${OpenMP_CXX_FLAGS} #-funsafe-math-optimizations -ffinite-math-only -fno-math-errno #-finite-math-only and -fno-trapping-math.
+   )
+target_link_libraries(normal_point_cloud_floor_only_core)
 
 add_library(point_transformer src/point_transformer.cpp)
-add_dependencies(point_transformer ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+ament_target_dependencies(point_transformer ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
 target_compile_options(point_transformer PRIVATE -ftree-vectorize -fopt-info-loop-optimized=vec_point_transformer.txt -funsafe-math-optimizations -fno-math-errno ${OpenMP_CXX_FLAGS} #-finite-math-only and -fno-trapping-math. -ffinite-math-only 
    )
 target_compile_definitions(point_transformer PRIVATE ${PLATFORM_FLAGS})
 target_link_libraries(point_transformer
-   ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
    ${OpenMP_CXX_FLAGS}
    )
 
+add_library(point_propagator src/point_propagator.cpp)
+target_compile_definitions(point_propagator PRIVATE ${PLATFORM_FLAGS})
+target_link_libraries(point_propagator
+   point_transformer
+   ${catkin_LIBRARIES}
+   )
+
 add_library(depth_image_remapper src/depth_image_remapper.cpp)
-add_dependencies(depth_image_remapper ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+ament_target_dependencies(depth_image_remapper ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
 target_compile_options(depth_image_remapper PRIVATE -ftree-vectorize  -fopt-info-vec-all=vec_depth_image_remapper.txt -funsafe-math-optimizations -fno-math-errno ${OpenMP_CXX_FLAGS}#-finite-math-only and -fno-trapping-math. -ffinite-math-only 
    )
 target_compile_definitions(depth_image_remapper PRIVATE ${PLATFORM_FLAGS})
 target_link_libraries(depth_image_remapper
-   ${catkin_LIBRARIES}
+   ${OpenCV_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
+
+add_library(range_image_dilator src/range_image_dilator_generator.cpp
+            src/range_image_dilator_core.cpp)
+ament_target_dependencies(range_image_dilator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+target_compile_options(range_image_dilator PRIVATE)
+target_link_libraries(range_image_dilator)
+
+#RANGE_IMAGE_CONVERTER
+add_library(range_image_converter src/range_image_converter.cpp)
+ament_target_dependencies(range_image_converter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+target_link_libraries(range_image_converter
+   ${OpenMP_CXX_FLAGS}
+   )
+   
+# DEPTH_IMAGE_DIFFERENCE
+add_library(depth_image_difference src/depth_image_difference.cpp
+            src/depth_image_difference_debugging_publisher.cpp)
+ament_target_dependencies(depth_image_difference ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+target_compile_options(depth_image_difference PRIVATE)
+target_compile_definitions(depth_image_difference PRIVATE ${PLATFORM_FLAGS} )
+target_link_libraries(depth_image_difference
+   range_image_core
+   range_image_dilator
+   range_image_converter
+   point_cloud_core
+   ${OpenCV_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
+
+# DEPTH_IMAGE_INSERTER
+add_library(depth_image_inserter src/depth_image_inserter.cpp)
+ament_target_dependencies(depth_image_inserter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+target_compile_options(depth_image_inserter PRIVATE -ftree-vectorize  -fopt-info-vec-all=vec_depth_image_inserter.txt -funsafe-math-optimizations -fno-math-errno ${OpenMP_CXX_FLAGS}#-finite-math-only and -fno-trapping-math. -ffinite-math-only 
+  )
+target_compile_definitions(depth_image_inserter PRIVATE ${PLATFORM_FLAGS})
+target_link_libraries(depth_image_inserter
+   depth_image_remapper
+   depth_image_difference
+   ${OpenCV_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
+
+# LASER_SCAN_INSERTER
+add_library(laser_scan_inserter src/laser_scan_inserter.cpp)
+ament_target_dependencies(laser_scan_inserter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+#target_compile_options(laser_scan_inserter PRIVATE -O0 -g)
+target_link_libraries(laser_scan_inserter
+   ${OpenCV_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
+
+# SENSORS
+add_library(sensors src/sensor.cpp src/sensor_collection.cpp)
+#target_compile_options(sensors PRIVATE -O0 -g)
+target_link_libraries(sensors
+   ##TODO: add the various sensor libraries here once implementations moved to source files
+   depth_image_inserter
+   laser_scan_inserter
+   )
+
+add_library(ecwrapper_buffer src/ecwrapper_buffer.cpp)
+ament_target_dependencies(ecwrapper_buffer ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+#target_compile_options(laser_scan_inserter PRIVATE -O0 -g)
+target_link_libraries(ecwrapper_buffer
+   )
+
+#EGOCYLINDRICAL_PROPAGATOR
+add_library(egocylindrical_propagator src/egocylindrical_propagator.cpp)
+ament_target_dependencies(egocylindrical_propagator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${dependencies})
+target_compile_options(egocylindrical_propagator PRIVATE -g -ftree-vectorize -funsafe-math-optimizations ${OpenMP_CXX_FLAGS}
+   )
+target_compile_definitions(egocylindrical_propagator PRIVATE ${PLATFORM_FLAGS})
+target_link_libraries(egocylindrical_propagator
+   point_propagator
+   sensors
+   ecwrapper_buffer
    ${OpenCV_LIBRARIES}
    ${OpenMP_CXX_FLAGS}
    )
    
-add_library(depth_image_inserter src/depth_image_inserter.cpp)
-add_dependencies(depth_image_inserter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_compile_options(depth_image_inserter PRIVATE -ftree-vectorize  -fopt-info-vec-all=vec_depth_image_inserter.txt -funsafe-math-optimizations -fno-math-errno ${OpenMP_CXX_FLAGS}#-finite-math-only and -fno-trapping-math. -ffinite-math-only 
-   )
-target_compile_definitions(depth_image_inserter PRIVATE ${PLATFORM_FLAGS})
-target_link_libraries(depth_image_inserter
-   depth_image_remapper
-   ${catkin_LIBRARIES}
-   ${OpenCV_LIBRARIES}
-   ${OpenMP_CXX_FLAGS}
-   )
-
-
-  
-## Declare a C++ executable
-## With catkin_make all packages are built within a single CMake context
-## The recommended prefix ensures that target names across packages don't collide
-#${PROJECT_NAME}_
-
-
-
-## Rename C++ executable without prefix
-## The above recommended prefix causes long target names, the following renames the
-## target back to the shorter version for ease of user use
-## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
-# set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
-
-## Add cmake target dependencies of the executable
-## same as for the library above
-#add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-#EGOCYLINDRICAL_PROPAGATOR
-add_library(egocylindrical_propagator src/egocylindrical_propagator.cpp)
-add_dependencies(egocylindrical_propagator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_compile_options(egocylindrical_propagator PRIVATE -ftree-vectorize -funsafe-math-optimizations ${OpenMP_CXX_FLAGS} 
-   )
-target_compile_definitions(egocylindrical_propagator PRIVATE ${PLATFORM_FLAGS})
-target_link_libraries(egocylindrical_propagator
-   point_transformer
-   depth_image_inserter
-   ${catkin_LIBRARIES}
-   ${OpenCV_LIBRARIES}
-   ${OpenMP_CXX_FLAGS}
-   )
-
 #EGOCYLINDRICAL_PROPAGATOR_NODE
 add_executable(egocylindrical_propagator_node src/egocylindrical_propagator_node.cpp)
 target_link_libraries(egocylindrical_propagator_node
    egocylindrical_propagator
-   ${catkin_LIBRARIES}
    )
-   
-#EGOCYLINDRICAL_PROPAGATOR_NODELET
-add_library(egocylindrical_propagator_nodelet MODULE src/egocylindrical_propagator_nodelet.cpp)
-target_link_libraries(egocylindrical_propagator_nodelet
-   egocylindrical_propagator
-   ${catkin_LIBRARIES}
-   )
-
 
 #POINT_CLOUD_GENERATOR
 add_library(point_cloud_generator src/point_cloud_generator.cpp)
 target_link_libraries(point_cloud_generator
    point_cloud_core
-   ${catkin_LIBRARIES}
    )
 
 #POINT_CLOUD_NODE
 add_executable(point_cloud_node src/point_cloud_node.cpp)
 target_link_libraries(point_cloud_node
    point_cloud_generator
-   ${catkin_LIBRARIES}
    )
-
-#POINT_CLOUD_NODELET
-add_library(point_cloud_nodelet MODULE src/point_cloud_nodelet.cpp)
-target_link_libraries(point_cloud_nodelet
-   point_cloud_generator
-   ${catkin_LIBRARIES}
-   )
-
 
 #PROJECTED_POINT_CLOUD_GENERATOR
 add_library(projected_point_cloud_generator src/projected_point_cloud_generator.cpp)
 target_link_libraries(projected_point_cloud_generator
    projected_point_cloud_core
-   ${catkin_LIBRARIES}
    )
 
 #PROJECTED_POINT_CLOUD_NODE
 add_executable(projected_point_cloud_node src/projected_point_cloud_node.cpp)
 target_link_libraries(projected_point_cloud_node
    projected_point_cloud_generator
-   ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
    ${PCL_LIBRARIES}
    ${OpenMP_CXX_FLAGS}
    )
-  
-#PROJECTED_POINT_CLOUD_NODELET
-add_library(projected_point_cloud_nodelet MODULE src/projected_point_cloud_nodelet.cpp)
-target_link_libraries(projected_point_cloud_nodelet
-   projected_point_cloud_generator
-   ${catkin_LIBRARIES}
+
+#SEMANTIC_POINT_CLOUD_GENERATOR
+add_library(semantic_point_cloud_generator src/semantic_point_cloud_generator.cpp)
+target_link_libraries(semantic_point_cloud_generator
+   semantic_point_cloud_core
    )
 
+#SEMANTIC_POINT_CLOUD_NODE
+add_executable(semantic_point_cloud_node src/semantic_point_cloud_node.cpp)
+target_link_libraries(semantic_point_cloud_node
+   semantic_point_cloud_generator
+   ${OpenCV_LIBRARIES}
+   ${PCL_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+   )
+
+#NORMAL_POINT_CLOUD_GENERATOR
+add_library(normal_point_cloud_generator src/normal_point_cloud_generator.cpp)
+target_link_libraries(normal_point_cloud_generator
+   normal_point_cloud_core
+   )
+
+#NORMAL_POINT_CLOUD_NODE
+add_executable(normal_point_cloud_node src/normal_point_cloud_node.cpp)
+target_link_libraries(normal_point_cloud_node
+   normal_point_cloud_generator
+   ${OpenCV_LIBRARIES}
+   ${PCL_LIBRARIES}
+   ${OpenMP_CXX_FLAGS}
+)
+
+#FLOOR_IMAGE_GENERATOR
+add_library(floor_image_generator src/floor_image_generator.cpp)
+target_link_libraries(floor_image_generator
+   range_image_core
+   floor_image_core
+   ${OpenMP_CXX_FLAGS}
+)
+
+#FLOOR_IMAGE_NODE
+add_executable(floor_image_node src/floor_image_node.cpp)
+target_link_libraries(floor_image_node
+   floor_image_generator
+)
 
 #RANGE_IMAGE_GENERATOR
 add_library(range_image_generator src/range_image_generator.cpp)
 target_link_libraries(range_image_generator
    range_image_core
    can_image_core
-   ${catkin_LIBRARIES}
    ${OpenMP_CXX_FLAGS}
-   )
+)
 
 #RANGE_IMAGE_NODE
 add_executable(range_image_node src/range_image_node.cpp)
 target_link_libraries(range_image_node
    range_image_generator
-   ${catkin_LIBRARIES}
-   )
+)
   
-#RANGE_IMAGE_NODELET
-add_library(range_image_nodelet MODULE src/range_image_nodelet.cpp)
-target_link_libraries(range_image_nodelet
-   range_image_generator
-   ${catkin_LIBRARIES}
-   )
-   
-   
-# 
-# add_library(dedicated_egocylindrical_propagator_nodelet src/dedicated_egocylindrical_propagator.cpp src/dedicated_egocylindrical_propagator_nodelet.cpp) #src/range_image_core.cpp
-# 
-# target_link_libraries(dedicated_egocylindrical_propagator_nodelet
-#    range_image_core
-#    #point_transformer
-#    ${catkin_LIBRARIES}
-#    ${OpenCV_LIBRARIES}
-#    #${PCL_LIBRARIES}
-#    ${OpenMP_CXX_FLAGS}
-#    )
-# add_dependencies(dedicated_egocylindrical_propagator_nodelet ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-# 
-# target_compile_options(dedicated_egocylindrical_propagator_nodelet PRIVATE -g -std=c++11 -Wall ${SHOW_VECTORIZE_INFO} -fopt-info-vec-optimized-missed -ftree-vectorize -funsafe-math-optimizations ${OpenMP_CXX_FLAGS} -fno-math-errno 
-#   )
-# target_compile_definitions(dedicated_egocylindrical_propagator_nodelet PRIVATE ${PLATFORM_FLAGS})
-# 
-#    
-#    
-# add_executable(dedicated_egocylindrical_propagator_node src/dedicated_egocylindrical_propagator_node.cpp) #src/range_image_core.cpp
-# 
-# target_link_libraries(dedicated_egocylindrical_propagator_node
-#    range_image_core
-#    #point_transformer
-#    ${catkin_LIBRARIES}
-#    ${OpenCV_LIBRARIES}
-#    #${PCL_LIBRARIES}
-#    ${OpenMP_CXX_FLAGS}
-#    )
-# add_dependencies(dedicated_egocylindrical_propagator_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-# 
-# target_compile_options(dedicated_egocylindrical_propagator_node PRIVATE -g -std=c++11 -Wall ${SHOW_VECTORIZE_INFO} -fopt-info-vec-optimized-missed -ftree-vectorize -funsafe-math-optimizations ${OpenMP_CXX_FLAGS} -fno-math-errno 
-#   )
-# target_compile_definitions(dedicated_egocylindrical_propagator_node PRIVATE ${PLATFORM_FLAGS})
 
-   
-   
-   
-#RANGE_IMAGE_CONVERTER
-add_library(range_image_converter src/range_image_converter.cpp)
-add_dependencies(range_image_converter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(range_image_converter
-   ${catkin_LIBRARIES}
-   ${OpenMP_CXX_FLAGS}
-   )
-  
-#RANGE_IMAGE_CONVERTER_NODE
-add_executable(range_image_converter_node src/range_image_converter_node.cpp)
-add_dependencies(range_image_converter_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(range_image_converter_node
-   range_image_converter
-   ${catkin_LIBRARIES}
-   )
-
-
-#RANGE_IMAGE_INFLATOR
-add_library(range_image_inflator src/range_image_inflator_generator.cpp)
-add_dependencies(range_image_inflator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(range_image_inflator
-   ${catkin_LIBRARIES}
-   ${OpenMP_CXX_FLAGS}
-   )
-  
-##RANGE_IMAGE_INFLATOR_NODE
-add_executable(range_image_inflator_node src/range_image_inflator_node.cpp)
-add_dependencies(range_image_inflator_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(range_image_inflator_node
-   range_image_inflator
-   ${catkin_LIBRARIES}
-   )
-
-#RANGE_IMAGE_INFLATOR_NODELET
-add_library(egocylindrical_range_image_inflator_nodelet MODULE src/range_image_inflator_nodelet.cpp)
-add_dependencies(egocylindrical_range_image_inflator_nodelet ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(egocylindrical_range_image_inflator_nodelet
-   range_image_inflator
-   ${catkin_LIBRARIES}
-   )
-
-
-#CAN_IMAGE_INFLATOR
-add_library(can_image_inflator src/can_image_inflator_generator.cpp)
-add_dependencies(can_image_inflator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(can_image_inflator
-   ${catkin_LIBRARIES}
-   ${OpenMP_CXX_FLAGS}
-   )
-
-##RANGE_IMAGE_INFLATOR_NODE
-add_executable(can_image_inflator_node src/can_image_inflator_node.cpp)
-add_dependencies(can_image_inflator_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(can_image_inflator_node
-   can_image_inflator
-   ${catkin_LIBRARIES}
-   )
-
-#RANGE_IMAGE_CONVERTER_NODELET
-add_library(egocylindrical_range_image_converter_nodelet MODULE src/range_image_converter_nodelet.cpp)
-add_dependencies(egocylindrical_range_image_converter_nodelet ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(egocylindrical_range_image_converter_nodelet
-   range_image_converter
-   ${catkin_LIBRARIES}
-   )
-
-  
-#APPROXIMATION_VALIDATION
-add_executable(approximation_validation src/approximation_validation.cpp)
-add_dependencies(approximation_validation ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(approximation_validation
-   ${catkin_LIBRARIES}
-   )
-
-
-add_executable(filter_node src/depth_image_filter.cpp)
-add_dependencies(filter_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(filter_node
-   ${catkin_LIBRARIES}
-   )
-
-
-add_executable(unit_tests test/unit_tests.cpp)
-add_dependencies(unit_tests ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(unit_tests
-   ${catkin_LIBRARIES}
-   ${OpenCV_LIBRARIES}
-   )
-
-
-   
 #############
 ## Install ##
 #############
 
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
 
-## Mark executable scripts (Python etc.) for installation
-## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+install(
+  TARGETS range_image_core can_image_core floor_image_core point_cloud_core 
+            projected_point_cloud_core semantic_point_cloud_core normal_point_cloud_core
+            normal_point_cloud_floor_only_core point_transformer point_propagator
+            depth_image_remapper range_image_dilator range_image_converter
+            laser_scan_inserter depth_image_inserter depth_image_difference
+            sensors ecwrapper_buffer egocylindrical_propagator point_cloud_generator
+            projected_point_cloud_generator semantic_point_cloud_generator
+            normal_point_cloud_generator floor_image_generator range_image_generator
+  EXPORT export_${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include/${PROJECT_NAME}
+)
 
-## Mark executables and/or libraries for installation
-# install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+install(
+  TARGETS 
+      egocylindrical_propagator_node
+      point_cloud_node
+      projected_point_cloud_node
+      semantic_point_cloud_node
+      normal_point_cloud_node
+      floor_image_node
+      range_image_node
+      DESTINATION lib/${PROJECT_NAME}
+)
 
-## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
 
-## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
+install(DIRECTORY include/ 
+  DESTINATION include/${PROJECT_NAME}
+)
 
-#############
-## Testing ##
-#############
+install(DIRECTORY cfg launch
+  DESTINATION share/${PROJECT_NAME}/
+)
 
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_egocylindrical.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
-
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
+ament_export_dependencies(${dependencies})  
+ament_export_include_directories("include/${PROJECT_NAME}")
+ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+ament_package()

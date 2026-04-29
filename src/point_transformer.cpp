@@ -2,18 +2,18 @@
 #include <egocylindrical/point_transformer_object.h>
 #include <egocylindrical/ecwrapper.h>
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 //#include <opencv2/core.hpp>
 //#include <opencv2/highgui.hpp>
 //#include <opencv2/imgproc.hpp>
-//#include <image_transport/image_transport.h>
+//#include <image_transport/image_transport.hpp>
 //#include <cv_bridge/cv_bridge.h>
 //#include <image_geometry/pinhole_camera_model.h>
 //#include <tf2_ros/transform_listener.h>
-#include <tf/LinearMath/Matrix3x3.h>
+#include <tf2/LinearMath/Quaternion.h>
 #include <omp.h>
 
-#include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/msg/transform_stamped.hpp>
 
 
 namespace egocylindrical
@@ -26,18 +26,35 @@ namespace egocylindrical
         inline
         void transform_impl(const utils::ECWrapper& points, utils::ECWrapper& transformed_points, const utils::ECWrapper& new_points, const PointTransformerObject& pto, int num_threads)
         {            
-            const int num_cols = points.getCols();
             const int max_ind = new_points.getCols();
             const int num_pts = points.getNumPts();
             
+            // Points
             const float* x = (const float*)__builtin_assume_aligned(points.getX(), __BIGGEST_ALIGNMENT__);
             const float* y = (const float*)points.getY();
             const float* z = (const float*)points.getZ();
-            
+
+            // Normals
+            const float* norm_x = (const float*)__builtin_assume_aligned(points.getNormalX(), __BIGGEST_ALIGNMENT__);
+            const float* norm_y = (const float*)points.getNormalY();
+            const float* norm_z = (const float*)points.getNormalZ();
+
+            // Labels
+            const uint8_t* labels = (const uint8_t*)points.getLabels();
+
+            // New points
             float* x_n = (float*)__builtin_assume_aligned(transformed_points.getX(), __BIGGEST_ALIGNMENT__);
             float* y_n = (float*)transformed_points.getY();
             float* z_n = (float*)transformed_points.getZ();
             
+            // New normals
+            float* norm_x_n = (float*)__builtin_assume_aligned(transformed_points.getNormalX(), __BIGGEST_ALIGNMENT__);
+            float* norm_y_n = (float*)transformed_points.getNormalY();
+            float* norm_z_n = (float*)transformed_points.getNormalZ();
+
+            // New labels
+            uint8_t* labels_n = (uint8_t*)transformed_points.getLabels();
+
             float* ranges = transformed_points.getRanges();
             
             
@@ -62,7 +79,7 @@ namespace egocylindrical
                 {
                     if(omp_in_parallel())
                     {
-                        ROS_DEBUG_STREAM("Parallel region with " << omp_get_num_threads() << " threads");
+                        // ROS_DEBUG_STREAM("Parallel region with " << omp_get_num_threads() << " threads");
                     }
                 }
                 
@@ -74,12 +91,32 @@ namespace egocylindrical
                     float x_p = x[p];
                     float y_p = y[p];
                     float z_p = z[p];
-                    
-                    pto.transform(x_p, y_p, z_p, x_n[p], y_n[p], z_n[p]);           
+                    cv::Point3f world_pnt(x_p, y_p, z_p);
+
+                    pto.transform(x_p, y_p, z_p, x_n[p], y_n[p], z_n[p]);  
+
+                    // cv::Point3f transformed_pnt(x_n[p], y_n[p], z_n[p]);
+
+                    float nx_p = norm_x[p];
+                    float ny_p = norm_y[p];
+                    float nz_p = norm_z[p];
+                    cv::Point3f world_norm(nx_p, ny_p, nz_p);
+
+                    pto.rotate(nx_p, ny_p, nz_p, norm_x_n[p], norm_y_n[p], norm_z_n[p]);
+
+                    // cv::Point3f world_pnt_plus_norm = world_pnt + world_norm;
+                    // cv::Point3f transformed_pnt_plus_norm = pto.transform(world_pnt_plus_norm); // transform between prior timestep and current timestep (or something, not so sure)
+
+                    // cv::Point3f transformed_norm = transformed_pnt_plus_norm - transformed_pnt;
+                    // cv::Point3f re_normalized_norm = transformed_norm / cv::norm(transformed_norm);
+
+                    // pto.rotate(nx_p, ny_p, nz_p, norm_x_n[p], norm_y_n[p], norm_z_n[p]);   
+                    // norm_x_n[p] = re_normalized_norm.x;
+                    // norm_y_n[p] = re_normalized_norm.y;
+                    // norm_z_n[p] = re_normalized_norm.z;      
                                     
                     float range_squared= worldToRangeSquared(x_n[p],z_n[p]);
                 
-                  
                     int idx = -1;
                     {
                       int tidx = new_points.worldToCylindricalIdx(x_n[p],y_n[p],z_n[p]);
@@ -92,8 +129,9 @@ namespace egocylindrical
                     
                     inds[p] = idx;
                     
-                    
                     ranges[p] = range_squared;
+
+                    labels_n[p] = labels[p];
                     
                 }
                 
@@ -102,48 +140,21 @@ namespace egocylindrical
         
         
         
-        // TODO: This functionality could be moved into a tf2_ros implementation
-        void transformPoints(const utils::ECWrapper& points, utils::ECWrapper& transformed_points, const utils::ECWrapper& new_points, const geometry_msgs::TransformStamped& trans, int num_threads)
+        // TODO: This functionality could be moved into a tf2_ros implementation, though it wouldn't be able to populate the 'inds'
+        void transformPoints(const utils::ECWrapper& points, utils::ECWrapper& transformed_points, const utils::ECWrapper& new_points, const geometry_msgs::msg::TransformStamped& trans, int num_threads)
         {
-  
-//             tf::Quaternion rotationQuaternion = tf::Quaternion(trans.transform.rotation.x,
-//                                                                trans.transform.rotation.y,
-//                                                                trans.transform.rotation.z,
-//                                                                trans.transform.rotation.w);
-//             
-//             
-//             tf::Matrix3x3 tempRotationMatrix = tf::Matrix3x3(rotationQuaternion);
-//             
-//             
-//             ROS_DEBUG("Getting Rotation Matrix");
-//             float rotationArray[9]  __attribute__ ((aligned (__BIGGEST_ALIGNMENT__)));
-//             rotationArray[0] = (float) tempRotationMatrix[0].getX();
-//             rotationArray[1] = (float) tempRotationMatrix[0].getY();
-//             rotationArray[2] = (float) tempRotationMatrix[0].getZ();
-//             rotationArray[3] = (float) tempRotationMatrix[1].getX();
-//             rotationArray[4] = (float) tempRotationMatrix[1].getY();
-//             rotationArray[5] = (float) tempRotationMatrix[1].getZ();
-//             rotationArray[6] = (float) tempRotationMatrix[2].getX();
-//             rotationArray[7] = (float) tempRotationMatrix[2].getY();
-//             rotationArray[8] = (float) tempRotationMatrix[2].getZ();
-//             //cv::Mat rotationMatrix = cv::Mat(3, 3, CV_32FC1, &rotationArray[0]);
-//             
-//             float translationArray[3] __attribute__ ((aligned (__BIGGEST_ALIGNMENT__)));
-//             translationArray[0] = trans.transform.translation.x;
-//             translationArray[1] = trans.transform.translation.y;
-//             translationArray[2] = trans.transform.translation.z;
               PointTransformerObject pto(trans);
             
           //  if(points.isLocked())
           //  {
-                ROS_DEBUG("Init transformed ECWrapper");
+                // ROS_DEBUG("Init transformed ECWrapper");
                 transformed_points.init(points);    //This ensures that 'transformed_points' is big enough
                 transform_impl(points, transformed_points, new_points, pto, num_threads);
         /*
             }
             else
             {
-                ROS_INFO("In place");
+                // ROS_INFO("In place");
                 transformed_points.useStorageFrom(points);
                 transform_impl(points, transformed_points, new_points, rotationArray, translationArray);
             }

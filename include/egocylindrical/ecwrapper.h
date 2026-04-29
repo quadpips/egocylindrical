@@ -3,25 +3,28 @@
 
 
 
-#include <ros/ros.h>
+// #include <rclcpp/rclcpp.hpp>
+// #include "rclcpp/rclcpp.hpp"
+
 #include <opencv2/core.hpp>
 //#include <opencv2/highgui.hpp>
 //#include <opencv2/imgproc.hpp>
-//#include <image_transport/image_transport.h>
+//#include <image_transport/image_transport.hpp>
 //#include <cv_bridge/cv_bridge.h>
 //#include <image_geometry/pinhole_camera_model.h>
 //#include <tf2_ros/transform_listener.h>
-//#include <tf/LinearMath/Matrix3x3.h>
+//#include <tf2/LinearMath/Quaternion.h>
 //#include <omp.h>
-//#include <sensor_msgs/PointCloud2.h>
+//#include <sensor_msgs/msg/point_cloud2.hpp>
 
-#include <egocylindrical/EgoCylinderPoints.h>
+#include <egocylindrical_msgs/msg/ego_cylinder_points.hpp>
 //#include <egocylindrical/EgoCylinderInfo.h>
 
 //#include <eigen_stl_containers/eigen_stl_containers.h>
 
 #include <boost/align/aligned_alloc.hpp>
 #include <boost/align/aligned_allocator.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <cstddef>
 #include <cstdalign>
@@ -37,7 +40,6 @@ namespace egocylindrical
     {
 
         constexpr float dNaN=(std::numeric_limits<float>::has_quiet_NaN) ? std::numeric_limits<float>::quiet_NaN() : 0;
-        
         
         //Source: https://stackoverflow.com/a/39714493/2906021
         inline
@@ -156,179 +158,14 @@ namespace egocylindrical
           return Pcyl_t;
         }
         
-        /*
-        inline
-        cv::Point3f projectWorldToCylinder(const cv::Point3f& point)
-        {
-            cv::Point3f Pcyl_t = point / std::sqrt(point.x * point.x + point.z * point.z);
-            return Pcyl_t;
-        }
-        */
-        
-        /*
-        inline
-        int worldToCylindricalIdx(float x, float y, float z) const
-        {
-          cv::Point3f point(x,y,z);
-          cv::Point image_pnt = utils::worldToCylindricalImageFast(point, width_, height_, hscale_, vscale_, 0, 0);
-          
-          int tidx = image_pnt.y * getWidth() +image_pnt.x;
-          
-          return tidx;
-        }
-        
-        inline
-        int worldToCylindricalXIdx(float x, float z) const
-        {
-          int xind = atan2_approximation1(x,z)*hscale_ + width_/2;
-          return xind;
-        }
-        
-        inline
-        int worldToCylindricalYIdx(float y, float range_squared) const
-        {
-          int yind = y * inv_sqrt_approximation(range_squared)*vscale_ + height_/2;
-          return yind;
-        }
-        */
-        
-        
-//         template <typename T>
-//         inline
-//         T worldToCylindricalXIdx(const cv::Point3_<T>& point, int cyl_width, int cyl_height, float h_scale, float v_scale, float h_offset, float v_offset)
-//         {
-//           return std::atan2(point.x, point.z) * h_scale + cyl_width / 2;
-//         }
-//         
-//         template <typename T>
-//         inline
-//         T worldToCylindricalXIdxFast(const cv::Point3_<T>& point, int cyl_width, int cyl_height, float h_scale, float v_scale, float h_offset, float v_offset)
-//         {
-//           return atan2_approximation1(point.x, point.z) * h_scale + cyl_width / 2;
-//         }
-// 
-//         template <typename T>
-//         inline
-//         T worldToCylindricalYIdx(const cv::Point3_<T>& point, T range, int cyl_width, int cyl_height, float h_scale, float v_scale, float h_offset, float v_offset)
-//         {
-//           return point.y * v_scale /range + cyl_height / 2 + v_offset;
-//         }
-//         
-//         inline
-//         int pixToIdx(int xind, int yind, int width)
-//         {
-//           int ind = yind*width + xind;
-//           
-//           return ind;
-//         }
-//         
-//         inline
-//         int pixToIdx(cv::Point pix, int width)
-//         {
-//           return pixToIdx(pix.x, pix.y, width);
-//         }
-//         
-//         template <typename T>
-//         inline
-//         T worldToCanXIdx(const cv::Point3_<T>& point, int can_width, float scale)
-//         {
-//           T absy = worldToCanDepth(point);
-//           T xind = point.x/absy * scale + can_width/2;
-//           return xind;
-//         }
-//         
-//         template <typename T>
-//         inline
-//         T worldToCanZIdx(const cv::Point3_<T>& point, int can_width, float scale)
-//         {
-//           T absy = worldToCanDepth(point);
-//           T zind = point.z/absy * scale + can_width/2;
-//           return zind;
-//         }
-//         
-//         template <typename T>
-//         inline
-//         int pixToCanIdx(int xind, int zind, int can_width, T y)
-//         {
-//           int rel_ind = zind*can_width + xind;
-//           
-//           int ind = (y > 0) ? rel_ind + can_width*can_width : rel_ind;
-//           return ind;
-//         }
-//         
-//         template <typename T>
-//         inline
-//         int worldToCanIdx(const cv::Point3_<T>& point, int can_width, float scale)
-//         {
-//           int xind = worldToCanXIdx(point, can_width, scale);
-//           int zind = worldToCanZIdx(point, can_width, scale);
-//           return pixToCanIdx(xind, zind, can_width, point.y);
-// /*          
-//           int rel_ind = zind*can_width + xind;
-//           
-//           int ind = (point.y > 0) ? rel_ind + can_width*can_width : rel_ind;
-//           return ind;*/
-//         }
-//         
-//         template <typename T>
-//         inline
-//         T worldToCylindricalYIdx(const cv::Point3_<T>& point, int cyl_width, int cyl_height, float h_scale, float v_scale, float h_offset, float v_offset)
-//         {
-//           return worldToCylindricalYIdx(point, worldToRange(point), cyl_width, cyl_height, h_scale, v_scale, h_offset, v_offset);
-//         }
-//         
-//         template <typename T>
-//         inline
-//         T worldToCylindricalYIdxFast(const cv::Point3_<T>& point, T range_squared, int cyl_width, int cyl_height, float h_scale, float v_scale, float h_offset, float v_offset)
-//         {
-//           return point.y * v_scale * inv_sqrt_approximation(range_squared) + v_offset;
-//         }
-//         
-//         template <typename T>
-//         inline
-//         cv::Point_<T> worldToCylindricalImage(const cv::Point3_<T>& point, int cyl_width, int cyl_height, float h_scale, float v_scale, float h_offset, float v_offset)
-//         {
-//           T x = worldToCylindricalXIdx(point, cyl_width, cyl_height, h_scale, v_scale, h_offset, v_offset);
-//           T y = worldToCylindricalYIdx(point, cyl_width, cyl_height, h_scale, v_scale, h_offset, v_offset);
-//             
-//           cv::Point_<T> im_pt(x,y);
-//           return im_pt;
-//         }
-//         
-//         template <typename T>
-//         inline
-//         cv::Point worldToCylindricalImageFast(const cv::Point3_<T>& point, int cyl_width, int cyl_height, float h_scale, float v_scale, float h_offset, float v_offset)
-//         {
-//           
-//           T x = worldToCylindricalXIdxFast(point, cyl_width, cyl_height, h_scale, v_scale, h_offset, v_offset);
-//           T y = worldToCylindricalYIdx(point, cyl_width, cyl_height, h_scale, v_scale, h_offset, v_offset);
-//           
-//           cv::Point im_pt(x,y);
-//           return im_pt;
-//         }
-//         
-// 
-//         template <typename T>
-//         inline
-//         int worldToCylindricalIdx(const cv::Point3_<T>& point, int cyl_width, int cyl_height, float h_scale, float v_scale, float h_offset, float v_offset)
-//         {
-//           cv::Point image_pnt = utils::worldToCylindricalImageFast(point, cyl_width, cyl_height, h_scale, v_scale, h_offset, v_offset);
-//           
-//           int tidx = pixToIdx(image_pnt, cyl_width); //image_pnt.y * cyl_width +image_pnt.x;
-//           
-//           return tidx;
-//         }
-
-        
-        
-        //typedef ::egocylindrical::EgoCylinderPoints_<Eigen::aligned_allocator<void, 32> > AlignedEgoCylinderPoints;
-        typedef ::egocylindrical::EgoCylinderPoints_<boost::alignment::aligned_allocator<void, 32> > AlignedEgoCylinderPoints;
+        //typedef ::egocylindrical_msgs::msg::EgoCylinderPoints_<Eigen::aligned_allocator<void, 32> > AlignedEgoCylinderPoints;
+        // typedef ::egocylindrical_msgs::msg::EgoCylinderPoints_<boost::alignment::aligned_allocator<void, 32> > AlignedEgoCylinderPoints;
         
         // NOTE: I'm not sure that using this typedef renamed version was such a good idea after all...
         //typedef AlignedEgoCylinderPoints ECMsg;
-        typedef EgoCylinderPoints ECMsg;
-        typedef boost::shared_ptr<ECMsg> ECMsgPtr;
-        typedef boost::shared_ptr<ECMsg const> ECMsgConstPtr;
+        typedef egocylindrical_msgs::msg::EgoCylinderPoints ECMsg;
+        typedef std::shared_ptr<ECMsg> ECMsgPtr;
+        typedef std::shared_ptr<ECMsg const> ECMsgConstPtr;
         
         template <typename T>
         using AlignedVector = std::vector<T, boost::alignment::aligned_allocator<T, __BIGGEST_ALIGNMENT__> >;
@@ -377,7 +214,7 @@ namespace egocylindrical
             //header_ = msg->header;
             //vfov_ = msg->fov_v;
             
-            const std::vector<std_msgs::MultiArrayDimension>& dims = msg.points.layout.dim;
+            const std::vector<std_msgs::msg::MultiArrayDimension>& dims = msg.points.layout.dim;
             height = dims[1].size;
             width = dims[2].size;
             can_width = dims[3].size;
@@ -401,9 +238,15 @@ namespace egocylindrical
           }
           
           inline
+          int getNumCapPts() const
+          {
+            return 2*can_width*can_width;
+          }
+
+          inline
           int getNumPts() const
           {
-            return getCols() + 2*can_width*can_width;
+            return getCols() + getNumCapPts();
           }
           
           inline
@@ -461,6 +304,16 @@ namespace egocylindrical
           ECConverter()
           {
           }
+
+          ECConverter(const ECMsgConstPtr& msg)
+          {
+            fromCameraInfo(msg);
+          }
+
+          ECConverter(const ECParams& params)
+          {
+            fromParams(params);
+          }
           
           
           inline
@@ -494,35 +347,35 @@ namespace egocylindrical
           {
             msg.fov_v = params_.vfov;
             
-            std::vector<std_msgs::MultiArrayDimension>& dims = msg.points.layout.dim;
+            std::vector<std_msgs::msg::MultiArrayDimension>& dims = msg.points.layout.dim;
             dims.resize(6);
             
-            std_msgs::MultiArrayDimension& dim0 = dims[0];
+            std_msgs::msg::MultiArrayDimension& dim0 = dims[0];
             dim0.label = "components";
             dim0.size = 3;
             dim0.stride = 3*params_.getCols(); 
             
-            std_msgs::MultiArrayDimension& dim1 = dims[1];
+            std_msgs::msg::MultiArrayDimension& dim1 = dims[1];
             dim1.label = "rows";
             dim1.size = params_.height;
             dim1.stride = params_.getCols();                
             
-            std_msgs::MultiArrayDimension& dim2 = dims[2];
+            std_msgs::msg::MultiArrayDimension& dim2 = dims[2];
             dim2.label = "point";
             dim2.size = params_.width;
             dim2.stride = params_.width;   
             
-            std_msgs::MultiArrayDimension& dim3 = dims[3];
+            std_msgs::msg::MultiArrayDimension& dim3 = dims[3];
             dim3.label = "can";
             dim3.size = params_.can_width;
             dim3.stride = params_.can_width; 
             
-            std_msgs::MultiArrayDimension& dim4 = dims[4];
+            std_msgs::msg::MultiArrayDimension& dim4 = dims[4];
             dim4.label = "v_offset";
             dim4.size = toUint(params_.v_offset);
             dim4.stride = 0;  //Not used
             
-            std_msgs::MultiArrayDimension& dim5 = dims[5];
+            std_msgs::msg::MultiArrayDimension& dim5 = dims[5];
             dim5.label = "cyl_radius";
             dim5.size = toUint(params_.cyl_radius);
             dim5.stride = 0;  //Not used
@@ -572,6 +425,12 @@ namespace egocylindrical
           {
             return params_.getCols();
           }
+
+          inline
+          int getNumCapPts() const
+          {
+            return params_.getNumCapPts();
+          }
           
           inline
           cv::Rect getImageRoi() const
@@ -592,6 +451,7 @@ namespace egocylindrical
           void worldToCylindricalXIdxFast(const cv::Point3_<S>& point, T& x_idx) const
           {
             x_idx = atan2_approximation1(point.x, point.z) * params_.hscale + params_.width / 2;
+            // worldToCylindricalXIdx(point, x_idx);
           }
           
 
@@ -699,11 +559,20 @@ namespace egocylindrical
           inline
           void worldToCanXIdx(const cv::Point3_<S>& point, T& x_idx) const
           {
+            // // ROS_DEBUG_STREAM_NAMED("labels", "[worldToCanXIdx])");
+            // // ROS_DEBUG_STREAM_NAMED("labels", "  point: " << point);
+            // // ROS_DEBUG_STREAM_NAMED("labels", "  params_.vfov: " << params_.vfov);
+            // // ROS_DEBUG_STREAM_NAMED("labels", "  params_.v_offset: " << params_.v_offset);
+            // // ROS_DEBUG_STREAM_NAMED("labels", "  params_.can_width: " << params_.can_width);
+
             if(point.y >=0 )
             {
               S absy = point.y;
+              // // ROS_DEBUG_STREAM_NAMED("labels", "  absy: " << absy);
               S h_b = params_.vfov/2-params_.v_offset;
+              // // ROS_DEBUG_STREAM_NAMED("labels", "  h_b: " << h_b);
               x_idx = point.x*h_b/absy * (params_.can_width/2) + params_.can_width/2;
+              // // ROS_DEBUG_STREAM_NAMED("labels", "  x_idx: " << x_idx);
             }
             else
             {
@@ -907,13 +776,15 @@ namespace egocylindrical
         private:
         public:         
             float* points_;
+            float* normals_;
+            uint8_t* labels_;
             
             AlignedVector<float> ranges_;
             AlignedVector<int32_t> inds_;
 
             bool allocate_arrays_;
             
-            std_msgs::Header header_;
+            std_msgs::msg::Header header_;
             ECMsgPtr msg_; // The idea is to store everything in the message's allocated storage to prevent copies
             
             ECMsgConstPtr const_msg_;
@@ -932,7 +803,7 @@ namespace egocylindrical
             ECWrapper(const ECParams& params, bool allocate_arrays = false):
                 allocate_arrays_(allocate_arrays)
             {
-                msg_ = boost::make_shared<ECMsg>();
+                msg_ = std::make_shared<ECMsg>();
                 
                 msg_locked_ = false;
                 
@@ -941,13 +812,59 @@ namespace egocylindrical
             
             ECWrapper(const ECMsgConstPtr& ec_points) 
             {
+                // // ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper(ec_points)");
                 fromCameraInfo(ec_points);
                 const_msg_ = ec_points;
                 header_ = const_msg_->header;
 
                 points_ = (float*) const_msg_->points.data.data() + (const_msg_->points.layout.data_offset) / sizeof(float);
+                normals_ = (float*) const_msg_->normals.data.data() + (const_msg_->normals.layout.data_offset) / sizeof(float);
+                labels_ = (uint8_t*) const_msg_->labels.data.data() + (const_msg_->labels.layout.data_offset) / sizeof(uint8_t);
                                 
                 msg_locked_ = true;
+            }
+            
+            ECWrapper copy() const
+            {
+                // // ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper(copy)");
+                ECWrapper lh(getParams(), allocate_arrays_);
+                // std::copy(getPoints(), getPoints()+3*getNumPts(), lh.getPoints());
+                // lh.setHeader(getHeader());
+                copyContents(lh, *this);
+                return lh;
+            }
+
+            ECWrapper& operator=(const ECWrapper& rhs)
+            {
+                if(&rhs != this) 
+                {
+                    // ROS_ASSERT_MSG(!isLocked(), "Error! Cannot use assignment operator on a 'locked' ECWrapper instance!");
+
+                    allocate_arrays_ = rhs.allocate_arrays_;
+                    init(rhs);
+                    // std::copy(getPoints(), getPoints()+3*getNumPts(), lh.getPoints());
+                    // lh.setHeader(getHeader());
+                    copyContents(*this, rhs);
+                }
+                
+                return *this;
+            }
+
+            ECWrapper(const ECWrapper& rhs):
+                ECWrapper(rhs.getParams(), rhs.allocate_arrays_)
+            {
+                // // ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper copy constructor");
+                copyContents(*this, rhs);
+            }
+
+            static void copyContents(ECWrapper& lhs, const ECWrapper& rhs)
+            {
+                // // ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper copyContents");
+                std::copy(rhs.getPoints(), rhs.getPoints()+3*rhs.getNumPts(), lhs.getPoints());
+                std::copy(rhs.getNormals(), rhs.getNormals() + 3*rhs.getNumPts(), lhs.getNormals());
+                std::copy(rhs.getLabels(), rhs.getLabels()+rhs.getNumPts(), lhs.getLabels());
+
+                lhs.setHeader(rhs.getHeader());
             }
             
             ~ECWrapper()
@@ -955,10 +872,26 @@ namespace egocylindrical
 
             }
 
-            
             inline float* getPoints()                   { return (float*) points_; } //__builtin_assume_aligned(points_, __BIGGEST_ALIGNMENT__)
             inline const float* getPoints() const       { return (const float*) points_; } //__builtin_assume_aligned(points_, __BIGGEST_ALIGNMENT__)
             
+            inline float* getNormals()                  { return (float*) normals_; } //__builtin_assume_aligned(normals_, __BIGGEST_ALIGNMENT__)
+            inline const float* getNormals() const      { return (const float*) normals_; } //__builtin_assume_aligned(normals_, __BIGGEST_ALIGNMENT__)
+
+            inline float* getNormalX()                        { return getNormals(); }
+            inline const float* getNormalX()          const   { return (const float*) getNormals(); }
+            
+            inline float* getNormalY()                        { return getNormals() + getNumPts(); }
+            inline const float* getNormalY()          const   { return (const float*) getNormals() + getNumPts(); }
+            
+            inline float* getNormalZ()                        { return getNormals() + 2*getNumPts(); }
+            inline const float* getNormalZ()          const   { return (const float*) getNormals() + 2*getNumPts(); }
+
+            inline const uint8_t getOneLabel(const int & idx) const       { return labels_[idx]; } //__builtin_assume_aligned(points_, __BIGGEST_ALIGNMENT__)
+
+            inline uint8_t* getLabels()                   { return (uint8_t*) labels_; } //__builtin_assume_aligned(points_, __BIGGEST_ALIGNMENT__)
+            inline const uint8_t* getLabels() const       { return (const uint8_t*) labels_; } //__builtin_assume_aligned(points_, __BIGGEST_ALIGNMENT__)
+
             inline float* getX()                        { return getPoints(); }
             inline const float* getX()          const   { return (const float*) getPoints(); }
             
@@ -977,14 +910,14 @@ namespace egocylindrical
             inline bool isLocked()              const   { return msg_locked_; }
 
             inline
-            void setHeader(std_msgs::Header header)
+            void setHeader(std_msgs::msg::Header header)
             {
                 header_ = header;
                 msg_->header = header;
             }
             
             inline
-            std_msgs::Header getHeader() const
+            std_msgs::msg::Header getHeader() const
             {
                 return header_; 
             }
@@ -995,53 +928,117 @@ namespace egocylindrical
                 msg_locked_ = true;
                 return (ECMsgConstPtr) msg_;
             }
+
+            inline
+            ECMsgConstPtr getEgoCylinderPointsMsg() const
+            {
+                if(msg_locked_)
+                {
+                  return (ECMsgConstPtr) msg_;
+                }
+
+                // ROS_WARN("Getting PointsMsg from const but non-locked ECWrapper requires making a copy");
+
+                ECMsgPtr msg = std::make_shared<ECMsg>(*msg_);
+                return (ECMsgConstPtr) msg;
+            }
             
             inline
             ECMsgConstPtr getEgoCylinderInfoMsg() const
             {
-              ECMsgPtr info = boost::make_shared<ECMsg>();
+              ECMsgPtr info = std::make_shared<ECMsg>();
               fillMsgInfo(*info);
-              info->header = msg_->header;
+              info->header = (const_msg_) ? const_msg_->header : msg_->header;
               return (ECMsgConstPtr) info;
             }
             
             inline
             void init()
             {
-                int max_alignment = alignof(std::max_align_t);
+                // // ROS_DEBUG_STREAM_NAMED("labels", "ECWrapper init()");
+
+                // POINTS
+
+                // int max_alignment = alignof(std::max_align_t);
                 
                 int biggest_alignment = __BIGGEST_ALIGNMENT__;
                 
                 size_t object_size = sizeof(float);
                 
-                size_t object_alignment = alignof(float);
+                // size_t object_alignment = alignof(float);
                 
                 size_t buffer_size = biggest_alignment - object_size;
                 size_t buffer_objects = buffer_size / object_size;
                 
                 // NOTE: width x height must be divisible by 8 for this approach to work. Otherwise, additional information will be necessary in order to properly place the x,y,z pointers
                 
-                ROS_DEBUG_STREAM("max_alignment: " << max_alignment << ", biggest_alignment: " << biggest_alignment << ", object_size: " << object_size << ", object_alignment: " << object_alignment << ", number buffer objects: " << buffer_objects);
+                // // ROS_DEBUG_STREAM("max_alignment: " << max_alignment << ", biggest_alignment: " << biggest_alignment << ", object_size: " << object_size << ", object_alignment: " << object_alignment << ", number buffer objects: " << buffer_objects);
                 
-                ROS_DEBUG_STREAM("Allocating space for " << getNumPts() << " points.");
+                // // ROS_DEBUG_STREAM("Allocating space for " << getNumPts() << " points (and labels).");
                 msg_->points.data.resize(3*getNumPts() + buffer_objects, dNaN);
                 
-                
-                //Align data pointer
+                //Align data pointer (points)
                 {
-                    void* temp_points = (void*) msg_->points.data.data();
-                    
-                    size_t space_before = getNumPts()*3*sizeof(float);
-                    size_t space_after = space_before;
-                    
-                    std::align(biggest_alignment, sizeof(float), temp_points, space_after);
-                    points_ = (float*) temp_points;
-                    
-                    msg_->points.layout.data_offset = (space_before - space_after);
-                    
-                    ROS_DEBUG_STREAM("Aligned points_, adjusted pointer by " << (space_before - space_after) << " bytes");
+                  void* temp_points = (void*) msg_->points.data.data();
+                  
+                  size_t space_before = getNumPts()*3*sizeof(float);
+                  size_t space_after = space_before;
+                  
+                  std::align(biggest_alignment, sizeof(float), temp_points, space_after);
+                  points_ = (float*) temp_points;
+                  
+                  msg_->points.layout.data_offset = (space_before - space_after);
+                  
+                  // // ROS_DEBUG_STREAM_NAMED("labels", "Points space_after: " << space_after);
+                  // // ROS_DEBUG_STREAM("Aligned points_, adjusted pointer by " << (space_before - space_after) << " bytes");
                 }
                 
+                // LABELS
+                size_t labels_object_size = sizeof(uint8_t);
+                size_t labels_buffer_size = biggest_alignment - labels_object_size;
+                size_t labels_buffer_objects = labels_buffer_size / labels_object_size;
+                
+                msg_->labels.data.resize(getNumPts() + labels_buffer_objects, 0);
+
+                //Align data pointer (labels)
+                {
+                    void* temp_labels = (void*) msg_->labels.data.data();
+                    
+                    size_t space_before = getNumPts()*sizeof(uint8_t);
+                    size_t space_after = space_before;
+                    
+                    std::align(biggest_alignment, sizeof(uint8_t), temp_labels, space_after);
+                    labels_ = (uint8_t*) temp_labels;
+                    
+                    msg_->labels.layout.data_offset = (space_before - space_after);
+
+                    // // ROS_DEBUG_STREAM_NAMED("labels", "Labels space_after: " << space_after);
+                    // // ROS_DEBUG_STREAM_NAMED("labels", "Aligned labels_, adjusted pointer by " << (space_before - space_after) << " bytes");
+                }
+
+                // NORMALS                
+                size_t normals_object_size = sizeof(float);
+                size_t normals_buffer_size = biggest_alignment - normals_object_size;
+                size_t normals_buffer_objects = normals_buffer_size / normals_object_size;
+                
+                msg_->normals.data.resize(3*getNumPts() + normals_buffer_objects, dNaN);
+
+                //Align data pointer (labels)
+                {
+                  void* temp_normals = (void*) msg_->normals.data.data();
+                  
+                  size_t normals_space_before = getNumPts()*3*sizeof(float);
+                  size_t normals_space_after = normals_space_before;
+                  
+                  std::align(biggest_alignment, sizeof(float), temp_normals, normals_space_after);
+                  normals_ = (float*) temp_normals;
+                  
+                  msg_->normals.layout.data_offset = (normals_space_before - normals_space_after);
+                  
+                  // // ROS_DEBUG_STREAM_NAMED("labels", "Normals space_after: " << normals_space_after);
+                  // // ROS_DEBUG_STREAM("Aligned normals_, adjusted pointer by " << (normals_space_before - normals_space_after) << " bytes");
+                }
+
                 if(allocate_arrays_)
                 {
                     ranges_.resize(getNumPts());
@@ -1059,35 +1056,39 @@ namespace egocylindrical
             inline
             bool init(const ECParams& params, bool clear=false)
             {
-                ROS_DEBUG_STREAM("Current parameters: [" << params_ << "]; New parameters: [" << params << "]");
-                if(msg_->points.data.size()==0)
+                // // ROS_DEBUG_STREAM("Current parameters: [" << params_ << "]; New parameters: [" << params << "]");
+                if (msg_->points.data.size()==0)
                 {
-                  ROS_DEBUG_STREAM("No space for points!");
+                  // // ROS_DEBUG_STREAM("No space for points!");
                 }
                 if(!msg_locked_)
                 {
                     if(params != (const ECParams)params_)
                     {
-                        ROS_DEBUG_STREAM("Params have changed, update!");
+                        // // ROS_DEBUG_STREAM("Params have changed, update!");
                         fromParams(params);
                         if(clear)
                         {
                             msg_->points.data.clear();
+                            msg_->normals.data.clear();
+                            msg_->labels.data.clear();
                         }
                             
                         init();
                     }
                     else
                     {
-                      ROS_DEBUG_STREAM("Params have not changed!");
+                      // // ROS_DEBUG_STREAM("Params have not changed!");
                       if(clear)
                       {
                         std::fill(msg_->points.data.begin(), msg_->points.data.end(), dNaN);
+                        std::fill(msg_->normals.data.begin(), msg_->normals.data.end(), dNaN);
+                        std::fill(msg_->labels.data.begin(), msg_->labels.data.end(), 0);
                       }
                     }
-                    if(msg_->points.data.size()==0)
+                    if (msg_->points.data.size()==0)
                     {
-                      ROS_WARN_STREAM("Still no space for points!");
+                      // // ROS_WARN_STREAM("Still no space for points!");
                     }
                     return true;
                 }
@@ -1101,6 +1102,8 @@ namespace egocylindrical
             {
                 msg_ = other.msg_;
                 points_ = other.points_;
+                normals_ = other.normals_;
+                labels_ = other.labels_;
             }
             
             using Ptr=std::shared_ptr<ECWrapper>;
@@ -1130,6 +1133,13 @@ namespace egocylindrical
         {
           return getECWrapper(wrapper.getParams(), allocate_arrays);
         }
+        
+        inline
+        ECWrapperPtr copyECWrapper(const ECWrapper& wrapper)
+        {
+          return std::make_shared<ECWrapper>(wrapper.copy());
+        }
+        
 
     }
     

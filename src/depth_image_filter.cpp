@@ -1,13 +1,13 @@
 
 
-#include <image_transport/image_transport.h>
-#include <ros/ros.h>
-#include <image_transport/subscriber_filter.h>
+#include <image_transport/image_transport.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <image_transport/subscriber_filter.hpp>
 #include <message_filters/subscriber.h>
 
 #include <cv_bridge/cv_bridge.h>
 
-#include <dynamic_reconfigure/server.h>
+// #include <dynamic_reconfigure/server.h>
 #include <egocylindrical/FilterConfig.h>
 
 #include <message_filters/synchronizer.h>
@@ -54,12 +54,12 @@ namespace egocylindrical
 
       
         reconfigure_server_ = std::make_shared<ReconfigureServer>(pnh_);
-        reconfigure_server_->setCallback(boost::bind(&DepthImageFilter::configCB, this, _1, _2));
+        reconfigure_server_->setCallback(std::bind(&DepthImageFilter::configCB, this, _1, _2));
       
-        ros::SubscriberStatusCallback info_cb = boost::bind(&DepthImageFilter::ssCB, this);
-        im_pub_ = nh_.advertise<sensor_msgs::Image>("image_out", 2, info_cb, info_cb);
+        ros::SubscriberStatusCallback info_cb = std::bind(&DepthImageFilter::ssCB, this);
+        im_pub_ = nh_.advertise<sensor_msgs::msg::Image>("image_out", 2, info_cb, info_cb);
         
-        im_sub_.registerCallback(boost::bind(&DepthImageFilter::imageCB, this, _1));
+        im_sub_.registerCallback(std::bind(&DepthImageFilter::imageCB, this, _1));
 
         return true;
     }
@@ -69,7 +69,7 @@ namespace egocylindrical
     void ssCB()
     {
         
-      if(im_pub_.getNumSubscribers()>0)
+      if(im_pub_->get_subscription_count()>0)
         {
             //Note: should probably add separate checks for each
             if((void*)im_sub_.getSubscriber()) //if currently subscribed... no need to do anything
@@ -79,28 +79,28 @@ namespace egocylindrical
             else
             {
                 im_sub_.subscribe(it_, "image_in", 2);
-                ROS_INFO("Depth Image Filter Subscribing");
+                // ROS_INFO("Depth Image Filter Subscribing");
             }
       
         }
         else
         {
             im_sub_.unsubscribe();
-            ROS_INFO("RangeImage Converter Unsubscribing");
+            // ROS_INFO("RangeImage Converter Unsubscribing");
         }
     }
 
     //NOTE: Once the parameters have been moved to their own message, this should subscribe to the parameters instead
-    void imageCB(const sensor_msgs::Image::ConstPtr& image_msg)
+    void imageCB(const sensor_msgs::msg::Image::ConstSharedPtr& image_msg)
     {
-        ROS_INFO("Received image msg");
+        // ROS_INFO("Received image msg");
         
         // This may be redundant now
-        if(im_pub_.getNumSubscribers() > 0)
+        if(im_pub_->get_subscription_count() > 0)
         {
           try
           {
-            ros::WallTime start = ros::WallTime::now();
+            // ros::WallTime// start = ros::WallTime::now();
             cv_bridge::CvImage::ConstPtr cv_in = cv_bridge::toCvCopy(image_msg);
             
             //cv_bridge::CvImage cv_out;
@@ -117,14 +117,14 @@ namespace egocylindrical
               cv::bilateralFilter(cv_in->image, cv_out->image, config_.diameter, config_.sigmaColor, config_.sigmaSpace);
             }
 
-            ROS_DEBUG_STREAM("Filtering depth image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
+            // ROS_DEBUG_STREAM("Filtering depth image took " <<  (ros::WallTime::now() - start).toSec() * 1e3 << "ms");
                       
             im_pub_.publish(cv_out->toImageMsg());
             
           }
           catch (cv_bridge::Exception& e)
           {
-            ROS_ERROR("cv_bridge exception: %s", e.what());
+            // ROS_ERROR(("cv_bridge exception: %s", e.what());
             return;
           }
         }
@@ -136,7 +136,7 @@ namespace egocylindrical
       //Atomic operation, so no need for mutex this time
       //WriteLock lock(config_mutex_);
       
-      ROS_INFO_STREAM("Updating Depth Image Filter config:");
+      // ROS_INFO_STREAM("Updating Depth Image Filter config:");
       {
         Lock(mutex_);
         config_ = config;

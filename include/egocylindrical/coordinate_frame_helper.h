@@ -3,9 +3,12 @@
 
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_broadcaster.h>
-#include <ros/node_handle.h>
-#include <ros/console.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+// #include <ros/node_handle.h>
+// #include <ros/console.h>
+
+#include "builtin_interfaces/msg/time.hpp"
+
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 #include <mutex>
 
@@ -17,86 +20,97 @@ namespace egocylindrical
         struct CoordinateFrameDefinition
         {
             std::string origin_fixed_frame_id, orientation_fixed_frame_id;
-            geometry_msgs::PoseStamped pose;
+            geometry_msgs::msg::PoseStamped pose;
         };
         
         class CoordinateFrameHelper
         {
         protected:
-            tf2_ros::Buffer& buffer_;
+            // tf2_ros::Buffer& buffer_;
+            std::shared_ptr<tf2_ros::Buffer> buffer_;
+
             std::string fixed_frame_id_;
-            ros::NodeHandle pnh_;
-            tf2_ros::TransformBroadcaster tf_br_;
+            // ros::NodeHandle pnh_;
+            rclcpp::Node::SharedPtr node_;
+
+            // tf2_ros::TransformBroadcaster tf_br_;
+            std::unique_ptr<tf2_ros::TransformBroadcaster> tf_br_;
+
             std::string target_frame_id_;
-            geometry_msgs::TransformStamped offset_transform_, ecs_, ecc_;
+            geometry_msgs::msg::TransformStamped offset_transform_, ecs_, ecc_;
             CoordinateFrameDefinition cfd_;
             std::string tf_prefix_;
             //ros::Time last_update_;
-            std_msgs::Header target_header_;
+            std_msgs::msg::Header target_header_;
             bool new_cfd_;
-            ros::Subscriber pose_sub_;
-            
-            ros::Duration nano_second;
-            
+
+            rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr pose_sub_;
+            // rclcpp::Duration nano_second;
+            builtin_interfaces::msg::Duration nano_second;
+
             std::mutex cfd_mutex_;
             using Lock = const std::lock_guard<std::mutex>;
             
         public:
-          
-            CoordinateFrameHelper(tf2_ros::Buffer& buffer, ros::NodeHandle pnh):
+
+            CoordinateFrameHelper(std::shared_ptr<tf2_ros::Buffer> buffer, rclcpp::Node::SharedPtr node):
                 buffer_(buffer),
-                pnh_(pnh),
-                tf_br_(),
+                node_(node),
+                // tf_br_(),
                 tf_prefix_(""),
-                new_cfd_(false),
-                nano_second(0,1)
+                new_cfd_(false)
+                // nano_second(0,1)
             {
-              
+                tf_br_ = std::make_unique<tf2_ros::TransformBroadcaster>(node_);
+                nano_second.sec = 0;
+                nano_second.nanosec = 1;
             }
             
             bool init()
             {
                 //TODO: use pips::param_utils
-                bool status = pnh_.getParam("fixed_frame_id", fixed_frame_id_);
+                bool status = node_->get_parameter("fixed_frame_id", fixed_frame_id_);
                 
                 CoordinateFrameDefinition cfd;
                 //Is origin_fixed_frame_id even necessary? Seems like egocan_stabilized's origin must always be at the origin of the camera optical frame
-                status &= pnh_.getParam("origin_fixed_frame_id", cfd.origin_fixed_frame_id);
-                status &= pnh_.getParam("orientation_fixed_frame_id", cfd.orientation_fixed_frame_id);
+                status &= node_->get_parameter("origin_fixed_frame_id", cfd.origin_fixed_frame_id);
+                status &= node_->get_parameter("orientation_fixed_frame_id", cfd.orientation_fixed_frame_id);
                 
                 cfd.pose.header.frame_id = cfd.orientation_fixed_frame_id;
                 cfd.pose.pose.orientation.w=1;
                 
-                if(status)
+                if (status)
                 {
-                    ROS_INFO_STREAM("Found all necessary coordinate frame parameters!");
+                    RCLCPP_INFO_STREAM(node_->get_logger(), "Found all necessary coordinate frame parameters!");
                     updateDefinition(cfd);
-                    pose_sub_ = pnh_.subscribe("desired_pose", 2, &CoordinateFrameHelper::desPoseCB, this);
+                    pose_sub_ = node_->create_subscription<geometry_msgs::msg::PoseStamped>("desired_pose", 2, std::bind(&CoordinateFrameHelper::desPoseCB, this, std::placeholders::_1));
                 }
                 else
                 {
-                    ROS_WARN_STREAM("Did not find all necessary coordinate frame parameters! Values are: origin_fixed_frame_id=" << cfd.origin_fixed_frame_id << ", orientation_fixed_frame_id=" << cfd.orientation_fixed_frame_id << ", fixed_frame_id=" << fixed_frame_id_ << ". Defaulting to locking egocan to camera frame.");
+                    RCLCPP_WARN_STREAM(node_->get_logger(), "Did not find all necessary coordinate frame parameters! Values are: origin_fixed_frame_id=" << cfd.origin_fixed_frame_id << ", orientation_fixed_frame_id=" << cfd.orientation_fixed_frame_id << ", fixed_frame_id=" << fixed_frame_id_ << ". Defaulting to locking egocan to camera frame.");
                 }
 
                 return status;
             }
             
-            bool updateTransforms(std_msgs::Header sensor_header)
+            bool updateTransforms(std_msgs::msg::Header sensor_header)
             {
                 Lock lock(cfd_mutex_);
 
-                //TODO: Lock a recursive mutex
+                // RCLCPP_INFO_STREAM(node_->get_logger(), "[updateTransforms] sensor_header: " << sensor_header.frame_id << " at " << sensor_header.stamp.sec << "." << sensor_header.stamp.nanosec);
+
+                //TODO: Lock a recursive mutex?
                 //TODO: possibly only specify orientation fixed frame, since should really be using same origin as the camera regardless
-                if(cfd_.orientation_fixed_frame_id=="" || cfd_.origin_fixed_frame_id=="")
+                if (cfd_.orientation_fixed_frame_id=="" || cfd_.origin_fixed_frame_id=="")
                 {
-                    ROS_WARN_ONCE("[updateTransforms] Frame not specified, using camera frame");//, using camera frame");
+                    RCLCPP_WARN_ONCE(node_->get_logger(), "[updateTransforms] Frame not specified, using camera frame");//, using camera frame");
                     //cfd_.origin_fixed_frame_id = cfd_.origin_fixed_frame_id= sensor_header.frame_id;
                     target_header_ = sensor_header;
                     return true;
                 }
-                else if(cfd_.orientation_fixed_frame_id==cfd_.origin_fixed_frame_id && cfd_.origin_fixed_frame_id==sensor_header.frame_id)
+                else if (cfd_.orientation_fixed_frame_id==cfd_.origin_fixed_frame_id && cfd_.origin_fixed_frame_id==sensor_header.frame_id)
                 {
-                    ROS_WARN_ONCE("[updateTransforms] Desired frames match camera frame, using camera frame");//, using camera frame");
+                    RCLCPP_WARN_ONCE(node_->get_logger(), "[updateTransforms] Desired frames match camera frame, using camera frame");//, using camera frame");
                     //cfd_.origin_fixed_frame_id = cfd_.origin_fixed_frame_id= sensor_header.frame_id;
                     target_header_ = sensor_header;
                     return true;
@@ -133,11 +147,11 @@ namespace egocylindrical
 //                     return;
 //                 }
 
-                ROS_INFO_STREAM("Successfully updated offset definition!");
+                // RCLCPP_INFO_STREAM(node_->get_logger(), "Successfully updated offset definition!");
                 return;
             }
             
-            std_msgs::Header getTargetHeader()
+            std_msgs::msg::Header getTargetHeader()
             {
                 return target_header_;
             }
@@ -159,64 +173,68 @@ namespace egocylindrical
                 return tf_prefix_ + "egocan_camera";
             }
             
-            void desPoseCB(const geometry_msgs::PoseStamped::ConstPtr& pose)
+            void desPoseCB(const geometry_msgs::msg::PoseStamped::ConstSharedPtr& pose)
             {
                 cfd_.pose = *pose;
                 updateDefinition(cfd_);
             }
-                
-            bool updateECSTransform(ros::Time stamp)
-            {            
-                //TODO: Lock a mutex
 
+            bool updateECSTransform(builtin_interfaces::msg::Time stamp)
+            {
+                // RCLCPP_INFO_STREAM(node_->get_logger(), "[updateECSTransform]");
+
+                // TODO: Lock a mutex
               
-//                 if(cfd_.orientation_fixed_frame_id==cfd_.origin_fixed_frame_id)
-//                 {
-//                     ROS_WARN_STREAM("[updateECSTransform] Not publishing redundant transform! " << stamp);
-//                     return true;
-//                 }
+                // if(cfd_.orientation_fixed_frame_id==cfd_.origin_fixed_frame_id)
+                // {
+                //      // RCLCPP_WARN_STREAM(node_->get_logger(), "[updateECSTransform] Not publishing redundant transform! " << stamp);
+                //     return true;
+                // }
 
                 //If we've already computed it, don't do it again
-                if(stamp == ecs_.header.stamp && stamp != ros::Time())
+                if (stamp == ecs_.header.stamp && stamp != node_->get_clock()->now())
                 {
-                    ROS_WARN_STREAM("[updateECSTransform] Not publishing redundant transform! " << stamp);
+                    RCLCPP_WARN_STREAM(node_->get_logger(), "[updateECSTransform] Not publishing redundant transform! " << stamp.sec << "." << stamp.nanosec);
                     return true;
                 }
-                                              
+                 
+                // RCLCPP_INFO_STREAM(node_->get_logger(), "Trying to transform from " << cfd_.origin_fixed_frame_id << " to " << cfd_.orientation_fixed_frame_id << " at " << stamp.sec << "." << stamp.nanosec);
                 try
                 {
-                    ecs_ = buffer_.lookupTransform(cfd_.orientation_fixed_frame_id, stamp, cfd_.origin_fixed_frame_id, stamp, fixed_frame_id_);
-                    
-                    ecs_.transform.rotation = geometry_msgs::Quaternion();
+                    ecs_ = buffer_->lookupTransform(cfd_.orientation_fixed_frame_id, stamp, 
+                                                    cfd_.origin_fixed_frame_id, stamp, fixed_frame_id_);
+
+                    ecs_.transform.rotation = geometry_msgs::msg::Quaternion();
                     ecs_.transform.rotation.w=1;
                     ecs_.child_frame_id = tf_prefix_ + "egocan_stabilized";
                 }
                 catch (tf2::TransformException &ex) 
                 {
-                    ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
+                    RCLCPP_WARN_STREAM(node_->get_logger(), "Problem finding transform:\n" <<ex.what());
                     return false;
                 }
-                
-                ROS_DEBUG_STREAM("[updateECSTransform] Updated transform! " << stamp);
 
-                ecs_.header.stamp += nano_second;
-                buffer_.setTransform(ecs_, "coordinate_frame_helper", false);
-                ecs_.header.stamp -= nano_second;
-                tf_br_.sendTransform(ecs_);
+                // RCLCPP_DEBUG_STREAM(node_->get_logger(), "[updateECSTransform] Updated transform! " << stamp.sec << "." << stamp.nanosec);
+
+                ecs_.header.stamp.nanosec += nano_second.nanosec;
+                buffer_->setTransform(ecs_, "coordinate_frame_helper", false);
+                ecs_.header.stamp.nanosec -= nano_second.nanosec;
+                tf_br_->sendTransform(ecs_);
                 
                 return true;
             }
-            
-            bool updateECCTransform(ros::Time stamp)
-            {
 
-                if(stamp == ecc_.header.stamp && stamp != ros::Time())
+            bool updateECCTransform(builtin_interfaces::msg::Time stamp)
+            {
+                RCLCPP_INFO_STREAM(node_->get_logger(), "[updateECCTransform]");
+
+                if (stamp == ecc_.header.stamp && stamp != builtin_interfaces::msg::Time())
                 {
-                    ROS_WARN_STREAM("[updateECCTransform] Not publishing redundant transform! " << stamp);
+                    RCLCPP_WARN_STREAM(node_->get_logger(), "[updateECCTransform] Not publishing redundant transform! " << stamp.sec << "." << stamp.nanosec);
                     return true;
                 }
                 
-                //geometry_msgs::TransformStamped ecc;
+                //geometry_msgs::msg::TransformStamped ecc;
                 ecc_.header.stamp = stamp;
                 ecc_.header.frame_id = getECFrameId();
                 ecc_.child_frame_id = getECCFrameId();
@@ -226,29 +244,34 @@ namespace egocylindrical
                 q.z=-0.500;
                 q.w=0.500;
 
-                ROS_DEBUG_STREAM("[updateECCTransform] Updated transform! " << stamp);
-                ecc_.header.stamp += nano_second;
-                buffer_.setTransform(ecc_, "coordinate_frame_helper", false);
-                ecc_.header.stamp -= nano_second;
-                tf_br_.sendTransform(ecc_);
-                
+                RCLCPP_INFO_STREAM(node_->get_logger(), "[updateECCTransform] Updated transform! " << stamp.sec << "." << stamp.nanosec);
+
+                ecc_.header.stamp.nanosec += nano_second.nanosec;
+                buffer_->setTransform(ecc_, "coordinate_frame_helper", false);
+                ecc_.header.stamp.nanosec -= nano_second.nanosec;
+                tf_br_->sendTransform(ecc_);
+
                 return true;
             }
-            
-            bool updateOffsetTransform(ros::Time stamp)
+
+            bool updateOffsetTransform(builtin_interfaces::msg::Time stamp)
             {
-                if(new_cfd_)
+                // RCLCPP_INFO_STREAM(node_->get_logger(), "[updateOffsetTransform]");
+
+                if (new_cfd_)
                 {
-                    ROS_INFO_STREAM("[updateOffsetTransform] Have new CoordinateFrameDefinition!");
+                    // RCLCPP_INFO_STREAM(node_->get_logger(), "[updateOffsetTransform] Have new CoordinateFrameDefinition!");
                     
-                    geometry_msgs::PoseStamped des_origin_pose;
+                    geometry_msgs::msg::PoseStamped des_origin_pose;
                     try
                     {
-                        des_origin_pose = buffer_.transform(cfd_.pose, getECSFrameId(), stamp, fixed_frame_id_);
+                        rclcpp::Time rosTime = rclcpp::Time(stamp);
+                        auto trans = buffer_->lookupTransform(getECSFrameId(), fixed_frame_id_, rosTime); // cfd_.pose,
+                        tf2::doTransform(cfd_.pose, des_origin_pose, trans);
                     }
                     catch (tf2::TransformException &ex) 
                     {
-                        ROS_WARN_STREAM("Problem finding transform:\n" <<ex.what());
+                        RCLCPP_WARN_STREAM(node_->get_logger(), "Problem finding transform:\n" <<ex.what());
                         return false;
                     }
                     
@@ -262,9 +285,9 @@ namespace egocylindrical
                         t.z = pt.z;
                         
                         // For now, this likely represents an error
-                        if(t.x != 0 || t.y != 0 || t.z != 0)
+                        if (t.x != 0 || t.y != 0 || t.z != 0)
                         {
-                            ROS_WARN_STREAM_NAMED("update_offset_transform", "The specified offset has a non-zero translational component, are you sure you want to do this?");
+                            RCLCPP_WARN_STREAM(node_->get_logger(), "[update_offset_transform] The specified offset has a non-zero translational component, are you sure you want to do this?");
                         }
                     }
                     
@@ -274,26 +297,26 @@ namespace egocylindrical
                     offset_transform_.header.frame_id =  getECSFrameId();
                     offset_transform_.header.stamp = des_origin_pose.header.stamp;
                     offset_transform_.child_frame_id = getECFrameId();
-                    ROS_INFO_STREAM("Successfully processed new offset definition!");
+                    // RCLCPP_INFO_STREAM(node_->get_logger(), "Successfully processed new offset definition!");
 
                     new_cfd_ = false;
                 }
                 else
                 {                    
-                    if(stamp == offset_transform_.header.stamp && stamp != ros::Time())
+                    if (stamp == offset_transform_.header.stamp && stamp != builtin_interfaces::msg::Time())
                     {
-                        ROS_WARN_STREAM("[updateOffsetTransform] Not publishing redundant transform! " << stamp);
+                        RCLCPP_WARN_STREAM(node_->get_logger(), "[updateOffsetTransform] Not publishing redundant transform! " << stamp.sec << "." << stamp.nanosec);
                         return true;
                     }
                     offset_transform_.header.stamp = stamp;
                 }
 
-                ROS_DEBUG_STREAM("[updateOffsetTransform] Updated transform! " << stamp);
-                offset_transform_.header.stamp += nano_second;
-                buffer_.setTransform(offset_transform_, "coordinate_frame_helper", false);
-                offset_transform_.header.stamp -= nano_second;
-                tf_br_.sendTransform(offset_transform_);
-                
+                RCLCPP_DEBUG_STREAM(node_->get_logger(), "[updateOffsetTransform] Updated transform! " << stamp.sec << "." << stamp.nanosec);
+                offset_transform_.header.stamp.nanosec += nano_second.nanosec;
+                buffer_->setTransform(offset_transform_, "coordinate_frame_helper", false);
+                offset_transform_.header.stamp.nanosec -= nano_second.nanosec;
+                tf_br_->sendTransform(offset_transform_);
+
                 return true;
             }
           
