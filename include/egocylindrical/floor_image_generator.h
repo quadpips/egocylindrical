@@ -29,12 +29,11 @@ namespace egocylindrical
 
     class EgoCylinderFloorImageGenerator
     {
-        // ros::NodeHandle nh_, pnh_;
         rclcpp::Node::SharedPtr node_;
 
         image_transport::ImageTransport it_;
-        image_transport::Publisher floor_im_pub_, labels_im_pub_, labels_colored_im_pub_, normals_im_pub_, normals_colored_im_pub_;
-        // ros::Subscriber ec_sub_;
+        image_transport::Publisher floor_im_pub_, normals_im_pub_, normals_colored_im_pub_;
+
         rclcpp::Subscription<egocylindrical_msgs::msg::EgoCylinderPoints>::SharedPtr ec_sub_;
         bool use_raw_;
 
@@ -47,14 +46,7 @@ namespace egocylindrical
         //Mutex config_mutex_;
         int num_threads_ = 1;
         
-        sensor_msgs::msg::Image::SharedPtr preallocated_can_msg_, preallocated_labels_msg_, preallocated_labels_colored_msg_, preallocated_normals_msg_, preallocated_normals_colored_msgs_;
-        
-        std::chrono::steady_clock::time_point totalBegin;
-        std::chrono::steady_clock::time_point totalEnd;
-        float totalTimeTaken = 0.0f;
-        int numberOfTotalCalls = 0;
-
-        std::chrono::steady_clock::time_point initStartTime;
+        sensor_msgs::msg::Image::SharedPtr preallocated_can_msg_, preallocated_labels_msg_, preallocated_normals_msg_, preallocated_normals_colored_msgs_;
 
         // typedef egocylindrical::FloorImageGeneratorConfig ConfigType;
         // ConfigType config_;
@@ -65,8 +57,6 @@ namespace egocylindrical
         EgoCylinderFloorImageGenerator(rclcpp::Node::SharedPtr node);
         
         bool init();
-
-        void log();
         
         // void configCB(const ConfigType &config, uint32_t level);
         
